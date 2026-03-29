@@ -8,7 +8,7 @@ const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-
 export default function ManagerDashboard() {
   const [patients, setPatients] = useState([])
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '' })
+  const [form, setForm] = useState({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '', hmo_name: '', hmo_level: '' })
   const [loading, setLoading] = useState(true)
   const [showImportSal, setShowImportSal] = useState(false)
   const [importIdNumber, setImportIdNumber] = useState('')
@@ -41,7 +41,7 @@ export default function ManagerDashboard() {
     try {
       await axios.post('/api/patients', form)
       setShowForm(false)
-      setForm({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '' })
+      setForm({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '', hmo_name: '', hmo_level: '' })
       fetchPatients()
     } catch (e) { console.error(e) }
   }
@@ -145,6 +145,26 @@ export default function ManagerDashboard() {
                     <textarea className="input" rows={3} value={form.diagnosis_details} onChange={e => setForm({...form, diagnosis_details: e.target.value})} />
                   </div>
                 )}
+                <div>
+                  <label className="label">קופת חולים</label>
+                  <select className="input" value={form.hmo_name} onChange={e => setForm({...form, hmo_name: e.target.value, hmo_level: ''})}>
+                    <option value="">— בחר קופה —</option>
+                    <option value="clalit">כללית</option>
+                    <option value="maccabi">מכבי</option>
+                    <option value="meuhedet">מאוחדת</option>
+                    <option value="leumit">לאומית</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">ביטוח משלים</label>
+                  <select className="input" value={form.hmo_level} onChange={e => setForm({...form, hmo_level: e.target.value})} disabled={!form.hmo_name}>
+                    <option value="">— בחר רמה —</option>
+                    <option value="basic">בסיסי</option>
+                    <option value="mushlam">משלים</option>
+                    <option value="premium">פרמיום</option>
+                    <option value="zahav">זהב</option>
+                  </select>
+                </div>
                 <div className="col-span-2">
                   <label className="label">הערות</label>
                   <textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
