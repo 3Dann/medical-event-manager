@@ -171,6 +171,19 @@ def add_coverage(patient_id: int, source_id: int, data: CoverageCreate, db: Sess
     return coverage_to_dict(coverage)
 
 
+@router.delete("/{source_id}/coverage/{coverage_id}")
+def delete_coverage(patient_id: int, source_id: int, coverage_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    cov = db.query(models.Coverage).filter(
+        models.Coverage.id == coverage_id,
+        models.Coverage.insurance_source_id == source_id,
+    ).first()
+    if not cov:
+        raise HTTPException(status_code=404, detail="Coverage not found")
+    db.delete(cov)
+    db.commit()
+    return {"message": "deleted"}
+
+
 # ── Excel upload for הר הביטוח ────────────────────────────
 
 def _find_col(row_dict, *keys):

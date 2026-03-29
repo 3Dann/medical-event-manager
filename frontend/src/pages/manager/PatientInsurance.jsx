@@ -298,69 +298,121 @@ export default function PatientInsurance() {
   )
 
   // ── Editable coverage table for existing source ───────────────────────
-  const EditableCoverageTable = ({ source }) => (
-    <div className="overflow-x-auto mt-3">
-      <table className="w-full text-sm border-collapse">
-        <thead>
-          <tr className="bg-slate-100">
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200 w-36">קטגוריה</th>
-            <th className="text-center p-2 font-medium text-slate-600 border border-slate-200 w-16">מכוסה</th>
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">סכום (₪)</th>
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">אחוז (%)</th>
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">השת"ע (₪)</th>
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">תקרה (₪)</th>
-            <th className="text-right p-2 font-medium text-slate-600 border border-slate-200 w-40">תנאים</th>
-            <th className="text-center p-2 font-medium text-slate-600 border border-slate-200 w-14">חו"ל</th>
-          </tr>
-        </thead>
-        <tbody>
-          {CATEGORIES.map(cat => {
-            const cov = source.coverages.find(c=>c.category===cat.key) || {}
-            const covered = !!cov.is_covered
-            return (
-              <tr key={cat.key} className={`${covered ? 'bg-green-50' : 'bg-white'}`}>
-                <td className="p-2 border border-slate-200 font-medium text-slate-700 text-xs" title={`${cat.label} — ${cat.desc}`}>
-                  {cat.label}
-                  <div className="text-slate-400 font-normal">{cat.desc}</div>
-                </td>
-                <td className="p-2 border border-slate-200 text-center">
-                  <input type="checkbox" checked={covered}
-                    onChange={e => handleEditCoverage(source.id, cat.key, 'is_covered', e.target.checked)}
-                    className="w-4 h-4 accent-green-600" />
-                </td>
-                {[
-                  ['coverage_amount', cov.coverage_amount],
-                  ['coverage_percentage', cov.coverage_percentage],
-                  ['copay', cov.copay],
-                  ['annual_limit', cov.annual_limit],
-                ].map(([field, val]) => (
-                  <td key={field} className="p-1 border border-slate-200" title={val != null ? String(val) : ''}>
-                    <input type="number" disabled={!covered}
-                      className="w-full text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-300 rounded px-1 py-0.5 disabled:opacity-30"
-                      defaultValue={val||''}
-                      onBlur={e => covered && handleEditCoverage(source.id, cat.key, field, e.target.value ? parseFloat(e.target.value) : null)} />
-                  </td>
-                ))}
-                <td className="p-1 border border-slate-200 max-w-[160px]" title={cov.conditions || ''}>
-                  <input disabled={!covered}
-                    className="w-full text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-300 rounded px-1 py-0.5 disabled:opacity-30"
-                    defaultValue={cov.conditions||''}
-                    title={cov.conditions || ''}
-                    onBlur={e => covered && handleEditCoverage(source.id, cat.key, 'conditions', e.target.value)} />
-                </td>
-                <td className="p-2 border border-slate-200 text-center">
-                  <input type="checkbox" checked={!!cov.abroad_covered} disabled={!covered}
-                    onChange={e => handleEditCoverage(source.id, cat.key, 'abroad_covered', e.target.checked)}
-                    className="w-4 h-4 accent-blue-600 disabled:opacity-30" />
+  const EditableCoverageTable = ({ source }) => {
+    const [newCatLabel, setNewCatLabel] = React.useState('')
+    const [showAddRow, setShowAddRow]   = React.useState(false)
+
+    const handleDeleteCoverage = async (covId) => {
+      await axios.delete(`/api/patients/${id}/insurance/${source.id}/coverage/${covId}`)
+      fetchAll()
+    }
+
+    const handleAddCustom = async () => {
+      if (!newCatLabel.trim()) return
+      const catKey = `custom_${Date.now()}`
+      await axios.post(`/api/patients/${id}/insurance/${source.id}/coverage`, {
+        category: newCatLabel.trim(), is_covered: true, abroad_covered: false,
+      })
+      setNewCatLabel(''); setShowAddRow(false); fetchAll()
+    }
+
+    // All rows: standard categories + any custom coverages not in CATEGORIES
+    const standardKeys = CATEGORIES.map(c => c.key)
+    const customCovs = source.coverages.filter(c => !standardKeys.includes(c.category))
+
+    const CovRow = ({ catLabel, catDesc, cov }) => {
+      const covered = !!cov.is_covered
+      return (
+        <tr className={`${covered ? 'bg-green-50' : 'bg-white'} group`}>
+          <td className="p-2 border border-slate-200 font-medium text-slate-700 text-xs" title={catDesc || catLabel}>
+            {catLabel}
+            {catDesc && <div className="text-slate-400 font-normal">{catDesc}</div>}
+          </td>
+          <td className="p-2 border border-slate-200 text-center">
+            <input type="checkbox" checked={covered}
+              onChange={e => handleEditCoverage(source.id, cov.category, 'is_covered', e.target.checked)}
+              className="w-4 h-4 accent-green-600" />
+          </td>
+          {[['coverage_amount', cov.coverage_amount], ['coverage_percentage', cov.coverage_percentage],
+            ['copay', cov.copay], ['annual_limit', cov.annual_limit]].map(([field, val]) => (
+            <td key={field} className="p-1 border border-slate-200" title={val != null ? String(val) : ''}>
+              <input type="number" disabled={!covered}
+                className="w-full text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-300 rounded px-1 py-0.5 disabled:opacity-30"
+                defaultValue={val||''}
+                onBlur={e => covered && handleEditCoverage(source.id, cov.category, field, e.target.value ? parseFloat(e.target.value) : null)} />
+            </td>
+          ))}
+          <td className="p-1 border border-slate-200 max-w-[160px]" title={cov.conditions || ''}>
+            <input disabled={!covered}
+              className="w-full text-xs border-0 bg-transparent focus:outline-none focus:ring-1 focus:ring-blue-300 rounded px-1 py-0.5 disabled:opacity-30"
+              defaultValue={cov.conditions||''} title={cov.conditions || ''}
+              onBlur={e => covered && handleEditCoverage(source.id, cov.category, 'conditions', e.target.value)} />
+          </td>
+          <td className="p-2 border border-slate-200 text-center">
+            <input type="checkbox" checked={!!cov.abroad_covered} disabled={!covered}
+              onChange={e => handleEditCoverage(source.id, cov.category, 'abroad_covered', e.target.checked)}
+              className="w-4 h-4 accent-blue-600 disabled:opacity-30" />
+          </td>
+          <td className="p-1 border border-slate-200 text-center w-7">
+            {cov.id && (
+              <button onClick={() => handleDeleteCoverage(cov.id)}
+                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 text-xs transition-opacity"
+                title="מחק כיסוי">✕</button>
+            )}
+          </td>
+        </tr>
+      )
+    }
+
+    return (
+      <div className="overflow-x-auto mt-3">
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-slate-100">
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200 w-36">קטגוריה</th>
+              <th className="text-center p-2 font-medium text-slate-600 border border-slate-200 w-16">מכוסה</th>
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">סכום (₪)</th>
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">אחוז (%)</th>
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">השת"ע (₪)</th>
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200">תקרה (₪)</th>
+              <th className="text-right p-2 font-medium text-slate-600 border border-slate-200 w-40">תנאים</th>
+              <th className="text-center p-2 font-medium text-slate-600 border border-slate-200 w-14">חו"ל</th>
+              <th className="w-7 border border-slate-200"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {CATEGORIES.map(cat => {
+              const cov = source.coverages.find(c => c.category === cat.key) || { category: cat.key, is_covered: false }
+              return <CovRow key={cat.key} catLabel={cat.label} catDesc={cat.desc} cov={cov} />
+            })}
+            {customCovs.map(cov => (
+              <CovRow key={cov.id} catLabel={cov.category} cov={cov} />
+            ))}
+            {showAddRow && (
+              <tr className="bg-blue-50">
+                <td className="p-2 border border-slate-200" colSpan={9}>
+                  <div className="flex items-center gap-2">
+                    <input autoFocus className="input text-xs flex-1 py-1"
+                      placeholder="שם סוג הכיסוי (לדוג׳: כיסוי נסיעות לחו״ל)"
+                      value={newCatLabel} onChange={e => setNewCatLabel(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') handleAddCustom(); if (e.key === 'Escape') { setShowAddRow(false); setNewCatLabel('') } }} />
+                    <button onClick={handleAddCustom} className="btn-primary text-xs py-1 px-3">הוסף</button>
+                    <button onClick={() => { setShowAddRow(false); setNewCatLabel('') }} className="btn-secondary text-xs py-1 px-2">ביטול</button>
+                  </div>
                 </td>
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <p className="text-xs text-slate-400 mt-1">שינויים נשמרים אוטומטית עם יציאה מהשדה</p>
-    </div>
-  )
+            )}
+          </tbody>
+        </table>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-xs text-slate-400">שינויים נשמרים אוטומטית עם יציאה מהשדה</p>
+          <button onClick={() => setShowAddRow(true)} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            + הוסף סוג כיסוי
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // ── הר הביטוח guide modal ────────────────────────────────────────────
   const HarBituaGuide = () => (
