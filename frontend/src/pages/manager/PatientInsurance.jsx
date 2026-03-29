@@ -320,60 +320,70 @@ export default function PatientInsurance() {
 
   // ── הר הביטוח guide modal ────────────────────────────────────────────
   const HarBituaGuide = () => (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg" dir="rtl">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl my-4" dir="rtl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-lg">📊</div>
             <div>
-              <h3 className="font-bold text-slate-800">ייצוא מהר הביטוח</h3>
-              <p className="text-xs text-slate-500">הוראות שלב אחר שלב</p>
+              <h3 className="font-bold text-slate-800">ייבוא נתונים מהר הביטוח</h3>
+              <p className="text-xs text-slate-500">הוראות מפורטות להורדה והעלאה</p>
             </div>
           </div>
           <button onClick={() => setShowHarGuide(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
         </div>
 
-        {/* Steps */}
+        {/* Section A: Download */}
         <div className="p-5 space-y-3">
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">שלב א׳ — הורדת הקובץ מהר הביטוח</p>
+
           {[
-            { n:1, icon:'🌐', title:'כניסה לאתר', text:'פתח את אתר הר הביטוח', action: () => window.open('https://www.hrb.gov.il', '_blank'), actionLabel:'פתח אתר הר הביטוח' },
-            { n:2, icon:'🔐', title:'כניסה לאזור אישי', text:'לחץ "כניסה לאזור האישי" → הזן מספר ת.ז. ומספר טלפון' },
-            { n:3, icon:'📱', title:'אימות OTP', text:'הזן את הקוד בן 6 הספרות שיישלח ל-SMS שלך' },
-            { n:4, icon:'📋', title:'רשימת הפוליסות', text:'בתפריט הראשי בחר "הפוליסות שלי" — תראה את כל הפוליסות הפעילות' },
-            { n:5, icon:'⬇️', title:'ייצוא לאקסל', text:'לחץ על הכפתור "ייצוא לאקסל" / "Export to Excel" בפינה העליונה' },
-            { n:6, icon:'📤', title:'העלאה למערכת', text:'חזור לכאן ולחץ "בחר קובץ" להעלאת קובץ ה-Excel', isUpload: true },
+            { n:1, icon:'🌐', title:'כניסה לאתר', detail: 'בדפדפן שלך הקלד: www.hrb.gov.il — זהו האתר הרשמי של מאגר הביטוח הלאומי.' },
+            { n:2, icon:'🔐', title:'כניסה לאזור האישי', detail: 'לחץ על הכפתור "כניסה לאזור האישי" בפינה הימנית עליונה של האתר. הזן את מספר תעודת הזהות של המטופל ומספר הטלפון הנייד הרשום.' },
+            { n:3, icon:'📱', title:'קבלת קוד אימות (OTP)', detail: 'תוך שניות ישלח SMS עם קוד בן 6 ספרות לטלפון הנייד. הזן את הקוד בשדה המיועד ולחץ "אישור".' },
+            { n:4, icon:'📋', title:'צפייה ברשימת הפוליסות', detail: 'לאחר הכניסה תוצג רשימה מלאה של כל הפוליסות הפעילות — ביטוח בריאות, חיים, סיעוד, תאונות אישיות, אובדן כושר עבודה ועוד.' },
+            { n:5, icon:'⬇️', title:'ייצוא לאקסל', detail: 'מעל לרשימת הפוליסות חפש את הכפתור "ייצוא לאקסל" או סמל ⬇️. לחץ עליו — הקובץ יורד אוטומטית למחשב שלך (בדרך כלל לתיקיית "הורדות").' },
           ].map(step => (
-            <div key={step.n} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50">
-              <div className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                {step.n}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-base leading-none">{step.icon}</span>
+            <div key={step.n} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+              <div className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{step.n}</div>
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span>{step.icon}</span>
                   <span className="font-semibold text-sm text-slate-800">{step.title}</span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">{step.text}</p>
-                {step.action && (
-                  <button onClick={step.action} className="mt-1.5 text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-100 font-medium">
-                    {step.actionLabel} →
-                  </button>
-                )}
-                {step.isUpload && (
-                  <label className="mt-1.5 inline-block text-xs bg-green-50 text-green-700 px-3 py-1 rounded-lg hover:bg-green-100 font-medium cursor-pointer">
-                    בחר קובץ Excel →
-                    <input type="file" accept=".xlsx,.xls" className="hidden"
-                      onChange={e => { setShowHarGuide(false); handleUploadExcel(e) }} />
-                  </label>
-                )}
+                <p className="text-xs text-slate-600 leading-relaxed">{step.detail}</p>
               </div>
             </div>
           ))}
-        </div>
 
-        <div className="px-5 pb-5">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
-            💡 הר הביטוח מאגד את כל הפוליסות של המטופל — ביטוח חיים, בריאות, סיעוד, תאונות אישיות ועוד. הייצוא כולל שם חברה, מספר פוליסה וסוג הביטוח.
+          {/* Section B: Upload */}
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide pt-2">שלב ב׳ — העלאה למערכת</p>
+
+          <div className="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
+            <div className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span>📤</span>
+                <span className="font-semibold text-sm text-slate-800">העלאת הקובץ למערכת</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                לאחר שהקובץ הורד למחשב — לחץ על הכפתור הירוק למטה, אתר את הקובץ בתיקיית "הורדות" ובחר אותו. המערכת תנתח אוטומטית את הפוליסות ותוסיף אותן לתיק.
+              </p>
+              <label className="inline-flex items-center gap-2 bg-green-600 text-white text-sm px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                בחר קובץ Excel מהר הביטוח
+                <input type="file" accept=".xlsx,.xls" className="hidden"
+                  onChange={e => { setShowHarGuide(false); handleUploadExcel(e) }} />
+              </label>
+            </div>
+          </div>
+
+          {/* Format tip */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 leading-relaxed">
+            <span className="font-semibold">מה מכיל הקובץ?</span> שם חברת הביטוח, מספר פוליסה, סוג הביטוח (בריאות / חיים / סיעוד / נכות), תאריך תחילה ותאריך סיום. המערכת מזהה את העמודות אוטומטית ויוצרת רשומה נפרדת לכל פוליסה.
           </div>
         </div>
       </div>
