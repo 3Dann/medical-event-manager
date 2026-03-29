@@ -5,6 +5,7 @@ from typing import Optional, List
 from database import get_db
 import models
 import auth as auth_utils
+from data.seed_data import HMO_COVERAGES
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
@@ -86,10 +87,50 @@ def list_patients(db: Session = Depends(get_db), current_user: models.User = Dep
     return [patient_to_dict(p) for p in patients]
 
 
+def _import_hmo_level(db, patient_id, hmo_name, level):
+    """Import a single HMO level if not already present. Returns True if imported."""
+    already = db.query(models.InsuranceSource).filter(
+        models.InsuranceSource.patient_id == patient_id,
+        models.InsuranceSource.source_type == "kupat_holim",
+        models.InsuranceSource.hmo_name == hmo_name,
+        models.InsuranceSource.hmo_level == level,
+    ).first()
+    if already:
+        return False
+    source = models.InsuranceSource(
+        patient_id=patient_id, source_type="kupat_holim",
+        hmo_name=hmo_name, hmo_level=level, notes="יובא אוטומטית",
+    )
+    db.add(source)
+    db.flush()
+    for category, cov in HMO_COVERAGES[level].items():
+        db.add(models.Coverage(
+            insurance_source_id=source.id, category=category,
+            is_covered=cov.get("is_covered", False),
+            coverage_percentage=cov.get("coverage_percentage"),
+            coverage_amount=cov.get("coverage_amount"),
+            copay=cov.get("copay"), annual_limit=cov.get("annual_limit"),
+            conditions=cov.get("conditions"),
+            abroad_covered=cov.get("abroad_covered", False),
+            notes=cov.get("notes"),
+        ))
+    return True
+
+
+def _auto_import_hmo(db, patient_id, hmo_name, hmo_level):
+    """Auto-import basic + supplemental levels (skips existing)."""
+    _import_hmo_level(db, patient_id, hmo_name, "basic")
+    if hmo_level and hmo_level != "basic" and hmo_level in HMO_COVERAGES:
+        _import_hmo_level(db, patient_id, hmo_name, hmo_level)
+
+
 @router.post("")
 def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     patient = models.Patient(**data.model_dump(), manager_id=current_user.id)
     db.add(patient)
+    db.flush()
+    if patient.hmo_name:
+        _auto_import_hmo(db, patient.id, patient.hmo_name, patient.hmo_level)
     db.commit()
     db.refresh(patient)
     return patient_to_dict(patient)
@@ -112,8 +153,13 @@ def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(g
     patient = db.query(models.Patient).filter(models.Patient.id == patient_id, models.Patient.manager_id == current_user.id).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
+    old_hmo = patient.hmo_name
+    old_level = patient.hmo_level
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(patient, field, value)
+    # Auto-import if HMO was just set or changed
+    if patient.hmo_name and (patient.hmo_name != old_hmo or patient.hmo_level != old_level):
+        _auto_import_hmo(db, patient_id, patient.hmo_name, patient.hmo_level)
     db.commit()
     db.refresh(patient)
     return patient_to_dict(patient)
