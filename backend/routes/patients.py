@@ -6,6 +6,7 @@ from database import get_db
 import models
 import auth as auth_utils
 from data.seed_data import HMO_COVERAGES
+from data.hmo_plans_data import HMO_PLANS, get_plan_coverages, get_plan_label
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
@@ -76,6 +77,15 @@ def node_to_dict(n):
     }
 
 
+# ── HMO plans lookup ──────────────────────────────────────
+
+@router.get("/hmo-plans/{hmo_name}")
+def get_hmo_plans(hmo_name: str):
+    from data.hmo_plans_data import HMO_PLANS
+    plans = HMO_PLANS.get(hmo_name, {})
+    return [{"key": k, "label": v["label"]} for k, v in plans.items()]
+
+
 # ── Patients ──────────────────────────────────────────────
 
 @router.get("")
@@ -87,23 +97,24 @@ def list_patients(db: Session = Depends(get_db), current_user: models.User = Dep
     return [patient_to_dict(p) for p in patients]
 
 
-def _import_hmo_level(db, patient_id, hmo_name, level):
-    """Import a single HMO level if not already present. Returns True if imported."""
+def _import_hmo_plan(db, patient_id, hmo_name, plan_key, plan_label, coverages):
+    """Import a single HMO plan if not already present."""
     already = db.query(models.InsuranceSource).filter(
         models.InsuranceSource.patient_id == patient_id,
         models.InsuranceSource.source_type == "kupat_holim",
         models.InsuranceSource.hmo_name == hmo_name,
-        models.InsuranceSource.hmo_level == level,
+        models.InsuranceSource.hmo_level == plan_key,
     ).first()
     if already:
         return False
     source = models.InsuranceSource(
         patient_id=patient_id, source_type="kupat_holim",
-        hmo_name=hmo_name, hmo_level=level, notes="יובא אוטומטית",
+        hmo_name=hmo_name, hmo_level=plan_key,
+        notes=f"יובא אוטומטית — {plan_label}",
     )
     db.add(source)
     db.flush()
-    for category, cov in HMO_COVERAGES[level].items():
+    for category, cov in coverages.items():
         db.add(models.Coverage(
             insurance_source_id=source.id, category=category,
             is_covered=cov.get("is_covered", False),
@@ -117,11 +128,19 @@ def _import_hmo_level(db, patient_id, hmo_name, level):
     return True
 
 
-def _auto_import_hmo(db, patient_id, hmo_name, hmo_level):
-    """Auto-import basic + supplemental levels (skips existing)."""
-    _import_hmo_level(db, patient_id, hmo_name, "basic")
-    if hmo_level and hmo_level != "basic" and hmo_level in HMO_COVERAGES:
-        _import_hmo_level(db, patient_id, hmo_name, hmo_level)
+def _auto_import_hmo(db, patient_id, hmo_name, plan_key):
+    """Auto-import the selected HMO plan (skips if already exists)."""
+    if not hmo_name or hmo_name not in HMO_PLANS:
+        return
+    plans = HMO_PLANS[hmo_name]
+    if plan_key and plan_key in plans:
+        plan = plans[plan_key]
+        _import_hmo_plan(db, patient_id, hmo_name, plan_key, plan["label"], plan["coverages"])
+    elif plans:
+        # Fallback: import first available plan
+        first_key = next(iter(plans))
+        plan = plans[first_key]
+        _import_hmo_plan(db, patient_id, hmo_name, first_key, plan["label"], plan["coverages"])
 
 
 @router.post("")

@@ -10,6 +10,7 @@ export default function ManagerDashboard() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '', hmo_name: '', hmo_level: '' })
   const [loading, setLoading] = useState(true)
+  const [hmoPlans, setHmoPlans] = useState([])
   const [showImportSal, setShowImportSal] = useState(false)
   const [importIdNumber, setImportIdNumber] = useState('')
   const [importResult, setImportResult] = useState(null)
@@ -147,7 +148,14 @@ export default function ManagerDashboard() {
                 )}
                 <div>
                   <label className="label">קופת חולים</label>
-                  <select className="input" value={form.hmo_name} onChange={e => setForm({...form, hmo_name: e.target.value, hmo_level: ''})}>
+                  <select className="input" value={form.hmo_name} onChange={async e => {
+                    const hmo = e.target.value
+                    setForm({...form, hmo_name: hmo, hmo_level: ''})
+                    if (hmo) {
+                      const res = await axios.get(`/api/patients/hmo-plans/${hmo}`)
+                      setHmoPlans(res.data)
+                    } else { setHmoPlans([]) }
+                  }}>
                     <option value="">— בחר קופה —</option>
                     <option value="clalit">כללית</option>
                     <option value="maccabi">מכבי</option>
@@ -158,11 +166,8 @@ export default function ManagerDashboard() {
                 <div>
                   <label className="label">ביטוח משלים</label>
                   <select className="input" value={form.hmo_level} onChange={e => setForm({...form, hmo_level: e.target.value})} disabled={!form.hmo_name}>
-                    <option value="">— בחר רמה —</option>
-                    <option value="basic">בסיסי</option>
-                    <option value="mushlam">משלים</option>
-                    <option value="premium">פרמיום</option>
-                    <option value="zahav">זהב</option>
+                    <option value="">— בחר תוכנית —</option>
+                    {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
                   </select>
                 </div>
                 <div className="col-span-2">

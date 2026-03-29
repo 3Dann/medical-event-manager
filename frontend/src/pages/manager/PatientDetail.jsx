@@ -21,6 +21,7 @@ export default function PatientDetail() {
   const [nodes, setNodes] = useState([])
   const [editing, setEditing] = useState(false)
   const [editForm, setEditForm] = useState({})
+  const [hmoPlans, setHmoPlans] = useState([])
   const [showNodeForm, setShowNodeForm] = useState(false)
   const [nodeForm, setNodeForm] = useState({ node_type: 'medical', description: '', planned_date: '', status: 'future', notes: '' })
 
@@ -34,6 +35,10 @@ export default function PatientDetail() {
     setPatient(p.data)
     setEditForm(p.data)
     setNodes(n.data)
+    if (p.data.hmo_name) {
+      const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`)
+      setHmoPlans(plans.data)
+    }
   }
 
   const handleSavePatient = async () => {
@@ -112,7 +117,14 @@ export default function PatientDetail() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">קופת חולים</label>
-                  <select className="input" value={editForm.hmo_name || ''} onChange={e => setEditForm({...editForm, hmo_name: e.target.value})}>
+                  <select className="input" value={editForm.hmo_name || ''} onChange={async e => {
+                    const hmo = e.target.value
+                    setEditForm({...editForm, hmo_name: hmo, hmo_level: ''})
+                    if (hmo) {
+                      const res = await axios.get(`/api/patients/hmo-plans/${hmo}`)
+                      setHmoPlans(res.data)
+                    } else { setHmoPlans([]) }
+                  }}>
                     <option value="">— לא מוגדר —</option>
                     <option value="clalit">כללית</option>
                     <option value="maccabi">מכבי</option>
@@ -123,11 +135,8 @@ export default function PatientDetail() {
                 <div>
                   <label className="label">ביטוח משלים</label>
                   <select className="input" value={editForm.hmo_level || ''} onChange={e => setEditForm({...editForm, hmo_level: e.target.value})} disabled={!editForm.hmo_name}>
-                    <option value="">— לא מוגדר —</option>
-                    <option value="basic">בסיסי</option>
-                    <option value="mushlam">משלים</option>
-                    <option value="premium">פרמיום</option>
-                    <option value="zahav">זהב</option>
+                    <option value="">— בחר תוכנית —</option>
+                    {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
                   </select>
                 </div>
               </div>
@@ -143,7 +152,7 @@ export default function PatientDetail() {
                   <dt className="text-slate-500">קופת חולים</dt>
                   <dd className="font-medium">
                     {{ clalit:'כללית', maccabi:'מכבי', meuhedet:'מאוחדת', leumit:'לאומית' }[patient.hmo_name]}
-                    {patient.hmo_level && <span className="text-slate-500 font-normal mr-1">— {{ basic:'בסיסי', mushlam:'משלים', premium:'פרמיום', zahav:'זהב' }[patient.hmo_level]}</span>}
+                    {patient.hmo_level && <span className="text-slate-500 font-normal mr-1">— {hmoPlans.find(p => p.key === patient.hmo_level)?.label || patient.hmo_level}</span>}
                   </dd>
                 </div>
               )}
