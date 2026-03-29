@@ -4,6 +4,7 @@ from database import engine, SessionLocal
 import models
 from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data
 from data.seed_data import RESPONSIVENESS_DEFAULTS
+import sqlalchemy
 
 app = FastAPI(title="Medical Event Manager API", version="1.0.0")
 
@@ -17,6 +18,22 @@ app.add_middleware(
 
 # Create tables
 models.Base.metadata.create_all(bind=engine)
+
+# SQLite column migrations — add missing columns without losing data
+def run_migrations():
+    migrations = [
+        ("patients", "hmo_name",  "VARCHAR"),
+        ("patients", "hmo_level", "VARCHAR"),
+    ]
+    with engine.connect() as conn:
+        for table, col, col_type in migrations:
+            try:
+                conn.execute(sqlalchemy.text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+                conn.commit()
+            except Exception:
+                pass  # column already exists
+
+run_migrations()
 
 # Seed default responsiveness scores
 def seed_responsiveness():
