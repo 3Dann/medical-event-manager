@@ -20,6 +20,12 @@ const HMO_NAMES  = { clalit:'כללית', maccabi:'מכבי', meuhedet:'מאוח
 const HMO_LEVELS = { basic:'בסיס', mushlam:'משלים', premium:'פרמיום', zahav:'זהב' }
 const ENTITLEMENT_TYPES = { existing:'קיימת', potential:'פוטנציאלית', projected:'צפויה (שנה הקרובה)' }
 
+const PRIVATE_COMPANIES = [
+  'הראל', 'מגדל', 'כלל ביטוח', 'הפניקס', 'מנורה מבטחים',
+  'איילון', 'שירביט', 'הכשרה', 'ביטוח ישיר', 'AIG ישראל',
+  'Allianz ישראל', 'מיטב', 'פסגות', 'אריה',
+]
+
 const emptyCoverages = () => Object.fromEntries(
   CATEGORIES.map(c => [c.key, { is_covered:false, coverage_amount:'', coverage_percentage:'', copay:'', annual_limit:'', conditions:'', abroad_covered:false, notes:'' }])
 )
@@ -51,6 +57,7 @@ export default function PatientInsurance() {
   const [hmoResult, setHmoResult]           = useState(null)
   const [uploadingPrivate, setUploadingPrivate] = useState(false)
   const [privateUploadResult, setPrivateUploadResult] = useState(null)
+  const [customCompany, setCustomCompany] = useState(false)
 
   const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
   const [coverages, setCoverages] = useState(emptyCoverages())
@@ -92,7 +99,7 @@ export default function PatientInsurance() {
         notes:          cov.notes      || null,
       })
     }
-    setShowForm(false); setCoverages(emptyCoverages()); fetchAll()
+    setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll()
   }
 
   const handleEditCoverage = async (sourceId, category, field, value) => {
@@ -558,7 +565,29 @@ export default function PatientInsurance() {
                     </div>
                   </>)}
                   {(form.source_type==='private'||form.source_type==='har_habitua') && (<>
-                    <div><label className="label">חברת ביטוח</label><input className="input" value={form.company_name} onChange={e => setForm({...form, company_name: e.target.value})} /></div>
+                    <div>
+                      <label className="label">חברת ביטוח</label>
+                      {!customCompany ? (
+                        <div className="flex gap-2">
+                          <select className="input flex-1" value={form.company_name}
+                            onChange={e => {
+                              if (e.target.value === '__other__') { setCustomCompany(true); setForm({...form, company_name: ''}) }
+                              else setForm({...form, company_name: e.target.value})
+                            }}>
+                            <option value="">— בחר חברה —</option>
+                            {PRIVATE_COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            <option value="__other__">אחר (הקלד ידנית)</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input className="input flex-1" placeholder="הקלד שם חברה"
+                            value={form.company_name} onChange={e => setForm({...form, company_name: e.target.value})} autoFocus />
+                          <button type="button" onClick={() => { setCustomCompany(false); setForm({...form, company_name: ''}) }}
+                            className="text-xs text-slate-400 hover:text-slate-600 px-2">↩ רשימה</button>
+                        </div>
+                      )}
+                    </div>
                     <div><label className="label">מספר פוליסה</label><input className="input" value={form.policy_number} onChange={e => setForm({...form, policy_number: e.target.value})} /></div>
                     {form.source_type==='private' && (
                       <div><label className="label">סוג פוליסה</label>
