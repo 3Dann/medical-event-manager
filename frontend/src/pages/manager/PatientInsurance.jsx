@@ -46,6 +46,9 @@ export default function PatientInsurance() {
   const [salResult, setSalResult]     = useState(null)
   const [importingBL, setImportingBL]  = useState(false)
   const [blResult, setBlResult]        = useState(null)
+  const [showHarGuide, setShowHarGuide]   = useState(false)
+  const [showHarBrowser, setShowHarBrowser] = useState(false)
+  const [iframeError, setIframeError]     = useState(false)
 
   const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
   const [coverages, setCoverages] = useState(emptyCoverages())
@@ -317,8 +320,150 @@ export default function PatientInsurance() {
     </div>
   )
 
+  // ── הר הביטוח guide modal ────────────────────────────────────────────
+  const HarBituaGuide = () => (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg" dir="rtl">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-lg">📊</div>
+            <div>
+              <h3 className="font-bold text-slate-800">ייצוא מהר הביטוח</h3>
+              <p className="text-xs text-slate-500">הוראות שלב אחר שלב</p>
+            </div>
+          </div>
+          <button onClick={() => setShowHarGuide(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+        </div>
+
+        {/* Steps */}
+        <div className="p-5 space-y-3">
+          {[
+            { n:1, icon:'🌐', title:'כניסה לאתר', text:'פתח את אתר הר הביטוח', action: () => { setShowHarGuide(false); setIframeError(false); setShowHarBrowser(true) }, actionLabel:'פתח דפדפן פנימי' },
+            { n:2, icon:'🔐', title:'כניסה לאזור אישי', text:'לחץ "כניסה לאזור האישי" → הזן מספר ת.ז. ומספר טלפון' },
+            { n:3, icon:'📱', title:'אימות OTP', text:'הזן את הקוד בן 6 הספרות שיישלח ל-SMS שלך' },
+            { n:4, icon:'📋', title:'רשימת הפוליסות', text:'בתפריט הראשי בחר "הפוליסות שלי" — תראה את כל הפוליסות הפעילות' },
+            { n:5, icon:'⬇️', title:'ייצוא לאקסל', text:'לחץ על הכפתור "ייצוא לאקסל" / "Export to Excel" בפינה העליונה' },
+            { n:6, icon:'📤', title:'העלאה למערכת', text:'חזור לכאן ולחץ "בחר קובץ" להעלאת קובץ ה-Excel', isUpload: true },
+          ].map(step => (
+            <div key={step.n} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50">
+              <div className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                {step.n}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-base leading-none">{step.icon}</span>
+                  <span className="font-semibold text-sm text-slate-800">{step.title}</span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">{step.text}</p>
+                {step.action && (
+                  <button onClick={step.action} className="mt-1.5 text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-100 font-medium">
+                    {step.actionLabel} →
+                  </button>
+                )}
+                {step.isUpload && (
+                  <label className="mt-1.5 inline-block text-xs bg-green-50 text-green-700 px-3 py-1 rounded-lg hover:bg-green-100 font-medium cursor-pointer">
+                    בחר קובץ Excel →
+                    <input type="file" accept=".xlsx,.xls" className="hidden"
+                      onChange={e => { setShowHarGuide(false); handleUploadExcel(e) }} />
+                  </label>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="px-5 pb-5">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+            💡 הר הביטוח מאגד את כל הפוליסות של המטופל — ביטוח חיים, בריאות, סיעוד, תאונות אישיות ועוד. הייצוא כולל שם חברה, מספר פוליסה וסוג הביטוח.
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // ── Internal browser modal ────────────────────────────────────────────
+  const InternalBrowser = () => (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col" style={{height:'85vh'}}>
+        {/* Browser chrome */}
+        <div className="flex items-center gap-2 px-4 py-3 bg-slate-100 rounded-t-2xl border-b">
+          <div className="flex gap-1.5">
+            <button onClick={() => setShowHarBrowser(false)} className="w-3 h-3 bg-red-400 rounded-full hover:bg-red-500" />
+            <div className="w-3 h-3 bg-yellow-400 rounded-full" />
+            <div className="w-3 h-3 bg-green-400 rounded-full" />
+          </div>
+          <div className="flex items-center gap-2 flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 mx-2">
+            <svg className="w-3 h-3 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+            </svg>
+            <span className="text-xs text-slate-600 font-mono select-all">https://www.hrb.gov.il</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="text-xs text-slate-400 bg-slate-200 px-2 py-1 rounded">דפדפן מוטמע — הר הביטוח</div>
+          </div>
+        </div>
+
+        {/* iframe content */}
+        <div className="flex-1 relative overflow-hidden rounded-b-2xl bg-slate-50">
+          {iframeError ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-slate-700 mb-2">האתר חוסם הטמעה (X-Frame-Options)</h3>
+              <p className="text-sm text-slate-500 mb-5 max-w-sm">
+                אתר הר הביטוח מונע פתיחה בתוך מסגרת — מדיניות אבטחה סטנדרטית של אתרים ממשלתיים.
+              </p>
+              <div className="space-y-2 w-full max-w-xs">
+                <a href="https://www.hrb.gov.il" target="_blank" rel="noopener noreferrer"
+                  className="btn-primary text-sm w-full flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                  פתח בלשונית חדשה
+                </a>
+                <button onClick={() => { setShowHarBrowser(false); setShowHarGuide(true) }}
+                  className="btn-secondary text-sm w-full">
+                  ← חזור להוראות
+                </button>
+              </div>
+              <div className="mt-6 bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs text-blue-700 max-w-sm text-right" dir="rtl">
+                <p className="font-semibold mb-1">לאחר ההורדה מהאתר:</p>
+                <label className="inline-block bg-blue-600 text-white px-3 py-1.5 rounded-lg cursor-pointer hover:bg-blue-700 font-medium">
+                  העלה את קובץ ה-Excel כאן
+                  <input type="file" accept=".xlsx,.xls" className="hidden"
+                    onChange={e => { setShowHarBrowser(false); handleUploadExcel(e) }} />
+                </label>
+              </div>
+            </div>
+          ) : (
+            <iframe
+              src="https://www.hrb.gov.il"
+              className="w-full h-full border-0"
+              title="הר הביטוח"
+              onError={() => setIframeError(true)}
+              onLoad={e => {
+                try {
+                  const doc = e.target.contentDocument
+                  if (!doc || doc.URL === 'about:blank') setIframeError(true)
+                } catch { setIframeError(true) }
+              }}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="p-8 space-y-6">
+      {/* Modals */}
+      {showHarGuide && <HarBituaGuide />}
+      {showHarBrowser && <InternalBrowser />}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">מקורות ביטוח</h2>
@@ -331,10 +476,9 @@ export default function PatientInsurance() {
             className="btn-secondary text-sm">
             {importingBL ? 'מייבא...' : '🏛️ ייבוא ביטוח לאומי'}
           </button>
-          <label className={`btn-secondary text-sm cursor-pointer ${uploading?'opacity-50':''}`}>
-            {uploading ? 'מייבא...' : '📊 הר הביטוח (Excel)'}
-            <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadExcel} disabled={uploading} />
-          </label>
+          <button onClick={() => setShowHarGuide(true)} className="btn-secondary text-sm">
+            📊 הר הביטוח (Excel)
+          </button>
           <button onClick={() => { setShowForm(true); setCoverages(emptyCoverages()) }} className="btn-primary text-sm">+ הוסף מקור</button>
         </div>
       </div>
