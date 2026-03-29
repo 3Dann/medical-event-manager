@@ -80,24 +80,48 @@ SAL_HABRIUT_COVERAGES = {
 }
 
 HMO_COVERAGES = {
+    # ביטוח בסיסי — זהה לסל הבריאות, ללא תוספות
+    "basic": {
+        "second_opinion": {"is_covered": True, "coverage_percentage": 80, "copay": 50, "conditions": "ברשימת רופאים מוכרים בלבד", "abroad_covered": False},
+        "surgery": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "ניתוח בבית חולים ציבורי בלבד", "abroad_covered": False},
+        "transplant": {"is_covered": True, "coverage_percentage": 100, "conditions": "השתלה בארץ בלבד", "abroad_covered": False},
+        "hospitalization": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "חדר רגיל בבית חולים ציבורי", "abroad_covered": False},
+        "rehabilitation": {"is_covered": True, "coverage_percentage": 80, "copay": 30, "conditions": "עד 15 טיפולים בשנה"},
+        "advanced_tech": {"is_covered": False, "notes": "מחוץ לסל — ועדת חריגים בלבד"},
+        "critical_illness": {"is_covered": False},
+        "diagnostics": {"is_covered": True, "coverage_percentage": 100, "copay": 30, "conditions": "עם הפניית רופא מטפל"},
+    },
+    # ביטוח משלים — תוספות מעבר לסל
     "mushlam": {
-        "second_opinion": {"is_covered": True, "coverage_percentage": 80, "copay": 100, "conditions": "מרשימה מוסדרת", "abroad_covered": False},
-        "surgery": {"is_covered": True, "coverage_percentage": 80, "copay": 500, "conditions": "כולל ניתוחים פרטיים", "abroad_covered": False},
-        "transplant": {"is_covered": True, "coverage_percentage": 70, "abroad_covered": True, "conditions": "גם השתלות בחו\"ל"},
-        "hospitalization": {"is_covered": True, "coverage_percentage": 90, "copay": 200, "conditions": "כולל חדר יחיד בתוספת תשלום"},
+        "second_opinion": {"is_covered": True, "coverage_percentage": 80, "copay": 100, "conditions": "מרשימה מוסדרת, כולל מומחים פרטיים", "abroad_covered": False},
+        "surgery": {"is_covered": True, "coverage_percentage": 80, "copay": 500, "conditions": "כולל ניתוחים פרטיים בבית חולים פרטי", "abroad_covered": False},
+        "transplant": {"is_covered": True, "coverage_percentage": 70, "abroad_covered": True, "conditions": "גם השתלות בחו\"ל — עד תקרה"},
+        "hospitalization": {"is_covered": True, "coverage_percentage": 90, "copay": 200, "conditions": "חדר יחיד בתוספת תשלום, כולל בתי חולים פרטיים"},
         "rehabilitation": {"is_covered": True, "coverage_percentage": 80, "copay": 50, "conditions": "עד 30 טיפולים בשנה"},
         "advanced_tech": {"is_covered": True, "coverage_percentage": 70, "conditions": "תרופות מחוץ לסל — עד תקרה שנתית"},
         "critical_illness": {"is_covered": False},
-        "diagnostics": {"is_covered": True, "coverage_percentage": 90, "copay": 50, "conditions": "כולל פענוח מהיר"},
+        "diagnostics": {"is_covered": True, "coverage_percentage": 90, "copay": 50, "conditions": "כולל פענוח מהיר, ללא הפניה"},
     },
+    # ביטוח פרמיום — כיסוי מורחב
     "premium": {
-        "second_opinion": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "כולל חו\"ל"},
+        "second_opinion": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "כולל חו\"ל, ללא הגבלת רשימה"},
         "surgery": {"is_covered": True, "coverage_percentage": 90, "copay": 200, "abroad_covered": True, "conditions": "כולל ניתוחים בחו\"ל"},
-        "transplant": {"is_covered": True, "coverage_percentage": 85, "abroad_covered": True},
-        "hospitalization": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "חדר יחיד כלול"},
+        "transplant": {"is_covered": True, "coverage_percentage": 85, "abroad_covered": True, "conditions": "השתלות בחו\"ל — תקרה גבוהה"},
+        "hospitalization": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "חדר יחיד כלול ללא תוספת"},
         "rehabilitation": {"is_covered": True, "coverage_percentage": 90, "copay": 30, "conditions": "עד 50 טיפולים בשנה"},
-        "advanced_tech": {"is_covered": True, "coverage_percentage": 80, "conditions": "תקרה גבוהה יותר"},
-        "critical_illness": {"is_covered": True, "coverage_amount": 50000, "conditions": "מחלות ספציפיות ברשימה"},
-        "diagnostics": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "כולל פענוח מהיר ואמבולנס"},
+        "advanced_tech": {"is_covered": True, "coverage_percentage": 80, "conditions": "תקרה שנתית גבוהה, כולל ציוד רפואי"},
+        "critical_illness": {"is_covered": True, "coverage_amount": 50000, "conditions": "מחלות ספציפיות ברשימה — תגמול חד פעמי"},
+        "diagnostics": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "כולל פענוח מהיר, אמבולנס, ללא הפניה"},
+    },
+    # ביטוח זהב — רמת הכיסוי הגבוהה ביותר
+    "zahav": {
+        "second_opinion": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "ללא הגבלה, כולל חו\"ל"},
+        "surgery": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "כולל ניתוחים בחו\"ל ללא תקרה"},
+        "transplant": {"is_covered": True, "coverage_percentage": 100, "abroad_covered": True, "conditions": "כיסוי מלא בארץ ובחו\"ל"},
+        "hospitalization": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "חדר יחיד, כולל חו\"ל"},
+        "rehabilitation": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "conditions": "ללא הגבלת טיפולים בשנה"},
+        "advanced_tech": {"is_covered": True, "coverage_percentage": 100, "conditions": "כיסוי מלא לתרופות וציוד מחוץ לסל"},
+        "critical_illness": {"is_covered": True, "coverage_amount": 150000, "conditions": "מחלות קשות — תגמול חד פעמי גבוה"},
+        "diagnostics": {"is_covered": True, "coverage_percentage": 100, "copay": 0, "abroad_covered": True, "conditions": "כולל כל סוגי ההדמיה ללא הפניה"},
     },
 }
