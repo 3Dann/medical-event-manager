@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.env
+
+# Database
+*.db
+*.sqlite
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# OS
+.DS_Store
