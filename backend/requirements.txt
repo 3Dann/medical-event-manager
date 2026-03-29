@@ -7,3 +7,5 @@ python-multipart
 openpyxl
 pydantic
 aiofiles
+pdfplumber
+bcrypt==4.0.1

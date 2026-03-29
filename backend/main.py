@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 
@@ -59,6 +59,7 @@ app.include_router(claims.router)
 app.include_router(strategy.router)
 app.include_router(responsiveness.router)
 app.include_router(import_data.router)
+app.include_router(private_import.router)
 
 
 @app.get("/")

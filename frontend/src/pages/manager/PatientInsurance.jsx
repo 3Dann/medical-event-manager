@@ -49,6 +49,8 @@ export default function PatientInsurance() {
   const [showHarGuide, setShowHarGuide]     = useState(false)
   const [importingHmo, setImportingHmo]     = useState(false)
   const [hmoResult, setHmoResult]           = useState(null)
+  const [uploadingPrivate, setUploadingPrivate] = useState(false)
+  const [privateUploadResult, setPrivateUploadResult] = useState(null)
 
   const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
   const [coverages, setCoverages] = useState(emptyCoverages())
@@ -162,6 +164,19 @@ export default function PatientInsurance() {
     } catch (err) {
       setBlResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally { setImportingBL(false) }
+  }
+
+  const handleUploadPrivate = async (e) => {
+    const file = e.target.files[0]; if (!file) return
+    e.target.value = ''; setUploadingPrivate(true); setPrivateUploadResult(null)
+    const fd = new FormData(); fd.append('file', file)
+    try {
+      const res = await axios.post(`/api/patients/${id}/insurance/upload-private`, fd)
+      setPrivateUploadResult({ success: true, ...res.data })
+      setShowForm(false); fetchAll()
+    } catch (err) {
+      setPrivateUploadResult({ success: false, error: err.response?.data?.detail || err.message })
+    } finally { setUploadingPrivate(false) }
   }
 
   const handleDeleteEntitlement = async (entId) => {
@@ -470,6 +485,26 @@ export default function PatientInsurance() {
         </div>
       )}
 
+      {/* Private upload result */}
+      {privateUploadResult && (
+        <div className={`rounded-xl p-4 text-sm ${privateUploadResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+          {privateUploadResult.success ? (
+            <div>
+              <p className="font-semibold text-green-700">✅ {privateUploadResult.message}</p>
+              <div className="text-green-600 text-xs mt-1 space-y-0.5">
+                {privateUploadResult.company_name && <p>חברה: {privateUploadResult.company_name}</p>}
+                {privateUploadResult.policy_number && <p>פוליסה: {privateUploadResult.policy_number}</p>}
+                <p>כיסויים שזוהו: {privateUploadResult.coverages_detected}</p>
+              </div>
+              <p className="text-amber-600 text-xs mt-2">⚠️ {privateUploadResult.note}</p>
+            </div>
+          ) : (
+            <p className="text-red-700">❌ {privateUploadResult.error}</p>
+          )}
+          <button onClick={() => setPrivateUploadResult(null)} className="text-xs text-slate-400 mt-2 block hover:underline">סגור</button>
+        </div>
+      )}
+
       {/* Excel result */}
       {excelResult && (
         <div className={`rounded-xl p-4 text-sm ${excelResult.success?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200'}`}>
@@ -536,6 +571,31 @@ export default function PatientInsurance() {
                   </>)}
                 </div>
                 <div><label className="label">הערות</label><textarea className="input" rows={1} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
+
+                {/* Private insurance auto-import */}
+                {(form.source_type === 'private' || form.source_type === 'har_habitua') && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <p className="text-sm font-medium text-blue-800 mb-1">ייבוא אוטומטי מתיק הביטוח</p>
+                    <p className="text-xs text-blue-600 mb-3">העלה קובץ מאתר חברת הביטוח — המערכת תנסה לחלץ אוטומטית את הכיסויים, החברה ומספר הפוליסה.</p>
+                    <div className="flex gap-2">
+                      <label className={`flex items-center gap-2 text-sm bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {uploadingPrivate ? 'מנתח...' : 'ייבא מ-PDF'}
+                        <input type="file" accept=".pdf" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
+                      </label>
+                      <label className={`flex items-center gap-2 text-sm bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M10 3v18M14 3v18" />
+                        </svg>
+                        {uploadingPrivate ? 'מנתח...' : 'ייבא מ-Excel'}
+                        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
+                      </label>
+                    </div>
+                    <p className="text-xs text-blue-400 mt-2">או מלא ידנית את הפרטים והכיסויים למטה</p>
+                  </div>
+                )}
 
                 {/* Coverage table */}
                 <div>
