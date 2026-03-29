@@ -109,6 +109,28 @@ export default function PatientDetail() {
                 </select>
               </div>
               <div><label className="label">פירוט אבחנה</label><textarea className="input" rows={2} value={editForm.diagnosis_details || ''} onChange={e => setEditForm({...editForm, diagnosis_details: e.target.value})} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">קופת חולים</label>
+                  <select className="input" value={editForm.hmo_name || ''} onChange={e => setEditForm({...editForm, hmo_name: e.target.value})}>
+                    <option value="">— לא מוגדר —</option>
+                    <option value="clalit">כללית</option>
+                    <option value="maccabi">מכבי</option>
+                    <option value="meuhedet">מאוחדת</option>
+                    <option value="leumit">לאומית</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">ביטוח משלים</label>
+                  <select className="input" value={editForm.hmo_level || ''} onChange={e => setEditForm({...editForm, hmo_level: e.target.value})} disabled={!editForm.hmo_name}>
+                    <option value="">— לא מוגדר —</option>
+                    <option value="basic">בסיסי</option>
+                    <option value="mushlam">משלים</option>
+                    <option value="premium">פרמיום</option>
+                    <option value="zahav">זהב</option>
+                  </select>
+                </div>
+              </div>
               <div><label className="label">הערות</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
               <button onClick={handleSavePatient} className="btn-primary w-full">שמור</button>
             </div>
@@ -116,6 +138,15 @@ export default function PatientDetail() {
             <dl className="space-y-3 text-sm">
               <div><dt className="text-slate-500">אבחנה</dt><dd className="font-medium">{patient.diagnosis_status === 'yes' ? 'קיימת' : patient.diagnosis_status === 'pending' ? 'בבירור' : 'ללא'}</dd></div>
               {patient.diagnosis_details && <div><dt className="text-slate-500">פירוט</dt><dd>{patient.diagnosis_details}</dd></div>}
+              {patient.hmo_name && (
+                <div>
+                  <dt className="text-slate-500">קופת חולים</dt>
+                  <dd className="font-medium">
+                    {{ clalit:'כללית', maccabi:'מכבי', meuhedet:'מאוחדת', leumit:'לאומית' }[patient.hmo_name]}
+                    {patient.hmo_level && <span className="text-slate-500 font-normal mr-1">— {{ basic:'בסיסי', mushlam:'משלים', premium:'פרמיום', zahav:'זהב' }[patient.hmo_level]}</span>}
+                  </dd>
+                </div>
+              )}
               {patient.notes && <div><dt className="text-slate-500">הערות</dt><dd>{patient.notes}</dd></div>}
             </dl>
           )}

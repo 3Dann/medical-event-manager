@@ -47,8 +47,6 @@ export default function PatientInsurance() {
   const [importingBL, setImportingBL]  = useState(false)
   const [blResult, setBlResult]        = useState(null)
   const [showHarGuide, setShowHarGuide]     = useState(false)
-  const [showHmoImport, setShowHmoImport]   = useState(false)
-  const [hmoForm, setHmoForm]               = useState({ hmo_name: 'clalit', hmo_level: 'mushlam' })
   const [importingHmo, setImportingHmo]     = useState(false)
   const [hmoResult, setHmoResult]           = useState(null)
 
@@ -130,8 +128,7 @@ export default function PatientInsurance() {
     } finally { setUploading(false) }
   }
 
-  const handleImportHmo = async (e) => {
-    e.preventDefault()
+  const handleImportHmo = async () => {
     setImportingHmo(true); setHmoResult(null)
     try {
       const p = await axios.get(`/api/patients/${id}`)
@@ -139,9 +136,12 @@ export default function PatientInsurance() {
         setHmoResult({ success: false, message: 'אין מספר ת.ז. בתיק המטופל — עדכן תחילה בלשונית פרטים' })
         return
       }
-      const res = await axios.post('/api/import/kupat-holim', { id_number: p.data.id_number, ...hmoForm })
-      setHmoResult({ success: true, message: res.data.message, count: res.data.coverages_imported })
-      setShowHmoImport(false)
+      if (!p.data.hmo_name) {
+        setHmoResult({ success: false, message: 'לא הוגדרה קופת חולים בתיק — עדכן תחילה בלשונית פרטים' })
+        return
+      }
+      const res = await axios.post('/api/import/kupat-holim', { id_number: p.data.id_number })
+      setHmoResult({ success: true, message: res.data.message, imported: res.data.imported })
       fetchAll()
     } catch (err) {
       setHmoResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
@@ -417,49 +417,6 @@ export default function PatientInsurance() {
       {/* Modals */}
       {showHarGuide && <HarBituaGuide />}
 
-      {/* HMO import modal */}
-      {showHmoImport && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6" dir="rtl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-slate-800">ייבוא ביטוח משלים קופת חולים</h3>
-              <button onClick={() => setShowHmoImport(false)} className="text-slate-400 hover:text-slate-600">✕</button>
-            </div>
-            <form onSubmit={handleImportHmo} className="space-y-4">
-              <div>
-                <label className="label">קופת חולים</label>
-                <select className="input" value={hmoForm.hmo_name} onChange={e => setHmoForm({...hmoForm, hmo_name: e.target.value})}>
-                  {Object.entries(HMO_NAMES).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label">רמת ביטוח</label>
-                <select className="input" value={hmoForm.hmo_level} onChange={e => setHmoForm({...hmoForm, hmo_level: e.target.value})}>
-                  {Object.entries(HMO_LEVELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
-                </select>
-                <p className="text-xs text-slate-400 mt-1">
-                  {hmoForm.hmo_level === 'basic'   && 'כיסוי בסיסי — זהה לסל הבריאות, ללא תוספות'}
-                  {hmoForm.hmo_level === 'mushlam' && 'ביטוח משלים — תוספות ניתוחים פרטיים, תרופות מחוץ לסל'}
-                  {hmoForm.hmo_level === 'premium' && 'פרמיום — כולל חו"ל, חדר יחיד, מחלות קשות'}
-                  {hmoForm.hmo_level === 'zahav'   && 'זהב — כיסוי מלא ללא תקרות, כולל חו"ל'}
-                </p>
-              </div>
-              {hmoResult && !hmoResult.success && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-                  ❌ {hmoResult.message}
-                </div>
-              )}
-              <div className="flex gap-2 justify-end pt-1">
-                <button type="button" onClick={() => setShowHmoImport(false)} className="btn-secondary text-sm">ביטול</button>
-                <button type="submit" disabled={importingHmo} className="btn-primary text-sm disabled:opacity-50">
-                  {importingHmo ? 'מייבא...' : 'ייבא כיסויים'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">מקורות ביטוח</h2>
@@ -468,9 +425,9 @@ export default function PatientInsurance() {
             className="btn-secondary text-sm">
             {importingSal ? 'מייבא...' : '🏥 ייבוא סל הבריאות'}
           </button>
-          <button onClick={() => { setShowHmoImport(true); setHmoResult(null) }}
+          <button onClick={handleImportHmo} disabled={importingHmo}
             className="btn-secondary text-sm">
-            🏨 ייבוא קופת חולים
+            {importingHmo ? 'מייבא...' : '🏨 ייבוא קופת חולים'}
           </button>
           <button onClick={handleImportBituchLeumi} disabled={importingBL}
             className="btn-secondary text-sm">
@@ -494,9 +451,11 @@ export default function PatientInsurance() {
       )}
 
       {/* HMO import result */}
-      {hmoResult?.success && (
-        <div className="rounded-xl p-3 text-sm bg-green-50 border border-green-200">
-          ✅ {hmoResult.message} — {hmoResult.count} כיסויים יובאו
+      {hmoResult && (
+        <div className={`rounded-xl p-3 text-sm ${hmoResult.success ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+          {hmoResult.success
+            ? `✅ ${hmoResult.message}`
+            : `❌ ${hmoResult.message}`}
           <button onClick={() => setHmoResult(null)} className="text-xs text-slate-400 mr-3 hover:underline">סגור</button>
         </div>
       )}

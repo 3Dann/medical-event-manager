@@ -15,6 +15,8 @@ class PatientCreate(BaseModel):
     diagnosis_status: str = "no"
     diagnosis_details: Optional[str] = None
     notes: Optional[str] = None
+    hmo_name: Optional[str] = None
+    hmo_level: Optional[str] = None
 
 
 class PatientUpdate(BaseModel):
@@ -23,6 +25,8 @@ class PatientUpdate(BaseModel):
     diagnosis_status: Optional[str] = None
     diagnosis_details: Optional[str] = None
     notes: Optional[str] = None
+    hmo_name: Optional[str] = None
+    hmo_level: Optional[str] = None
 
 
 class NodeCreate(BaseModel):
@@ -50,6 +54,8 @@ def patient_to_dict(p):
         "diagnosis_status": p.diagnosis_status,
         "diagnosis_details": p.diagnosis_details,
         "notes": p.notes,
+        "hmo_name": p.hmo_name,
+        "hmo_level": p.hmo_level,
         "manager_id": p.manager_id,
         "created_at": str(p.created_at) if p.created_at else None,
     }

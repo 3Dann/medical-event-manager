@@ -16,8 +16,6 @@ class ImportSalRequest(BaseModel):
 
 class ImportKupatHolimRequest(BaseModel):
     id_number: str
-    hmo_name: str   # clalit / maccabi / meuhedet / leumit
-    hmo_level: str  # basic / mushlam / premium / zahav
 
 
 @router.post("/sal-habriut")
@@ -133,6 +131,43 @@ HMO_NAME_LABELS = {"clalit": "כללית", "maccabi": "מכבי", "meuhedet": "�
 HMO_LEVEL_LABELS = {"basic": "בסיסי", "mushlam": "משלים", "premium": "פרמיום", "zahav": "זהב"}
 
 
+def _create_hmo_source(db, patient_id, hmo_name, hmo_level):
+    """Creates a kupat_holim source + coverages. Returns (source, skipped) where skipped=True if duplicate."""
+    existing = db.query(models.InsuranceSource).filter(
+        models.InsuranceSource.patient_id == patient_id,
+        models.InsuranceSource.source_type == "kupat_holim",
+        models.InsuranceSource.hmo_name == hmo_name,
+        models.InsuranceSource.hmo_level == hmo_level,
+    ).first()
+    if existing:
+        return None, True
+
+    source = models.InsuranceSource(
+        patient_id=patient_id,
+        source_type="kupat_holim",
+        hmo_name=hmo_name,
+        hmo_level=hmo_level,
+        notes="יובא אוטומטית",
+    )
+    db.add(source)
+    db.flush()
+
+    for category, cov in HMO_COVERAGES[hmo_level].items():
+        db.add(models.Coverage(
+            insurance_source_id=source.id,
+            category=category,
+            is_covered=cov.get("is_covered", False),
+            coverage_percentage=cov.get("coverage_percentage"),
+            coverage_amount=cov.get("coverage_amount"),
+            copay=cov.get("copay"),
+            annual_limit=cov.get("annual_limit"),
+            conditions=cov.get("conditions"),
+            abroad_covered=cov.get("abroad_covered", False),
+            notes=cov.get("notes"),
+        ))
+    return source, False
+
+
 @router.post("/kupat-holim")
 def import_kupat_holim(
     data: ImportKupatHolimRequest,
@@ -147,57 +182,44 @@ def import_kupat_holim(
     if not patient:
         raise HTTPException(status_code=404, detail=f"לא נמצא מטופל עם ת.ז. {data.id_number}")
 
-    if data.hmo_level not in HMO_COVERAGES:
-        raise HTTPException(status_code=400, detail=f"רמת ביטוח לא מוכרת: {data.hmo_level}")
+    if not patient.hmo_name:
+        raise HTTPException(status_code=400, detail="לא הוגדרה קופת חולים בתיק המטופל — עדכן תחילה בלשונית פרטים")
 
-    # Check for duplicate
-    existing = db.query(models.InsuranceSource).filter(
-        models.InsuranceSource.patient_id == patient.id,
-        models.InsuranceSource.source_type == "kupat_holim",
-        models.InsuranceSource.hmo_name == data.hmo_name,
-        models.InsuranceSource.hmo_level == data.hmo_level,
-    ).first()
+    hmo_name = patient.hmo_name
+    hmo_label = HMO_NAME_LABELS.get(hmo_name, hmo_name)
+    imported = []
+    skipped = []
 
-    if existing:
-        hmo_label = HMO_NAME_LABELS.get(data.hmo_name, data.hmo_name)
-        level_label = HMO_LEVEL_LABELS.get(data.hmo_level, data.hmo_level)
-        raise HTTPException(
-            status_code=400,
-            detail=f"קופ\"ח {hmo_label} {level_label} כבר קיימת בתיק {patient.full_name}"
-        )
+    # Always import basic level
+    _, was_skip = _create_hmo_source(db, patient.id, hmo_name, "basic")
+    if was_skip:
+        skipped.append(f"{hmo_label} בסיסי")
+    else:
+        imported.append(f"{hmo_label} בסיסי")
 
-    source = models.InsuranceSource(
-        patient_id=patient.id,
-        source_type="kupat_holim",
-        hmo_name=data.hmo_name,
-        hmo_level=data.hmo_level,
-        notes="יובא אוטומטית",
-    )
-    db.add(source)
-    db.flush()
-
-    coverages = HMO_COVERAGES[data.hmo_level]
-    for category, cov in coverages.items():
-        db.add(models.Coverage(
-            insurance_source_id=source.id,
-            category=category,
-            is_covered=cov.get("is_covered", False),
-            coverage_percentage=cov.get("coverage_percentage"),
-            coverage_amount=cov.get("coverage_amount"),
-            copay=cov.get("copay"),
-            annual_limit=cov.get("annual_limit"),
-            conditions=cov.get("conditions"),
-            abroad_covered=cov.get("abroad_covered", False),
-            notes=cov.get("notes"),
-        ))
+    # Import supplemental level if set and different from basic
+    supp_level = patient.hmo_level
+    if supp_level and supp_level != "basic" and supp_level in HMO_COVERAGES:
+        level_label = HMO_LEVEL_LABELS.get(supp_level, supp_level)
+        _, was_skip = _create_hmo_source(db, patient.id, hmo_name, supp_level)
+        if was_skip:
+            skipped.append(f"{hmo_label} {level_label}")
+        else:
+            imported.append(f"{hmo_label} {level_label}")
 
     db.commit()
 
-    hmo_label = HMO_NAME_LABELS.get(data.hmo_name, data.hmo_name)
-    level_label = HMO_LEVEL_LABELS.get(data.hmo_level, data.hmo_level)
+    if not imported:
+        raise HTTPException(status_code=400, detail=f"כל הכיסויים כבר קיימים בתיק {patient.full_name}")
+
+    msg = f"יובאו בהצלחה: {', '.join(imported)}"
+    if skipped:
+        msg += f" | כבר קיים: {', '.join(skipped)}"
+
     return {
-        "message": f"קופ\"ח {hmo_label} {level_label} יובאה בהצלחה לתיק {patient.full_name}",
+        "message": msg,
         "patient_id": patient.id,
         "patient_name": patient.full_name,
-        "coverages_imported": len(coverages),
+        "imported": imported,
+        "skipped": skipped,
     }

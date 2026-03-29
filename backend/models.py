@@ -93,6 +93,8 @@ class Patient(Base):
     diagnosis_status = Column(String, default=DiagnosisStatus.no)
     diagnosis_details = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
+    hmo_name = Column(String, nullable=True)   # clalit / maccabi / meuhedet / leumit
+    hmo_level = Column(String, nullable=True)  # basic / mushlam / premium / zahav
     manager_id = Column(Integer, ForeignKey("users.id"))
     patient_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
