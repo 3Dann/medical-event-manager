@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
+import os
 
 app = FastAPI(title="Medical Event Manager API", version="1.0.0")
 
@@ -60,13 +63,24 @@ app.include_router(strategy.router)
 app.include_router(responsiveness.router)
 app.include_router(import_data.router)
 app.include_router(private_import.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Medical Event Manager API", "version": "1.0.0", "status": "running"}
+app.include_router(learning.router)
+app.include_router(public.router)
 
 
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+
+# Serve React frontend (production build)
+FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "../frontend/dist")
+
+if os.path.exists(FRONTEND_DIST):
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if full_path and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+
+    app.mount("/assets", StaticFiles(directory=os.path.join(FRONTEND_DIST, "assets")), name="assets")

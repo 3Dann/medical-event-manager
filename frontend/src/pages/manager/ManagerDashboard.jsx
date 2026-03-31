@@ -15,6 +15,7 @@ export default function ManagerDashboard() {
   const [importIdNumber, setImportIdNumber] = useState('')
   const [importResult, setImportResult] = useState(null)
   const [importing, setImporting] = useState(false)
+  const [globalInsights, setGlobalInsights] = useState(null)
   const navigate = useNavigate()
 
   const handleImportSal = async (e) => {
@@ -29,12 +30,19 @@ export default function ManagerDashboard() {
     } finally { setImporting(false) }
   }
 
-  useEffect(() => { fetchPatients() }, [])
+  useEffect(() => { fetchPatients(); fetchInsights() }, [])
 
   const fetchPatients = async () => {
     try { const res = await axios.get('/api/patients'); setPatients(res.data) }
     catch (e) { console.error(e) }
     finally { setLoading(false) }
+  }
+
+  const fetchInsights = async () => {
+    try {
+      const res = await axios.get('/api/learning/insights')
+      setGlobalInsights(res.data)
+    } catch (e) { /* insights are non-critical */ }
   }
 
   const handleCreate = async (e) => {
@@ -52,6 +60,9 @@ export default function ManagerDashboard() {
     try { await axios.delete(`/api/patients/${id}`); fetchPatients() }
     catch (e) { console.error(e) }
   }
+
+  const topInsurer = globalInsights?.approval_rates?.[0]
+  const hasInsights = globalInsights && globalInsights.total_claims_analyzed > 0
 
   return (
     <div className="p-8">
@@ -102,7 +113,7 @@ export default function ManagerDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="card">
           <p className="text-sm text-slate-500">סה"כ מטופלים</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">{patients.length}</p>
@@ -116,6 +127,48 @@ export default function ManagerDashboard() {
           <p className="text-3xl font-bold text-yellow-600 mt-1">{patients.filter(p => p.diagnosis_status === 'pending').length}</p>
         </div>
       </div>
+
+      {/* AI Insights widget */}
+      {hasInsights && (
+        <div className="mb-6 rounded-xl border border-blue-100 bg-gradient-to-l from-blue-50 to-indigo-50 p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🧠</span>
+            <div>
+              <p className="font-semibold text-slate-800 text-sm">
+                המערכת ניתחה {globalInsights.total_claims_analyzed} תביעות
+                {globalInsights.total_patients > 0 && ` מתוך ${globalInsights.total_patients} מטופלים`}
+              </p>
+              <div className="flex flex-wrap gap-3 mt-1">
+                {topInsurer && (
+                  <span className="text-xs text-slate-600">
+                    🏆 מקור עם שיעור אישור גבוה: <span className="font-medium text-green-700">{topInsurer.company_name} ({topInsurer.approval_rate}%)</span>
+                  </span>
+                )}
+                {globalInsights.common_gaps?.[0] && (
+                  <span className="text-xs text-slate-600">
+                    ⚠️ קטגוריה עם הכי הרבה דחיות: <span className="font-medium text-red-600">{globalInsights.common_gaps[0].category_label}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex-shrink-0 text-right">
+            <p className="text-xs text-slate-400">
+              {globalInsights.total_claims - globalInsights.total_claims_analyzed > 0
+                ? `${globalInsights.total_claims - globalInsights.total_claims_analyzed} תביעות פתוחות`
+                : 'כל התביעות נותחו'}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* No insights yet — subtle hint */}
+      {globalInsights && !hasInsights && patients.length > 0 && (
+        <div className="mb-6 rounded-xl border border-slate-100 bg-slate-50 p-3 flex items-center gap-3 text-sm text-slate-500">
+          <span>🧠</span>
+          <span>ברגע שתביעות יאושרו או יידחו, תופענה כאן תובנות מהמערכת הלומדת</span>
+        </div>
+      )}
 
       {/* Create form */}
       {showForm && (

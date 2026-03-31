@@ -10,12 +10,16 @@ const CATEGORY_LABELS = {
   critical_illness: 'מחלה קשה', diagnostics: 'בדיקות',
 }
 
+const FEEDBACK_STATUSES = ['approved', 'partial', 'rejected']
+
 export default function PatientClaims() {
   const { id } = useParams()
   const [claims, setClaims] = useState([])
   const [sources, setSources] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ insurance_source_id: '', category: 'surgery', description: '', amount_requested: '', status: 'pending', submission_date: '', deadline: '', notes: '', priority_order: '' })
+  const [pendingFeedback, setPendingFeedback] = useState(null) // { companyName, outcome, scoreUpdated }
+  const [feedbackSaving, setFeedbackSaving] = useState(false)
 
   useEffect(() => { fetchAll() }, [id])
 
@@ -31,8 +35,13 @@ export default function PatientClaims() {
     setShowForm(false); fetchAll()
   }
 
-  const handleStatusChange = async (claimId, status) => {
-    await axios.put(`/api/patients/${id}/claims/${claimId}`, { status }); fetchAll()
+  const handleStatusChange = async (claimId, newStatus) => {
+    const claim = claims.find(c => c.id === claimId)
+    await axios.put(`/api/patients/${id}/claims/${claimId}`, { status: newStatus })
+    fetchAll()
+    if (FEEDBACK_STATUSES.includes(newStatus) && claim?.source_label) {
+      setPendingFeedback({ companyName: claim.source_label, outcome: newStatus, scoreUpdated: false })
+    }
   }
 
   const handleAmountApproved = async (claimId, amount) => {
@@ -44,8 +53,27 @@ export default function PatientClaims() {
     await axios.delete(`/api/patients/${id}/claims/${claimId}`); fetchAll()
   }
 
+  const handleFeedbackConfirm = async () => {
+    setFeedbackSaving(true)
+    try {
+      await axios.post('/api/learning/feedback', {
+        company_name: pendingFeedback.companyName,
+        outcome: pendingFeedback.outcome,
+      })
+      setPendingFeedback(prev => ({ ...prev, scoreUpdated: true }))
+      setTimeout(() => setPendingFeedback(null), 2500)
+    } catch (e) {
+      setPendingFeedback(null)
+    } finally {
+      setFeedbackSaving(false)
+    }
+  }
+
   const totalRequested = claims.reduce((s, c) => s + (c.amount_requested || 0), 0)
   const totalApproved = claims.reduce((s, c) => s + (c.amount_approved || 0), 0)
+
+  const outcomeIcon = { approved: '✅', partial: '🔶', rejected: '❌' }
+  const outcomeLabel = { approved: 'אושרה', partial: 'אושרה חלקית', rejected: 'נדחתה' }
 
   return (
     <div className="p-8 space-y-6">
@@ -68,6 +96,44 @@ export default function PatientClaims() {
           </div>
         ))}
       </div>
+
+      {/* Learning feedback banner */}
+      {pendingFeedback && !pendingFeedback.scoreUpdated && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">{outcomeIcon[pendingFeedback.outcome]}</span>
+            <div>
+              <p className="font-medium text-slate-800 text-sm">
+                תביעה {outcomeLabel[pendingFeedback.outcome]} — {pendingFeedback.companyName}
+              </p>
+              <p className="text-xs text-slate-500">האם לעדכן את ציון ההיענות של החברה בהתאם לתוצאה?</p>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <button
+              onClick={handleFeedbackConfirm}
+              disabled={feedbackSaving}
+              className="btn-primary text-xs px-3 py-1.5"
+            >
+              {feedbackSaving ? 'מעדכן...' : '🧠 כן, עדכן'}
+            </button>
+            <button
+              onClick={() => setPendingFeedback(null)}
+              className="btn-secondary text-xs px-3 py-1.5"
+            >
+              דלג
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Score updated confirmation */}
+      {pendingFeedback?.scoreUpdated && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
+          <span className="text-green-600">✓</span>
+          <p className="text-sm text-green-700">ציון ההיענות של {pendingFeedback.companyName} עודכן בהצלחה</p>
+        </div>
+      )}
 
       {/* Form */}
       {showForm && (

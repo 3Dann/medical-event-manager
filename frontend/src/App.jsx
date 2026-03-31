@@ -5,6 +5,9 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 // Auth
 import LoginPage from './pages/LoginPage'
 
+// Public
+import ProgressPage from './pages/ProgressPage'
+
 // Manager pages
 import ManagerLayout from './pages/manager/ManagerLayout'
 import ManagerDashboard from './pages/manager/ManagerDashboard'
@@ -13,6 +16,7 @@ import PatientInsurance from './pages/manager/PatientInsurance'
 import PatientClaims from './pages/manager/PatientClaims'
 import PatientStrategy from './pages/manager/PatientStrategy'
 import ResponsivenessPage from './pages/manager/ResponsivenessPage'
+import FeedbackInbox from './pages/manager/FeedbackInbox'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
@@ -40,6 +44,7 @@ function AppRoutes() {
         <Route path="patients/:id/claims" element={<PatientClaims />} />
         <Route path="patients/:id/strategy" element={<PatientStrategy />} />
         <Route path="responsiveness" element={<ResponsivenessPage />} />
+        <Route path="feedback" element={<FeedbackInbox />} />
       </Route>
 
       {/* Patient routes */}
@@ -47,6 +52,7 @@ function AppRoutes() {
         <Route index element={<PatientSummary />} />
       </Route>
 
+      <Route path="/progress" element={<ProgressPage />} />
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

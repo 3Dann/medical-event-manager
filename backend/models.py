@@ -191,6 +191,16 @@ class Entitlement(Base):
     patient = relationship("Patient", back_populates="entitlements")
 
 
+class ProjectFeedback(Base):
+    __tablename__ = "project_feedback"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    role = Column(String, nullable=True)
+    message = Column(Text, nullable=False)
+    rating = Column(Integer, nullable=True)  # 1-5
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class ResponsivenessScore(Base):
     __tablename__ = "responsiveness_scores"
     id = Column(Integer, primary_key=True, index=True)
