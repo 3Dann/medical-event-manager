@@ -9,7 +9,7 @@
 
 | סביבה | כתובת | סטטוס |
 |--------|--------|--------|
-| **Production (Railway)** | `⚠️ טרם פורסם — ראה שלבי deployment` | ממתין |
+| **Production (Railway)** | `https://app-production-5817.up.railway.app` | ✅ פעיל |
 | פיתוח מקומי — Frontend | `http://localhost:5173` | מקומי בלבד |
 | פיתוח מקומי — API | `http://localhost:8000` | מקומי בלבד |
 

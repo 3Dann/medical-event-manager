@@ -23,9 +23,10 @@ export function AuthProvider({ children }) {
       id: tokenData.user_id,
       full_name: tokenData.full_name,
       role: tokenData.role,
+      is_admin: tokenData.is_admin || false,
     }))
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokenData.access_token}`
-    setUser({ id: tokenData.user_id, full_name: tokenData.full_name, role: tokenData.role })
+    setUser({ id: tokenData.user_id, full_name: tokenData.full_name, role: tokenData.role, is_admin: tokenData.is_admin || false })
   }
 
   const logout = () => {

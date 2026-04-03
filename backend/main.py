@@ -2,14 +2,42 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
+import logging
 
-app = FastAPI(title="Medical Event Manager API", version="1.0.0")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("main")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # ── Startup ──────────────────────────────────────────────────────────
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from scraper import run_all_sources
+    scheduler = BackgroundScheduler(daemon=True)
+    scheduler.add_job(
+        run_all_sources,
+        trigger="interval",
+        hours=24,
+        args=[SessionLocal],
+        id="auto_scrape",
+        replace_existing=True,
+    )
+    scheduler.start()
+    app.state.scheduler = scheduler
+    logger.info("Background scraper scheduler started (every 24h)")
+    yield
+    # ── Shutdown ─────────────────────────────────────────────────────────
+    scheduler.shutdown(wait=False)
+    logger.info("Scheduler stopped")
+
+
+app = FastAPI(title="Medical Event Manager API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -27,6 +55,11 @@ def run_migrations():
     migrations = [
         ("patients", "hmo_name",  "VARCHAR"),
         ("patients", "hmo_level", "VARCHAR"),
+        ("doctors", "source_url", "VARCHAR"),
+        ("users", "is_admin", "BOOLEAN DEFAULT 0"),
+        ("users", "preserve_data", "BOOLEAN DEFAULT 0"),
+        ("users", "reset_token", "VARCHAR"),
+        ("users", "reset_token_expires", "DATETIME"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -53,6 +86,31 @@ def seed_responsiveness():
 
 seed_responsiveness()
 
+# Seed predefined Israeli scraping sources
+def seed_israeli_sources():
+    from routes.doctors import PREDEFINED_ISRAELI_SOURCES
+    db = SessionLocal()
+    try:
+        valid_urls = {s["url"] for s in PREDEFINED_ISRAELI_SOURCES}
+        # Remove outdated sources that are no longer in the predefined list
+        all_sources = db.query(models.ScrapingSource).all()
+        for src in all_sources:
+            if src.url not in valid_urls:
+                logger.info(f"Removing stale source: {src.name}")
+                db.delete(src)
+        db.flush()
+        # Add new sources
+        for src in PREDEFINED_ISRAELI_SOURCES:
+            exists = db.query(models.ScrapingSource).filter(models.ScrapingSource.url == src["url"]).first()
+            if not exists:
+                db.add(models.ScrapingSource(name=src["name"], url=src["url"], interval_hours=24))
+                logger.info(f"Added Israeli source: {src['name']}")
+        db.commit()
+    finally:
+        db.close()
+
+seed_israeli_sources()
+
 # Register routes
 app.include_router(auth.router)
 app.include_router(patients.router)
@@ -65,6 +123,8 @@ app.include_router(import_data.router)
 app.include_router(private_import.router)
 app.include_router(learning.router)
 app.include_router(public.router)
+app.include_router(doctors.router)
+app.include_router(admin.router)
 
 
 @app.get("/api/health")

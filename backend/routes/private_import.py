@@ -35,6 +35,33 @@ LIMIT_RE           = re.compile(r"(?:תקרה|מקסימום|עד)[:\s]*(\d[\d,]
 COMPANY_NAMES = ["הראל", "מגדל", "כלל", "הפניקס", "מנורה", "איילון", "שירביט",
                  "הכשרה", "ביטוח ישיר", "AIG", "Allianz", "מיטב", "פסגות"]
 
+# Policies to skip entirely
+EXCLUDED_POLICY_KEYWORDS = [
+    "ביטוח רכב", "ביטוח רכוש", "ביטוח דירה", "ביטוח בית",
+    "כסף רכב", "חובה רכב", "מקיף רכב", "צד ג", "צד ג'",
+    "property", "vehicle", "car insurance", "home insurance",
+    "ביטוח צד ג", "נזק לרכב", "גניבת רכב", "אובדן רכב",
+]
+
+# Row-level terms to skip (won't match medical categories anyway, but extra safety)
+EXCLUDED_ROW_KEYWORDS = [
+    "רכב", "דירה", "מבנה", "תכולה", "צד ג", "גניבה", "שריפה",
+]
+
+
+def _is_excluded_policy(text: str) -> bool:
+    """Return True if the document appears to be a car/home insurance policy."""
+    t = text.lower()
+    return any(kw.lower() in t for kw in EXCLUDED_POLICY_KEYWORDS)
+
+
+def _is_excluded_row(text: str) -> bool:
+    """Return True if the row is clearly about car/home — not a medical coverage."""
+    t = text
+    return any(kw in t for kw in EXCLUDED_ROW_KEYWORDS) and not any(
+        med in t for med in ["ניתוח", "אשפוז", "בריאות", "רפואי", "מחלה"]
+    )
+
 
 def _extract_number(text):
     m = COVERAGE_NUMBER_RE.search(text.replace(",", ""))
@@ -89,6 +116,8 @@ def parse_excel_private(content: bytes) -> dict:
 
     for row in rows_data:
         row_text = " ".join(row)
+        if _is_excluded_row(row_text):
+            continue
         cat = _match_category(row_text)
         if not cat:
             continue
@@ -141,6 +170,8 @@ def parse_pdf_private(content: bytes) -> dict:
     coverages = {}
 
     for line in lines:
+        if _is_excluded_row(line):
+            continue
         cat = _match_category(line)
         if not cat or len(line.strip()) < 5:
             continue
@@ -185,6 +216,12 @@ async def upload_private_insurance(
         parsed = parse_excel_private(content)
     else:
         raise HTTPException(status_code=400, detail="סוג קובץ לא נתמך — יש להעלות PDF או Excel")
+
+    if _is_excluded_policy(parsed.get("raw_text_preview", "")):
+        raise HTTPException(
+            status_code=422,
+            detail="הקובץ מזוהה כפוליסת רכב או בית — ייבוא סוג זה אינו נתמך. יש להעלות ביטוח בריאות בלבד."
+        )
 
     # Create insurance source
     source = models.InsuranceSource(

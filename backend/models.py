@@ -81,6 +81,10 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(String, default=UserRole.manager)
+    is_admin = Column(Boolean, default=False)
+    preserve_data = Column(Boolean, default=False)
+    reset_token = Column(String, nullable=True)
+    reset_token_expires = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
 
@@ -211,4 +215,33 @@ class ResponsivenessScore(Base):
     overall_score = Column(Float, nullable=False)
     is_default = Column(Boolean, default=True)
     notes = Column(Text, nullable=True)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+class ScrapingSource(Base):
+    __tablename__ = "scraping_sources"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    url = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    interval_hours = Column(Integer, default=24)
+    last_scraped_at = Column(DateTime(timezone=True), nullable=True)
+    last_scraped_count = Column(Integer, nullable=True)
+    last_error = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Doctor(Base):
+    __tablename__ = "doctors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    specialty = Column(String, nullable=True)        # מומחיות
+    sub_specialty = Column(String, nullable=True)    # תת-התמחות
+    phone = Column(String, nullable=True)            # טלפון ליצירת קשר
+    location = Column(String, nullable=True)         # היכן מקבל
+    hmo_acceptance = Column(Text, nullable=True)     # JSON array: ["clalit","maccabi",...]
+    gives_expert_opinion = Column(Boolean, default=False)  # חוות דעת לוועדות
+    notes = Column(Text, nullable=True)
+    source_url = Column(String, nullable=True)       # מקור מהרשת
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

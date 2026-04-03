@@ -80,37 +80,7 @@ export default function ManagerDashboard() {
         </button>
       </div>
 
-      {/* Import sal habriut */}
-      <div className="mb-4">
-        <button onClick={() => { setShowImportSal(!showImportSal); setImportResult(null) }}
-          className="btn-secondary text-sm flex items-center gap-2">
-          🏥 ייבוא סל הבריאות לפי ת.ז.
-        </button>
-        {showImportSal && (
-          <div className="mt-3 card max-w-md">
-            <p className="text-sm font-medium text-slate-700 mb-3">ייבוא כיסויי סל הבריאות לתיק מטופל</p>
-            <form onSubmit={handleImportSal} className="flex gap-2">
-              <input
-                className="input flex-1"
-                placeholder="הכנס מספר ת.ז."
-                value={importIdNumber}
-                onChange={e => setImportIdNumber(e.target.value)}
-                required
-              />
-              <button type="submit" disabled={importing} className="btn-primary text-sm whitespace-nowrap">
-                {importing ? 'מייבא...' : 'ייבא'}
-              </button>
-            </form>
-            {importResult && (
-              <div className={`mt-3 p-3 rounded-lg text-sm ${importResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                {importResult.success
-                  ? `✅ ${importResult.message} (${importResult.count} כיסויים)`
-                  : `❌ ${importResult.message}`}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">

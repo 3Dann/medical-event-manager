@@ -8,7 +8,12 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState('login')
   const [form, setForm] = useState({ email: '', password: '', full_name: '', role: 'manager' })
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [resetForm, setResetForm] = useState({ token: '', new_password: '', confirm: '' })
+  const [forgotStep, setForgotStep] = useState(1) // 1=email, 2=token+password
+  const [resetToken, setResetToken] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
@@ -34,6 +39,37 @@ export default function LoginPage() {
     }
   }
 
+  const handleForgotStep1 = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+    try {
+      const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail })
+      setResetToken(res.data.reset_token)
+      setForgotStep(2)
+    } catch (err) {
+      setError(err.response?.data?.detail || 'שגיאה')
+    } finally { setLoading(false) }
+  }
+
+  const handleForgotStep2 = async (e) => {
+    e.preventDefault()
+    setError('')
+    if (resetForm.new_password !== resetForm.confirm) {
+      setError('הסיסמאות אינן תואמות')
+      return
+    }
+    setLoading(true)
+    try {
+      await axios.post('/api/auth/reset-password', { email: forgotEmail, token: resetForm.token, new_password: resetForm.new_password })
+      setSuccess('הסיסמה עודכנה בהצלחה — ניתן להתחבר')
+      setTab('login')
+      setForgotStep(1)
+    } catch (err) {
+      setError(err.response?.data?.detail || 'שגיאה')
+    } finally { setLoading(false) }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-lg w-full max-w-md p-8">
@@ -50,43 +86,89 @@ export default function LoginPage() {
 
         {/* Tabs */}
         <div className="flex bg-slate-100 rounded-lg p-1 mb-6">
-          {['login', 'register'].map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${tab === t ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
-              {t === 'login' ? 'התחברות' : 'הרשמה'}
+          {[['login','התחברות'],['register','הרשמה'],['forgot','שכחתי סיסמה']].map(([t, label]) => (
+            <button key={t} onClick={() => { setTab(t); setError(''); setSuccess(''); setForgotStep(1) }}
+              className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${tab === t ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
+              {label}
             </button>
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {tab === 'register' && (
+        {success && <p className="text-green-700 text-sm bg-green-50 p-3 rounded-lg mb-4">{success}</p>}
+
+        {/* Login / Register */}
+        {tab !== 'forgot' && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {tab === 'register' && (
+              <div>
+                <label className="label">שם מלא</label>
+                <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required />
+              </div>
+            )}
             <div>
-              <label className="label">שם מלא</label>
-              <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required />
+              <label className="label">אימייל</label>
+              <input type="email" className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
             </div>
-          )}
-          <div>
-            <label className="label">אימייל</label>
-            <input type="email" className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
-          </div>
-          <div>
-            <label className="label">סיסמה</label>
-            <input type="password" className="input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
-          </div>
-          {tab === 'register' && (
             <div>
-              <label className="label">תפקיד</label>
-              <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
-                <option value="manager">מנהל אירוע רפואי</option>
-                <option value="patient">מטופל</option>
-              </select>
+              <label className="label">סיסמה</label>
+              <input type="password" className="input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
             </div>
-          )}
-          {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-          <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
-            {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'הרשמה'}
-          </button>
-        </form>
+            {tab === 'register' && (
+              <div>
+                <label className="label">תפקיד</label>
+                <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
+                  <option value="manager">מנהל אירוע רפואי</option>
+                  <option value="patient">מטופל</option>
+                </select>
+              </div>
+            )}
+            {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
+              {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'הרשמה'}
+            </button>
+          </form>
+        )}
+
+        {/* Forgot password */}
+        {tab === 'forgot' && forgotStep === 1 && (
+          <form onSubmit={handleForgotStep1} className="space-y-4">
+            <p className="text-sm text-slate-600">הזן את האימייל שלך וקבל קוד איפוס.</p>
+            <div>
+              <label className="label">אימייל</label>
+              <input type="email" className="input" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required />
+            </div>
+            {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+              {loading ? 'שולח...' : 'קבל קוד איפוס'}
+            </button>
+          </form>
+        )}
+
+        {tab === 'forgot' && forgotStep === 2 && (
+          <form onSubmit={handleForgotStep2} className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+              <p className="text-xs text-blue-600 mb-1">קוד האיפוס שלך:</p>
+              <p className="text-2xl font-bold text-blue-800 tracking-widest">{resetToken}</p>
+              <p className="text-xs text-blue-500 mt-1">תוקף: שעה אחת</p>
+            </div>
+            <div>
+              <label className="label">קוד האיפוס</label>
+              <input className="input text-center tracking-widest uppercase" maxLength={6} value={resetForm.token} onChange={e => setResetForm({...resetForm, token: e.target.value.toUpperCase()})} required />
+            </div>
+            <div>
+              <label className="label">סיסמה חדשה</label>
+              <input type="password" className="input" value={resetForm.new_password} onChange={e => setResetForm({...resetForm, new_password: e.target.value})} required />
+            </div>
+            <div>
+              <label className="label">אימות סיסמה</label>
+              <input type="password" className="input" value={resetForm.confirm} onChange={e => setResetForm({...resetForm, confirm: e.target.value})} required />
+            </div>
+            {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+              {loading ? 'מעדכן...' : 'עדכן סיסמה'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

@@ -17,6 +17,9 @@ import PatientClaims from './pages/manager/PatientClaims'
 import PatientStrategy from './pages/manager/PatientStrategy'
 import ResponsivenessPage from './pages/manager/ResponsivenessPage'
 import FeedbackInbox from './pages/manager/FeedbackInbox'
+import DoctorsDatabase from './pages/manager/DoctorsDatabase'
+import ProfilePage from './pages/manager/ProfilePage'
+import AdminPage from './pages/manager/AdminPage'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
@@ -43,8 +46,11 @@ function AppRoutes() {
         <Route path="patients/:id/insurance" element={<PatientInsurance />} />
         <Route path="patients/:id/claims" element={<PatientClaims />} />
         <Route path="patients/:id/strategy" element={<PatientStrategy />} />
+        <Route path="doctors" element={<DoctorsDatabase />} />
         <Route path="responsiveness" element={<ResponsivenessPage />} />
         <Route path="feedback" element={<FeedbackInbox />} />
+        <Route path="profile" element={<ProfilePage />} />
+        <Route path="admin" element={<AdminPage />} />
       </Route>
 
       {/* Patient routes */}
