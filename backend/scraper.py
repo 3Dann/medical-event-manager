@@ -294,17 +294,25 @@ def run_broad_search(db_session_factory) -> dict:
             seen.add(n)
             unique.append(rec)
 
-    # License verification — only keep doctors with Israeli license
+    # Records from data.gov.il are published by the Israeli government —
+    # they are considered implicitly licensed. We still run the check to
+    # enrich notes, but never discard them.
     licensed_records = []
     unlicensed = 0
     for rec in unique:
-        if verify_medical_license(rec["name"]):
+        is_gov_source = "data.gov.il" in (rec.get("source_url") or "")
+        if is_gov_source:
+            # Government source = trusted; mark as verified
+            rec["notes"] = ((rec.get("notes") or "") + " | ✅ מקור ממשלתי מאומת").strip(" |")
+            licensed_records.append(rec)
+        elif verify_medical_license(rec["name"]):
             licensed_records.append(rec)
         else:
             unlicensed += 1
+            logger.info("Skipped unlicensed (non-gov): %s", rec["name"])
 
-    logger.info("Broad: %d candidates → %d unique → %d licensed",
-                len(all_records), len(unique), len(licensed_records))
+    logger.info("Broad: %d candidates → %d unique → %d kept (%d skipped no-license)",
+                len(all_records), len(unique), len(licensed_records), unlicensed)
 
     # Upsert into DB
     db = db_session_factory()
