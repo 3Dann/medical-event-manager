@@ -402,7 +402,7 @@ export default function DoctorsDatabase() {
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-slate-800 text-white">
+              <tr className="bg-blue-600 text-white">
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">שם הרופא</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">מומחיות</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">תת-התמחות</th>
