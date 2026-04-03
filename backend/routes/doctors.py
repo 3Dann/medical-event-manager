@@ -1,6 +1,9 @@
 import json
 import io
+import logging
 import concurrent.futures
+
+logger = logging.getLogger("doctors")
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -9,7 +12,7 @@ from typing import Optional, List
 from database import get_db, SessionLocal
 import models
 import auth as auth_utils
-from scraper import run_scraping_job, scrape_url, run_all_sources
+from scraper import run_scraping_job, scrape_url, run_all_sources, _normalize_name
 
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
@@ -371,17 +374,19 @@ def _bg_scrape_url(url: str):
     db = SessionLocal()
     try:
         records = scrape_url(url)
-        existing = {d.name.strip().lower() for d in db.query(models.Doctor.name).all()}
+        existing = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
         added = 0
         for rec in records:
-            if rec["name"].strip().lower() in existing:
+            if _normalize_name(rec["name"]) in existing:
                 continue
             db.add(models.Doctor(**rec))
-            existing.add(rec["name"].strip().lower())
+            existing.add(_normalize_name(rec["name"]))
             added += 1
         db.commit()
-    except Exception:
+        logger.info("URL import done: %d new doctors from %s", added, url)
+    except Exception as e:
         db.rollback()
+        logger.error("URL import error: %s", e)
     finally:
         db.close()
 
