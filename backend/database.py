@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL", "sqlite:///./medical_event_manager.db"
+    "DATABASE_URL", "sqlite:////data/medical_event_manager.db" if os.path.isdir("/data") else "sqlite:///./medical_event_manager.db"
 )
 
 engine = create_engine(

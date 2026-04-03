@@ -111,6 +111,24 @@ def seed_israeli_sources():
 
 seed_israeli_sources()
 
+# One-time user reset (clears all users so first registration becomes admin)
+def reset_users_once():
+    flag = "/data/.users_reset_v1" if os.path.isdir("/data") else "./.users_reset_v1"
+    if os.path.exists(flag):
+        return
+    db = SessionLocal()
+    try:
+        count = db.query(models.User).count()
+        if count > 0:
+            db.query(models.User).delete()
+            db.commit()
+            logger.info("One-time user reset complete — first registration will become Admin")
+        open(flag, "w").close()
+    finally:
+        db.close()
+
+reset_users_once()
+
 # Register routes
 app.include_router(auth.router)
 app.include_router(patients.router)

@@ -47,11 +47,13 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+    is_first_user = db.query(models.User).count() == 0
     user = models.User(
         full_name=user_data.full_name,
         email=user_data.email,
         hashed_password=auth_utils.get_password_hash(user_data.password),
-        role=user_data.role,
+        role="admin" if is_first_user else user_data.role,
+        is_admin=is_first_user,
     )
     db.add(user)
     db.commit()
