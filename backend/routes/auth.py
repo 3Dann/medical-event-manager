@@ -52,7 +52,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         full_name=user_data.full_name,
         email=user_data.email,
         hashed_password=auth_utils.get_password_hash(user_data.password),
-        role="admin" if is_first_user else user_data.role,
+        role=user_data.role,
         is_admin=is_first_user,
     )
     db.add(user)
