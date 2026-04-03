@@ -484,6 +484,27 @@ def create_source(
     return source_to_dict(source)
 
 
+@router.post("/sources/run-all")
+def run_all_sources_now(
+    background_tasks: BackgroundTasks,
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    background_tasks.add_task(_executor.submit, run_all_sources, SessionLocal)
+    return {"status": "queued", "message": "סריקת כל המקורות הושקה ברקע"}
+
+
+@router.post("/sources/broad-search")
+def run_broad_search_now(
+    background_tasks: BackgroundTasks,
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    def _bg():
+        result = run_broad_search(SessionLocal)
+        logger.info("Broad search complete: %s", result)
+    background_tasks.add_task(_executor.submit, _bg)
+    return {"status": "queued", "message": "חיפוש רחב הושק ברקע — מחפש בכל מאגרי data.gov.il ומאמת רישיונות ישראליים"}
+
+
 @router.put("/sources/{source_id}")
 def update_source(
     source_id: int,
@@ -521,32 +542,5 @@ def run_source_now(
     background_tasks: BackgroundTasks,
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
-    """Trigger an immediate scrape of a single source — runs in background thread."""
     background_tasks.add_task(_executor.submit, run_scraping_job, source_id, SessionLocal)
     return {"status": "queued", "message": "סריקה הושקה ברקע"}
-
-
-@router.post("/sources/run-all")
-def run_all_sources_now(
-    background_tasks: BackgroundTasks,
-    current_user: models.User = Depends(auth_utils.require_manager),
-):
-    """Trigger an immediate scrape of all active sources — runs in background thread."""
-    background_tasks.add_task(_executor.submit, run_all_sources, SessionLocal)
-    return {"status": "queued", "message": "סריקת כל המקורות הושקה ברקע"}
-
-
-@router.post("/sources/broad-search")
-def run_broad_search_now(
-    background_tasks: BackgroundTasks,
-    current_user: models.User = Depends(auth_utils.require_manager),
-):
-    """
-    Discover ALL medical datasets on data.gov.il, verify Israeli licenses,
-    and import new doctors. Runs in background — may take a few minutes.
-    """
-    def _bg():
-        result = run_broad_search(SessionLocal)
-        logger.info("Broad search complete: %s", result)
-    background_tasks.add_task(_executor.submit, _bg)
-    return {"status": "queued", "message": "חיפוש רחב הושק ברקע — מחפש בכל מאגרי data.gov.il ומאמת רישיונות ישראליים"}
