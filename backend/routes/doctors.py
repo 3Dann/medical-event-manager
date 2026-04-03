@@ -12,7 +12,7 @@ from typing import Optional, List
 from database import get_db, SessionLocal
 import models
 import auth as auth_utils
-from scraper import run_scraping_job, scrape_url, run_all_sources, _normalize_name
+from scraper import run_scraping_job, scrape_url, run_all_sources, run_broad_search, _normalize_name
 
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
@@ -534,3 +534,19 @@ def run_all_sources_now(
     """Trigger an immediate scrape of all active sources — runs in background thread."""
     background_tasks.add_task(_executor.submit, run_all_sources, SessionLocal)
     return {"status": "queued", "message": "סריקת כל המקורות הושקה ברקע"}
+
+
+@router.post("/sources/broad-search")
+def run_broad_search_now(
+    background_tasks: BackgroundTasks,
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    """
+    Discover ALL medical datasets on data.gov.il, verify Israeli licenses,
+    and import new doctors. Runs in background — may take a few minutes.
+    """
+    def _bg():
+        result = run_broad_search(SessionLocal)
+        logger.info("Broad search complete: %s", result)
+    background_tasks.add_task(_executor.submit, _bg)
+    return {"status": "queued", "message": "חיפוש רחב הושק ברקע — מחפש בכל מאגרי data.gov.il ומאמת רישיונות ישראליים"}

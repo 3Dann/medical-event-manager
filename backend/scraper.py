@@ -142,7 +142,196 @@ def _bool_from_value(value) -> bool:
     return str(value).strip().lower() in ["כן", "yes", "true", "1", "נכון"]
 
 
-CKAN_BASE = "https://data.gov.il/api/3/action/datastore_search"
+CKAN_BASE        = "https://data.gov.il/api/3/action/datastore_search"
+CKAN_PKG_SEARCH  = "https://data.gov.il/api/3/action/package_search"
+CKAN_PKG_SHOW    = "https://data.gov.il/api/3/action/package_show"
+
+# Keywords used to find medical datasets on data.gov.il
+_MEDICAL_SEARCH_TERMS = [
+    "רופאים", "רופא", "רפואה", "מומחה", "מומחים",
+    "רישיון רפואי", "עוסק ברפואה", "מרפאה", "בית חולים",
+    "doctors", "physician", "medical", "specialist",
+]
+
+# Name fields commonly used in medical CKAN datasets
+_NAME_FIELDS = [
+    "name", "שם", "doctor_name", "dr_name", "expert", "full_name",
+    "physician", "שם_רופא", "שם רופא", "שם מלא",
+]
+_SPECIALTY_FIELDS = [
+    "specialty", "profession", "מומחיות", "התמחות", "תחום", "תפקיד",
+]
+_LOCATION_FIELDS = [
+    "city", "adress", "address", "location", "עיר", "כתובת", "מיקום",
+]
+
+
+def _fetch_all_medical_resource_ids() -> list[str]:
+    """
+    Search data.gov.il CKAN for all packages related to medicine/doctors.
+    Returns a list of resource IDs (datastore resources only).
+    """
+    found = []
+    seen_ids = set(CKAN_SOURCES.keys())  # skip already-known sources
+
+    for term in _MEDICAL_SEARCH_TERMS:
+        try:
+            resp = http_requests.get(
+                CKAN_PKG_SEARCH,
+                params={"q": term, "rows": 20},
+                timeout=15,
+                headers={"User-Agent": "Mozilla/5.0"},
+            )
+            data = resp.json()
+            if not data.get("success"):
+                continue
+            for pkg in data["result"].get("results", []):
+                for res in pkg.get("resources", []):
+                    rid = res.get("id", "")
+                    if rid and rid not in seen_ids and res.get("datastore_active"):
+                        seen_ids.add(rid)
+                        found.append(rid)
+        except Exception:
+            continue
+
+    logger.info("Broad search found %d new CKAN medical resources", len(found))
+    return found
+
+
+def _guess_field(record: dict, candidates: list[str]) -> str | None:
+    """Return the value of the first matching field in a CKAN record."""
+    keys_lower = {k.lower(): v for k, v in record.items()}
+    for c in candidates:
+        if keys_lower.get(c.lower()):
+            return str(keys_lower[c.lower()]).strip()
+    return None
+
+
+def _scrape_resource_broad(resource_id: str) -> list[dict]:
+    """
+    Pull records from any CKAN resource and try to extract doctor info
+    using heuristic field matching. Only keeps records that look like people.
+    """
+    records = []
+    offset = 0
+    url = f"https://data.gov.il/api/3/action/datastore_search?resource_id={resource_id}"
+
+    while True:
+        try:
+            resp = http_requests.get(
+                CKAN_BASE,
+                params={"resource_id": resource_id, "limit": 500, "offset": offset},
+                timeout=20,
+                headers={"User-Agent": "Mozilla/5.0"},
+            )
+            data = resp.json()
+            if not data.get("success"):
+                break
+            batch = data["result"]["records"]
+            if not batch:
+                break
+
+            for rec in batch:
+                name = _guess_field(rec, _NAME_FIELDS)
+                if not name or len(name) < 3 or len(name) > 80:
+                    continue
+                # Must look like a person name (contains Hebrew or Latin letters, not just digits)
+                if not re.search(r'[\u05d0-\u05eaA-Za-z]', name):
+                    continue
+                specialty = _guess_field(rec, _SPECIALTY_FIELDS)
+                # Skip non-human professions
+                if specialty and specialty.lower() in _EXCLUDED_PROFESSIONS:
+                    continue
+                location = _guess_field(rec, _LOCATION_FIELDS)
+                records.append({
+                    "name": name,
+                    "specialty": specialty or None,
+                    "sub_specialty": None,
+                    "phone": None,
+                    "location": location,
+                    "hmo_acceptance": json.dumps([], ensure_ascii=False),
+                    "gives_expert_opinion": False,
+                    "notes": f"מקור: data.gov.il resource {resource_id[:8]}",
+                    "source_url": url,
+                })
+
+            offset += len(batch)
+            if offset >= data["result"]["total"]:
+                break
+        except Exception as e:
+            logger.warning("broad scrape resource %s: %s", resource_id, e)
+            break
+
+    return records
+
+
+def run_broad_search(db_session_factory) -> dict:
+    """
+    Discover ALL medical CKAN resources on data.gov.il, scrape them,
+    verify Israeli medical licenses, and upsert into the DB.
+    Returns summary dict.
+    """
+    import models
+
+    logger.info("Starting broad search across data.gov.il medical datasets…")
+    resource_ids = _fetch_all_medical_resource_ids()
+
+    all_records: list[dict] = []
+    for rid in resource_ids:
+        try:
+            recs = _scrape_resource_broad(rid)
+            all_records.extend(recs)
+            logger.info("Resource %s: %d candidates", rid, len(recs))
+        except Exception as e:
+            logger.warning("Resource %s failed: %s", rid, e)
+
+    # Deduplicate within this batch
+    seen: set[str] = set()
+    unique: list[dict] = []
+    for rec in all_records:
+        n = _normalize_name(rec["name"])
+        if n not in seen:
+            seen.add(n)
+            unique.append(rec)
+
+    # License verification — only keep doctors with Israeli license
+    licensed_records = []
+    unlicensed = 0
+    for rec in unique:
+        if verify_medical_license(rec["name"]):
+            licensed_records.append(rec)
+        else:
+            unlicensed += 1
+
+    logger.info("Broad: %d candidates → %d unique → %d licensed",
+                len(all_records), len(unique), len(licensed_records))
+
+    # Upsert into DB
+    db = db_session_factory()
+    added = 0
+    try:
+        existing = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
+        for rec in licensed_records:
+            n = _normalize_name(rec["name"])
+            if n not in existing:
+                db.add(models.Doctor(**rec))
+                existing.add(n)
+                added += 1
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error("DB upsert error in broad search: %s", e)
+    finally:
+        db.close()
+
+    return {
+        "resources_found": len(resource_ids),
+        "candidates": len(all_records),
+        "unique": len(unique),
+        "licensed": len(licensed_records),
+        "unlicensed_skipped": unlicensed,
+        "added": added,
+    }
 
 # Non-human professions to exclude
 _EXCLUDED_PROFESSIONS = {"וטרינר", "וטרינריה", "רפואה וטרינרית", "ווטרינרי"}

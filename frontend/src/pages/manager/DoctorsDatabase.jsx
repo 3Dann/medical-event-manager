@@ -101,6 +101,8 @@ export default function DoctorsDatabase() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [importMode, setImportMode] = useState(null) // 'excel' | 'pdf' | 'url'
+  const [broadSearching, setBroadSearching] = useState(false)
+  const [broadResult, setBroadResult] = useState(null)
   const [importUrl, setImportUrl] = useState('')
   const [importStatus, setImportStatus] = useState(null)
   const [importing, setImporting] = useState(false)
@@ -242,6 +244,40 @@ export default function DoctorsDatabase() {
           הוספת רופא
         </button>
       </div>
+
+      {/* Broad search bar */}
+      <div className="mb-4 p-4 rounded-xl border border-blue-100 bg-blue-50 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-blue-800">חיפוש רחב — כל מאגרי משרד הבריאות</p>
+          <p className="text-xs text-blue-600 mt-0.5">סורק את כל data.gov.il, מאמת רישיון ישראלי, ומסנן כפילויות</p>
+        </div>
+        <button
+          onClick={async () => {
+            setBroadSearching(true); setBroadResult(null)
+            try {
+              await axios.post('/api/doctors/sources/broad-search')
+              setBroadResult({ success: true, message: 'החיפוש הושק ברקע — הרופאים יופיעו בטבלה בעוד כמה דקות' })
+              setTimeout(() => fetchDoctors(), 15000)
+            } catch (e) {
+              setBroadResult({ success: false, message: e.response?.data?.detail || 'שגיאה' })
+            } finally { setBroadSearching(false) }
+          }}
+          disabled={broadSearching}
+          style={{ boxShadow: broadSearching ? 'inset 0 2px 4px rgba(0,0,0,0.12)' : '0 3px 0 #1d4ed8, 0 4px 8px rgba(29,78,216,0.3), inset 0 1px 0 rgba(255,255,255,0.3)', transform: broadSearching ? 'translateY(2px)' : 'translateY(0)', transition: 'all 0.12s ease' }}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 text-white border border-blue-700 whitespace-nowrap"
+        >
+          {broadSearching ? (
+            <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>מחפש...</>
+          ) : (
+            <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/></svg>חיפוש רחב</>
+          )}
+        </button>
+      </div>
+      {broadResult && (
+        <div className={`mb-4 p-3 rounded-lg text-sm ${broadResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+          {broadResult.success ? `✅ ${broadResult.message}` : `❌ ${broadResult.message}`}
+        </div>
+      )}
 
       {/* Import toolbar */}
       <div className="flex flex-wrap gap-2 mb-4">
