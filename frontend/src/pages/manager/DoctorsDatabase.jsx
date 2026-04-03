@@ -401,16 +401,16 @@ export default function DoctorsDatabase() {
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
-                <th className="px-4 py-3 text-right font-medium">שם הרופא</th>
-                <th className="px-4 py-3 text-right font-medium">מומחיות</th>
-                <th className="px-4 py-3 text-right font-medium">תת-התמחות</th>
-                <th className="px-4 py-3 text-right font-medium">טלפון</th>
-                <th className="px-4 py-3 text-right font-medium">מיקום קבלה</th>
-                <th className="px-4 py-3 text-right font-medium">קופות חולים</th>
-                <th className="px-4 py-3 text-center font-medium">חוות דעת</th>
-                <th className="px-4 py-3 text-right font-medium">פעולות</th>
+            <thead>
+              <tr className="bg-slate-800 text-white">
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">שם הרופא</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">מומחיות</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">תת-התמחות</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">טלפון</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">מיקום קבלה</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">קופות חולים</th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">חוות דעת</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">פעולות</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
