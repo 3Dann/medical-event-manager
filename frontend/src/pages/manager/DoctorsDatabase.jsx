@@ -1,5 +1,71 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
+
+function FilterButton({ label, value, options, onChange, valueLabel }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const active = !!value
+  const displayLabel = active ? (valueLabel || value) : label
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        style={{
+          boxShadow: open
+            ? 'inset 0 2px 4px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)'
+            : active
+              ? '0 3px 0 #2563eb, 0 4px 8px rgba(37,99,235,0.25), inset 0 1px 0 rgba(255,255,255,0.4)'
+              : '0 3px 0 #94a3b8, 0 4px 8px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.7)',
+          transform: open ? 'translateY(2px)' : 'translateY(0)',
+          transition: 'all 0.12s ease',
+        }}
+        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border select-none
+          ${active
+            ? 'bg-blue-50 text-blue-700 border-blue-200'
+            : 'bg-white text-slate-700 border-slate-200'
+          }`}
+      >
+        {displayLabel}
+        <svg className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute top-full mt-1 right-0 z-30 bg-white rounded-xl shadow-lg border border-slate-200 py-1 min-w-[160px]"
+          style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)' }}>
+          <button
+            type="button"
+            onClick={() => { onChange(''); setOpen(false) }}
+            className={`w-full text-right px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${!value ? 'text-blue-600 font-medium' : 'text-slate-500'}`}
+          >
+            {label} — הכל
+          </button>
+          <div className="border-t border-slate-100 my-1" />
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false) }}
+              className={`w-full text-right px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${value === opt.value ? 'text-blue-600 font-medium bg-blue-50' : 'text-slate-700'}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const HMO_LABELS = {
   clalit: 'כללית',
@@ -268,39 +334,50 @@ export default function DoctorsDatabase() {
       )}
 
       {/* Search & Filters */}
-      <div className="flex flex-wrap gap-2 mb-2">
+      <div className="flex flex-wrap items-center gap-3 mb-2">
         <input
           className="input w-56 text-sm"
           placeholder="חיפוש חופשי..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
-        <select className="input w-44 text-sm" value={filterSpecialty} onChange={e => { setFilterSpecialty(e.target.value); setFilterSubSpecialty('') }}>
-          <option value="">כל ההתמחויות</option>
-          {filterOptions.specialties.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
+        <FilterButton
+          label="התמחות"
+          value={filterSpecialty}
+          valueLabel={filterSpecialty}
+          options={filterOptions.specialties.map(s => ({ value: s, label: s }))}
+          onChange={v => { setFilterSpecialty(v); setFilterSubSpecialty('') }}
+        />
         {filterOptions.sub_specialties.length > 0 && (
-          <select className="input w-44 text-sm" value={filterSubSpecialty} onChange={e => setFilterSubSpecialty(e.target.value)}>
-            <option value="">כל תת-ההתמחויות</option>
-            {filterOptions.sub_specialties.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <FilterButton
+            label="תת-התמחות"
+            value={filterSubSpecialty}
+            valueLabel={filterSubSpecialty}
+            options={filterOptions.sub_specialties.map(s => ({ value: s, label: s }))}
+            onChange={setFilterSubSpecialty}
+          />
         )}
-
-        <select className="input w-40 text-sm" value={filterHmo} onChange={e => setFilterHmo(e.target.value)}>
-          <option value="">כל קופות החולים</option>
-          {HMO_OPTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-        </select>
-        <select className="input w-40 text-sm" value={filterExpert} onChange={e => setFilterExpert(e.target.value)}>
-          <option value="">חוות דעת — הכל</option>
-          <option value="yes">נותן חוות דעת</option>
-          <option value="no">לא נותן חוות דעת</option>
-        </select>
-        {(search || filterSpecialty || filterSubSpecialty || filterLocation || filterHmo || filterExpert) && (
+        <FilterButton
+          label="קופת חולים"
+          value={filterHmo}
+          valueLabel={HMO_LABELS[filterHmo]}
+          options={HMO_OPTIONS.map(([key, label]) => ({ value: key, label }))}
+          onChange={setFilterHmo}
+        />
+        <FilterButton
+          label="חוות דעת"
+          value={filterExpert}
+          valueLabel={filterExpert === 'yes' ? 'נותן חוות דעת' : 'לא נותן'}
+          options={[{ value: 'yes', label: 'נותן חוות דעת' }, { value: 'no', label: 'לא נותן חוות דעת' }]}
+          onChange={setFilterExpert}
+        />
+        {(search || filterSpecialty || filterSubSpecialty || filterHmo || filterExpert) && (
           <button
             onClick={() => { setSearch(''); setFilterSpecialty(''); setFilterSubSpecialty(''); setFilterHmo(''); setFilterExpert('') }}
-            className="text-sm text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            style={{ boxShadow: '0 3px 0 #ef4444, 0 4px 8px rgba(239,68,68,0.2)', transition: 'all 0.12s ease' }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 active:translate-y-0.5"
           >
-            ✕ נקה פילטרים
+            ✕ נקה
           </button>
         )}
       </div>
