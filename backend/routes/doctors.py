@@ -424,64 +424,140 @@ async def import_from_pdf(
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
     if pdfplumber is None:
-        raise HTTPException(status_code=500, detail="pdfplumber not installed")
+        raise HTTPException(status_code=500, detail="pdfplumber לא מותקן בשרת")
     content = await file.read()
+    if content[:4] != b"%PDF":
+        raise HTTPException(status_code=400, detail="הקובץ אינו PDF תקני")
+
     imported = 0
     rows = []
+    pages_scanned = 0
+    tables_found = 0
+    method_used = None
+
+    field_aliases = {
+        "name": ["שם", "שם רופא", "שם מלא", "name", "doctor"],
+        "specialty": ["מומחיות", "specialty", "התמחות", "תחום"],
+        "sub_specialty": ["תת התמחות", "תת-התמחות", "sub_specialty", "תת מומחיות"],
+        "phone": ["טלפון", "phone", "נייד", "טל", "פלאפון"],
+        "location": ["מיקום", "כתובת", "location", "היכן מקבל", "עיר", "אזור"],
+        "hmo_acceptance": ["קופות חולים", "קופה", "hmo", "קופות"],
+        "gives_expert_opinion": ["חוות דעת", "ועדות", "expert_opinion", "חוו\"ד"],
+        "notes": ["הערות", "notes", "מידע נוסף"],
+    }
+
+    def _extract_row(row, col_map):
+        def get_col(field):
+            idx = col_map.get(field)
+            return row[idx] if idx is not None and idx < len(row) else None
+        name = str(get_col("name") or "").strip()
+        if not name:
+            return None
+        hmo_raw = get_col("hmo_acceptance")
+        hmo_list = _parse_hmo_string(hmo_raw) if hmo_raw else []
+        return {
+            "name": name,
+            "specialty": str(get_col("specialty") or "").strip() or None,
+            "sub_specialty": str(get_col("sub_specialty") or "").strip() or None,
+            "phone": str(get_col("phone") or "").strip() or None,
+            "location": str(get_col("location") or "").strip() or None,
+            "hmo_acceptance": json.dumps(hmo_list, ensure_ascii=False),
+            "gives_expert_opinion": _bool_from_value(get_col("gives_expert_opinion")),
+            "notes": str(get_col("notes") or "").strip() or None,
+        }
+
     with pdfplumber.open(io.BytesIO(content)) as pdf:
+        pages_scanned = len(pdf.pages)
+
+        # ── Pass 1: table extraction ──────────────────────────────────────
         for page in pdf.pages:
             tables = page.extract_tables()
             for table in tables:
-                if not table:
+                if not table or len(table) < 2:
                     continue
-                # First table row as header
-                header = [str(c).strip().lower() if c else "" for c in table[0]]
+                tables_found += 1
+                header = [str(c).strip() if c else "" for c in table[0]]
+                header_lower = [h.lower() for h in header]
                 col_map = {}
-                field_aliases = {
-                    "name": ["שם", "שם רופא", "name"],
-                    "specialty": ["מומחיות", "specialty", "התמחות"],
-                    "sub_specialty": ["תת התמחות", "תת-התמחות", "sub_specialty"],
-                    "phone": ["טלפון", "phone", "נייד"],
-                    "location": ["מיקום", "כתובת", "location", "היכן מקבל"],
-                    "hmo_acceptance": ["קופות חולים", "קופה", "hmo"],
-                    "gives_expert_opinion": ["חוות דעת", "ועדות", "expert_opinion"],
-                    "notes": ["הערות", "notes"],
-                }
                 for field, aliases in field_aliases.items():
-                    for i, h in enumerate(header):
+                    for i, h in enumerate(header_lower):
                         if any(alias in h for alias in aliases):
                             col_map[field] = i
                             break
+                if "name" not in col_map:
+                    continue
                 for row in table[1:]:
                     if not row or not any(row):
                         continue
-                    def get_col(field):
-                        idx = col_map.get(field)
-                        return row[idx] if idx is not None and idx < len(row) else None
-                    name = str(get_col("name") or "").strip()
-                    if not name:
-                        continue
-                    hmo_raw = get_col("hmo_acceptance")
-                    hmo_list = _parse_hmo_string(hmo_raw) if hmo_raw else []
-                    rec = {
-                        "name": name,
-                        "specialty": str(get_col("specialty") or "").strip() or None,
-                        "sub_specialty": str(get_col("sub_specialty") or "").strip() or None,
-                        "phone": str(get_col("phone") or "").strip() or None,
-                        "location": str(get_col("location") or "").strip() or None,
-                        "hmo_acceptance": json.dumps(hmo_list, ensure_ascii=False),
-                        "gives_expert_opinion": _bool_from_value(get_col("gives_expert_opinion")),
-                        "notes": str(get_col("notes") or "").strip() or None,
-                    }
-                    rec = normalize_record(rec)
+                    rec = _extract_row(row, col_map)
                     if rec:
-                        rows.append(models.Doctor(**rec))
+                        rec = normalize_record(rec)
+                        if rec:
+                            rows.append(rec)
+                            method_used = "table"
 
-    for doc in rows:
-        db.add(doc)
+        # ── Pass 2: text fallback (line-by-line) ─────────────────────────
+        if not rows:
+            full_text = "\n".join(
+                page.extract_text() or "" for page in pdf.pages
+            )
+            lines = [l.strip() for l in full_text.splitlines() if l.strip()]
+
+            # Detect delimiter: try tab, then pipe, then comma
+            delim = None
+            for d in ["\t", "|", ","]:
+                scored = sum(1 for l in lines if d in l)
+                if scored > len(lines) * 0.3:
+                    delim = d
+                    break
+
+            if delim:
+                # Find header line
+                header_idx = None
+                col_map = {}
+                for i, line in enumerate(lines):
+                    parts = [p.strip().lower() for p in line.split(delim)]
+                    for field, aliases in field_aliases.items():
+                        for j, p in enumerate(parts):
+                            if any(alias in p for alias in aliases):
+                                col_map[field] = j
+                    if "name" in col_map:
+                        header_idx = i
+                        break
+
+                if header_idx is not None:
+                    for line in lines[header_idx + 1:]:
+                        parts = [p.strip() for p in line.split(delim)]
+                        rec = _extract_row(parts, col_map)
+                        if rec:
+                            rec = normalize_record(rec)
+                            if rec:
+                                rows.append(rec)
+                                method_used = "text"
+            else:
+                # Last resort: each non-empty line as a doctor name
+                for line in lines:
+                    if len(line) < 3 or line.isdigit():
+                        continue
+                    rec = normalize_record({"name": line})
+                    if rec:
+                        rows.append(rec)
+                        method_used = "text_names_only"
+
+    for rec in rows:
+        db.add(models.Doctor(**rec))
         imported += 1
     db.commit()
-    return {"imported": imported}
+
+    if imported == 0:
+        detail = f"לא נמצאו רופאים לייבוא. עמודים: {pages_scanned}, טבלאות: {tables_found}."
+        if pages_scanned == 0:
+            detail += " הקובץ נראה ריק."
+        elif tables_found == 0:
+            detail += " לא נמצאו טבלאות — נסה PDF עם טבלה או טקסט מופרד בטאב/פסיק."
+        raise HTTPException(status_code=422, detail=detail)
+
+    return {"imported": imported, "method": method_used, "pages": pages_scanned}
 
 
 class UrlImportRequest(BaseModel):
