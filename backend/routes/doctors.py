@@ -434,16 +434,23 @@ async def import_from_pdf(
     pages_scanned = 0
     tables_found = 0
     method_used = None
+    sample_headers = []  # for debugging
 
     field_aliases = {
-        "name": ["שם", "שם רופא", "שם מלא", "name", "doctor"],
-        "specialty": ["מומחיות", "specialty", "התמחות", "תחום"],
-        "sub_specialty": ["תת התמחות", "תת-התמחות", "sub_specialty", "תת מומחיות"],
-        "phone": ["טלפון", "phone", "נייד", "טל", "פלאפון"],
-        "location": ["מיקום", "כתובת", "location", "היכן מקבל", "עיר", "אזור"],
-        "hmo_acceptance": ["קופות חולים", "קופה", "hmo", "קופות"],
-        "gives_expert_opinion": ["חוות דעת", "ועדות", "expert_opinion", "חוו\"ד"],
-        "notes": ["הערות", "notes", "מידע נוסף"],
+        "name": ["שם", "שם רופא", "שם מלא", "שם פרטי", "שם משפחה", "name", "doctor",
+                 "רופא", "מומחה", "ד\"ר", "פרופ", "full name"],
+        "specialty": ["מומחיות", "specialty", "התמחות", "תחום", "תחום התמחות",
+                      "סוג מומחיות", "מקצוע", "specialization"],
+        "sub_specialty": ["תת התמחות", "תת-התמחות", "sub_specialty", "תת מומחיות",
+                          "התמחות משנית"],
+        "phone": ["טלפון", "phone", "נייד", "טל", "פלאפון", "מספר טלפון", "tel"],
+        "location": ["מיקום", "כתובת", "location", "היכן מקבל", "עיר", "אזור",
+                     "מרפאה", "בית חולים", "address", "city"],
+        "hmo_acceptance": ["קופות חולים", "קופה", "hmo", "קופות", "קבלת קופות",
+                           "מקבל קופות"],
+        "gives_expert_opinion": ["חוות דעת", "ועדות", "expert_opinion", "חוו\"ד",
+                                 "חוות דעת מומחה"],
+        "notes": ["הערות", "notes", "מידע נוסף", "remarks"],
     }
 
     def _extract_row(row, col_map):
@@ -478,11 +485,19 @@ async def import_from_pdf(
                 tables_found += 1
                 header = [str(c).strip() if c else "" for c in table[0]]
                 header_lower = [h.lower() for h in header]
+                if len(sample_headers) < 3:
+                    sample_headers.append(header[:8])
                 col_map = {}
                 for field, aliases in field_aliases.items():
                     for i, h in enumerate(header_lower):
                         if any(alias in h for alias in aliases):
                             col_map[field] = i
+                            break
+                # If no name column matched, fall back to first non-empty column
+                if "name" not in col_map:
+                    for i, h in enumerate(header):
+                        if h:
+                            col_map["name"] = i
                             break
                 if "name" not in col_map:
                     continue
@@ -555,6 +570,8 @@ async def import_from_pdf(
             detail += " הקובץ נראה ריק."
         elif tables_found == 0:
             detail += " לא נמצאו טבלאות — נסה PDF עם טבלה או טקסט מופרד בטאב/פסיק."
+        if sample_headers:
+            detail += f" כותרות שנמצאו: {sample_headers}"
         raise HTTPException(status_code=422, detail=detail)
 
     return {"imported": imported, "method": method_used, "pages": pages_scanned}
