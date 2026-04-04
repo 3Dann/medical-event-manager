@@ -60,6 +60,11 @@ def run_migrations():
         ("users", "preserve_data", "BOOLEAN DEFAULT 0"),
         ("users", "reset_token", "VARCHAR"),
         ("users", "reset_token_expires", "DATETIME"),
+        ("users", "totp_secret", "VARCHAR"),
+        ("users", "totp_enabled", "BOOLEAN DEFAULT 0"),
+        ("users", "totp_method", "VARCHAR DEFAULT 'totp'"),
+        ("users", "email_2fa_code", "VARCHAR"),
+        ("users", "email_2fa_expires", "DATETIME"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -128,6 +133,124 @@ def reset_users_once():
         db.close()
 
 reset_users_once()
+
+
+def reimport_doctors_v2():
+    """
+    One-time cleanup: delete truncated doctor records from CKAN + tteam sources
+    and re-import them fresh so full names are restored.
+    Also fixes misspelled specialty values.
+    """
+    flag = "/data/.doctors_reimport_v2" if os.path.isdir("/data") else "./.doctors_reimport_v2"
+    if os.path.exists(flag):
+        return
+    try:
+        import scraper as sc
+        from doctor_normalize import normalize_record
+        db = SessionLocal()
+
+        # ── Fix misspelled specialties ───────────────────────────────────────
+        fixes = {
+            "גניקולוגיה": "גינקולוגיה",
+            "פסיכלוגיה":  "פסיכולוגיה",
+            "גינקולוגיה":  "גינקולוגיה",  # already correct but normalize just in case
+        }
+        for wrong, right in fixes.items():
+            if wrong == right:
+                continue
+            rows = db.query(models.Doctor).filter(models.Doctor.specialty == wrong).all()
+            for r in rows:
+                r.specialty = right
+            if rows:
+                logger.info("Fixed spelling '%s' → '%s' for %d records", wrong, right, len(rows))
+
+        # ── Fix 4 long merged-name records ───────────────────────────────────
+        import re as _re
+        for doc in db.query(models.Doctor).filter(
+            models.Doctor.name.isnot(None)
+        ).all():
+            if len(doc.name) > 25:
+                # Try to extract just the name (first ~2 Hebrew words)
+                words = [w for w in doc.name.split() if _re.search(r'[\u05d0-\u05ea]', w)]
+                if words:
+                    doc.name = " ".join(words[:3])
+                    logger.info("Truncated long merged name → '%s'", doc.name)
+
+        db.commit()
+
+        # ── Re-import CKAN sources ────────────────────────────────────────────
+        ckan_source_urls = [
+            ("https://data.gov.il/api/3/action/datastore_search?resource_id=ebe7b0fa-42c8-4195-8b40-b0b0e73cc494",
+             "ebe7b0fa-42c8-4195-8b40-b0b0e73cc494"),
+            ("https://data.gov.il/api/3/action/datastore_search?resource_id=37f14c29-47af-4b6c-b38e-e08a15e15b5b",
+             "37f14c29-47af-4b6c-b38e-e08a15e15b5b"),
+        ]
+        for source_url, resource_id in ckan_source_urls:
+            try:
+                # Delete existing records from this source
+                deleted = db.query(models.Doctor).filter(
+                    models.Doctor.source_url.ilike(f"%{resource_id[:8]}%")
+                ).delete(synchronize_session=False)
+                db.commit()
+                logger.info("Deleted %d records from CKAN source %s", deleted, resource_id[:8])
+
+                # Re-import fresh
+                records = sc.scrape_ckan(resource_id, source_url)
+                added = 0
+                existing = {sc._normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
+                for rec in records:
+                    rec = normalize_record(rec)
+                    if rec is None:
+                        continue
+                    n = sc._normalize_name(rec["name"])
+                    if n in existing:
+                        continue
+                    db.add(models.Doctor(**rec))
+                    existing.add(n)
+                    added += 1
+                db.commit()
+                logger.info("Re-imported %d doctors from CKAN %s", added, resource_id[:8])
+            except Exception as e:
+                db.rollback()
+                logger.warning("CKAN re-import failed for %s: %s", resource_id[:8], e)
+
+        # ── Re-import tteam Google Sheets ─────────────────────────────────────
+        tteam_url = "https://tteam.co.il/mcm-toolbox/"
+        gs_url = "https://docs.google.com/spreadsheets/d/1fmgDA25Rklu8VbvN-pe0vN2EUahjhXTGuk1ODuKzl3E/view"
+        try:
+            deleted = db.query(models.Doctor).filter(
+                models.Doctor.source_url == tteam_url
+            ).delete(synchronize_session=False)
+            db.commit()
+            logger.info("Deleted %d tteam records", deleted)
+
+            records = sc._scrape_google_sheets(gs_url)
+            added = 0
+            existing = {sc._normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
+            for rec in records:
+                rec = normalize_record(rec)
+                if rec is None:
+                    continue
+                n = sc._normalize_name(rec["name"])
+                if n in existing:
+                    continue
+                db.add(models.Doctor(**rec))
+                existing.add(n)
+                added += 1
+            db.commit()
+            logger.info("Re-imported %d doctors from tteam", added)
+        except Exception as e:
+            db.rollback()
+            logger.warning("tteam re-import failed: %s", e)
+
+        db.close()
+        open(flag, "w").close()
+        logger.info("doctors_reimport_v2 complete")
+    except Exception as e:
+        logger.error("doctors_reimport_v2 error: %s", e)
+
+
+reimport_doctors_v2()
 
 # Register routes
 app.include_router(auth.router)

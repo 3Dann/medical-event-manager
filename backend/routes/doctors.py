@@ -13,6 +13,7 @@ from database import get_db, SessionLocal
 import models
 import auth as auth_utils
 from scraper import run_scraping_job, scrape_url, run_all_sources, run_broad_search, _normalize_name
+from doctor_normalize import normalize_record
 
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
 
@@ -62,6 +63,16 @@ PREDEFINED_ISRAELI_SOURCES = [
         "key": "moh_practitioners",
         "name": "משרד הבריאות — רשימת בעלי רישיון לעסוק ברפואה",
         "url": "https://practitioners.health.gov.il",
+    },
+    {
+        "key": "doctors_co_il",
+        "name": "doctors.co.il — מאגר רופאים ישראלי",
+        "url": "https://www.doctors.co.il",
+    },
+    {
+        "key": "tteam_mcm",
+        "name": "tteam.co.il — אינדקס המלצות רופאים מומחים ממנהלי אירוע רפואי",
+        "url": "https://docs.google.com/spreadsheets/d/1fmgDA25Rklu8VbvN-pe0vN2EUahjhXTGuk1ODuKzl3E/view",
     },
 ]
 
@@ -133,6 +144,90 @@ def get_filter_options(
     return {"specialties": specialties, "sub_specialties": sub_specialties, "areas": areas}
 
 
+@router.get("/export/excel")
+def export_doctors_excel(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    """Export full doctors database as RTL Excel file."""
+    from fastapi.responses import StreamingResponse
+    if not openpyxl:
+        raise HTTPException(status_code=500, detail="openpyxl לא מותקן")
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "מאגר רופאים"
+    ws.sheet_view.rightToLeft = True  # RTL sheet
+
+    # Header style
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    header_fill = PatternFill("solid", fgColor="2563EB")
+    center_align = Alignment(horizontal="center", vertical="center", wrap_text=True, readingOrder=2)
+    right_align = Alignment(horizontal="right", vertical="center", wrap_text=True, readingOrder=2)
+    thin = Side(style="thin", color="CBD5E1")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    headers = ["שם הרופא", "מומחיות", "תת-מומחיות", "טלפון", "מיקום", "קופות חולים", "חוות דעת", "הערות", "מקור"]
+    col_widths = [22, 18, 18, 18, 22, 24, 12, 28, 30]
+
+    for col_idx, (header, width) in enumerate(zip(headers, col_widths), start=1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = center_align
+        cell.border = border
+        ws.column_dimensions[openpyxl.utils.get_column_letter(col_idx)].width = width
+
+    ws.row_dimensions[1].height = 22
+
+    # Alternate row fill
+    fill_even = PatternFill("solid", fgColor="EFF6FF")
+    fill_odd = PatternFill("solid", fgColor="FFFFFF")
+
+    doctors = db.query(models.Doctor).order_by(models.Doctor.specialty, models.Doctor.name).all()
+
+    for row_idx, doc in enumerate(doctors, start=2):
+        # Parse HMO list
+        try:
+            hmo_list = json.loads(doc.hmo_acceptance) if doc.hmo_acceptance else []
+            hmo_map = {"clalit": "כללית", "maccabi": "מכבי", "meuhedet": "מאוחדת", "leumit": "לאומית"}
+            hmo_str = " | ".join(hmo_map.get(h, h) for h in hmo_list)
+        except Exception:
+            hmo_str = doc.hmo_acceptance or ""
+
+        row_data = [
+            doc.name or "",
+            doc.specialty or "",
+            doc.sub_specialty or "",
+            doc.phone or "",
+            doc.location or "",
+            hmo_str,
+            "כן" if doc.gives_expert_opinion else "לא",
+            doc.notes or "",
+            doc.source_url or "",
+        ]
+        fill = fill_even if row_idx % 2 == 0 else fill_odd
+        for col_idx, value in enumerate(row_data, start=1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=value)
+            cell.alignment = right_align
+            cell.fill = fill
+            cell.border = border
+
+    # Freeze header row
+    ws.freeze_panes = "A2"
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": "attachment; filename*=UTF-8''%D7%9E%D7%90%D7%92%D7%A8%20%D7%A8%D7%95%D7%A4%D7%90%D7%99%D7%9D.xlsx"},
+    )
+
+
 @router.get("")
 def list_doctors(
     search: Optional[str] = None,
@@ -172,17 +267,21 @@ def create_doctor(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
-    doctor = models.Doctor(
-        name=data.name,
-        specialty=data.specialty,
-        sub_specialty=data.sub_specialty,
-        phone=data.phone,
-        location=data.location,
-        hmo_acceptance=json.dumps(data.hmo_acceptance or [], ensure_ascii=False),
-        gives_expert_opinion=data.gives_expert_opinion,
-        notes=data.notes,
-        source_url=data.source_url,
-    )
+    rec = {
+        "name": data.name,
+        "specialty": data.specialty,
+        "sub_specialty": data.sub_specialty,
+        "phone": data.phone,
+        "location": data.location,
+        "hmo_acceptance": json.dumps(data.hmo_acceptance or [], ensure_ascii=False),
+        "gives_expert_opinion": data.gives_expert_opinion,
+        "notes": data.notes,
+        "source_url": data.source_url,
+    }
+    rec = normalize_record(rec)
+    if rec is None:
+        raise HTTPException(status_code=400, detail="שם הרופא אינו תקין")
+    doctor = models.Doctor(**rec)
     db.add(doctor)
     db.commit()
     db.refresh(doctor)
@@ -297,17 +396,21 @@ async def import_from_excel(
         hmo_raw = get_col("hmo_acceptance")
         hmo_list = _parse_hmo_string(hmo_raw) if hmo_raw else []
 
-        doctor = models.Doctor(
-            name=name,
-            specialty=str(get_col("specialty") or "").strip() or None,
-            sub_specialty=str(get_col("sub_specialty") or "").strip() or None,
-            phone=str(get_col("phone") or "").strip() or None,
-            location=str(get_col("location") or "").strip() or None,
-            hmo_acceptance=json.dumps(hmo_list, ensure_ascii=False),
-            gives_expert_opinion=_bool_from_value(get_col("gives_expert_opinion")),
-            notes=str(get_col("notes") or "").strip() or None,
-        )
-        db.add(doctor)
+        rec = {
+            "name": name,
+            "specialty": str(get_col("specialty") or "").strip() or None,
+            "sub_specialty": str(get_col("sub_specialty") or "").strip() or None,
+            "phone": str(get_col("phone") or "").strip() or None,
+            "location": str(get_col("location") or "").strip() or None,
+            "hmo_acceptance": json.dumps(hmo_list, ensure_ascii=False),
+            "gives_expert_opinion": _bool_from_value(get_col("gives_expert_opinion")),
+            "notes": str(get_col("notes") or "").strip() or None,
+        }
+        rec = normalize_record(rec)
+        if rec is None:
+            skipped += 1
+            continue
+        db.add(models.Doctor(**rec))
         imported += 1
 
     db.commit()
@@ -360,16 +463,19 @@ async def import_from_pdf(
                         continue
                     hmo_raw = get_col("hmo_acceptance")
                     hmo_list = _parse_hmo_string(hmo_raw) if hmo_raw else []
-                    rows.append(models.Doctor(
-                        name=name,
-                        specialty=str(get_col("specialty") or "").strip() or None,
-                        sub_specialty=str(get_col("sub_specialty") or "").strip() or None,
-                        phone=str(get_col("phone") or "").strip() or None,
-                        location=str(get_col("location") or "").strip() or None,
-                        hmo_acceptance=json.dumps(hmo_list, ensure_ascii=False),
-                        gives_expert_opinion=_bool_from_value(get_col("gives_expert_opinion")),
-                        notes=str(get_col("notes") or "").strip() or None,
-                    ))
+                    rec = {
+                        "name": name,
+                        "specialty": str(get_col("specialty") or "").strip() or None,
+                        "sub_specialty": str(get_col("sub_specialty") or "").strip() or None,
+                        "phone": str(get_col("phone") or "").strip() or None,
+                        "location": str(get_col("location") or "").strip() or None,
+                        "hmo_acceptance": json.dumps(hmo_list, ensure_ascii=False),
+                        "gives_expert_opinion": _bool_from_value(get_col("gives_expert_opinion")),
+                        "notes": str(get_col("notes") or "").strip() or None,
+                    }
+                    rec = normalize_record(rec)
+                    if rec:
+                        rows.append(models.Doctor(**rec))
 
     for doc in rows:
         db.add(doc)
@@ -392,6 +498,9 @@ def _bg_scrape_url(url: str):
         existing = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
         added = 0
         for rec in records:
+            rec = normalize_record(rec)
+            if rec is None:
+                continue
             if _normalize_name(rec["name"]) in existing:
                 continue
             db.add(models.Doctor(**rec))
