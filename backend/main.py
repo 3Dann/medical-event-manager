@@ -119,27 +119,49 @@ seed_israeli_sources()
 
 
 JOURNEY_STAGES = [
-    {"description": "גילוי ואבחון",        "stage_order": 1},
-    {"description": "תכנון הטיפול",        "stage_order": 2},
-    {"description": "שלב הטיפולים",        "stage_order": 3},
-    {"description": "החלמה, שיקום ומעקב", "stage_order": 4},
+    {"description": "גילוי ואבחון",   "stage_order": 10},
+    {"description": "תכנון הטיפול",   "stage_order": 20},
+    {"description": "שלב הטיפולים",   "stage_order": 30},
+    {"description": "החלמה ושיקום",   "stage_order": 40},
+    {"description": "מעקב",           "stage_order": 50},
 ]
 
 
 def seed_journey_stages():
-    """Ensure all existing patients have the 4 journey-stage nodes."""
+    """
+    Idempotent: ensures all patients have exactly the 5 journey stages.
+    Migrates old stage_orders (1-4) → (10-40) and splits stage 4 into 40+50.
+    """
     db = SessionLocal()
     try:
+        # ── Migrate old integer orders 1-4 → 10-40 ──────────────────────────
+        old_map = {1: 10, 2: 20, 3: 30, 4: 40}
+        for old, new in old_map.items():
+            nodes = db.query(models.Node).filter(
+                models.Node.node_type == "stage",
+                models.Node.stage_order == old,
+            ).all()
+            for n in nodes:
+                n.stage_order = new
+                if old == 4:
+                    n.description = "החלמה ושיקום"
+
+        # ── Migrate custom nodes that had null stage_order → keep null ───────
+        # (nothing to do — nulls sort to end, which is correct)
+
+        db.flush()
+
+        # ── Seed missing stages per patient ──────────────────────────────────
         patients = db.query(models.Patient).all()
         for patient in patients:
-            existing_orders = {
+            existing = {
                 n.stage_order for n in db.query(models.Node).filter(
                     models.Node.patient_id == patient.id,
                     models.Node.node_type == "stage",
                 ).all()
             }
             for stage in JOURNEY_STAGES:
-                if stage["stage_order"] not in existing_orders:
+                if stage["stage_order"] not in existing:
                     db.add(models.Node(
                         patient_id=patient.id,
                         node_type="stage",
@@ -148,7 +170,7 @@ def seed_journey_stages():
                         status="future",
                     ))
         db.commit()
-        logger.info("Journey stages seeded for all patients")
+        logger.info("Journey stages seeded/migrated for all patients")
     finally:
         db.close()
 

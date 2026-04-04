@@ -37,6 +37,7 @@ class NodeCreate(BaseModel):
     planned_date: Optional[str] = None
     status: str = "future"
     notes: Optional[str] = None
+    stage_order: Optional[int] = None
 
 
 class NodeUpdate(BaseModel):
@@ -46,6 +47,7 @@ class NodeUpdate(BaseModel):
     actual_date: Optional[str] = None
     status: Optional[str] = None
     notes: Optional[str] = None
+    stage_order: Optional[int] = None
 
 
 def patient_to_dict(p):
@@ -145,10 +147,11 @@ def _auto_import_hmo(db, patient_id, hmo_name, plan_key):
 
 
 _JOURNEY_STAGES = [
-    {"description": "גילוי ואבחון",        "stage_order": 1},
-    {"description": "תכנון הטיפול",        "stage_order": 2},
-    {"description": "שלב הטיפולים",        "stage_order": 3},
-    {"description": "החלמה, שיקום ומעקב", "stage_order": 4},
+    {"description": "גילוי ואבחון",  "stage_order": 10},
+    {"description": "תכנון הטיפול",  "stage_order": 20},
+    {"description": "שלב הטיפולים",  "stage_order": 30},
+    {"description": "החלמה ושיקום",  "stage_order": 40},
+    {"description": "מעקב",          "stage_order": 50},
 ]
 
 
