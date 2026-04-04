@@ -76,7 +76,7 @@ export default function ManagerLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sidebarOpen ? 'M11 19l-7-7 7-7m8 14l-7-7 7-7' : 'M13 5l7 7-7 7M5 5l7 7-7 7'} />
             </svg>
           </button>
-          {sidebarOpen && <span className="font-semibold text-sm truncate">מנהל האירוע הרפואי</span>}
+          {sidebarOpen && <span className="font-semibold text-sm truncate">ניהול אירוע רפואי</span>}
         </div>
 
         <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
@@ -96,6 +96,7 @@ export default function ManagerLayout() {
             <div className="mb-2 px-2.5 py-1.5">
               <p className="text-xs text-slate-400">מחובר כ:</p>
               <p className="text-sm text-white font-medium truncate">{user?.full_name}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{user?.is_admin ? 'מנהל ראשי' : user?.role === 'manager' ? 'מנהל אירוע רפואי' : 'מטופל'}</p>
             </div>
           )}
           <button onClick={handleLogout} className="flex items-center gap-3 w-full px-2.5 py-2.5 text-slate-300 hover:bg-slate-700 rounded-lg text-sm">

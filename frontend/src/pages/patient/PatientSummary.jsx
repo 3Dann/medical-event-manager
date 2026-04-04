@@ -36,7 +36,7 @@ export default function PatientSummary() {
   if (!selected) return (
     <div className="text-center py-20">
       <p className="text-slate-500">אין תיק רפואי מקושר לחשבונך.</p>
-      <p className="text-slate-400 text-sm mt-2">פנה למנהל האירוע הרפואי שלך.</p>
+      <p className="text-slate-400 text-sm mt-2">פנה לניהול אירוע רפואי שלך.</p>
     </div>
   )
 
@@ -111,7 +111,7 @@ export default function PatientSummary() {
               <span key={g} className="bg-red-100 text-red-700 text-xs px-2.5 py-1 rounded-full">{g}</span>
             ))}
           </div>
-          <p className="text-xs text-red-500 mt-2">מומלץ לדון עם מנהל האירוע הרפואי שלך</p>
+          <p className="text-xs text-red-500 mt-2">מומלץ לדון עם ניהול אירוע רפואי שלך</p>
         </div>
       )}
 
