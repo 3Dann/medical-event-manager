@@ -50,7 +50,7 @@ export default function PatientSummary() {
     <div className="space-y-5">
       {/* Patient header */}
       <div className="bg-gradient-to-l from-blue-600 to-blue-700 text-white rounded-2xl p-6">
-        <p className="text-blue-200 text-sm">המסע הרפואי של</p>
+        <p className="text-blue-200 text-sm">מסע מטופל —</p>
         <h1 className="text-2xl font-bold mt-1">{selected.full_name}</h1>
         {selected.diagnosis_details && (
           <p className="text-blue-100 text-sm mt-2">{selected.diagnosis_details}</p>
