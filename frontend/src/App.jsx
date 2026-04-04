@@ -40,7 +40,7 @@ function AppRoutes() {
   const { user } = useAuth()
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to={user.role === 'manager' ? '/manager' : '/patient'} replace /> : <LoginPage />} />
+      <Route path="/login" element={<Navigate to="/" state={{ openLogin: true }} replace />} />
 
       {/* Manager routes */}
       <Route path="/manager" element={<ProtectedRoute role="manager"><ManagerLayout /></ProtectedRoute>}>
