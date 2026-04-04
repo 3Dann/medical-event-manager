@@ -30,7 +30,7 @@ import PatientSummary from './pages/patient/PatientSummary'
 function ProtectedRoute({ children, role, adminOnly }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="flex items-center justify-center h-screen text-slate-500">טוען...</div>
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <Navigate to="/" state={{ openLogin: true }} replace />
   const effectiveRole = user.role === 'admin' ? 'manager' : user.role
   if (role && effectiveRole !== role) return <Navigate to={effectiveRole === 'manager' ? '/manager' : '/patient'} replace />
   if (adminOnly && !user.is_admin) return <Navigate to="/manager" replace />

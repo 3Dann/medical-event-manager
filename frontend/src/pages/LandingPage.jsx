@@ -412,15 +412,10 @@ export default function LandingPage() {
             פלטפורמה מקיפה לניהול מסע המטופל — ממאגר רופאים וביטוחים ועד אסטרטגיה פיננסית וצמתי החלטה
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {user ? (
+            {user && (
               <button onClick={toDashboard}
                 className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
                 {user.role === 'patient' ? 'לצפייה במסע שלי ←' : 'לוח הבקרה ←'}
-              </button>
-            ) : (
-              <button onClick={openLogin}
-                className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
-                כניסה למערכת ←
               </button>
             )}
             <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
@@ -500,10 +495,9 @@ export default function LandingPage() {
               {user.role === 'patient' ? 'למסע שלי ←' : 'ללוח הבקרה ←'}
             </button>
           ) : (
-            <button onClick={openLogin}
-              className="bg-white text-blue-700 font-semibold px-10 py-4 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
-              כניסה למערכת ←
-            </button>
+            <p className="text-blue-300 text-sm">
+              להתחברות או הרשמה — השתמש בכפתור <span className="text-white font-medium">כניסה למערכת</span> בראש הדף
+            </p>
           )}
         </div>
       </section>
