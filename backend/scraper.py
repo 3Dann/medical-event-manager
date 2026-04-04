@@ -11,6 +11,7 @@ from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 logger = logging.getLogger("scraper")
+from doctor_normalize import normalize_record, is_garbage
 
 try:
     import requests as http_requests
@@ -320,6 +321,9 @@ def run_broad_search(db_session_factory) -> dict:
     try:
         existing = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
         for rec in licensed_records:
+            rec = normalize_record(rec)
+            if rec is None:
+                continue
             n = _normalize_name(rec["name"])
             if n not in existing:
                 db.add(models.Doctor(**rec))
@@ -461,6 +465,21 @@ _SITE_STRATEGIES = {
         "name_selectors": [".name", "td.name", ".practitioner-name"],
         "specialty_selectors": [".specialty", "td.specialty", ".profession"],
     },
+    "doctors.co.il": {
+        "subpage_keywords": ["רופא", "מומחה", "doctor", "profile", "ד\"ר", "פרופ", "מחלקה", "specialty"],
+        "max_subpages": 20,
+        "name_selectors": [".doctor-name", ".doc-name", "h1.name", "h2.name", ".physician-name",
+                           ".card-title", ".expert-name", "h1", "h2.doctor"],
+        "specialty_selectors": [".specialty", ".doctor-specialty", ".field", ".expertise",
+                                 ".doc-specialty", ".discipline"],
+    },
+    "tteam.co.il": {
+        "subpage_keywords": ["רופא", "מומחה", "ד\"ר", "פרופ", "doctor", "specialist", "mcm", "toolbox"],
+        "max_subpages": 20,
+        "name_selectors": [".doctor-name", ".name", "h1", "h2", "h3", ".entry-title",
+                           ".wp-block-heading", "td:first-child", ".card-title"],
+        "specialty_selectors": [".specialty", ".field", ".expertise", "td:nth-child(2)", ".meta"],
+    },
 }
 
 
@@ -597,16 +616,69 @@ def _find_doctor_subpages(soup: BeautifulSoup, base_url: str, max_pages: int = 5
     return list(dict.fromkeys(candidates))[:max_pages]  # dedup, cap
 
 
+def _scrape_google_sheets(url: str) -> list[dict]:
+    """Extract doctor records from a public Google Sheets CSV export."""
+    import csv as csv_mod
+    import io as io_mod
+    # Convert view URL to CSV export URL
+    sheet_id = None
+    import re as re_mod
+    m = re_mod.search(r'/spreadsheets/d/([a-zA-Z0-9_-]+)', url)
+    if m:
+        sheet_id = m.group(1)
+    if not sheet_id:
+        return []
+    csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+    try:
+        resp = http_requests.get(csv_url, timeout=15, headers={"User-Agent": "Mozilla/5.0"}, allow_redirects=True)
+        resp.raise_for_status()
+    except Exception:
+        return []
+    content = resp.content.decode('utf-8-sig')
+    reader = csv_mod.reader(io_mod.StringIO(content))
+    rows = list(reader)
+    if len(rows) < 2:
+        return []
+    records = []
+    for row in rows[1:]:
+        if len(row) < 3:
+            continue
+        specialty = row[0].strip() if len(row) > 0 else ''
+        sub_spec = row[1].strip() if len(row) > 1 else ''
+        name = row[2].strip() if len(row) > 2 else ''
+        phone = row[3].strip() if len(row) > 3 else ''
+        workplace = row[4].strip() if len(row) > 4 else ''
+        if not name or len(name) < 3:
+            continue
+        records.append({
+            "name": name,
+            "specialty": specialty or None,
+            "sub_specialty": sub_spec or None,
+            "phone": phone or None,
+            "location": workplace or None,
+            "hmo_acceptance": json.dumps(["clalit", "maccabi", "meuhedet", "leumit"], ensure_ascii=False),
+            "gives_expert_opinion": False,
+            "notes": "מקור: אינדקס מנהלי אירוע רפואי (tteam.co.il)",
+            "source_url": url,
+            "verified": True,
+        })
+    return records
+
+
 def scrape_url(url: str) -> list[dict]:
     """
     Fetch a URL and extract doctor records.
-    Supports data.gov.il CKAN API, HTML tables, and free-text ד"ר patterns.
+    Supports data.gov.il CKAN API, Google Sheets, HTML tables, and free-text ד"ר patterns.
     For private clinic sites: also crawls sub-pages that mention doctors.
     All records are verified against the MOH license registry; unverified
     doctors are kept but flagged in their notes.
     """
     if not SCRAPING_AVAILABLE:
         return []
+
+    # Google Sheets
+    if "docs.google.com/spreadsheets" in url:
+        return _scrape_google_sheets(url)
 
     resource_id = _is_ckan_url(url)
     if resource_id:
@@ -700,6 +772,9 @@ def run_scraping_job(source_id: int, db_session_factory) -> int:
                 for d in db.query(models.Doctor.name).all()
             }
             for rec in records:
+                rec = normalize_record(rec)
+                if rec is None:
+                    continue
                 if _normalize_name(rec["name"]) in existing_names:
                     continue
                 doc = models.Doctor(**rec)

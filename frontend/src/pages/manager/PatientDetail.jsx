@@ -7,6 +7,7 @@ const tabs = [
   { to: 'insurance', label: 'ביטוחים' },
   { to: 'claims', label: 'תביעות' },
   { to: 'strategy', label: 'אסטרטגיה' },
+  { to: 'documents', label: 'מסמכים' },
 ]
 
 // Fixed journey stages — order values 10,20,30,40,50

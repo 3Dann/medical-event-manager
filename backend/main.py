@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
@@ -352,6 +352,7 @@ app.include_router(learning.router)
 app.include_router(public.router)
 app.include_router(doctors.router)
 app.include_router(admin.router)
+app.include_router(documents.router)
 
 
 @app.get("/api/health")

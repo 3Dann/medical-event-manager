@@ -114,6 +114,25 @@ class Patient(Base):
     insurance_sources = relationship("InsuranceSource", back_populates="patient", cascade="all, delete-orphan")
     claims = relationship("Claim", back_populates="patient", cascade="all, delete-orphan")
     entitlements = relationship("Entitlement", back_populates="patient", cascade="all, delete-orphan")
+    documents = relationship("PatientDocument", back_populates="patient", cascade="all, delete-orphan")
+
+
+
+class PatientDocument(Base):
+    __tablename__ = "patient_documents"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    filename = Column(String, nullable=False)        # stored filename (uuid-based)
+    original_name = Column(String, nullable=False)   # original upload name
+    file_type = Column(String, nullable=True)        # mime type
+    file_size = Column(Integer, nullable=True)       # bytes
+    category = Column(String, nullable=True)         # e.g. "רפואי", "ביטוחי", "משפטי", "אחר"
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    patient = relationship("Patient", back_populates="documents")
+    uploader = relationship("User", foreign_keys="PatientDocument.uploaded_by")
 
 
 class Node(Base):
