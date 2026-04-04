@@ -252,6 +252,30 @@ def reimport_doctors_v2():
 
 reimport_doctors_v2()
 
+
+def scrape_all_sources_once():
+    """
+    One-time immediate scrape of all active sources after deployment.
+    Uses a version flag so it only runs once per deployment version.
+    """
+    flag = "/data/.scrape_all_v1" if os.path.isdir("/data") else "./.scrape_all_v1"
+    if os.path.exists(flag):
+        return
+    try:
+        from scraper import run_all_sources
+        import threading
+        def _run():
+            logger.info("One-time startup scrape: running all sources…")
+            run_all_sources(SessionLocal)
+            logger.info("One-time startup scrape complete")
+        threading.Thread(target=_run, daemon=True).start()
+        open(flag, "w").close()
+    except Exception as e:
+        logger.error("scrape_all_sources_once error: %s", e)
+
+
+scrape_all_sources_once()
+
 # Register routes
 app.include_router(auth.router)
 app.include_router(patients.router)
