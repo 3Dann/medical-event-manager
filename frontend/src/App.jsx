@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 
 // Public
 import ProgressPage from './pages/ProgressPage'
+import LandingPage from './pages/LandingPage'
 
 // Manager pages
 import ManagerLayout from './pages/manager/ManagerLayout'
@@ -61,8 +62,8 @@ function AppRoutes() {
       </Route>
 
       <Route path="/progress" element={<ProgressPage />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
