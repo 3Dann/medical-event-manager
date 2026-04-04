@@ -1,0 +1,29 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Railway deploy
+        run: |
+          COMMIT_SHA="${{ github.sha }}"
+          SERVICE_ID="91f1964e-b4fa-45ff-b526-39710275a706"
+          ENV_ID="99edf810-2a69-48b7-920d-eca9597417ce"
+
+          RESPONSE=$(curl -s -X POST https://backboard.railway.app/graphql/v2 \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"query\":\"mutation { serviceInstanceDeploy(serviceId: \\\"$SERVICE_ID\\\", environmentId: \\\"$ENV_ID\\\", commitSha: \\\"$COMMIT_SHA\\\") }\"}")
+
+          echo "Railway response: $RESPONSE"
+
+          if echo "$RESPONSE" | grep -q '"serviceInstanceDeploy":true'; then
+            echo "✅ Deploy triggered successfully for commit $COMMIT_SHA"
+          else
+            echo "❌ Deploy trigger failed"
+            exit 1
+          fi
