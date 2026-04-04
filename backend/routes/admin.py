@@ -1,13 +1,59 @@
 import secrets
-from fastapi import APIRouter, Depends, HTTPException
+import os
+import shutil
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Header
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
-from database import get_db
+from database import get_db, engine, SQLALCHEMY_DATABASE_URL
 import models
 import auth as auth_utils
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+_DB_UPLOAD_SECRET = "d96e8b558f3a81f1d15e84b9329062f2258b010393a1ef49f2c03929689f73c8"
+_DB_UPLOAD_DONE = False
+
+@router.post("/restore-db")
+async def restore_db(
+    file: UploadFile = File(...),
+    x_restore_secret: str = Header(...),
+):
+    global _DB_UPLOAD_DONE
+    if _DB_UPLOAD_DONE:
+        raise HTTPException(status_code=410, detail="Already used")
+    if not secrets.compare_digest(x_restore_secret, _DB_UPLOAD_SECRET):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    # Resolve DB path from connection URL
+    db_url = SQLALCHEMY_DATABASE_URL
+    if db_url.startswith("sqlite:////"):
+        db_path = db_url[len("sqlite:///"):]
+    elif db_url.startswith("sqlite:///"):
+        db_path = db_url[len("sqlite:///"):]
+        if not os.path.isabs(db_path):
+            db_path = os.path.join(os.path.dirname(__file__), "..", db_path)
+    else:
+        raise HTTPException(status_code=400, detail="Not a SQLite DB")
+
+    db_path = os.path.normpath(db_path)
+    backup_path = db_path + ".bak"
+
+    content = await file.read()
+    if content[:16] != b"SQLite format 3\x00":
+        raise HTTPException(status_code=400, detail="Not a valid SQLite file")
+
+    # Dispose all connections before replacing
+    engine.dispose()
+
+    if os.path.exists(db_path):
+        shutil.copy2(db_path, backup_path)
+
+    with open(db_path, "wb") as f:
+        f.write(content)
+
+    _DB_UPLOAD_DONE = True
+    return {"ok": True, "path": db_path, "size": len(content)}
 
 
 def user_to_dict(u: models.User) -> dict:
