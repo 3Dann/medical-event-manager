@@ -437,8 +437,67 @@ def scrape_ckan(resource_id: str, source_url: str) -> list[dict]:
 _DOCTOR_PAGE_KEYWORDS = [
     "רופא", "רופאים", "צוות", "מומחה", "מומחים", "doctor", "doctors",
     "physician", "staff", "team", "specialist", "about", "אודות",
-    "קליניקה", "clinic", "מרפאה",
+    "קליניקה", "clinic", "מרפאה", "specialists", "profile", "פרופיל",
+    "find-a-doctor", "find_doctor", "search", "directory", "רשימה",
 ]
+
+# Site-specific scraping strategies
+_SITE_STRATEGIES = {
+    "medreviews.co.il": {
+        "subpage_keywords": ["מומחה", "רופא", "doctor", "specialist", "profile", "חיפוש"],
+        "max_subpages": 15,
+        "name_selectors": [".doctor-name", ".specialist-name", "h1.name", "h2.name", ".profile-name"],
+        "specialty_selectors": [".specialty", ".doctor-specialty", ".field"],
+    },
+    "infomed.co.il": {
+        "subpage_keywords": ["רופא", "מומחה", "doctor", "specialist", "קליניקה"],
+        "max_subpages": 15,
+        "name_selectors": [".doctor-name", ".expert-name", "h1", "h2.title"],
+        "specialty_selectors": [".specialty", ".expertise", ".field"],
+    },
+    "practitioners.health.gov.il": {
+        "subpage_keywords": ["search", "results", "practitioner", "doctor", "רשימה"],
+        "max_subpages": 10,
+        "name_selectors": [".name", "td.name", ".practitioner-name"],
+        "specialty_selectors": [".specialty", "td.specialty", ".profession"],
+    },
+}
+
+
+def _extract_with_selectors(soup: BeautifulSoup, url: str, strategy: dict) -> list[dict]:
+    """Try CSS selectors specific to known sites before falling back to generic extraction."""
+    records = []
+    name_tags = []
+    for sel in strategy.get("name_selectors", []):
+        found = soup.select(sel)
+        if found:
+            name_tags = found
+            break
+
+    spec_tags = []
+    for sel in strategy.get("specialty_selectors", []):
+        found = soup.select(sel)
+        if found:
+            spec_tags = found
+            break
+
+    for i, tag in enumerate(name_tags):
+        name = tag.get_text(strip=True)
+        if not name or len(name) < 3:
+            continue
+        specialty = spec_tags[i].get_text(strip=True) if i < len(spec_tags) else None
+        records.append({
+            "name": name,
+            "specialty": specialty or None,
+            "sub_specialty": None,
+            "phone": None,
+            "location": None,
+            "hmo_acceptance": json.dumps(["clalit", "maccabi", "meuhedet", "leumit"], ensure_ascii=False),
+            "gives_expert_opinion": False,
+            "notes": f"מקור: {urlparse(url).netloc}",
+            "source_url": url,
+        })
+    return records
 
 
 def _extract_records_from_html(soup: BeautifulSoup, url: str) -> list[dict]:
@@ -561,10 +620,22 @@ def scrape_url(url: str) -> list[dict]:
         raise RuntimeError(f"Failed to fetch {url}: {exc}")
 
     soup = BeautifulSoup(resp.text, "html.parser")
-    all_records = _extract_records_from_html(soup, url)
+
+    # ── Site-specific strategy ────────────────────────────────────────────────
+    domain = urlparse(url).netloc.replace("www.", "")
+    strategy = _SITE_STRATEGIES.get(domain, {})
+    all_records = []
+    if strategy:
+        site_records = _extract_with_selectors(soup, url, strategy)
+        all_records.extend(site_records)
+    all_records.extend(_extract_records_from_html(soup, url))
 
     # ── Also crawl doctor sub-pages (private clinics) ─────────────────────────
-    sub_urls = _find_doctor_subpages(soup, url, max_pages=6)
+    max_sub = strategy.get("max_subpages", 6)
+    extra_kws = strategy.get("subpage_keywords", [])
+    global _DOCTOR_PAGE_KEYWORDS
+    _DOCTOR_PAGE_KEYWORDS_EXTENDED = list(set(_DOCTOR_PAGE_KEYWORDS + extra_kws))
+    sub_urls = _find_doctor_subpages(soup, url, max_pages=max_sub)
     for sub_url in sub_urls:
         if sub_url == url:
             continue

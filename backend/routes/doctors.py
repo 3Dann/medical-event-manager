@@ -48,6 +48,21 @@ PREDEFINED_ISRAELI_SOURCES = [
         "name": "data.gov.il — רופאים מורשים קנביס רפואי",
         "url": "https://data.gov.il/api/3/action/datastore_search?resource_id=37f14c29-47af-4b6c-b38e-e08a15e15b5b",
     },
+    {
+        "key": "medreviews",
+        "name": "medreviews.co.il — ביקורות ורופאים ישראלים",
+        "url": "https://www.medreviews.co.il",
+    },
+    {
+        "key": "infomed",
+        "name": "infomed.co.il — מידע רפואי ומומחים",
+        "url": "https://www.infomed.co.il",
+    },
+    {
+        "key": "moh_practitioners",
+        "name": "משרד הבריאות — רשימת בעלי רישיון לעסוק ברפואה",
+        "url": "https://practitioners.health.gov.il",
+    },
 ]
 
 
