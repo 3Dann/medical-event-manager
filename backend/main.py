@@ -65,6 +65,7 @@ def run_migrations():
         ("users", "totp_method", "VARCHAR DEFAULT 'totp'"),
         ("users", "email_2fa_code", "VARCHAR"),
         ("users", "email_2fa_expires", "DATETIME"),
+        ("nodes", "stage_order", "INTEGER"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -115,6 +116,45 @@ def seed_israeli_sources():
         db.close()
 
 seed_israeli_sources()
+
+
+JOURNEY_STAGES = [
+    {"description": "גילוי ואבחון",        "stage_order": 1},
+    {"description": "תכנון הטיפול",        "stage_order": 2},
+    {"description": "שלב הטיפולים",        "stage_order": 3},
+    {"description": "החלמה, שיקום ומעקב", "stage_order": 4},
+]
+
+
+def seed_journey_stages():
+    """Ensure all existing patients have the 4 journey-stage nodes."""
+    db = SessionLocal()
+    try:
+        patients = db.query(models.Patient).all()
+        for patient in patients:
+            existing_orders = {
+                n.stage_order for n in db.query(models.Node).filter(
+                    models.Node.patient_id == patient.id,
+                    models.Node.node_type == "stage",
+                ).all()
+            }
+            for stage in JOURNEY_STAGES:
+                if stage["stage_order"] not in existing_orders:
+                    db.add(models.Node(
+                        patient_id=patient.id,
+                        node_type="stage",
+                        description=stage["description"],
+                        stage_order=stage["stage_order"],
+                        status="future",
+                    ))
+        db.commit()
+        logger.info("Journey stages seeded for all patients")
+    finally:
+        db.close()
+
+
+seed_journey_stages()
+
 
 # One-time user reset (clears all users so first registration becomes admin)
 def reset_users_once():

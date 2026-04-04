@@ -85,6 +85,11 @@ class User(Base):
     preserve_data = Column(Boolean, default=False)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    totp_secret = Column(String, nullable=True)
+    totp_enabled = Column(Boolean, default=False)
+    totp_method = Column(String, nullable=True, default="totp")  # "totp" or "email"
+    email_2fa_code = Column(String, nullable=True)
+    email_2fa_expires = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
 
@@ -115,12 +120,13 @@ class Node(Base):
     __tablename__ = "nodes"
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"))
-    node_type = Column(String, nullable=False)
+    node_type = Column(String, nullable=False)   # medical / financial / stage
     description = Column(Text, nullable=False)
     planned_date = Column(String, nullable=True)
     actual_date = Column(String, nullable=True)
     status = Column(String, default=NodeStatus.future)
     notes = Column(Text, nullable=True)
+    stage_order = Column(Integer, nullable=True)  # 1-4 for journey stages
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patient = relationship("Patient", back_populates="nodes")
 

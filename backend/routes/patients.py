@@ -73,6 +73,7 @@ def node_to_dict(n):
         "actual_date": n.actual_date,
         "status": n.status,
         "notes": n.notes,
+        "stage_order": n.stage_order,
         "created_at": str(n.created_at) if n.created_at else None,
     }
 
@@ -143,6 +144,14 @@ def _auto_import_hmo(db, patient_id, hmo_name, plan_key):
         _import_hmo_plan(db, patient_id, hmo_name, first_key, plan["label"], plan["coverages"])
 
 
+_JOURNEY_STAGES = [
+    {"description": "גילוי ואבחון",        "stage_order": 1},
+    {"description": "תכנון הטיפול",        "stage_order": 2},
+    {"description": "שלב הטיפולים",        "stage_order": 3},
+    {"description": "החלמה, שיקום ומעקב", "stage_order": 4},
+]
+
+
 @router.post("")
 def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     patient = models.Patient(**data.model_dump(), manager_id=current_user.id)
@@ -150,6 +159,14 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
     db.flush()
     if patient.hmo_name:
         _auto_import_hmo(db, patient.id, patient.hmo_name, patient.hmo_level)
+    for stage in _JOURNEY_STAGES:
+        db.add(models.Node(
+            patient_id=patient.id,
+            node_type="stage",
+            description=stage["description"],
+            stage_order=stage["stage_order"],
+            status="future",
+        ))
     db.commit()
     db.refresh(patient)
     return patient_to_dict(patient)
