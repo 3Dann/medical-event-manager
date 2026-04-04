@@ -215,7 +215,7 @@ export default function PatientDetail() {
       {/* ═══ Unified timeline ═══════════════════════════════════════════════ */}
       <div className="card">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="font-semibold text-slate-800">מסע הטיפול הרפואי — צמתי החלטה</h2>
+          <h2 className="font-semibold text-slate-800">מסע מטופל — צמתי החלטה</h2>
           <button onClick={() => setShowAddForm(v => !v)} className="btn-primary text-sm py-1.5">
             {showAddForm ? 'ביטול' : '+ הוסף צומת'}
           </button>
