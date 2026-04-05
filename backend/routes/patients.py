@@ -94,7 +94,21 @@ def get_hmo_plans(hmo_name: str):
 @router.get("")
 def list_patients(db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
     if current_user.role == "manager":
-        patients = db.query(models.Patient).filter(models.Patient.manager_id == current_user.id).all()
+        own = db.query(models.Patient).filter(models.Patient.manager_id == current_user.id).all()
+        # Also include patients the admin explicitly shared with this manager
+        permitted_ids = [
+            r.patient_id for r in db.query(models.PatientPermission).filter(
+                models.PatientPermission.manager_id == current_user.id
+            ).all()
+        ]
+        shared = []
+        if permitted_ids:
+            seen = {p.id for p in own}
+            shared = [p for p in db.query(models.Patient).filter(models.Patient.id.in_(permitted_ids)).all()
+                      if p.id not in seen]
+        patients = own + shared
+    elif current_user.is_admin:
+        patients = db.query(models.Patient).all()
     else:
         patients = db.query(models.Patient).filter(models.Patient.patient_user_id == current_user.id).all()
     return [patient_to_dict(p) for p in patients]
@@ -177,21 +191,13 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
 
 @router.get("/{patient_id}")
 def get_patient(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    if current_user.role == "manager" and patient.manager_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    if current_user.role == "patient" and patient.patient_user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
     return patient_to_dict(patient)
 
 
 @router.put("/{patient_id}")
 def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id, models.Patient.manager_id == current_user.id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
     old_hmo = patient.hmo_name
     old_level = patient.hmo_level
     for field, value in data.model_dump(exclude_none=True).items():
@@ -206,9 +212,7 @@ def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(g
 
 @router.delete("/{patient_id}")
 def delete_patient(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id, models.Patient.manager_id == current_user.id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
     db.delete(patient)
     db.commit()
     return {"message": "Patient deleted"}
@@ -218,12 +222,14 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db), current_user:
 
 @router.get("/{patient_id}/nodes")
 def list_nodes(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     nodes = db.query(models.Node).filter(models.Node.patient_id == patient_id).all()
     return [node_to_dict(n) for n in nodes]
 
 
 @router.post("/{patient_id}/nodes")
 def create_node(patient_id: int, data: NodeCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     node = models.Node(**data.model_dump(), patient_id=patient_id)
     db.add(node)
     db.commit()
@@ -233,6 +239,7 @@ def create_node(patient_id: int, data: NodeCreate, db: Session = Depends(get_db)
 
 @router.put("/{patient_id}/nodes/{node_id}")
 def update_node(patient_id: int, node_id: int, data: NodeUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     node = db.query(models.Node).filter(models.Node.id == node_id, models.Node.patient_id == patient_id).first()
     if not node:
         raise HTTPException(status_code=404, detail="Node not found")
@@ -245,6 +252,7 @@ def update_node(patient_id: int, node_id: int, data: NodeUpdate, db: Session = D
 
 @router.delete("/{patient_id}/nodes/{node_id}")
 def delete_node(patient_id: int, node_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     node = db.query(models.Node).filter(models.Node.id == node_id, models.Node.patient_id == patient_id).first()
     if not node:
         raise HTTPException(status_code=404, detail="Node not found")

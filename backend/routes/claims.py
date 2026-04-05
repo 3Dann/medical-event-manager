@@ -65,12 +65,14 @@ def claim_to_dict(c, db):
 
 @router.get("")
 def list_claims(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).order_by(models.Claim.priority_order).all()
     return [claim_to_dict(c, db) for c in claims]
 
 
 @router.post("")
 def create_claim(patient_id: int, data: ClaimCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     claim = models.Claim(**data.model_dump(), patient_id=patient_id)
     db.add(claim)
     db.commit()
@@ -80,6 +82,7 @@ def create_claim(patient_id: int, data: ClaimCreate, db: Session = Depends(get_d
 
 @router.put("/{claim_id}")
 def update_claim(patient_id: int, claim_id: int, data: ClaimUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     claim = db.query(models.Claim).filter(models.Claim.id == claim_id, models.Claim.patient_id == patient_id).first()
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
@@ -92,6 +95,7 @@ def update_claim(patient_id: int, claim_id: int, data: ClaimUpdate, db: Session 
 
 @router.delete("/{claim_id}")
 def delete_claim(patient_id: int, claim_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     claim = db.query(models.Claim).filter(models.Claim.id == claim_id, models.Claim.patient_id == patient_id).first()
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")

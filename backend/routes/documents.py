@@ -25,12 +25,7 @@ MAX_SIZE = 20 * 1024 * 1024  # 20 MB
 
 
 def _get_patient_or_403(patient_id: int, user, db: Session):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    if not user.is_admin and patient.manager_id != user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return patient
+    return auth_utils.get_patient_with_access(patient_id, user, db)
 
 
 @router.get("/{patient_id}/documents")

@@ -45,6 +45,7 @@ def get_responsiveness(company_name: str, source_type: str, db: Session):
 
 @router.get("")
 def get_strategy(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     sources = db.query(models.InsuranceSource).filter(
         models.InsuranceSource.patient_id == patient_id,
         models.InsuranceSource.is_active == True
@@ -146,6 +147,7 @@ def get_strategy(patient_id: int, db: Session = Depends(get_db), current_user: m
 
 @router.get("/matrix")
 def get_coverage_matrix(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     sources = db.query(models.InsuranceSource).filter(
         models.InsuranceSource.patient_id == patient_id
     ).all()

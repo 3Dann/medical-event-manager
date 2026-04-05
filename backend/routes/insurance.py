@@ -75,18 +75,14 @@ def coverage_to_dict(c):
 
 
 def get_patient_for_manager(patient_id: int, current_user: models.User, db: Session):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="Patient not found")
-    if current_user.role == "manager" and patient.manager_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return patient
+    return auth_utils.get_patient_with_access(patient_id, current_user, db)
 
 
 # ── Insurance Sources ──────────────────────────────────────
 
 @router.get("")
 def list_sources(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     sources = db.query(models.InsuranceSource).filter(models.InsuranceSource.patient_id == patient_id).all()
     return [source_to_dict(s) for s in sources]
 
@@ -138,6 +134,7 @@ def create_source(patient_id: int, data: InsuranceSourceCreate, db: Session = De
 
 @router.delete("/{source_id}")
 def delete_source(patient_id: int, source_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     source = db.query(models.InsuranceSource).filter(
         models.InsuranceSource.id == source_id,
         models.InsuranceSource.patient_id == patient_id
@@ -153,6 +150,7 @@ def delete_source(patient_id: int, source_id: int, db: Session = Depends(get_db)
 
 @router.post("/{source_id}/coverage")
 def add_coverage(patient_id: int, source_id: int, data: CoverageCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     source = db.query(models.InsuranceSource).filter(
         models.InsuranceSource.id == source_id,
         models.InsuranceSource.patient_id == patient_id
@@ -173,6 +171,7 @@ def add_coverage(patient_id: int, source_id: int, data: CoverageCreate, db: Sess
 
 @router.delete("/{source_id}/coverage/{coverage_id}")
 def delete_coverage(patient_id: int, source_id: int, coverage_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     cov = db.query(models.Coverage).filter(
         models.Coverage.id == coverage_id,
         models.Coverage.insurance_source_id == source_id,
@@ -308,12 +307,14 @@ def entitlement_to_dict(e):
 
 @entitlement_router.get("")
 def list_entitlements(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     entitlements = db.query(models.Entitlement).filter(models.Entitlement.patient_id == patient_id).all()
     return [entitlement_to_dict(e) for e in entitlements]
 
 
 @entitlement_router.post("")
 def create_entitlement(patient_id: int, data: EntitlementCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     entitlement = models.Entitlement(**data.model_dump(), patient_id=patient_id)
     db.add(entitlement)
     db.commit()
@@ -323,6 +324,7 @@ def create_entitlement(patient_id: int, data: EntitlementCreate, db: Session = D
 
 @entitlement_router.put("/{entitlement_id}")
 def update_entitlement(patient_id: int, entitlement_id: int, data: EntitlementCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     e = db.query(models.Entitlement).filter(models.Entitlement.id == entitlement_id, models.Entitlement.patient_id == patient_id).first()
     if not e:
         raise HTTPException(status_code=404, detail="Entitlement not found")
@@ -335,6 +337,7 @@ def update_entitlement(patient_id: int, entitlement_id: int, data: EntitlementCr
 
 @entitlement_router.delete("/{entitlement_id}")
 def delete_entitlement(patient_id: int, entitlement_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     e = db.query(models.Entitlement).filter(models.Entitlement.id == entitlement_id, models.Entitlement.patient_id == patient_id).first()
     if not e:
         raise HTTPException(status_code=404, detail="Entitlement not found")

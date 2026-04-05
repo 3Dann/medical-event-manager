@@ -220,6 +220,16 @@ class Entitlement(Base):
     patient = relationship("Patient", back_populates="entitlements")
 
 
+class PatientPermission(Base):
+    """Explicit access grants: admin gives manager_id access to a patient they don't own."""
+    __tablename__ = "patient_permissions"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    granted_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class ProjectFeedback(Base):
     __tablename__ = "project_feedback"
     id = Column(Integer, primary_key=True, index=True)
@@ -260,13 +270,116 @@ class Doctor(Base):
     __tablename__ = "doctors"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    specialty = Column(String, nullable=True)        # מומחיות
-    sub_specialty = Column(String, nullable=True)    # תת-התמחות
-    phone = Column(String, nullable=True)            # טלפון ליצירת קשר
-    location = Column(String, nullable=True)         # היכן מקבל
-    hmo_acceptance = Column(Text, nullable=True)     # JSON array: ["clalit","maccabi",...]
-    gives_expert_opinion = Column(Boolean, default=False)  # חוות דעת לוועדות
+    specialty = Column(String, nullable=True)
+    sub_specialty = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    location = Column(String, nullable=True)
+    hmo_acceptance = Column(Text, nullable=True)
+    gives_expert_opinion = Column(Boolean, default=False)
     notes = Column(Text, nullable=True)
-    source_url = Column(String, nullable=True)       # מקור מהרשת
+    source_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+
+# ── Flow Engine ───────────────────────────────────────────────────────────────
+
+class WorkflowTemplate(Base):
+    __tablename__ = "workflow_templates"
+    id          = Column(Integer, primary_key=True, index=True)
+    name        = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    category    = Column(String, nullable=True)   # claim / appeal / treatment / hospitalization
+    is_active   = Column(Boolean, default=True)
+    is_builtin  = Column(Boolean, default=False)  # built-in templates cannot be deleted
+    created_by  = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at  = Column(DateTime(timezone=True), onupdate=func.now())
+
+    step_templates = relationship("WorkflowStepTemplate",
+                                  order_by="WorkflowStepTemplate.step_order",
+                                  cascade="all, delete-orphan",
+                                  back_populates="template")
+    instances      = relationship("WorkflowInstance", back_populates="template")
+    creator        = relationship("User", foreign_keys=[created_by])
+
+
+class WorkflowStepTemplate(Base):
+    __tablename__ = "workflow_step_templates"
+    id            = Column(Integer, primary_key=True, index=True)
+    template_id   = Column(Integer, ForeignKey("workflow_templates.id"))
+    step_key      = Column(String, nullable=False)
+    name          = Column(String, nullable=False)
+    description   = Column(Text, nullable=True)
+    step_order    = Column(Integer, nullable=False)
+    assignee_role = Column(String, nullable=True, default="manager")  # manager / patient / admin
+    duration_days = Column(Integer, nullable=True)
+    is_optional   = Column(Boolean, default=False)
+    instructions  = Column(Text, nullable=True)
+
+    template = relationship("WorkflowTemplate", back_populates="step_templates")
+
+
+class WorkflowInstance(Base):
+    __tablename__ = "workflow_instances"
+    id               = Column(Integer, primary_key=True, index=True)
+    template_id      = Column(Integer, ForeignKey("workflow_templates.id"))
+    patient_id       = Column(Integer, ForeignKey("patients.id"))
+    created_by       = Column(Integer, ForeignKey("users.id"))
+    title            = Column(String, nullable=True)
+    status           = Column(String, default="active")  # active / completed / cancelled / paused
+    current_step_key = Column(String, nullable=True)
+    linked_claim_id  = Column(Integer, ForeignKey("claims.id"), nullable=True)
+    linked_node_id   = Column(Integer, ForeignKey("nodes.id"), nullable=True)
+    context_data     = Column(Text, nullable=True)   # JSON free-form
+    started_at       = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at     = Column(DateTime(timezone=True), nullable=True)
+    due_date         = Column(DateTime(timezone=True), nullable=True)
+
+    template     = relationship("WorkflowTemplate", back_populates="instances")
+    patient      = relationship("Patient")
+    creator      = relationship("User", foreign_keys=[created_by])
+    linked_claim = relationship("Claim", foreign_keys=[linked_claim_id])
+    steps        = relationship("WorkflowStep",
+                                order_by="WorkflowStep.step_order",
+                                back_populates="instance",
+                                cascade="all, delete-orphan")
+
+
+class WorkflowStep(Base):
+    __tablename__ = "workflow_steps"
+    id           = Column(Integer, primary_key=True, index=True)
+    instance_id  = Column(Integer, ForeignKey("workflow_instances.id"))
+    step_key     = Column(String, nullable=False)
+    name         = Column(String, nullable=False)
+    step_order   = Column(Integer, nullable=False)
+    status       = Column(String, default="pending")  # pending / active / completed / skipped
+    assignee_id  = Column(Integer, ForeignKey("users.id"), nullable=True)
+    due_date     = Column(DateTime(timezone=True), nullable=True)
+    started_at   = Column(DateTime(timezone=True), nullable=True)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    notes        = Column(Text, nullable=True)
+    result_data  = Column(Text, nullable=True)  # JSON
+    is_optional  = Column(Boolean, default=False)
+    instructions = Column(Text, nullable=True)
+
+    instance = relationship("WorkflowInstance", back_populates="steps")
+    assignee = relationship("User", foreign_keys=[assignee_id])
+    actions  = relationship("WorkflowAction",
+                            order_by="WorkflowAction.created_at",
+                            back_populates="step",
+                            cascade="all, delete-orphan")
+
+
+class WorkflowAction(Base):
+    __tablename__ = "workflow_actions"
+    id          = Column(Integer, primary_key=True, index=True)
+    step_id     = Column(Integer, ForeignKey("workflow_steps.id"))
+    user_id     = Column(Integer, ForeignKey("users.id"), nullable=True)
+    action_type = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    data        = Column(Text, nullable=True)  # JSON
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    step = relationship("WorkflowStep", back_populates="actions")
+    user = relationship("User", foreign_keys=[user_id])

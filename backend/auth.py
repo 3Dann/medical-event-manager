@@ -65,3 +65,32 @@ def require_admin(current_user: models.User = Depends(get_current_user)):
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
+
+
+def get_patient_with_access(patient_id: int, user: models.User, db: Session) -> models.Patient:
+    """Fetch patient and verify the user has access. Raises 404/403 as appropriate.
+
+    Access is granted when:
+    - user is admin (is_admin=True)
+    - user owns the patient (manager_id == user.id)
+    - admin has explicitly granted user access via PatientPermission
+    - user is the patient's linked patient-role user
+    """
+    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="תיק לא נמצא")
+    if user.is_admin:
+        return patient
+    if user.role == models.UserRole.manager:
+        if patient.manager_id == user.id:
+            return patient
+        perm = db.query(models.PatientPermission).filter(
+            models.PatientPermission.patient_id == patient_id,
+            models.PatientPermission.manager_id == user.id,
+        ).first()
+        if perm:
+            return patient
+        raise HTTPException(status_code=403, detail="אין לך גישה לתיק זה")
+    if user.role == models.UserRole.patient and patient.patient_user_id == user.id:
+        return patient
+    raise HTTPException(status_code=403, detail="אין לך גישה לתיק זה")
