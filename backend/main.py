@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
@@ -53,6 +53,7 @@ models.Base.metadata.create_all(bind=engine)
 # SQLite column migrations — add missing columns without losing data
 def run_migrations():
     migrations = [
+        # Original columns
         ("patients", "hmo_name",  "VARCHAR"),
         ("patients", "hmo_level", "VARCHAR"),
         ("doctors", "source_url", "VARCHAR"),
@@ -66,6 +67,20 @@ def run_migrations():
         ("users", "email_2fa_code", "VARCHAR"),
         ("users", "email_2fa_expires", "DATETIME"),
         ("nodes", "stage_order", "INTEGER"),
+        # Workflow engine v2 — medical awareness
+        ("patients", "condition_tags", "TEXT"),
+        ("patients", "medical_stage",  "VARCHAR"),
+        ("workflow_templates", "condition_tags", "TEXT"),
+        ("workflow_templates", "trigger_event",  "VARCHAR"),
+        ("workflow_templates", "specialty",      "VARCHAR"),
+        ("workflow_step_templates", "coverage_categories", "TEXT"),
+        ("workflow_step_templates", "step_type",           "VARCHAR DEFAULT 'administrative'"),
+        ("workflow_step_templates", "estimated_cost",      "FLOAT"),
+        ("workflow_step_templates", "required_documents",  "TEXT"),
+        ("workflow_steps", "coverage_categories",  "TEXT"),
+        ("workflow_steps", "step_type",            "VARCHAR"),
+        ("workflow_steps", "estimated_cost",       "FLOAT"),
+        ("workflow_steps", "required_documents",   "TEXT"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -353,6 +368,111 @@ app.include_router(public.router)
 app.include_router(doctors.router)
 app.include_router(admin.router)
 app.include_router(documents.router)
+app.include_router(workflows.router)
+
+
+def seed_workflow_templates():
+    import json as _json
+    from data.workflow_seed import BUILTIN_TEMPLATES
+    db = SessionLocal()
+    try:
+        for tmpl_data in BUILTIN_TEMPLATES:
+            exists = db.query(models.WorkflowTemplate).filter(
+                models.WorkflowTemplate.name == tmpl_data["name"],
+                models.WorkflowTemplate.is_builtin == True,
+            ).first()
+
+            if exists:
+                # Update medical-awareness fields on existing templates
+                exists.condition_tags = _json.dumps(tmpl_data.get("condition_tags", []))
+                exists.trigger_event  = tmpl_data.get("trigger_event")
+                exists.specialty      = tmpl_data.get("specialty")
+                # Update step templates with coverage fields
+                for step_data in tmpl_data.get("steps", []):
+                    st = db.query(models.WorkflowStepTemplate).filter(
+                        models.WorkflowStepTemplate.template_id == exists.id,
+                        models.WorkflowStepTemplate.step_key == step_data["step_key"],
+                    ).first()
+                    if st:
+                        cats = step_data.get("coverage_categories")
+                        st.coverage_categories = _json.dumps(cats) if cats else None
+                        st.step_type      = step_data.get("step_type", "administrative")
+                        st.estimated_cost = step_data.get("estimated_cost")
+                        docs = step_data.get("required_documents")
+                        st.required_documents = _json.dumps(docs) if docs else None
+                continue
+
+            tmpl = models.WorkflowTemplate(
+                name=tmpl_data["name"],
+                description=tmpl_data.get("description"),
+                category=tmpl_data.get("category"),
+                condition_tags=_json.dumps(tmpl_data.get("condition_tags", [])),
+                trigger_event=tmpl_data.get("trigger_event"),
+                specialty=tmpl_data.get("specialty"),
+                is_builtin=True,
+                is_active=True,
+            )
+            db.add(tmpl)
+            db.flush()
+            for step in tmpl_data.get("steps", []):
+                cats = step.get("coverage_categories")
+                docs = step.get("required_documents")
+                db.add(models.WorkflowStepTemplate(
+                    template_id=tmpl.id,
+                    step_key=step["step_key"],
+                    name=step["name"],
+                    step_order=step["step_order"],
+                    duration_days=step.get("duration_days"),
+                    is_optional=step.get("is_optional", False),
+                    instructions=step.get("instructions"),
+                    coverage_categories=_json.dumps(cats) if cats else None,
+                    step_type=step.get("step_type", "administrative"),
+                    estimated_cost=step.get("estimated_cost"),
+                    required_documents=_json.dumps(docs) if docs else None,
+                ))
+        db.commit()
+        logger.info("Workflow templates seeded/updated")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Workflow seed error: {e}")
+    finally:
+        db.close()
+
+seed_workflow_templates()
+
+
+def seed_condition_tags():
+    from data.condition_tags_seed import BUILTIN_CONDITION_TAGS
+    db = SessionLocal()
+    try:
+        for tag_data in BUILTIN_CONDITION_TAGS:
+            exists = db.query(models.MedicalConditionTag).filter(
+                models.MedicalConditionTag.key == tag_data["key"]
+            ).first()
+            if exists:
+                # Update labels/category in case they changed
+                exists.label_he    = tag_data["label_he"]
+                exists.category    = tag_data["category"]
+                exists.category_he = tag_data["category_he"]
+                exists.is_builtin  = True
+                continue
+            db.add(models.MedicalConditionTag(
+                key=tag_data["key"],
+                label_he=tag_data["label_he"],
+                category=tag_data["category"],
+                category_he=tag_data["category_he"],
+                is_builtin=True,
+                is_active=True,
+            ))
+        db.commit()
+        logger.info("Medical condition tags seeded")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Condition tags seed error: {e}")
+    finally:
+        db.close()
+
+seed_condition_tags()
 
 
 @app.get("/api/health")

@@ -22,6 +22,7 @@ import FeedbackInbox from './pages/manager/FeedbackInbox'
 import DoctorsDatabase from './pages/manager/DoctorsDatabase'
 import ProfilePage from './pages/manager/ProfilePage'
 import AdminPage from './pages/manager/AdminPage'
+import WorkflowsPage from './pages/manager/WorkflowsPage'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
@@ -55,6 +56,7 @@ function AppRoutes() {
         <Route path="responsiveness" element={<ResponsivenessPage />} />
         <Route path="feedback" element={<FeedbackInbox />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="workflows" element={<WorkflowsPage />} />
         <Route path="admin" element={<ProtectedRoute role="manager" adminOnly><AdminPage /></ProtectedRoute>} />
       </Route>
 

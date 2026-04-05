@@ -4,11 +4,11 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
-function LoginModal({ onClose }) {
+function LoginModal({ onClose, initialTab = 'login' }) {
   const { login } = useAuth()
   const navigate   = useNavigate()
 
-  const [tab, setTab]                 = useState('login')
+  const [tab, setTab]                 = useState(initialTab)
   const [form, setForm]               = useState({ email: '', password: '', full_name: '', role: 'manager' })
   const [forgotEmail, setForgotEmail] = useState('')
   const [resetForm, setResetForm]     = useState({ token: '', new_password: '', confirm: '' })
@@ -302,7 +302,7 @@ const STEPS = [
 ]
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
-function Navbar({ onLoginClick }) {
+function Navbar({ onLoginClick, onRegisterClick }) {
   const { user }    = useAuth()
   const navigate    = useNavigate()
   const [open, setOpen] = useState(false)
@@ -344,9 +344,14 @@ function Navbar({ onLoginClick }) {
                 {user.role === 'patient' ? 'מסע שלי ←' : 'לוח הבקרה ←'}
               </button>
             ) : (
-              <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4">
-                כניסה למערכת
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={onRegisterClick} className="text-sm py-1.5 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                  הרשמה
+                </button>
+                <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4">
+                  כניסה
+                </button>
+              </div>
             )}
             <button onClick={() => setOpen(v => !v)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100">
               <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,21 +382,23 @@ export default function LandingPage() {
   const navigate           = useNavigate()
   const location           = useLocation()
   const { user }           = useAuth()
-  const [showLogin, setShowLogin] = useState(false)
+  const [showLogin, setShowLogin]   = useState(false)
+  const [loginTab,  setLoginTab]    = useState('login')
 
   // If navigated here from /login redirect, open modal immediately
   useEffect(() => {
     if (location.state?.openLogin) setShowLogin(true)
   }, [location.state])
 
-  const openLogin  = () => setShowLogin(true)
-  const closeLogin = () => setShowLogin(false)
-  const toDashboard = () => navigate(user?.role === 'patient' ? '/patient' : '/manager')
+  const openLogin    = () => { setLoginTab('login');    setShowLogin(true) }
+  const openRegister = () => { setLoginTab('register'); setShowLogin(true) }
+  const closeLogin   = () => setShowLogin(false)
+  const toDashboard  = () => navigate(user?.role === 'patient' ? '/patient' : '/manager')
 
   return (
     <div className="min-h-screen bg-white" style={{ direction: 'rtl' }}>
-      <Navbar onLoginClick={openLogin} />
-      {showLogin && <LoginModal onClose={closeLogin} />}
+      <Navbar onLoginClick={openLogin} onRegisterClick={openRegister} />
+      {showLogin && <LoginModal onClose={closeLogin} initialTab={loginTab} />}
 
       {/* ── Hero ── */}
       <section className="relative pt-16 overflow-hidden">

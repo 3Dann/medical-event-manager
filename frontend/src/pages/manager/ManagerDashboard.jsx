@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { validateIsraeliId } from '../../utils/validateId'
 
 const DIAGNOSIS_LABELS = { yes: 'אבחון קיים', no: 'ללא אבחון', pending: 'בבירור' }
 const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-yellow' }
@@ -153,7 +154,20 @@ export default function ManagerDashboard() {
                 </div>
                 <div>
                   <label className="label">מספר ת.ז.</label>
-                  <input className="input" value={form.id_number} onChange={e => setForm({...form, id_number: e.target.value})} />
+                  <input
+                    className={`input ${form.id_number && validateIsraeliId(form.id_number) === false ? 'border-red-400 focus:ring-red-300' : form.id_number && validateIsraeliId(form.id_number) === true ? 'border-green-400 focus:ring-green-300' : ''}`}
+                    value={form.id_number}
+                    onChange={e => setForm({...form, id_number: e.target.value.replace(/\D/g, '').slice(0, 9)})}
+                    placeholder="9 ספרות"
+                    maxLength={9}
+                    inputMode="numeric"
+                  />
+                  {form.id_number && validateIsraeliId(form.id_number) === false && (
+                    <p className="text-red-500 text-xs mt-1">תעודת זהות לא תקינה</p>
+                  )}
+                  {form.id_number && validateIsraeliId(form.id_number) === true && (
+                    <p className="text-green-600 text-xs mt-1">✓ תעודת זהות תקינה</p>
+                  )}
                 </div>
                 <div>
                   <label className="label">סטטוס אבחנה</label>
@@ -200,7 +214,11 @@ export default function ManagerDashboard() {
               </div>
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
-                <button type="submit" className="btn-primary">יצירת תיק</button>
+                <button
+                  type="submit"
+                  disabled={form.id_number && validateIsraeliId(form.id_number) === false}
+                  className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+                >יצירת תיק</button>
               </div>
             </form>
           </div>

@@ -104,6 +104,9 @@ class Patient(Base):
     notes = Column(Text, nullable=True)
     hmo_name = Column(String, nullable=True)   # clalit / maccabi / meuhedet / leumit
     hmo_level = Column(String, nullable=True)  # basic / mushlam / premium / zahav
+    # Workflow engine fields
+    condition_tags = Column(Text, nullable=True)   # JSON: ["cancer","surgery"]
+    medical_stage = Column(String, nullable=True)  # pre_diagnosis|active_treatment|recovery|monitoring
     manager_id = Column(Integer, ForeignKey("users.id"))
     patient_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -284,12 +287,29 @@ class Doctor(Base):
 
 # ── Flow Engine ───────────────────────────────────────────────────────────────
 
+class MedicalConditionTag(Base):
+    """Catalog of medical condition tags — two-level: category → specific tag."""
+    __tablename__ = "medical_condition_tags"
+    id           = Column(Integer, primary_key=True, index=True)
+    key          = Column(String, unique=True, nullable=False)   # "breast_cancer"
+    label_he     = Column(String, nullable=False)                # "סרטן שד"
+    category     = Column(String, nullable=True)                 # "oncology"
+    category_he  = Column(String, nullable=True)                 # "אונקולוגיה"
+    is_builtin   = Column(Boolean, default=False)
+    is_active    = Column(Boolean, default=True)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class WorkflowTemplate(Base):
     __tablename__ = "workflow_templates"
-    id          = Column(Integer, primary_key=True, index=True)
-    name        = Column(String, nullable=False)
-    description = Column(Text, nullable=True)
-    category    = Column(String, nullable=True)   # claim / appeal / treatment / hospitalization
+    id             = Column(Integer, primary_key=True, index=True)
+    name           = Column(String, nullable=False)
+    description    = Column(Text, nullable=True)
+    category       = Column(String, nullable=True)   # claim / appeal / treatment / hospitalization
+    # Medical awareness fields
+    condition_tags = Column(Text, nullable=True)     # JSON: ["cancer","surgery"]
+    trigger_event  = Column(String, nullable=True)   # diagnosis|surgery|hospitalization|claim|treatment|general
+    specialty      = Column(String, nullable=True)   # oncology|cardiology|neurology|orthopedics|general
     is_active   = Column(Boolean, default=True)
     is_builtin  = Column(Boolean, default=False)  # built-in templates cannot be deleted
     created_by  = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -306,16 +326,21 @@ class WorkflowTemplate(Base):
 
 class WorkflowStepTemplate(Base):
     __tablename__ = "workflow_step_templates"
-    id            = Column(Integer, primary_key=True, index=True)
-    template_id   = Column(Integer, ForeignKey("workflow_templates.id"))
-    step_key      = Column(String, nullable=False)
-    name          = Column(String, nullable=False)
-    description   = Column(Text, nullable=True)
-    step_order    = Column(Integer, nullable=False)
-    assignee_role = Column(String, nullable=True, default="manager")  # manager / patient / admin
-    duration_days = Column(Integer, nullable=True)
-    is_optional   = Column(Boolean, default=False)
-    instructions  = Column(Text, nullable=True)
+    id                  = Column(Integer, primary_key=True, index=True)
+    template_id         = Column(Integer, ForeignKey("workflow_templates.id"))
+    step_key            = Column(String, nullable=False)
+    name                = Column(String, nullable=False)
+    description         = Column(Text, nullable=True)
+    step_order          = Column(Integer, nullable=False)
+    assignee_role       = Column(String, nullable=True, default="manager")  # manager / patient / admin
+    duration_days       = Column(Integer, nullable=True)
+    is_optional         = Column(Boolean, default=False)
+    instructions        = Column(Text, nullable=True)
+    # Coverage-aware fields
+    coverage_categories = Column(Text, nullable=True)    # JSON: ["surgery","hospitalization"]
+    step_type           = Column(String, nullable=True, default="administrative")  # medical|financial|administrative
+    estimated_cost      = Column(Float, nullable=True)   # typical cost in ILS
+    required_documents  = Column(Text, nullable=True)    # JSON: ["discharge_summary","referral"]
 
     template = relationship("WorkflowTemplate", back_populates="step_templates")
 
@@ -348,27 +373,35 @@ class WorkflowInstance(Base):
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
-    id           = Column(Integer, primary_key=True, index=True)
-    instance_id  = Column(Integer, ForeignKey("workflow_instances.id"))
-    step_key     = Column(String, nullable=False)
-    name         = Column(String, nullable=False)
-    step_order   = Column(Integer, nullable=False)
-    status       = Column(String, default="pending")  # pending / active / completed / skipped
-    assignee_id  = Column(Integer, ForeignKey("users.id"), nullable=True)
-    due_date     = Column(DateTime(timezone=True), nullable=True)
-    started_at   = Column(DateTime(timezone=True), nullable=True)
-    completed_at = Column(DateTime(timezone=True), nullable=True)
-    notes        = Column(Text, nullable=True)
-    result_data  = Column(Text, nullable=True)  # JSON
-    is_optional  = Column(Boolean, default=False)
-    instructions = Column(Text, nullable=True)
+    id                    = Column(Integer, primary_key=True, index=True)
+    instance_id           = Column(Integer, ForeignKey("workflow_instances.id"))
+    step_key              = Column(String, nullable=False)
+    name                  = Column(String, nullable=False)
+    step_order            = Column(Integer, nullable=False)
+    status                = Column(String, default="pending")  # pending / active / completed / skipped
+    assignee_id           = Column(Integer, ForeignKey("users.id"), nullable=True)
+    due_date              = Column(DateTime(timezone=True), nullable=True)
+    started_at            = Column(DateTime(timezone=True), nullable=True)
+    completed_at          = Column(DateTime(timezone=True), nullable=True)
+    notes                 = Column(Text, nullable=True)
+    result_data           = Column(Text, nullable=True)  # JSON
+    is_optional           = Column(Boolean, default=False)
+    instructions          = Column(Text, nullable=True)
+    # Coverage-aware fields (per-instance overrides)
+    coverage_categories   = Column(Text, nullable=True)   # JSON — inherited from template, overridable
+    step_type             = Column(String, nullable=True)
+    estimated_cost        = Column(Float, nullable=True)  # overrides template value if set
+    required_documents    = Column(Text, nullable=True)   # JSON
 
-    instance = relationship("WorkflowInstance", back_populates="steps")
-    assignee = relationship("User", foreign_keys=[assignee_id])
-    actions  = relationship("WorkflowAction",
-                            order_by="WorkflowAction.created_at",
-                            back_populates="step",
-                            cascade="all, delete-orphan")
+    instance        = relationship("WorkflowInstance", back_populates="steps")
+    assignee        = relationship("User", foreign_keys=[assignee_id])
+    actions         = relationship("WorkflowAction",
+                                   order_by="WorkflowAction.created_at",
+                                   back_populates="step",
+                                   cascade="all, delete-orphan")
+    coverage_items  = relationship("WorkflowStepCoverage",
+                                   back_populates="step",
+                                   cascade="all, delete-orphan")
 
 
 class WorkflowAction(Base):
@@ -383,3 +416,26 @@ class WorkflowAction(Base):
 
     step = relationship("WorkflowStep", back_populates="actions")
     user = relationship("User", foreign_keys=[user_id])
+
+
+class WorkflowStepCoverage(Base):
+    """Auto-computed coverage analysis for each active workflow step."""
+    __tablename__ = "workflow_step_coverages"
+    id                  = Column(Integer, primary_key=True, index=True)
+    step_id             = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False)
+    insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id"), nullable=False)
+    coverage_id         = Column(Integer, ForeignKey("coverages.id"), nullable=True)
+    coverage_category   = Column(String, nullable=True)   # which CoverageCategory was matched
+    is_covered          = Column(Boolean, default=False)
+    covered_amount      = Column(Float, nullable=True)    # ILS
+    coverage_percentage = Column(Float, nullable=True)
+    gap_amount          = Column(Float, nullable=True)    # estimated_cost - covered_amount
+    responsiveness_score= Column(Float, nullable=True)   # from ResponsivenessScore table
+    priority_rank       = Column(Integer, nullable=True) # 1 = best option
+    recommendation      = Column(Text, nullable=True)    # Hebrew text shown to manager
+    claim_suggested     = Column(Boolean, default=False)
+    computed_at         = Column(DateTime(timezone=True), server_default=func.now())
+
+    step             = relationship("WorkflowStep", back_populates="coverage_items")
+    insurance_source = relationship("InsuranceSource")
+    coverage         = relationship("Coverage")
