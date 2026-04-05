@@ -380,9 +380,9 @@ export default function PatientStrategy() {
                         אשר הגשה
                       </button>
                       <button
-                        onClick={() => axios.put(`/api/patients/${id}/claims/${claim.id}`, { status: 'pending', notes: 'נדחה על ידי מנהל' }).then(fetchAll)}
+                        onClick={() => axios.delete(`/api/patients/${id}/claims/${claim.id}`).then(fetchAll)}
                         className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                        דחה
+                        בטל
                       </button>
                     </div>
                   </div>
