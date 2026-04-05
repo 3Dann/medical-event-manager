@@ -46,6 +46,92 @@ def _activate_step(db: Session, step: models.WorkflowStep,
     except Exception:
         pass  # coverage is advisory — never block the workflow
 
+    # Auto-create draft claim for financial steps on activation
+    try:
+        _auto_create_draft_claim(db, step, instance)
+    except Exception:
+        pass
+
+
+def _sync_journey_node(db: Session, step: models.WorkflowStep,
+                       instance: models.WorkflowInstance):
+    """
+    When a journey step (step_key = "stage_XX") is completed,
+    mark the corresponding journey Node as completed.
+    """
+    if not step.step_key or not step.step_key.startswith("stage_"):
+        return
+    try:
+        stage_order = int(step.step_key.split("_")[1])
+    except (IndexError, ValueError):
+        return
+    node = db.query(models.Node).filter(
+        models.Node.patient_id == instance.patient_id,
+        models.Node.node_type == "stage",
+        models.Node.stage_order == stage_order,
+    ).first()
+    if node and node.status != "completed":
+        node.status = "completed"
+        db.flush()
+
+
+def _auto_create_draft_claim(db: Session, step: models.WorkflowStep,
+                              instance: models.WorkflowInstance):
+    """
+    When a financial step with coverage_categories is activated,
+    auto-create a draft Claim using the best-ranked insurance source.
+    Skips if no coverage data or no insurance sources.
+    """
+    if step.step_type != "financial":
+        return
+    if not step.coverage_categories:
+        return
+    try:
+        cats = json.loads(step.coverage_categories)
+    except Exception:
+        return
+    if not cats:
+        return
+
+    # Use the highest-ranked coverage item (priority_rank=1)
+    best = db.query(models.WorkflowStepCoverage).filter(
+        models.WorkflowStepCoverage.step_id == step.id,
+        models.WorkflowStepCoverage.priority_rank == 1,
+        models.WorkflowStepCoverage.is_covered == True,
+    ).first()
+
+    # Fallback: any active insurance source for this patient
+    source_id = best.insurance_source_id if best else None
+    if not source_id:
+        src = db.query(models.InsuranceSource).filter(
+            models.InsuranceSource.patient_id == instance.patient_id,
+            models.InsuranceSource.is_active == True,
+        ).first()
+        source_id = src.id if src else None
+
+    if not source_id:
+        return
+
+    # Avoid duplicate draft claims for the same step
+    existing = db.query(models.Claim).filter(
+        models.Claim.workflow_step_id == step.id,
+    ).first()
+    if existing:
+        return
+
+    claim = models.Claim(
+        patient_id=instance.patient_id,
+        insurance_source_id=source_id,
+        category=cats[0],
+        description=f"תביעה אוטומטית — {step.name}",
+        amount_requested=step.estimated_cost,
+        status="draft",
+        workflow_step_id=step.id,
+        notes="נוצרה אוטומטית על ידי מנוע הזרימה — ממתינה לאישור מנהל",
+    )
+    db.add(claim)
+    db.flush()
+
 
 class FlowEngine:
 
@@ -156,6 +242,12 @@ class FlowEngine:
         _log(db, step, user_id, "step_completed",
              f"שלב '{step.name}' הושלם",
              {"notes": notes, "result_data": result_data})
+
+        # Sync journey step → Node status
+        _sync_journey_node(db, step, instance)
+
+        # Auto-create draft claim for financial steps with coverage categories
+        _auto_create_draft_claim(db, step, instance)
 
         # Find next pending step
         next_step = db.query(models.WorkflowStep).filter(

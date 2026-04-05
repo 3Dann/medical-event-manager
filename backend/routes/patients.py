@@ -190,6 +190,25 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
         ))
     db.commit()
     db.refresh(patient)
+
+    # Auto-create journey workflow instance
+    try:
+        journey_tmpl = db.query(models.WorkflowTemplate).filter(
+            models.WorkflowTemplate.is_journey == True,
+            models.WorkflowTemplate.is_active == True,
+        ).first()
+        if journey_tmpl:
+            from flow_engine import FlowEngine
+            FlowEngine.create_instance(
+                db=db,
+                template_id=journey_tmpl.id,
+                patient_id=patient.id,
+                created_by=current_user.id,
+                title="מסע המטופל",
+            )
+    except Exception:
+        pass  # journey workflow is advisory — never block patient creation
+
     return patient_to_dict(patient)
 
 

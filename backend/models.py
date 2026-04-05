@@ -61,6 +61,7 @@ class CoverageCategory(str, enum.Enum):
 
 
 class ClaimStatus(str, enum.Enum):
+    draft = "draft"        # auto-created by workflow engine, awaiting manager approval
     pending = "pending"
     submitted = "submitted"
     approved = "approved"
@@ -204,6 +205,8 @@ class Claim(Base):
     deadline = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
     priority_order = Column(Integer, nullable=True)
+    # Workflow engine link
+    workflow_step_id = Column(Integer, ForeignKey("workflow_steps.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patient = relationship("Patient", back_populates="claims")
     insurance_source = relationship("InsuranceSource")
@@ -310,6 +313,7 @@ class WorkflowTemplate(Base):
     condition_tags = Column(Text, nullable=True)     # JSON: ["cancer","surgery"]
     trigger_event  = Column(String, nullable=True)   # diagnosis|surgery|hospitalization|claim|treatment|general
     specialty      = Column(String, nullable=True)   # oncology|cardiology|neurology|orthopedics|general
+    is_journey     = Column(Boolean, default=False)  # True = patient journey master template
     is_active   = Column(Boolean, default=True)
     is_builtin  = Column(Boolean, default=False)  # built-in templates cannot be deleted
     created_by  = Column(Integer, ForeignKey("users.id"), nullable=True)

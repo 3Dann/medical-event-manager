@@ -287,6 +287,40 @@ BUILTIN_TEMPLATES = [
     },
 
     # ══════════════════════════════════════════════════════════════════════════
+    # JOURNEY — מסע המטופל (master 5-stage template, auto-created on patient creation)
+    # ══════════════════════════════════════════════════════════════════════════
+    {
+        "name": "מסע המטופל",
+        "description": "מסע המטופל הרפואי — 5 שלבים קבועים המסונכרנים עם ציר הזמן",
+        "category": "journey",
+        "is_journey": True,
+        "condition_tags": [],
+        "trigger_event": "general",
+        "specialty": "general",
+        "steps": [
+            {"step_key": "stage_10", "name": "גילוי ואבחון", "step_order": 10,
+             "step_type": "medical",
+             "coverage_categories": ["diagnostics", "second_opinion"], "estimated_cost": 3000,
+             "instructions": "איסוף ממצאים, בדיקות ראשוניות, קבלת אבחנה רשמית"},
+            {"step_key": "stage_20", "name": "תכנון הטיפול", "step_order": 20,
+             "step_type": "medical",
+             "instructions": "בחירת מסלול טיפולי, קבלת חוות דעת שנייה אם נדרש"},
+            {"step_key": "stage_30", "name": "שלב הטיפולים", "step_order": 30,
+             "step_type": "medical",
+             "coverage_categories": ["advanced_tech", "hospitalization", "surgery"], "estimated_cost": 15000,
+             "instructions": "ביצוע הטיפולים הפעילים — אשפוז, ניתוח, כימותרפיה וכד׳"},
+            {"step_key": "stage_40", "name": "החלמה ושיקום", "step_order": 40,
+             "step_type": "medical",
+             "coverage_categories": ["rehabilitation"], "estimated_cost": 8000,
+             "instructions": "טיפולי שיקום, פיזיותרפיה, חזרה לתפקוד"},
+            {"step_key": "stage_50", "name": "מעקב", "step_order": 50,
+             "step_type": "medical",
+             "coverage_categories": ["diagnostics"], "estimated_cost": 1000,
+             "instructions": "ביקורי מעקב תקופתיים, בדיקות הדמיה ומעבדה"},
+        ],
+    },
+
+    # ══════════════════════════════════════════════════════════════════════════
     # NEUROLOGY — שיקום לאחר שבץ
     # ══════════════════════════════════════════════════════════════════════════
     {

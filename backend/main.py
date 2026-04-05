@@ -81,6 +81,9 @@ def run_migrations():
         ("workflow_steps", "step_type",            "VARCHAR"),
         ("workflow_steps", "estimated_cost",       "FLOAT"),
         ("workflow_steps", "required_documents",   "TEXT"),
+        # Phase 1 — journey + draft claims
+        ("workflow_templates", "is_journey",   "BOOLEAN DEFAULT 0"),
+        ("claims", "workflow_step_id", "INTEGER REFERENCES workflow_steps(id)"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -387,6 +390,7 @@ def seed_workflow_templates():
                 exists.condition_tags = _json.dumps(tmpl_data.get("condition_tags", []))
                 exists.trigger_event  = tmpl_data.get("trigger_event")
                 exists.specialty      = tmpl_data.get("specialty")
+                exists.is_journey     = tmpl_data.get("is_journey", False)
                 # Update step templates with coverage fields
                 for step_data in tmpl_data.get("steps", []):
                     st = db.query(models.WorkflowStepTemplate).filter(
@@ -409,6 +413,7 @@ def seed_workflow_templates():
                 condition_tags=_json.dumps(tmpl_data.get("condition_tags", [])),
                 trigger_event=tmpl_data.get("trigger_event"),
                 specialty=tmpl_data.get("specialty"),
+                is_journey=tmpl_data.get("is_journey", False),
                 is_builtin=True,
                 is_active=True,
             )
@@ -473,6 +478,56 @@ def seed_condition_tags():
         db.close()
 
 seed_condition_tags()
+
+
+def seed_journey_workflows():
+    """
+    Idempotent: ensure every patient has an active journey workflow instance.
+    Runs once after templates are seeded. Skips patients that already have one.
+    """
+    db = SessionLocal()
+    try:
+        tmpl = db.query(models.WorkflowTemplate).filter(
+            models.WorkflowTemplate.is_journey == True,
+            models.WorkflowTemplate.is_active == True,
+        ).first()
+        if not tmpl:
+            logger.warning("Journey template not found — skipping journey workflow seed")
+            return
+
+        patients = db.query(models.Patient).all()
+        created = 0
+        for patient in patients:
+            existing = db.query(models.WorkflowInstance).filter(
+                models.WorkflowInstance.patient_id == patient.id,
+                models.WorkflowInstance.template_id == tmpl.id,
+            ).first()
+            if existing:
+                continue
+            # Use the first admin/manager user as creator fallback
+            creator_id = patient.manager_id
+            from flow_engine import FlowEngine
+            try:
+                FlowEngine.create_instance(
+                    db=db,
+                    template_id=tmpl.id,
+                    patient_id=patient.id,
+                    created_by=creator_id,
+                    title="מסע המטופל",
+                )
+                created += 1
+            except Exception as e:
+                db.rollback()
+                logger.warning(f"Failed to create journey workflow for patient {patient.id}: {e}")
+        logger.info(f"Journey workflows seeded: {created} created")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Journey workflow seed error: {e}")
+    finally:
+        db.close()
+
+
+seed_journey_workflows()
 
 
 @app.get("/api/health")

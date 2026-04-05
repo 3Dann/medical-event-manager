@@ -59,6 +59,7 @@ def claim_to_dict(c, db):
         "deadline": c.deadline,
         "notes": c.notes,
         "priority_order": c.priority_order,
+        "workflow_step_id": c.workflow_step_id,
         "created_at": str(c.created_at) if c.created_at else None,
     }
 
@@ -88,6 +89,21 @@ def update_claim(patient_id: int, claim_id: int, data: ClaimUpdate, db: Session 
         raise HTTPException(status_code=404, detail="Claim not found")
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(claim, field, value)
+    db.commit()
+    db.refresh(claim)
+    return claim_to_dict(claim, db)
+
+
+@router.post("/{claim_id}/approve")
+def approve_claim(patient_id: int, claim_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    """Promote a draft claim to pending (ready for submission)."""
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
+    claim = db.query(models.Claim).filter(models.Claim.id == claim_id, models.Claim.patient_id == patient_id).first()
+    if not claim:
+        raise HTTPException(status_code=404, detail="Claim not found")
+    if claim.status != "draft":
+        raise HTTPException(status_code=400, detail="Only draft claims can be approved")
+    claim.status = "pending"
     db.commit()
     db.refresh(claim)
     return claim_to_dict(claim, db)
