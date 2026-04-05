@@ -4,6 +4,15 @@ import axios from 'axios'
 import WorkflowPanel from '../../components/workflows/WorkflowPanel'
 import ResizablePanel from '../../components/ResizablePanel'
 import { validateIsraeliId } from '../../utils/validateId'
+import ConditionTagsSelector from '../../components/ConditionTagsSelector'
+
+const MEDICAL_STAGES = [
+  { value: '',                 label: '— לא מוגדר —' },
+  { value: 'pre_diagnosis',    label: 'לפני אבחנה' },
+  { value: 'active_treatment', label: 'טיפול פעיל' },
+  { value: 'recovery',         label: 'החלמה' },
+  { value: 'monitoring',       label: 'מעקב' },
+]
 
 const tabs = [
   { to: '', label: 'פרטים וצמתים', end: true },
@@ -69,7 +78,14 @@ export default function PatientDetail() {
       axios.get(`/api/patients/${id}/nodes`),
     ])
     setPatient(p.data)
-    setEditForm(p.data)
+    // Parse condition_tags from JSON string if needed
+    const patientData = {
+      ...p.data,
+      condition_tags: typeof p.data.condition_tags === 'string'
+        ? JSON.parse(p.data.condition_tags || '[]')
+        : (p.data.condition_tags || []),
+    }
+    setEditForm(patientData)
     setNodes(n.data)
     if (p.data.hmo_name) {
       const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`)
@@ -78,7 +94,11 @@ export default function PatientDetail() {
   }
 
   const handleSavePatient = async () => {
-    await axios.put(`/api/patients/${id}`, editForm)
+    const payload = {
+      ...editForm,
+      condition_tags: JSON.stringify(editForm.condition_tags || []),
+    }
+    await axios.put(`/api/patients/${id}`, payload)
     setEditingInfo(false)
     fetchAll()
   }
@@ -175,6 +195,19 @@ export default function PatientDetail() {
                 </select>
               </div>
               <div><label className="label">פירוט אבחנה</label><textarea className="input" rows={2} value={editForm.diagnosis_details || ''} onChange={e => setEditForm({...editForm, diagnosis_details: e.target.value})} /></div>
+              <div>
+                <label className="label">אבחנות ותגיות רפואיות</label>
+                <ConditionTagsSelector
+                  value={editForm.condition_tags || []}
+                  onChange={tags => setEditForm({ ...editForm, condition_tags: tags })}
+                />
+              </div>
+              <div>
+                <label className="label">שלב טיפולי</label>
+                <select className="input" value={editForm.medical_stage || ''} onChange={e => setEditForm({...editForm, medical_stage: e.target.value})}>
+                  {MEDICAL_STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">קופת חולים</label>
@@ -213,6 +246,29 @@ export default function PatientDetail() {
                   <dd className="font-medium">
                     {{ clalit:'כללית', maccabi:'מכבי', meuhedet:'מאוחדת', leumit:'לאומית' }[patient.hmo_name]}
                     {patient.hmo_level && <span className="text-slate-500 font-normal mr-1">— {hmoPlans.find(p => p.key === patient.hmo_level)?.label || patient.hmo_level}</span>}
+                  </dd>
+                </div>
+              )}
+              {(() => {
+                const tags = typeof patient.condition_tags === 'string'
+                  ? JSON.parse(patient.condition_tags || '[]')
+                  : (patient.condition_tags || [])
+                return tags.length > 0 && (
+                  <div>
+                    <dt className="text-slate-500">אבחנות</dt>
+                    <dd className="flex flex-wrap gap-1 mt-1">
+                      {tags.map(t => (
+                        <span key={t} className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">{t}</span>
+                      ))}
+                    </dd>
+                  </div>
+                )
+              })()}
+              {patient.medical_stage && (
+                <div>
+                  <dt className="text-slate-500">שלב טיפולי</dt>
+                  <dd className="font-medium">
+                    {MEDICAL_STAGES.find(s => s.value === patient.medical_stage)?.label || patient.medical_stage}
                   </dd>
                 </div>
               )}

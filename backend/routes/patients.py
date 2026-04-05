@@ -29,6 +29,8 @@ class PatientUpdate(BaseModel):
     notes: Optional[str] = None
     hmo_name: Optional[str] = None
     hmo_level: Optional[str] = None
+    condition_tags: Optional[str] = None   # JSON string
+    medical_stage: Optional[str] = None
 
 
 class NodeCreate(BaseModel):
@@ -60,6 +62,8 @@ def patient_to_dict(p):
         "notes": p.notes,
         "hmo_name": p.hmo_name,
         "hmo_level": p.hmo_level,
+        "condition_tags": p.condition_tags,
+        "medical_stage": p.medical_stage,
         "manager_id": p.manager_id,
         "created_at": str(p.created_at) if p.created_at else None,
     }
