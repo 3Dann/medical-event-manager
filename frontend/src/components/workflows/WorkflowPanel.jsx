@@ -222,18 +222,18 @@ export default function WorkflowPanel({ patientId }) {
                         {/* Step node */}
                         <button
                           onClick={() => setActiveStep(isSelected ? null : step)}
-                          className="flex flex-col items-center gap-1.5 group"
-                          style={{ width: 80 }}
+                          className="flex flex-col items-center gap-2 group"
+                          style={{ width: 100 }}
                         >
                           <div className={`
-                            w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-bold
+                            w-11 h-11 rounded-full border-2 flex items-center justify-center text-sm font-bold
                             transition-all shadow-sm
                             ${st.circle}
                             ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
                           `}>
                             {icon || (idx + 1)}
                           </div>
-                          <div className={`text-xs text-center leading-tight max-w-[76px] ${st.label}`}>
+                          <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
                             {step.name}
                           </div>
                           {step.duration_days && step.status !== 'completed' && step.status !== 'skipped' && (
@@ -243,7 +243,7 @@ export default function WorkflowPanel({ patientId }) {
 
                         {/* Connector line */}
                         {!isLast && (
-                          <div className="flex items-center" style={{ width: 32, marginTop: 19 }}>
+                          <div className="flex items-center" style={{ width: 40, marginTop: 21 }}>
                             <div className={`h-0.5 w-full rounded-full ${st.line}`} />
                           </div>
                         )}

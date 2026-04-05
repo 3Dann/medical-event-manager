@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate, NavLink } from 'react-router-dom'
 import axios from 'axios'
+import WorkflowPanel from '../../components/workflows/WorkflowPanel'
+import { validateIsraeliId } from '../../utils/validateId'
 
 const tabs = [
   { to: '', label: 'פרטים וצמתים', end: true },
@@ -109,12 +111,39 @@ export default function PatientDetail() {
     setEditingNode(null)
   }
 
+  // ── Workflow panel resize ─────────────────────────────────────────────────
+  const [wfHeight, setWfHeight] = useState(380)
+  const dragRef = useRef({ active: false, startY: 0, startH: 0 })
+
+  const onDragStart = useCallback((e) => {
+    dragRef.current = { active: true, startY: e.clientY, startH: wfHeight }
+    e.preventDefault()
+  }, [wfHeight])
+
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!dragRef.current.active) return
+      const delta = dragRef.current.startY - e.clientY
+      setWfHeight(Math.max(200, Math.min(750, dragRef.current.startH + delta)))
+    }
+    const onUp = () => { dragRef.current.active = false }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+    return () => {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+  }, [])
+
+  const idValid = validateIsraeliId(editForm.id_number)
+
   if (!patient) return <div className="p-8 text-slate-500">טוען...</div>
 
   const sorted = sortNodes(nodes)
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div dir="rtl">
+    <div className="p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">{patient.full_name}</h1>
@@ -145,7 +174,23 @@ export default function PatientDetail() {
           {editingInfo ? (
             <div className="space-y-3">
               <div><label className="label">שם מלא</label><input className="input" value={editForm.full_name || ''} onChange={e => setEditForm({...editForm, full_name: e.target.value})} /></div>
-              <div><label className="label">ת.ז.</label><input className="input" value={editForm.id_number || ''} onChange={e => setEditForm({...editForm, id_number: e.target.value})} /></div>
+              <div>
+                <label className="label">ת.ז.</label>
+                <input
+                  className={`input ${editForm.id_number && idValid === false ? 'border-red-400 focus:ring-red-300' : editForm.id_number && idValid === true ? 'border-green-400 focus:ring-green-300' : ''}`}
+                  value={editForm.id_number || ''}
+                  onChange={e => setEditForm({...editForm, id_number: e.target.value.replace(/\D/g, '').slice(0, 9)})}
+                  placeholder="9 ספרות"
+                  maxLength={9}
+                  inputMode="numeric"
+                />
+                {editForm.id_number && idValid === false && (
+                  <p className="text-red-500 text-xs mt-1">תעודת זהות לא תקינה</p>
+                )}
+                {editForm.id_number && idValid === true && (
+                  <p className="text-green-600 text-xs mt-1">✓ תעודת זהות תקינה</p>
+                )}
+              </div>
               <div>
                 <label className="label">סטטוס אבחנה</label>
                 <select className="input" value={editForm.diagnosis_status || 'no'} onChange={e => setEditForm({...editForm, diagnosis_status: e.target.value})}>
@@ -175,7 +220,11 @@ export default function PatientDetail() {
                 </div>
               </div>
               <div><label className="label">הערות</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
-              <button onClick={handleSavePatient} className="btn-primary w-full">שמור</button>
+              <button
+                onClick={handleSavePatient}
+                disabled={editForm.id_number && idValid === false}
+                className="btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+              >שמור</button>
             </div>
           ) : (
             <dl className="space-y-3 text-sm">
@@ -377,6 +426,27 @@ export default function PatientDetail() {
           })}
         </div>
       </div>
+
+    </div>
+
+    {/* Full-width resizable workflow panel */}
+    <div
+      className="bg-white border-t-2 border-slate-200 flex flex-col overflow-hidden"
+      style={{ height: wfHeight }}
+    >
+      {/* Drag handle */}
+      <div
+        className="h-3 flex-shrink-0 cursor-ns-resize flex items-center justify-center bg-slate-50 hover:bg-blue-50 transition-colors group select-none"
+        onMouseDown={onDragStart}
+        title="גרור לשינוי גובה"
+      >
+        <div className="w-10 h-1 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors" />
+      </div>
+      {/* Panel content */}
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <WorkflowPanel patientId={id} />
+      </div>
+    </div>
     </div>
   )
 }
