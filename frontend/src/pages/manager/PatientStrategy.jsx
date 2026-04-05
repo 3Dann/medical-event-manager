@@ -221,34 +221,46 @@ function ConflictModal({ conflicts, onResolve, onClose }) {
 export default function PatientStrategy() {
   const { id } = useParams()
 
-  const [strategy,   setStrategy]   = useState(null)
-  const [matrix,     setMatrix]     = useState(null)
-  const [insights,   setInsights]   = useState(null)
-  const [suggest,    setSuggest]    = useState(null)    // {auto_create, conflicts}
-  const [instances,  setInstances]  = useState([])
-  const [tab,        setTab]        = useState('workflows')
-  const [loading,    setLoading]    = useState(true)
-  const [applying,   setApplying]   = useState(false)
-  const [conflict,   setConflict]   = useState(null)   // conflicts waiting for resolution
+  const [strategy,     setStrategy]     = useState(null)
+  const [matrix,       setMatrix]       = useState(null)
+  const [insights,     setInsights]     = useState(null)
+  const [suggest,      setSuggest]      = useState(null)
+  const [instances,    setInstances]    = useState([])
+  const [draftClaims,  setDraftClaims]  = useState([])
+  const [tab,          setTab]          = useState('workflows')
+  const [loading,      setLoading]      = useState(true)
+  const [applying,     setApplying]     = useState(false)
+  const [conflict,     setConflict]     = useState(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
     try {
-      const [s, m, i, sg, inst] = await Promise.all([
+      const [s, m, i, sg, inst, cl] = await Promise.all([
         axios.get(`/api/patients/${id}/strategy`),
         axios.get(`/api/patients/${id}/strategy/matrix`),
         axios.get(`/api/learning/patients/${id}/insights`),
         axios.get(`/api/workflows/suggest?patient_id=${id}`).catch(() => null),
         axios.get(`/api/workflows/instances?patient_id=${id}`).catch(() => ({ data: [] })),
+        axios.get(`/api/patients/${id}/claims`).catch(() => ({ data: [] })),
       ])
       setStrategy(s.data)
       setMatrix(m.data)
       setInsights(i.data)
       if (sg) setSuggest(sg.data)
       setInstances(inst.data)
+      setDraftClaims(cl.data.filter(c => c.status === 'draft'))
     } catch (e) { console.error(e) }
     finally { setLoading(false) }
   }, [id])
+
+  const approveClaim = async (claimId) => {
+    try {
+      await axios.post(`/api/patients/${id}/claims/${claimId}/approve`)
+      fetchAll()
+    } catch (e) {
+      alert('שגיאה באישור תביעה')
+    }
+  }
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
@@ -281,7 +293,8 @@ export default function PatientStrategy() {
 
   if (loading) return <div className="p-8 text-slate-500">מחשב אסטרטגיה...</div>
 
-  const activeInstances   = instances.filter(i => i.status === 'active')
+  const journeyInstance   = instances.find(i => i.title === 'מסע המטופל')
+  const activeInstances   = instances.filter(i => i.status === 'active' && i.title !== 'מסע המטופל')
   const pausedInstances   = instances.filter(i => i.status === 'paused')
   const finishedInstances = instances.filter(i => ['completed','cancelled'].includes(i.status))
 
@@ -306,15 +319,15 @@ export default function PatientStrategy() {
         <div className="grid grid-cols-4 gap-4">
           <div className="card bg-purple-50 border-purple-100 p-4">
             <p className="text-sm text-purple-600">זרימות פעילות</p>
-            <p className="text-3xl font-bold text-purple-800 mt-1">{activeInstances.length}</p>
+            <p className="text-3xl font-bold text-purple-800 mt-1">{instances.filter(i => i.status === 'active').length}</p>
           </div>
           <div className="card bg-blue-50 border-blue-100 p-4">
             <p className="text-sm text-blue-600">מקורות ביטוח</p>
             <p className="text-3xl font-bold text-blue-800 mt-1">{strategy.summary?.total_sources || 0}</p>
           </div>
-          <div className="card bg-green-50 border-green-100 p-4">
-            <p className="text-sm text-green-600">קטגוריות מכוסות</p>
-            <p className="text-3xl font-bold text-green-800 mt-1">{strategy.summary?.categories_covered || 0}</p>
+          <div className="card bg-amber-50 border-amber-100 p-4 cursor-pointer" onClick={() => setTab('workflows')}>
+            <p className="text-sm text-amber-600">תביעות טיוטה</p>
+            <p className="text-3xl font-bold text-amber-800 mt-1">{draftClaims.length}</p>
           </div>
           <div className="card bg-red-50 border-red-100 p-4">
             <p className="text-sm text-red-600">פערי כיסוי</p>
@@ -342,6 +355,51 @@ export default function PatientStrategy() {
       {/* ── WORKFLOWS TAB ──────────────────────────────────────────────────── */}
       {tab === 'workflows' && (
         <div className="space-y-6">
+
+          {/* Draft claims awaiting approval */}
+          {draftClaims.length > 0 && (
+            <div className="card border-amber-200 bg-amber-50/50">
+              <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                <span className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-bold">{draftClaims.length}</span>
+                תביעות טיוטה — ממתינות לאישורך
+              </h3>
+              <div className="space-y-2">
+                {draftClaims.map(claim => (
+                  <div key={claim.id} className="bg-white border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-slate-800">{claim.description}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {claim.source_label}
+                        {claim.amount_requested && <span className="mr-2">| ₪{claim.amount_requested?.toLocaleString()}</span>}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => approveClaim(claim.id)}
+                        className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors">
+                        אשר הגשה
+                      </button>
+                      <button
+                        onClick={() => axios.put(`/api/patients/${id}/claims/${claim.id}`, { status: 'pending', notes: 'נדחה על ידי מנהל' }).then(fetchAll)}
+                        className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                        דחה
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Journey workflow — pinned at top */}
+          {journeyInstance && (
+            <div>
+              <h3 className="font-semibold text-slate-700 mb-3 text-sm flex items-center gap-2">
+                <span className="text-base">🗺️</span> מסע המטופל
+              </h3>
+              <WorkflowCard instance={journeyInstance} onRefresh={fetchAll} />
+            </div>
+          )}
 
           {/* Suggestions section */}
           {suggest && (suggest.auto_create?.length > 0 || suggest.conflicts?.length > 0) && (
