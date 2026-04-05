@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate, NavLink } from 'react-router-dom'
 import axios from 'axios'
 import WorkflowPanel from '../../components/workflows/WorkflowPanel'
+import ResizablePanel from '../../components/ResizablePanel'
 import { validateIsraeliId } from '../../utils/validateId'
 
 const tabs = [
@@ -110,30 +111,6 @@ export default function PatientDetail() {
     await handleUpdateNode(node.id, editNodeData)
     setEditingNode(null)
   }
-
-  // ── Workflow panel resize ─────────────────────────────────────────────────
-  const [wfHeight, setWfHeight] = useState(380)
-  const dragRef = useRef({ active: false, startY: 0, startH: 0 })
-
-  const onDragStart = useCallback((e) => {
-    dragRef.current = { active: true, startY: e.clientY, startH: wfHeight }
-    e.preventDefault()
-  }, [wfHeight])
-
-  useEffect(() => {
-    const onMove = (e) => {
-      if (!dragRef.current.active) return
-      const delta = dragRef.current.startY - e.clientY
-      setWfHeight(Math.max(200, Math.min(750, dragRef.current.startH + delta)))
-    }
-    const onUp = () => { dragRef.current.active = false }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
-    return () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-    }
-  }, [])
 
   const idValid = validateIsraeliId(editForm.id_number)
 
@@ -430,23 +407,15 @@ export default function PatientDetail() {
     </div>
 
     {/* Full-width resizable workflow panel */}
-    <div
-      className="bg-white border-t-2 border-slate-200 flex flex-col overflow-hidden"
-      style={{ height: wfHeight }}
+    <ResizablePanel
+      direction="vertical"
+      defaultSize={380}
+      minSize={200}
+      maxSize={750}
+      className="border-t-2 border-slate-200 bg-white"
     >
-      {/* Drag handle */}
-      <div
-        className="h-3 flex-shrink-0 cursor-ns-resize flex items-center justify-center bg-slate-50 hover:bg-blue-50 transition-colors group select-none"
-        onMouseDown={onDragStart}
-        title="גרור לשינוי גובה"
-      >
-        <div className="w-10 h-1 rounded-full bg-slate-300 group-hover:bg-blue-400 transition-colors" />
-      </div>
-      {/* Panel content */}
-      <div className="flex-1 min-h-0 overflow-hidden">
-        <WorkflowPanel patientId={id} />
-      </div>
-    </div>
+      <WorkflowPanel patientId={id} />
+    </ResizablePanel>
     </div>
   )
 }
