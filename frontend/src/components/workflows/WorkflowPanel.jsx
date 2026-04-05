@@ -26,6 +26,7 @@ export default function WorkflowPanel({ patientId }) {
   const [activeStep, setActiveStep] = useState(null)   // step object currently expanded
   const [showNew, setShowNew] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [deleteConfirm, setDeleteConfirm] = useState(false) // first confirmation step
 
   const fetchInstances = useCallback(async () => {
     try {
@@ -42,8 +43,9 @@ export default function WorkflowPanel({ patientId }) {
 
   useEffect(() => { fetchInstances() }, [fetchInstances])
 
-  // Auto-expand the active step when instance changes
+  // Auto-expand the active step when instance changes; reset delete confirm
   useEffect(() => {
+    setDeleteConfirm(false)
     if (selected?.steps) {
       const act = selected.steps.find(s => s.status === 'active') || selected.steps[0]
       setActiveStep(act || null)
@@ -67,11 +69,11 @@ export default function WorkflowPanel({ patientId }) {
         await axios.post(`/api/workflows/instances/${instanceId}/cancel`, { reason: '' })
       }
       if (action === 'delete') {
-        if (!window.confirm('למחוק את הזרימה לצמיתות?')) return
         await axios.delete(`/api/workflows/instances/${instanceId}`)
         const remaining = instances.filter(i => i.id !== instanceId)
         setInstances(remaining)
         setSelected(remaining[0] || null)
+        setDeleteConfirm(false)
         return
       }
       const res = await axios.get(`/api/workflows/instances/${instanceId}`)
@@ -162,11 +164,31 @@ export default function WorkflowPanel({ patientId }) {
                         חדש
                       </button>
                     )}
-                    <button onClick={() => handleAction('delete', selected.id)}
-                      className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded border border-red-200"
-                      title="מחק זרימה לצמיתות">
-                      מחק
-                    </button>
+                    {!deleteConfirm ? (
+                      <button
+                        onClick={() => setDeleteConfirm(true)}
+                        className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded border border-red-200"
+                        title="מחק זרימה לצמיתות"
+                      >
+                        מחק
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded px-2 py-1">
+                        <span className="text-xs text-red-700 font-medium">למחוק לצמיתות?</span>
+                        <button
+                          onClick={() => handleAction('delete', selected.id)}
+                          className="text-xs bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
+                        >
+                          כן, מחק
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirm(false)}
+                          className="text-xs text-slate-500 hover:text-slate-700 px-1"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="text-right min-w-0">
                     <div className="font-semibold text-slate-800 truncate">{selected.title}</div>
