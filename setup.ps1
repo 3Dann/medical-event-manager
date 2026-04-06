@@ -105,8 +105,18 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-OK "Node.js installed"
 }
 
-# ── 5. Cursor ────────────────────────────────────────────────
-Write-Step "[5/10] Installing Cursor..."
+# ── 5. Claude Code ───────────────────────────────────────────
+Write-Step "[5/11] Installing Claude Code..."
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-OK "Claude Code already installed: $(claude --version 2>&1)"
+} else {
+    npm install -g @anthropic-ai/claude-code
+    Refresh-Path
+    Write-OK "Claude Code installed"
+}
+
+# ── 6. Cursor ────────────────────────────────────────────────
+Write-Step "[6/11] Installing Cursor..."
 if (Get-Command cursor -ErrorAction SilentlyContinue) {
     Write-OK "Cursor already installed"
 } else {
@@ -127,7 +137,7 @@ if (-not (Test-Path $cursorSettingsDir)) {
 Write-OK "Cursor settings applied (Dark theme)"
 
 # ── 6. Clone ─────────────────────────────────────────────────
-Write-Step "[6/10] Downloading project from GitHub..."
+Write-Step "[7/11] Downloading project from GitHub..."
 if (Test-Path "$INSTALL_DIR\.git") {
     Write-OK "Project already exists at $INSTALL_DIR -- updating..."
     Set-Location $INSTALL_DIR
@@ -139,7 +149,7 @@ if (Test-Path "$INSTALL_DIR\.git") {
 }
 
 # ── 7. Backend venv ──────────────────────────────────────────
-Write-Step "[7/10] Setting up Python backend..."
+Write-Step "[8/11] Setting up Python backend..."
 Set-Location "$INSTALL_DIR\backend"
 if (-not (Test-Path "venv")) {
     & $pythonExe -m venv venv
@@ -149,13 +159,13 @@ pip install -r requirements.txt -q
 Write-OK "Backend ready"
 
 # ── 8. Frontend npm ──────────────────────────────────────────
-Write-Step "[8/10] Installing frontend dependencies..."
+Write-Step "[9/11] Installing frontend dependencies..."
 Set-Location "$INSTALL_DIR\frontend"
 npm install --silent
 Write-OK "Frontend ready"
 
 # ── 9. Git config ────────────────────────────────────────────
-Write-Step "[9/10] Configuring Git..."
+Write-Step "[10/11] Configuring Git..."
 $currentEmail = git config --global user.email 2>$null
 if (-not $currentEmail) {
     git config --global user.email "da.tzalik@gmail.com"
@@ -166,7 +176,7 @@ if (-not $currentEmail) {
 }
 
 # ── 10. Desktop shortcut ─────────────────────────────────────
-Write-Step "[10/10] Creating desktop shortcut..."
+Write-Step "[11/11] Creating desktop shortcut..."
 $desktop      = [Environment]::GetFolderPath("Desktop")
 $shortcutPath = "$desktop\Medical Event Manager.lnk"
 $wsh          = New-Object -ComObject WScript.Shell
@@ -187,6 +197,15 @@ Write-Host "============================================" -ForegroundColor Green
 Write-Host "`n  Project folder: $INSTALL_DIR"
 Write-Host "  To run daily:   double-click the desktop shortcut"
 Write-Host "                  or run: .\start.ps1`n"
+
+# ── Claude Code login ─────────────────────────────────────────
+Write-Host "`n============================================" -ForegroundColor Cyan
+Write-Host "   IMPORTANT: Claude Code Login" -ForegroundColor Cyan
+Write-Host "============================================" -ForegroundColor Cyan
+Write-Host "`n  Run this command to log in to Claude:"
+Write-Host "  claude login" -ForegroundColor Yellow
+Write-Host "`n  A browser window will open -- log in with your Anthropic account."
+Write-Host "  After login you can run 'claude' from any terminal inside Cursor.`n"
 
 # Open project in Cursor
 Write-Step "Opening project in Cursor..."
