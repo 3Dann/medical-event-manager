@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRS — מנהל האירוע הרפואי</title>
+<style>
+/* ══════════════════════════════════════════════════════
+   SRS Document Template
+   ══════════════════════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue-dark:  #0d1b3e;
+  --blue-mid:   #1a3a6b;
+  --blue-light: #0f4c8a;
+  --accent:     #2563eb;
+  --green:      #16a34a;
+  --orange:     #d97706;
+  --red:        #dc2626;
+  --gray-50:    #f8fafc;
+  --gray-100:   #eef1f7;
+  --gray-200:   #e2e8f0;
+  --gray-400:   #94a3b8;
+  --gray-600:   #475569;
+  --gray-800:   #1e293b;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  background: var(--gray-100);
+  color: var(--gray-800);
+  direction: rtl;
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 40px 20px;
+}
+
+.page { max-width: 960px; margin: 0 auto; }
+
+/* ── Cover Page ─────────────────────────────────────── */
+.cover {
+  background: linear-gradient(150deg, var(--blue-dark) 0%, var(--blue-mid) 55%, var(--blue-light) 100%);
+  border-radius: 16px;
+  padding: 56px 48px 44px;
+  color: #fff;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: "SRS";
+  position: absolute;
+  left: -20px; top: -30px;
+  font-size: 180px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+  direction: ltr;
+}
+.cover-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #93c5fd;
+  margin-bottom: 12px;
+}
+.cover h1 {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.cover-sub {
+  font-size: 16px;
+  opacity: 0.7;
+  margin-bottom: 36px;
+}
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 24px;
+  justify-content: start;
+}
+.cover-meta-item {
+  padding-left: 32px;
+  margin-left: 32px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+}
+.cover-meta-item:first-child { border-left: none; padding-left: 0; margin-left: 0; }
+.cover-meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #93c5fd; margin-bottom: 3px; }
+.cover-meta-item .value { font-size: 14px; font-weight: 600; }
+
+/* ── Status Badge ───────────────────────────────────── */
+.status-bar {
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.badge-active  { background: #dcfce7; color: #15803d; }
+.badge-planned { background: #dbeafe; color: #1d4ed8; }
+.badge-pending { background: #fef9c3; color: #854d0e; }
+.badge-done    { background: #f0fdf4; color: #166534; border: 1px solid #86efac; }
+
+/* ── TOC ────────────────────────────────────────────── */
+.toc {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.toc-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gray-400);
+  margin-bottom: 16px;
+}
+.toc-list { list-style: none; }
+.toc-list > li {
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--gray-200);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.toc-list > li:last-child { border-bottom: none; }
+.toc-num { color: var(--gray-400); font-size: 12px; min-width: 24px; }
+.toc-list a { color: var(--blue-mid); text-decoration: none; font-size: 14px; font-weight: 500; }
+.toc-list a:hover { color: var(--accent); text-decoration: underline; }
+.toc-sub { padding-right: 24px; margin-top: 3px; }
+.toc-sub li { border-bottom: none; padding: 2px 0; }
+.toc-sub a { font-weight: 400; font-size: 13px; color: var(--gray-600); }
+
+/* ── Section ────────────────────────────────────────── */
+.section {
+  background: #fff;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.section-head {
+  background: linear-gradient(90deg, var(--blue-dark) 0%, var(--blue-mid) 100%);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.section-head .num {
+  font-size: 28px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.18);
+  line-height: 1;
+  direction: ltr;
+}
+.section-head .titles { flex: 1; }
+.section-head h2 { font-size: 18px; font-weight: 700; color: #fff; }
+.section-head .sub { font-size: 12px; color: #93c5fd; margin-top: 2px; }
+.section-body { padding: 28px 32px; }
+
+/* ── Subsection ─────────────────────────────────────── */
+.subsection { margin-bottom: 28px; }
+.subsection:last-child { margin-bottom: 0; }
+.subsection h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--blue-mid);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.subsection h3 .sh-num {
+  font-size: 12px;
+  color: var(--gray-400);
+  font-weight: 400;
+}
+.subsection h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin: 16px 0 8px;
+}
+p { font-size: 14px; color: var(--gray-600); margin-bottom: 8px; }
+
+/* ── Module Card ────────────────────────────────────── */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.module-card {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 16px 18px;
+  border-right: 3px solid var(--accent);
+}
+.module-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--blue-mid);
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+.module-card ul {
+  padding-right: 18px;
+  font-size: 13px;
+  color: var(--gray-600);
+}
+.module-card ul li { margin-bottom: 3px; }
+
+/* ── Requirement Row ────────────────────────────────── */
+.req-list { margin-top: 10px; }
+.req-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  align-items: flex-start;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+}
+.req-item:hover { background: #eef3fb; }
+.req-id {
+  font-family: 'Consolas', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.req-id.nfr  { background: var(--blue-mid); }
+.req-text { font-size: 13px; color: var(--gray-600); flex: 1; }
+.req-priority {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.p-high   { background: #fee2e2; color: var(--red); }
+.p-medium { background: #fef9c3; color: #854d0e; }
+.p-low    { background: #f0fdf4; color: var(--green); }
+
+/* ── Table ──────────────────────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+th {
+  background: var(--gray-100);
+  padding: 10px 14px;
+  text-align: right;
+  color: var(--blue-mid);
+  font-weight: 600;
+  border-bottom: 2px solid var(--gray-200);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafd; }
+td code, th code {
+  background: var(--gray-100);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  color: var(--blue-mid);
+}
+
+/* ── Code Block ─────────────────────────────────────── */
+.code-block {
+  background: var(--blue-dark);
+  color: #a8d8ea;
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-family: 'Consolas', monospace;
+  font-size: 12px;
+  direction: ltr;
+  text-align: left;
+  line-height: 1.9;
+  margin: 12px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-block .d { color: #6a9fb5; }
+.code-block .k { color: #e8d5a3; }
+.code-block .s { color: #a8d8b0; }
+
+/* ── Alert ──────────────────────────────────────────── */
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  margin: 12px 0;
+  align-items: flex-start;
+}
+.alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.alert strong { display: block; margin-bottom: 2px; font-size: 13px; }
+.a-info    { background: #eff6ff; border-right: 4px solid var(--accent); }
+.a-warn    { background: #fffbeb; border-right: 4px solid var(--orange); }
+.a-success { background: #f0fdf4; border-right: 4px solid var(--green); }
+
+/* ── Roadmap ────────────────────────────────────────── */
+.roadmap-phase {
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.roadmap-phase-head {
+  background: var(--gray-50);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.phase-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.roadmap-items { padding: 12px 18px; }
+.roadmap-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--gray-600);
+  border-bottom: 1px dashed var(--gray-200);
+}
+.roadmap-item:last-child { border-bottom: none; }
+.ri-done    { color: var(--green); font-size: 14px; }
+.ri-planned { color: var(--accent); font-size: 14px; }
+.ri-future  { color: var(--gray-400); font-size: 14px; }
+.ri-star    { color: #f59e0b; font-size: 12px; }
+
+/* ── Architecture ───────────────────────────────────── */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 12px;
+}
+.arch-box {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.arch-box h4 { font-size: 13px; font-weight: 700; color: var(--blue-mid); margin-bottom: 10px; margin-top: 0; }
+.arch-file {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--gray-200);
+  font-size: 12px;
+}
+.arch-file:last-child { border-bottom: none; }
+.arch-file code {
+  font-family: 'Consolas', monospace;
+  color: var(--accent);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.arch-file span { color: var(--gray-400); font-size: 11px; }
+
+/* ── Glossary ───────────────────────────────────────── */
+.glossary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.glossary-item {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.glossary-item dt { font-weight: 600; color: var(--blue-mid); font-size: 13px; margin-bottom: 4px; }
+.glossary-item dd { font-size: 13px; color: var(--gray-600); }
+
+/* ── Divider ────────────────────────────────────────── */
+.divider { border: none; border-top: 1px dashed var(--gray-200); margin: 22px 0; }
+
+/* ── Footer ─────────────────────────────────────────── */
+.doc-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: 32px;
+  padding-bottom: 32px;
+}
+
+/* ── Print ──────────────────────────────────────────── */
+@media print {
+  body { background: #fff; padding: 0; font-size: 12px; }
+  .section { box-shadow: none; border: 1px solid #ddd; page-break-inside: avoid; }
+  .cover { border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .toc { box-shadow: none; border: 1px solid #ddd; }
+  a { color: inherit; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══════════════════════════════════════════ COVER ══ -->
+<div class="cover">
+  <div class="cover-label">Software Requirements Specification</div>
+  <h1>מנהל האירוע הרפואי</h1>
+  <div class="cover-sub">Orly Medical — מערכת ניהול מסע מטופל</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">גרסה</div>
+      <div class="value">1.0</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">תאריך</div>
+      <div class="value">אפריל 2026</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">מצב</div>
+      <div class="value">בפיתוח פעיל</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">GitHub</div>
+      <div class="value">3Dann/medical-event-manager</div>
+    </div>
+  </div>
+</div>
+
+<!-- Status Bar -->
+<div class="status-bar">
+  <span style="font-size:12px; color:var(--gray-400); font-weight:600;">סטטוס מודולים:</span>
+  <span class="badge badge-active">✅ Auth + 2FA</span>
+  <span class="badge badge-active">✅ מטופלים</span>
+  <span class="badge badge-active">✅ ביטוחים + תביעות</span>
+  <span class="badge badge-active">✅ מסמכים</span>
+  <span class="badge badge-active">✅ מאגר רופאים</span>
+  <span class="badge badge-planned">🔵 Flow Engine</span>
+  <span class="badge badge-planned">🔵 התראות</span>
+  <span class="badge badge-planned">🔵 פורטל מטופל</span>
+</div>
+
+<!-- ══════════════════════════════════════════ TOC ══ -->
+<div class="toc">
+  <div class="toc-title">תוכן עניינים</div>
+  <ul class="toc-list">
+    <li><span class="toc-num">1</span><a href="#s1">סקירה כללית</a></li>
+    <li><span class="toc-num">2</span><a href="#s2">מצב נוכחי — מודולים קיימים</a></li>
+    <li><span class="toc-num">3</span><a href="#s3">דרישות פונקציונליות — פיתוח עתידי</a></li>
+    <li><span class="toc-num">4</span><a href="#s4">דרישות לא פונקציונליות</a></li>
+    <li><span class="toc-num">5</span><a href="#s5">ארכיטקטורה</a></li>
+    <li><span class="toc-num">6</span><a href="#s6">מסד נתונים</a></li>
+    <li><span class="toc-num">7</span><a href="#s7">מפת דרכים</a></li>
+    <li><span class="toc-num">8</span><a href="#s8">מונחים והגדרות</a></li>
+  </ul>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 1 ══ -->
+<div class="section" id="s1">
+  <div class="section-head">
+    <div class="num">1</div>
+    <div class="titles">
+      <h2>סקירה כללית</h2>
+      <div class="sub">General Overview</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="subsection">
+      <h3><span class="sh-num">1.1</span> מטרת המערכת</h3>
+      <p>מערכת ניהול אירוע רפואי המיועדת למנהלי אירוע רפואי (Case Managers) לניהול מסע המטופל מרגע האבחון ועד ההחלמה, כולל ניהול ביטוחים, תביעות, מסמכים, ואסטרטגיה פיננסית-רפואית.</p>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="sh-num">1.2</span> קהל יעד</h3>
+      <table>
+        <tr><th>תפקיד</th><th>תיאור</th><th>הרשאות</th></tr>
+        <tr><td><strong>Admin</strong> — מנהל ראשי</td><td>הבעלים של המערכת</td><td>גישה מלאה + ניהול משתמשים</td></tr>
+        <tr><td><strong>Manager</strong> — מנהל אירוע רפואי</td><td>איש מקצוע המלווה מטופלים</td><td>ניהול מטופלים ותהליכים</td></tr>
+        <tr><td><strong>Patient</strong> — מטופל</td><td>הלקוח הסופי</td><td>צפייה במסע האישי בלבד</td></tr>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <h3><span class="sh-num">1.3</span> טכנולוגיות</h3>
+      <table>
+        <tr><th>שכבה</th><th>טכנולוגיה</th><th>הערות</th></tr>
+        <tr><td>Backend</td><td>FastAPI (Python 3.13), SQLAlchemy</td><td>RESTful API</td></tr>
+        <tr><td>Database</td><td>SQLite</td><td>Railway Volume — פרסיסטנטי</td></tr>
+        <tr><td>Frontend</td><td>React 18 + Vite + Tailwind CSS</td><td>RTL מלא</td></tr>
+        <tr><td>Auth</td><td>JWT + 2FA (TOTP / Email)</td><td>bcrypt, python-jose</td></tr>
+        <tr><td>Deploy</td><td>Railway (Production)</td><td>GitHub Actions CI/CD</td></tr>
+        <tr><td>Source Control</td><td>Git / GitHub</td><td>Auto-deploy on push to main</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 2 ══ -->
+<div class="section" id="s2">
+  <div class="section-head">
+    <div class="num">2</div>
+    <div class="titles">
+      <h2>מצב נוכחי — מודולים קיימים</h2>
+      <div class="sub">Existing Modules</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="alert a-success">
+      <span class="alert-icon">✅</span>
+      <div>כל המודולים בסעיף זה <strong>פעילים בפרודקשן</strong> על Railway.</div>
+    </div>
+
+    <div class="module-grid">
+
+      <div class="module-card">
+        <h4>🔐 אימות ואבטחה</h4>
+        <ul>
+          <li>הרשמה / התחברות עם JWT</li>
+          <li>2FA — TOTP ואימייל</li>
+          <li>שחזור סיסמה</li>
+          <li>ניהול פרופיל משתמש</li>
+          <li>הגנת נתיבים (ProtectedRoute)</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>👥 ניהול מטופלים</h4>
+        <ul>
+          <li>יצירה / עריכה / מחיקה</li>
+          <li>שיוך קופת חולים ורמת ביטוח</li>
+          <li>פרטי אבחנה ותיאור מקרה</li>
+          <li>חיפוש וסינון</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>🗺️ מסע מטופל</h4>
+        <ul>
+          <li>5 שלבים קבועים + צמתים מותאמים</li>
+          <li>עריכה inline: תאריך, הערות, מיקום</li>
+          <li>סטטוס: עתידי / פעיל / הושלם</li>
+          <li>ציר זמן מאוחד</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>🏥 ביטוחים</h4>
+        <ul>
+          <li>סל, קופ"ח, הר הביטוח, פרטי, ב"ל</li>
+          <li>ניהול כיסויים לפי קטגוריה</li>
+          <li>השתתפות עצמית, תקרה שנתית</li>
+          <li>כיסוי בחו"ל</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>📋 תביעות</h4>
+        <ul>
+          <li>יצירה ומעקב מול חברות ביטוח</li>
+          <li>סטטוסים: ממתין / הוגש / אושר / נדחה</li>
+          <li>סכום מבוקש vs. מאושר</li>
+          <li>דדליינים ועדיפויות</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>💡 אסטרטגיה</h4>
+        <ul>
+          <li>ניהול זכאויות: קיימות, פוטנציאליות</li>
+          <li>תיאור, סכום, סטטוס אישור</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>📄 מסמכים</h4>
+        <ul>
+          <li>PDF, תמונות, Word, Excel — עד 20MB</li>
+          <li>קטגוריות: רפואי, ביטוחי, משפטי, פיננסי</li>
+          <li>הורדה ומחיקה</li>
+          <li>אחסון: <code>/data/uploads/{patient_id}/</code></li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>👨‍⚕️ מאגר רופאים</h4>
+        <ul>
+          <li>~370 רשומות ממקורות מגוונים</li>
+          <li>נרמול אוטומטי (שם, מומחיות)</li>
+          <li>סינון, חיפוש, ייצוא Excel</li>
+          <li>ייבוא PDF / Excel</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>⭐ רספונסיביות</h4>
+        <ul>
+          <li>דירוג חברות ביטוח וקופות</li>
+          <li>מהירות תגובה, בירוקרטיה, ציון כולל</li>
+        </ul>
+      </div>
+
+      <div class="module-card">
+        <h4>🔧 ניהול (Admin)</h4>
+        <ul>
+          <li>ניהול משתמשים — Admin בלבד</li>
+          <li>הצגה / מחיקת משתמשים</li>
+          <li>טופס משוב ציבורי</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 3 ══ -->
+<div class="section" id="s3">
+  <div class="section-head">
+    <div class="num">3</div>
+    <div class="titles">
+      <h2>דרישות פונקציונליות — פיתוח עתידי</h2>
+      <div class="sub">Functional Requirements — Planned Features</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <!-- 3.1 Flow Engine -->
+    <div class="subsection">
+      <h3><span class="sh-num">3.1</span> מנוע זרימת עבודה — Flow Engine ⭐</h3>
+
+      <div class="alert a-warn">
+        <span class="alert-icon">⭐</span>
+        <div><strong>עדיפות גבוהה ביותר</strong> — המודול הבא בתכנון. ראה מסמך FLOW_ENGINE.md לפירוט מלא.</div>
+      </div>
+
+      <h4>מושגי יסוד</h4>
+      <table>
+        <tr><th>מושג</th><th>תיאור</th></tr>
+        <tr><td><strong>Workflow Template</strong></td><td>תבנית זרימה ניתנת לשימוש חוזר (למשל: "הגשת תביעה לקופ"ח")</td></tr>
+        <tr><td><strong>Workflow Instance</strong></td><td>הרצה ספציפית של תבנית עבור מטופל מסוים</td></tr>
+        <tr><td><strong>Step / State</strong></td><td>שלב בזרימה (למשל: "איסוף מסמכים", "הגשה", "המתנה")</td></tr>
+        <tr><td><strong>Transition</strong></td><td>מעבר בין שלבים — עם תנאים / טריגרים</td></tr>
+        <tr><td><strong>Action</strong></td><td>פעולה אוטומטית או ידנית הנדרשת בשלב</td></tr>
+        <tr><td><strong>Assignment</strong></td><td>שיוך שלב למשתמש / תפקיד</td></tr>
+      </table>
+
+      <h4>תבניות מוגדרות מראש</h4>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">WF-1</div><div class="req-text">הגשת תביעת ביטוח — איסוף מסמכים ← הגשה ← מעקב ← תוצאה</div></div>
+        <div class="req-item"><div class="req-id">WF-2</div><div class="req-text">קבלת חוות דעת שנייה — חיפוש רופא ← קביעה ← קבלת חוות דעת ← שילוב בתיק</div></div>
+        <div class="req-item"><div class="req-id">WF-3</div><div class="req-text">ערר על דחייה — ניסוח ← הגשה ← שמיעה ← תוצאה</div></div>
+        <div class="req-item"><div class="req-id">WF-4</div><div class="req-text">תהליך אשפוז — רישום מוקדם ← כניסה ← שחרור ← מעקב</div></div>
+        <div class="req-item"><div class="req-id">WF-5</div><div class="req-text">הגשה לביטוח לאומי — בדיקת זכאות ← איסוף טפסים ← הגשה ← ועדה רפואית</div></div>
+      </div>
+
+      <h4>דרישות מפורטות</h4>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">FR-WF-01</div><div class="req-text">יצירת תבניות workflow מותאמות אישית</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-02</div><div class="req-text">הרצת workflow עבור מטופל ספציפי</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-03</div><div class="req-text">מעקב סטטוס שלב בזמן אמת</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-04</div><div class="req-text">הגדרת תנאי מעבר (אוטומטי / ידני)</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-05</div><div class="req-text">שיוך משימות לאנשים</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-06</div><div class="req-text">תזכורות ודדליינים לכל שלב</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-07</div><div class="req-text">היסטוריית פעולות — Audit Log</div><div class="req-priority p-low">נמוכה</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-08</div><div class="req-text">חיבור workflow לתביעה / מסמך / צומת במסע המטופל</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-WF-09</div><div class="req-text">דוח סיכום workflow עם ציר זמן</div><div class="req-priority p-low">נמוכה</div></div>
+      </div>
+
+      <h4>מודל נתונים מוצע</h4>
+      <div class="code-block"><span class="k">WorkflowTemplate</span>  id, name, description, steps <span class="d">(JSON)</span>, created_by
+<span class="k">WorkflowInstance</span>  id, template_id, patient_id, current_step, status, started_at, completed_at
+<span class="k">WorkflowStep</span>      id, instance_id, step_name, step_order, status, assignee_id, due_date, notes
+<span class="k">WorkflowAction</span>    id, step_id, action_type, triggered_by, timestamp, data <span class="d">(JSON)</span></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3.2 התראות -->
+    <div class="subsection">
+      <h3><span class="sh-num">3.2</span> מערכת התראות ותזכורות</h3>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">FR-NOT-01</div><div class="req-text">התראות in-app על דדליינים קרובים לתביעות</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-NOT-02</div><div class="req-text">תזכורת לחידוש ביטוחים</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-NOT-03</div><div class="req-text">עדכון סטטוס אוטומטי לפי תאריך</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-NOT-04</div><div class="req-text">שליחת אימייל על אירועים חשובים (דורש SMTP)</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-NOT-05</div><div class="req-text">מרכז התראות בממשק המשתמש (notification bell)</div><div class="req-priority p-low">נמוכה</div></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3.3 דוחות -->
+    <div class="subsection">
+      <h3><span class="sh-num">3.3</span> דוחות וניתוח נתונים</h3>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">FR-REP-01</div><div class="req-text">דוח סיכום מטופל — כל התביעות, ביטוחים, זכאויות</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-REP-02</div><div class="req-text">דוח פיננסי: סכומים מבוקשים vs. מאושרים</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-REP-03</div><div class="req-text">ייצוא מלא ל-PDF/Excel לכל מטופל</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-REP-04</div><div class="req-text">גרף ציר זמן של מסע המטופל</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-REP-05</div><div class="req-text">סטטיסטיקות מנהל: כמות מטופלים, תביעות פתוחות, שיעור הצלחה</div><div class="req-priority p-low">נמוכה</div></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3.4 פורטל מטופל -->
+    <div class="subsection">
+      <h3><span class="sh-num">3.4</span> פורטל מטופל</h3>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">FR-PAT-01</div><div class="req-text">מטופל מחובר רואה את מסעו האישי</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-PAT-02</div><div class="req-text">הורדת מסמכים אישיים</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-PAT-03</div><div class="req-text">צפייה בסטטוס תביעות</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-PAT-04</div><div class="req-text">תקשורת עם המנהל (הודעות / צ'אט)</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-PAT-05</div><div class="req-text">לוח בקרה אישי עם סטטוס כולל</div><div class="req-priority p-low">נמוכה</div></div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3.5 שיפורים -->
+    <div class="subsection">
+      <h3><span class="sh-num">3.5</span> שיפורים במודולים קיימים</h3>
+      <div class="req-list">
+        <div class="req-item"><div class="req-id">FR-IMP-01</div><div class="req-text">SMTP אמיתי לאימייל 2FA ותזכורות</div><div class="req-priority p-high">גבוהה</div></div>
+        <div class="req-item"><div class="req-id">FR-IMP-02</div><div class="req-text">חיפוש ומיון מתקדם במאגר הרופאים</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-IMP-03</div><div class="req-text">שיוך רופא לצומת במסע המטופל</div><div class="req-priority p-medium">בינונית</div></div>
+        <div class="req-item"><div class="req-id">FR-IMP-04</div><div class="req-text">ניהול מרובה ביטוחים לאותה קטגוריה</div><div class="req-priority p-low">נמוכה</div></div>
+        <div class="req-item"><div class="req-id">FR-IMP-05</div><div class="req-text">גרסאות / היסטוריה של מסמכים</div><div class="req-priority p-low">נמוכה</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 4 ══ -->
+<div class="section" id="s4">
+  <div class="section-head">
+    <div class="num">4</div>
+    <div class="titles">
+      <h2>דרישות לא פונקציונליות</h2>
+      <div class="sub">Non-Functional Requirements</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="req-list">
+      <div class="req-item"><div class="req-id nfr">NFR-01</div><div class="req-text"><strong>אבטחה:</strong> JWT עם תפוגה, 2FA חובה לכל משתמש, HTTPS ב-Production</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-02</div><div class="req-text"><strong>ביצועים:</strong> תגובת API פחות מ-500ms לשאילתות רגילות</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-03</div><div class="req-text"><strong>זמינות:</strong> 99.5% uptime דרך Railway</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-04</div><div class="req-text"><strong>נגישות:</strong> ממשק RTL מלא בעברית, תמיכה ב-Chrome / Firefox / Edge</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-05</div><div class="req-text"><strong>אחסון:</strong> Volume מתמיד ב-Railway לDB ולמסמכים</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-06</div><div class="req-text"><strong>גיבוי:</strong> גיבוי DB אוטומטי — לא מיושם עדיין</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-07</div><div class="req-text"><strong>הרחבות:</strong> ארכיטקטורה מודולרית — הוספת routes/modules ללא שינוי ליבה</div></div>
+      <div class="req-item"><div class="req-id nfr">NFR-08</div><div class="req-text"><strong>CI/CD:</strong> כל push ל-main מפרס אוטומטית ל-Railway דרך GitHub Actions</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 5 ══ -->
+<div class="section" id="s5">
+  <div class="section-head">
+    <div class="num">5</div>
+    <div class="titles">
+      <h2>ארכיטקטורה</h2>
+      <div class="sub">System Architecture</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="arch-grid">
+      <div class="arch-box">
+        <h4>⚙️ Backend — <code>backend/</code></h4>
+        <div class="arch-file"><code>main.py</code><span>FastAPI app, CORS, route registration</span></div>
+        <div class="arch-file"><code>models.py</code><span>SQLAlchemy models</span></div>
+        <div class="arch-file"><code>auth.py</code><span>JWT, bcrypt, decorators</span></div>
+        <div class="arch-file"><code>database.py</code><span>DB session</span></div>
+        <div class="arch-file"><code>scraper.py</code><span>Web scraping for doctors DB</span></div>
+        <div class="arch-file"><code>email_utils.py</code><span>Email 2FA (SMTP)</span></div>
+      </div>
+
+      <div class="arch-box">
+        <h4>🛣️ Routes — <code>backend/routes/</code></h4>
+        <div class="arch-file"><code>auth.py</code><span>הרשמה, התחברות, 2FA, סיסמה</span></div>
+        <div class="arch-file"><code>patients.py</code><span>CRUD מטופלים + צמתים</span></div>
+        <div class="arch-file"><code>insurance.py</code><span>מקורות ביטוח + כיסויים</span></div>
+        <div class="arch-file"><code>claims.py</code><span>תביעות</span></div>
+        <div class="arch-file"><code>strategy.py</code><span>זכאויות</span></div>
+        <div class="arch-file"><code>documents.py</code><span>מסמכים</span></div>
+        <div class="arch-file"><code>doctors.py</code><span>מאגר רופאים</span></div>
+        <div class="arch-file"><code>responsiveness.py</code><span>ציוני רספונסיביות</span></div>
+        <div class="arch-file"><code>admin.py</code><span>ניהול משתמשים</span></div>
+      </div>
+
+      <div class="arch-box">
+        <h4>🎨 Frontend — <code>frontend/src/</code></h4>
+        <div class="arch-file"><code>pages/manager/</code><span>ממשק מנהל</span></div>
+        <div class="arch-file"><code>pages/patient/</code><span>ממשק מטופל</span></div>
+        <div class="arch-file"><code>context/</code><span>AuthContext</span></div>
+        <div class="arch-file"><code>components/</code><span>רכיבים משותפים</span></div>
+      </div>
+
+      <div class="arch-box">
+        <h4>🚀 Deploy — Infrastructure</h4>
+        <div class="arch-file"><code>Dockerfile</code><span>Container image</span></div>
+        <div class="arch-file"><code>nixpacks.toml</code><span>Railway build config</span></div>
+        <div class="arch-file"><code>.github/workflows/</code><span>GitHub Actions CI/CD</span></div>
+        <div class="arch-file"><code>Railway Volume</code><span>/data/ — DB + uploads</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 6 ══ -->
+<div class="section" id="s6">
+  <div class="section-head">
+    <div class="num">6</div>
+    <div class="titles">
+      <h2>מסד נתונים</h2>
+      <div class="sub">Database Schema</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <table>
+      <tr><th>טבלה</th><th>תיאור</th><th>שדות מפתח</th></tr>
+      <tr><td><code>users</code></td><td>משתמשים — מנהלים ומטופלים</td><td>id, email, role, is_admin, totp_secret, totp_enabled</td></tr>
+      <tr><td><code>patients</code></td><td>מטופלים</td><td>id, manager_id, name, diagnosis, hmo, insurance_level</td></tr>
+      <tr><td><code>nodes</code></td><td>צמתים / שלבים במסע המטופל</td><td>id, patient_id, node_type, stage_order, status, date, notes</td></tr>
+      <tr><td><code>insurance_sources</code></td><td>מקורות ביטוח</td><td>id, patient_id, source_type, provider_name</td></tr>
+      <tr><td><code>coverages</code></td><td>כיסויים לפי מקור ביטוח</td><td>id, source_id, category, amount, deductible, annual_limit</td></tr>
+      <tr><td><code>claims</code></td><td>תביעות</td><td>id, patient_id, source_id, status, amount_requested, amount_approved, deadline</td></tr>
+      <tr><td><code>entitlements</code></td><td>זכאויות</td><td>id, patient_id, title, amount, status, entitlement_type</td></tr>
+      <tr><td><code>patient_documents</code></td><td>מסמכים</td><td>id, patient_id, filename, category, file_size</td></tr>
+      <tr><td><code>doctors</code></td><td>מאגר רופאים</td><td>id, name, specialty, sub_specialty, source</td></tr>
+      <tr><td><code>responsiveness_scores</code></td><td>ציוני רספונסיביות</td><td>id, entity_name, entity_type, response_speed, bureaucracy, overall</td></tr>
+      <tr><td><code>project_feedback</code></td><td>משובים</td><td>id, content, created_at</td></tr>
+      <tr><td><code>scraping_sources</code></td><td>מקורות scraping</td><td>id, name, url, source_type, last_run</td></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 7 ══ -->
+<div class="section" id="s7">
+  <div class="section-head">
+    <div class="num">7</div>
+    <div class="titles">
+      <h2>מפת דרכים</h2>
+      <div class="sub">Roadmap</div>
+    </div>
+  </div>
+  <div class="section-body">
+
+    <div class="roadmap-phase">
+      <div class="roadmap-phase-head">
+        <span class="badge badge-done">שלב א׳</span>
+        <span class="phase-label" style="color:var(--green);">תשתית — הושלם ✅</span>
+      </div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><span class="ri-done">✅</span> Auth + 2FA (TOTP + Email)</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> ניהול מטופלים</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> מסע מטופל (Patient Journey)</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> ביטוחים + כיסויים</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> תביעות</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> אסטרטגיה וזכאויות</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> מסמכים</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> מאגר רופאים</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> ציוני רספונסיביות</div>
+        <div class="roadmap-item"><span class="ri-done">✅</span> Deploy ל-Railway + CI/CD</div>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="roadmap-phase-head">
+        <span class="badge badge-planned">שלב ב׳</span>
+        <span class="phase-label" style="color:var(--accent);">אוטומציה — בתכנון</span>
+      </div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><span class="ri-planned">◉</span> <span class="ri-star">⭐</span> <strong>מנוע זרימת עבודה — Flow Engine</strong></div>
+        <div class="roadmap-item"><span class="ri-planned">◉</span> מערכת התראות ותזכורות</div>
+        <div class="roadmap-item"><span class="ri-planned">◉</span> SMTP אמיתי לאימייל</div>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="roadmap-phase-head">
+        <span class="badge badge-pending">שלב ג׳</span>
+        <span class="phase-label" style="color:var(--orange);">ניתוח ודוחות — עתידי</span>
+      </div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><span class="ri-future">○</span> דוחות פיננסיים</div>
+        <div class="roadmap-item"><span class="ri-future">○</span> ייצוא PDF לכל מטופל</div>
+        <div class="roadmap-item"><span class="ri-future">○</span> סטטיסטיקות מנהל</div>
+      </div>
+    </div>
+
+    <div class="roadmap-phase">
+      <div class="roadmap-phase-head">
+        <span class="badge badge-pending">שלב ד׳</span>
+        <span class="phase-label" style="color:var(--orange);">פורטל מטופל — עתידי</span>
+      </div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><span class="ri-future">○</span> פורטל מטופל מלא</div>
+        <div class="roadmap-item"><span class="ri-future">○</span> תקשורת מטופל–מנהל</div>
+        <div class="roadmap-item"><span class="ri-future">○</span> לוח בקרה אישי למטופל</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════ 8 ══ -->
+<div class="section" id="s8">
+  <div class="section-head">
+    <div class="num">8</div>
+    <div class="titles">
+      <h2>מונחים והגדרות</h2>
+      <div class="sub">Glossary</div>
+    </div>
+  </div>
+  <div class="section-body">
+    <div class="glossary-grid">
+      <dl class="glossary-item"><dt>מנהל אירוע רפואי</dt><dd>איש מקצוע המלווה מטופל לאורך תהליך רפואי מורכב</dd></dl>
+      <dl class="glossary-item"><dt>מסע מטופל</dt><dd>ציר הזמן של האירוע הרפואי מאבחון ועד החלמה</dd></dl>
+      <dl class="glossary-item"><dt>תביעה</dt><dd>בקשה לקבלת פיצוי/כיסוי מחברת ביטוח או קופת חולים</dd></dl>
+      <dl class="glossary-item"><dt>זכאות</dt><dd>זכות כספית או שירותית שמגיע למטופל</dd></dl>
+      <dl class="glossary-item"><dt>צומת (Node)</dt><dd>אירוע בודד בציר הזמן של המטופל</dd></dl>
+      <dl class="glossary-item"><dt>כיסוי</dt><dd>תנאי הביטוח לקטגוריה מסוימת</dd></dl>
+      <dl class="glossary-item"><dt>Workflow</dt><dd>תהליך מובנה עם שלבים, אחראים, ודדליינים</dd></dl>
+      <dl class="glossary-item"><dt>Flow Engine</dt><dd>מנוע State Machine להגדרה והפעלה של workflows</dd></dl>
+      <dl class="glossary-item"><dt>2FA</dt><dd>אימות דו-שלבי — TOTP (Google Authenticator) או אימייל</dd></dl>
+      <dl class="glossary-item"><dt>JWT</dt><dd>JSON Web Token — מנגנון אימות stateless</dd></dl>
+    </div>
+  </div>
+</div>
+
+
+<div class="doc-footer">
+  מסמך דרישות מערכת (SRS) · מנהל האירוע הרפואי · גרסה 1.0 · אפריל 2026<br>
+  מסמך זה מתעדכן באופן שוטף עם התפתחות המערכת
+</div>
+
+</div>
+</body>
+</html>
