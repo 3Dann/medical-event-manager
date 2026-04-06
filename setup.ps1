@@ -198,16 +198,18 @@ Write-Host "`n  Project folder: $INSTALL_DIR"
 Write-Host "  To run daily:   double-click the desktop shortcut"
 Write-Host "                  or run: .\start.ps1`n"
 
-# ── Claude Code login ─────────────────────────────────────────
-Write-Host "`n============================================" -ForegroundColor Cyan
-Write-Host "   IMPORTANT: Claude Code Login" -ForegroundColor Cyan
-Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "`n  Run this command to log in to Claude:"
-Write-Host "  claude login" -ForegroundColor Yellow
-Write-Host "`n  A browser window will open -- log in with your Anthropic account."
-Write-Host "  After login you can run 'claude' from any terminal inside Cursor.`n"
+# ── Claude Code login ────────────────────────────────────────
+Write-Step "Logging in to Claude Code..."
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Host "`n  A browser window will open -- log in with your Anthropic account." -ForegroundColor Cyan
+    Write-Host "  Come back here when done.`n" -ForegroundColor Cyan
+    claude login
+    Write-OK "Claude Code login complete"
+} else {
+    Write-Warn "claude not found in PATH -- reopen PowerShell and run: claude login"
+}
 
-# Open project in Cursor
+# ── Open project in Cursor ────────────────────────────────────
 Write-Step "Opening project in Cursor..."
 if (Get-Command cursor -ErrorAction SilentlyContinue) {
     cursor $INSTALL_DIR
