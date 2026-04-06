@@ -988,6 +988,335 @@ td code, th code {
   מסמך זה מתעדכן באופן שוטף עם התפתחות המערכת
 </div>
 
+</div><!-- /page -->
+
+<!-- ══ Edit Mode UI ══════════════════════════════════════════ -->
+
+<!-- Floating toolbar -->
+<div id="edit-toolbar">
+  <button id="btn-toggle-edit" onclick="toggleEditMode()">✏️ מצב עריכה</button>
+  <button id="btn-save"    onclick="saveDoc()"   style="display:none">💾 שמור</button>
+  <button id="btn-export"  onclick="exportHtml()" style="display:none">⬇️ ייצא HTML</button>
+  <button id="btn-cancel"  onclick="cancelEdit()" style="display:none">✕ בטל</button>
 </div>
+
+<!-- Add-requirement modal -->
+<div id="req-modal" style="display:none">
+  <div id="req-modal-box">
+    <h3>➕ הוסף דרישה</h3>
+    <div class="mf">
+      <label>מזהה (FR-XX-00)</label>
+      <input id="m-id" type="text" placeholder="FR-WF-10" />
+    </div>
+    <div class="mf">
+      <label>תיאור הדרישה</label>
+      <textarea id="m-text" rows="3" placeholder="תיאור מפורט של הדרישה..."></textarea>
+    </div>
+    <div class="mf">
+      <label>עדיפות</label>
+      <select id="m-priority">
+        <option value="p-high">גבוהה</option>
+        <option value="p-medium" selected>בינונית</option>
+        <option value="p-low">נמוכה</option>
+      </select>
+    </div>
+    <div id="req-modal-btns">
+      <button onclick="addReqFromModal()">הוסף</button>
+      <button onclick="closeModal()" style="background:#6b7280">בטל</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── Toolbar ── */
+#edit-toolbar {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--blue-dark);
+  border-radius: 40px;
+  padding: 10px 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  z-index: 1000;
+}
+#edit-toolbar button {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  direction: rtl;
+}
+#edit-toolbar button:hover { background: rgba(255,255,255,0.22); }
+#btn-save   { background: rgba(34,197,94,0.25) !important; border-color: #22c55e !important; }
+#btn-cancel { background: rgba(239,68,68,0.2)  !important; border-color: #ef4444 !important; }
+
+/* ── Edit mode styles ── */
+body.edit-mode .req-text[contenteditable="true"] {
+  background: #fffbeb;
+  border-radius: 4px;
+  outline: 1px dashed #f59e0b;
+  padding: 2px 4px;
+  min-width: 60px;
+}
+body.edit-mode .req-text[contenteditable="true"]:focus {
+  outline: 2px solid #f59e0b;
+  background: #fefce8;
+}
+body.edit-mode .req-item { position: relative; }
+.req-delete {
+  display: none;
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fee2e2;
+  border: none;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #dc2626;
+  align-items: center;
+  justify-content: center;
+}
+body.edit-mode .req-delete { display: flex; }
+.add-req-btn {
+  display: none;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  background: #f0fdf4;
+  border: 1.5px dashed #22c55e;
+  border-radius: 8px;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  direction: rtl;
+  transition: background 0.15s;
+}
+.add-req-btn:hover { background: #dcfce7; }
+body.edit-mode .add-req-btn { display: block; }
+
+/* ── Modal ── */
+#req-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#req-modal-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 32px;
+  width: 460px;
+  max-width: 95vw;
+  direction: rtl;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#req-modal-box h3 { font-size: 17px; color: var(--blue-mid); margin-bottom: 20px; }
+.mf { margin-bottom: 14px; }
+.mf label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 5px; }
+.mf input, .mf textarea, .mf select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--gray-800);
+  direction: rtl;
+  outline: none;
+}
+.mf input:focus, .mf textarea:focus, .mf select:focus { border-color: var(--accent); }
+.mf textarea { resize: vertical; }
+#req-modal-btns { display: flex; gap: 10px; justify-content: flex-start; margin-top: 18px; }
+#req-modal-btns button {
+  padding: 9px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--accent);
+  color: #fff;
+}
+#req-modal-btns button:first-child:hover { background: #1d4ed8; }
+
+/* ── Edit mode banner ── */
+#edit-banner {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #fef9c3;
+  border-bottom: 2px solid #f59e0b;
+  padding: 8px 20px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #78350f;
+  z-index: 999;
+  direction: rtl;
+}
+body.edit-mode #edit-banner { display: block; }
+body.edit-mode { padding-top: 44px; }
+
+@media print { #edit-toolbar, #edit-banner { display: none !important; } }
+</style>
+
+<div id="edit-banner">✏️ מצב עריכה פעיל — לחץ על טקסט כלשהו לעריכה. לחץ "שמור" לשמירה.</div>
+
+<script>
+let editMode = false;
+let targetList = null;
+const SAVE_KEY = 'srs_edits_v1';
+
+/* ── Toggle ── */
+function toggleEditMode() {
+  editMode = true;
+  document.body.classList.add('edit-mode');
+  document.getElementById('btn-toggle-edit').style.display = 'none';
+  document.getElementById('btn-save').style.display    = 'inline-block';
+  document.getElementById('btn-export').style.display  = 'inline-block';
+  document.getElementById('btn-cancel').style.display  = 'inline-block';
+
+  // Make all req-text editable
+  document.querySelectorAll('.req-text').forEach(el => {
+    el.setAttribute('contenteditable', 'true');
+  });
+
+  // Make all req-id editable
+  document.querySelectorAll('.req-id').forEach(el => {
+    el.setAttribute('contenteditable', 'true');
+    el.style.cursor = 'text';
+  });
+
+  // Add delete buttons
+  document.querySelectorAll('.req-item').forEach(item => {
+    if (!item.querySelector('.req-delete')) {
+      const btn = document.createElement('button');
+      btn.className = 'req-delete';
+      btn.innerHTML = '✕';
+      btn.title = 'מחק דרישה';
+      btn.onclick = () => { if (confirm('מחק דרישה זו?')) item.remove(); };
+      item.appendChild(btn);
+    }
+  });
+
+  // Add "Add requirement" buttons to each req-list
+  document.querySelectorAll('.req-list').forEach(list => {
+    if (!list.querySelector('.add-req-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'add-req-btn';
+      btn.textContent = '➕ הוסף דרישה';
+      btn.onclick = () => openModal(list);
+      list.appendChild(btn);
+    }
+  });
+}
+
+function cancelEdit() {
+  location.reload();
+}
+
+/* ── Save to localStorage ── */
+function saveDoc() {
+  const data = {};
+
+  document.querySelectorAll('.req-item').forEach((item, i) => {
+    const idEl   = item.querySelector('.req-id');
+    const textEl = item.querySelector('.req-text');
+    const priEl  = item.querySelector('.req-priority');
+    if (idEl && textEl) {
+      data['req_' + i] = {
+        id:   idEl.textContent.trim(),
+        text: textEl.textContent.trim(),
+        pri:  priEl ? priEl.className.replace('req-priority ', '') : 'p-medium',
+        priText: priEl ? priEl.textContent.trim() : ''
+      };
+    }
+  });
+
+  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+
+  // Visual feedback
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '✅ נשמר';
+  setTimeout(() => { btn.textContent = '💾 שמור'; }, 1500);
+}
+
+/* ── Export ── */
+function exportHtml() {
+  // Snapshot current DOM — remove edit UI
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelectorAll('#edit-toolbar, #edit-banner, #req-modal, script').forEach(e => e.remove());
+  clone.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
+  clone.querySelectorAll('.req-delete, .add-req-btn').forEach(e => e.remove());
+  clone.body.classList.remove('edit-mode');
+
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'SRS_updated.html';
+  a.click();
+}
+
+/* ── Modal ── */
+function openModal(list) {
+  targetList = list;
+  document.getElementById('m-id').value = '';
+  document.getElementById('m-text').value = '';
+  document.getElementById('m-priority').value = 'p-medium';
+  document.getElementById('req-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('m-id').focus(), 50);
+}
+function closeModal() {
+  document.getElementById('req-modal').style.display = 'none';
+  targetList = null;
+}
+
+function addReqFromModal() {
+  const id   = document.getElementById('m-id').value.trim();
+  const text = document.getElementById('m-text').value.trim();
+  const pri  = document.getElementById('m-priority').value;
+  const priLabels = { 'p-high': 'גבוהה', 'p-medium': 'בינונית', 'p-low': 'נמוכה' };
+
+  if (!id || !text) { alert('יש למלא מזהה ותיאור'); return; }
+
+  const item = document.createElement('div');
+  item.className = 'req-item';
+  item.innerHTML = `
+    <div class="req-id" contenteditable="true">${id}</div>
+    <div class="req-text" contenteditable="true">${text}</div>
+    <div class="req-priority ${pri}">${priLabels[pri]}</div>
+    <button class="req-delete" title="מחק דרישה" onclick="if(confirm('מחק?')) this.closest('.req-item').remove()">✕</button>
+  `;
+
+  // Insert before the add button
+  const addBtn = targetList.querySelector('.add-req-btn');
+  targetList.insertBefore(item, addBtn);
+
+  closeModal();
+}
+
+// Close modal on backdrop click
+document.getElementById('req-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
 </body>
 </html>
