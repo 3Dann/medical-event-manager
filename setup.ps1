@@ -35,7 +35,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
     Write-OK "Git כבר מותקן: $(git --version)"
 } else {
     winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
-    $env:PATH += ";$env:ProgramFiles\Git\bin"
+    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
     Write-OK "Git הותקן"
 }
 
