@@ -146,3 +146,12 @@ Frontend מתחבר ל-backend דרך Vite proxy (מוגדר ב-vite.config.js).
 ```bash
 git add . && git commit -m "תיאור" && git push
 ```
+
+---
+
+## סנכרון זיכרון בין מכונות
+
+CLAUDE.md הוא מנגנון הזיכרון הבין-מכונתי. בסוף כל שיחה:
+1. Claude מעדכן קובץ זה עם מה שנעשה / הוחלט
+2. commit + push
+3. בהפעלה הבאה (בכל מכונה) — `start.sh` עושה `git pull` אוטומטית
