@@ -1,153 +1,198 @@
 # ============================================================
-# setup.ps1 - התקנה אוטומטית - מנהל האירוע הרפואי
-# הרץ פעם אחת בלבד על מחשב חדש
+# setup.ps1 - Medical Event Manager - One-time setup
 # ============================================================
-# הרצה: פתח PowerShell כמנהל ← הדבק שורה זו:
-#   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-# אחר כך הרץ:
-#   irm https://raw.githubusercontent.com/3Dann/medical-event-manager/main/setup.ps1 | iex
+# Run once on a new machine:
+#   Step 1: Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+#   Step 2: irm https://raw.githubusercontent.com/3Dann/medical-event-manager/main/setup.ps1 | iex
 # ============================================================
 
-$ErrorActionPreference = "Stop"
-$REPO_URL = "https://github.com/3Dann/medical-event-manager.git"
+$ErrorActionPreference = "Continue"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$REPO_URL  = "https://github.com/3Dann/medical-event-manager.git"
 $INSTALL_DIR = "$env:USERPROFILE\medical-event-manager"
 
 function Write-Step($msg) { Write-Host "`n>>> $msg" -ForegroundColor Cyan }
-function Write-OK($msg)   { Write-Host "  OK  $msg" -ForegroundColor Green }
-function Write-Warn($msg) { Write-Host "  !!  $msg" -ForegroundColor Yellow }
+function Write-OK($msg)   { Write-Host "  [OK] $msg" -ForegroundColor Green }
+function Write-Warn($msg) { Write-Host "  [!!] $msg" -ForegroundColor Yellow }
+
+function Refresh-Path {
+    $machinePath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $userPath    = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+    $env:PATH    = "$machinePath;$userPath"
+}
+
+function Find-Python {
+    # Try standard command
+    $py = Get-Command python -ErrorAction SilentlyContinue
+    if ($py) { return $py.Source }
+    # Try py launcher
+    $py = Get-Command py -ErrorAction SilentlyContinue
+    if ($py) { return $py.Source }
+    # Search common install paths
+    $candidates = @(
+        "$env:LOCALAPPDATA\Programs\Python\Python313\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe",
+        "C:\Python313\python.exe",
+        "C:\Python312\python.exe",
+        "C:\Program Files\Python313\python.exe"
+    )
+    foreach ($c in $candidates) {
+        if (Test-Path $c) {
+            $dir = Split-Path $c
+            $env:PATH += ";$dir"
+            return $c
+        }
+    }
+    return $null
+}
 
 Write-Host "`n============================================" -ForegroundColor Magenta
-Write-Host "   מנהל האירוע הרפואי - התקנה אוטומטית" -ForegroundColor Magenta
+Write-Host "   Medical Event Manager - Setup" -ForegroundColor Magenta
 Write-Host "============================================`n" -ForegroundColor Magenta
 
 # ── 1. winget ────────────────────────────────────────────────
-Write-Step "בודק winget..."
+Write-Step "[1/10] Checking winget..."
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-    Write-Warn "winget לא נמצא. פותח Microsoft Store להתקנת App Installer..."
+    Write-Warn "winget not found. Opening Microsoft Store to install App Installer..."
     Start-Process "ms-windows-store://pdp/?ProductId=9NBLGGH4NNS1"
-    Read-Host "התקן App Installer, סגור Store, ואז לחץ Enter להמשך"
+    Read-Host "Install App Installer, close Store, then press Enter to continue"
 }
-Write-OK "winget זמין"
+Write-OK "winget is available"
 
 # ── 2. Git ───────────────────────────────────────────────────
-Write-Step "מתקין Git..."
+Write-Step "[2/10] Installing Git..."
 if (Get-Command git -ErrorAction SilentlyContinue) {
-    Write-OK "Git כבר מותקן: $(git --version)"
+    Write-OK "Git already installed: $(git --version)"
 } else {
     winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-    Write-OK "Git הותקן"
+    Refresh-Path
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        Write-OK "Git installed successfully"
+    } else {
+        Write-Warn "Git installed but not in PATH yet - will continue"
+        $env:PATH += ";$env:ProgramFiles\Git\cmd"
+    }
 }
 
 # ── 3. Python ────────────────────────────────────────────────
-Write-Step "מתקין Python 3.13..."
-if (Get-Command python -ErrorAction SilentlyContinue) {
-    $pv = python --version 2>&1
-    Write-OK "Python כבר מותקן: $pv"
+Write-Step "[3/10] Installing Python 3.13..."
+$pythonExe = Find-Python
+if ($pythonExe) {
+    Write-OK "Python already installed: $($pythonExe) -- $( & $pythonExe --version 2>&1 )"
 } else {
     winget install --id Python.Python.3.13 -e --source winget --accept-package-agreements --accept-source-agreements
-    # רענן PATH
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-    Write-OK "Python הותקן"
+    Refresh-Path
+    Start-Sleep -Seconds 3
+    $pythonExe = Find-Python
+    if ($pythonExe) {
+        Write-OK "Python installed: $pythonExe"
+    } else {
+        Write-Warn "Python installed but path not found automatically."
+        Write-Warn "Close this window, reopen PowerShell and run the script again."
+        Read-Host "Or press Enter to try continuing anyway"
+        $pythonExe = "python"
+    }
 }
 
 # ── 4. Node.js ───────────────────────────────────────────────
-Write-Step "מתקין Node.js LTS..."
+Write-Step "[4/10] Installing Node.js LTS..."
 if (Get-Command node -ErrorAction SilentlyContinue) {
-    Write-OK "Node.js כבר מותקן: $(node --version)"
+    Write-OK "Node.js already installed: $(node --version)"
 } else {
     winget install --id OpenJS.NodeJS.LTS -e --source winget --accept-package-agreements --accept-source-agreements
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-    Write-OK "Node.js הותקן"
+    Refresh-Path
+    Write-OK "Node.js installed"
 }
 
 # ── 5. Cursor ────────────────────────────────────────────────
-Write-Step "מתקין Cursor..."
+Write-Step "[5/10] Installing Cursor..."
 if (Get-Command cursor -ErrorAction SilentlyContinue) {
-    Write-OK "Cursor כבר מותקן"
+    Write-OK "Cursor already installed"
 } else {
     winget install --id Anysphere.Cursor -e --source winget --accept-package-agreements --accept-source-agreements
-    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
-    Write-OK "Cursor הותקן"
+    Refresh-Path
+    Write-OK "Cursor installed"
 }
 
-# הגדרות Cursor זהות ל-iMac
+# Apply Cursor settings (same as iMac)
 $cursorSettingsDir = "$env:APPDATA\Cursor\User"
-if (-not (Test-Path $cursorSettingsDir)) { New-Item -ItemType Directory -Force -Path $cursorSettingsDir | Out-Null }
-$cursorSettings = @{
-    "workbench.colorTheme"          = "Visual Studio Dark"
-    "workbench.layoutControl.enabled" = $false
-} | ConvertTo-Json -Depth 3
-Set-Content -Path "$cursorSettingsDir\settings.json" -Value $cursorSettings -Encoding UTF8
-Write-OK "הגדרות Cursor הוגדרו (Dark theme)"
+if (-not (Test-Path $cursorSettingsDir)) {
+    New-Item -ItemType Directory -Force -Path $cursorSettingsDir | Out-Null
+}
+@{
+    "workbench.colorTheme"             = "Visual Studio Dark"
+    "workbench.layoutControl.enabled"  = $false
+} | ConvertTo-Json -Depth 3 | Set-Content -Path "$cursorSettingsDir\settings.json" -Encoding UTF8
+Write-OK "Cursor settings applied (Dark theme)"
 
 # ── 6. Clone ─────────────────────────────────────────────────
-Write-Step "מוריד את הפרויקט מ-GitHub..."
+Write-Step "[6/10] Downloading project from GitHub..."
 if (Test-Path "$INSTALL_DIR\.git") {
-    Write-OK "הפרויקט כבר קיים ב-$INSTALL_DIR — מעדכן..."
+    Write-OK "Project already exists at $INSTALL_DIR -- updating..."
     Set-Location $INSTALL_DIR
     git pull origin main
 } else {
     git clone $REPO_URL $INSTALL_DIR
     Set-Location $INSTALL_DIR
-    Write-OK "הפרויקט הורד ל-$INSTALL_DIR"
+    Write-OK "Project downloaded to $INSTALL_DIR"
 }
 
 # ── 7. Backend venv ──────────────────────────────────────────
-Write-Step "מקים סביבת Python (backend)..."
+Write-Step "[7/10] Setting up Python backend..."
 Set-Location "$INSTALL_DIR\backend"
 if (-not (Test-Path "venv")) {
-    python -m venv venv
+    & $pythonExe -m venv venv
 }
 & "venv\Scripts\Activate.ps1"
 pip install -r requirements.txt -q
-Write-OK "Backend מוכן"
+Write-OK "Backend ready"
 
 # ── 8. Frontend npm ──────────────────────────────────────────
-Write-Step "מתקין תלויות Frontend..."
+Write-Step "[8/10] Installing frontend dependencies..."
 Set-Location "$INSTALL_DIR\frontend"
 npm install --silent
-Write-OK "Frontend מוכן"
+Write-OK "Frontend ready"
 
 # ── 9. Git config ────────────────────────────────────────────
-Write-Step "מגדיר Git..."
+Write-Step "[9/10] Configuring Git..."
 $currentEmail = git config --global user.email 2>$null
 if (-not $currentEmail) {
     git config --global user.email "da.tzalik@gmail.com"
     git config --global user.name "3Dann"
-    Write-OK "Git מוגדר"
+    Write-OK "Git configured"
 } else {
-    Write-OK "Git כבר מוגדר: $currentEmail"
+    Write-OK "Git already configured: $currentEmail"
 }
 
-# ── 10. קיצור דרך בדסקטופ ────────────────────────────────────
-Write-Step "יוצר קיצור דרך בדסקטופ..."
-$desktop = [Environment]::GetFolderPath("Desktop")
+# ── 10. Desktop shortcut ─────────────────────────────────────
+Write-Step "[10/10] Creating desktop shortcut..."
+$desktop      = [Environment]::GetFolderPath("Desktop")
 $shortcutPath = "$desktop\Medical Event Manager.lnk"
-$wsh = New-Object -ComObject WScript.Shell
-$shortcut = $wsh.CreateShortcut($shortcutPath)
-$shortcut.TargetPath = "powershell.exe"
-$shortcut.Arguments = "-ExecutionPolicy Bypass -File `"$INSTALL_DIR\start.ps1`""
+$wsh          = New-Object -ComObject WScript.Shell
+$shortcut     = $wsh.CreateShortcut($shortcutPath)
+$shortcut.TargetPath    = "powershell.exe"
+$shortcut.Arguments     = "-ExecutionPolicy Bypass -File `"$INSTALL_DIR\start.ps1`""
 $shortcut.WorkingDirectory = $INSTALL_DIR
-$shortcut.IconLocation = "powershell.exe,0"
-$shortcut.Description = "הפעלת מנהל האירוע הרפואי"
+$shortcut.IconLocation  = "powershell.exe,0"
+$shortcut.Description   = "Medical Event Manager"
 $shortcut.Save()
-Write-OK "קיצור דרך נוצר בדסקטופ"
+Write-OK "Desktop shortcut created"
 
-# ── סיום ─────────────────────────────────────────────────────
+# ── Done ─────────────────────────────────────────────────────
 Set-Location $INSTALL_DIR
 Write-Host "`n============================================" -ForegroundColor Green
-Write-Host "   ההתקנה הושלמה בהצלחה!" -ForegroundColor Green
+Write-Host "   Setup complete!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
-Write-Host "`n  הפרויקט נמצא ב: $INSTALL_DIR"
-Write-Host "  להפעלה יומית: לחץ על הקיצור בדסקטופ"
-Write-Host "             או הרץ: .\start.ps1`n"
+Write-Host "`n  Project folder: $INSTALL_DIR"
+Write-Host "  To run daily:   double-click the desktop shortcut"
+Write-Host "                  or run: .\start.ps1`n"
 
-# פתח את הפרויקט ב-Cursor
-Write-Step "פותח את הפרויקט ב-Cursor..."
+# Open project in Cursor
+Write-Step "Opening project in Cursor..."
 if (Get-Command cursor -ErrorAction SilentlyContinue) {
     cursor $INSTALL_DIR
-    Write-OK "Cursor נפתח עם הפרויקט"
+    Write-OK "Cursor opened with the project"
 } else {
-    Write-Warn "Cursor לא נמצא ב-PATH — פתח ידנית: File → Open Folder → $INSTALL_DIR"
+    Write-Warn "Cursor not in PATH -- open manually: File -> Open Folder -> $INSTALL_DIR"
 }
