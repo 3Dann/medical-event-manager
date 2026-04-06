@@ -1000,34 +1000,21 @@ td code, th code {
   <button id="btn-cancel"  onclick="cancelEdit()" style="display:none">✕ בטל</button>
 </div>
 
-<!-- Add-requirement modal -->
+<!-- Universal modal -->
 <div id="req-modal" style="display:none">
   <div id="req-modal-box">
-    <h3>➕ הוסף דרישה</h3>
-    <div class="mf">
-      <label>מזהה (FR-XX-00)</label>
-      <input id="m-id" type="text" placeholder="FR-WF-10" />
-    </div>
-    <div class="mf">
-      <label>תיאור הדרישה</label>
-      <textarea id="m-text" rows="3" placeholder="תיאור מפורט של הדרישה..."></textarea>
-    </div>
-    <div class="mf">
-      <label>עדיפות</label>
-      <select id="m-priority">
-        <option value="p-high">גבוהה</option>
-        <option value="p-medium" selected>בינונית</option>
-        <option value="p-low">נמוכה</option>
-      </select>
-    </div>
+    <h3 id="m-title">הוסף</h3>
+    <div id="m-fields"></div>
     <div id="req-modal-btns">
-      <button onclick="addReqFromModal()">הוסף</button>
+      <button id="m-confirm">הוסף</button>
       <button onclick="closeModal()" style="background:#6b7280">בטל</button>
     </div>
   </div>
 </div>
 
 <style>
+/* ══ EDIT MODE ══════════════════════════════════════════════ */
+
 /* ── Toolbar ── */
 #edit-toolbar {
   position: fixed;
@@ -1060,53 +1047,67 @@ td code, th code {
 #btn-cancel { background: rgba(239,68,68,0.2)  !important; border-color: #ef4444 !important; }
 
 /* ── Edit mode styles ── */
-body.edit-mode .req-text[contenteditable="true"] {
-  background: #fffbeb;
-  border-radius: 4px;
+/* editable highlight */
+body.edit-mode [contenteditable="true"] {
   outline: 1px dashed #f59e0b;
-  padding: 2px 4px;
-  min-width: 60px;
+  border-radius: 4px;
+  padding: 2px 5px;
+  background: #fffbeb;
+  cursor: text;
+  transition: background 0.1s;
 }
-body.edit-mode .req-text[contenteditable="true"]:focus {
-  outline: 2px solid #f59e0b;
-  background: #fefce8;
-}
+body.edit-mode [contenteditable="true"]:hover  { background: #fef9c3; }
+body.edit-mode [contenteditable="true"]:focus  { outline: 2px solid #f59e0b; background: #fefce8; }
+
+/* req delete */
 body.edit-mode .req-item { position: relative; }
 .req-delete {
   display: none;
   position: absolute;
-  left: -28px;
-  top: 50%;
+  left: -28px; top: 50%;
   transform: translateY(-50%);
-  background: #fee2e2;
-  border: none;
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  font-size: 12px;
-  cursor: pointer;
-  color: #dc2626;
-  align-items: center;
-  justify-content: center;
+  background: #fee2e2; border: none;
+  border-radius: 50%; width: 22px; height: 22px;
+  font-size: 12px; cursor: pointer; color: #dc2626;
+  align-items: center; justify-content: center;
 }
 body.edit-mode .req-delete { display: flex; }
-.add-req-btn {
+
+/* row delete (tables) */
+.row-delete {
   display: none;
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  background: #f0fdf4;
-  border: 1.5px dashed #22c55e;
-  border-radius: 8px;
-  color: #15803d;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  direction: rtl;
+  background: #fee2e2; border: none;
+  border-radius: 4px; padding: 2px 7px;
+  font-size: 12px; cursor: pointer; color: #dc2626;
+  white-space: nowrap;
+}
+body.edit-mode .row-delete { display: inline-block; }
+
+/* card delete */
+.card-delete {
+  display: none;
+  position: absolute; top: 8px; left: 8px;
+  background: #fee2e2; border: none;
+  border-radius: 50%; width: 22px; height: 22px;
+  font-size: 12px; cursor: pointer; color: #dc2626;
+  align-items: center; justify-content: center; z-index: 5;
+}
+body.edit-mode .module-card  { position: relative; }
+body.edit-mode .card-delete  { display: flex; }
+body.edit-mode .glossary-item { position: relative; }
+
+/* add buttons */
+.add-btn {
+  display: none;
+  width: 100%; margin-top: 8px; padding: 8px;
+  background: #f0fdf4; border: 1.5px dashed #22c55e;
+  border-radius: 8px; color: #15803d;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; direction: rtl;
   transition: background 0.15s;
 }
-.add-req-btn:hover { background: #dcfce7; }
-body.edit-mode .add-req-btn { display: block; }
+.add-btn:hover { background: #dcfce7; }
+body.edit-mode .add-btn { display: block; }
 
 /* ── Modal ── */
 #req-modal {
@@ -1180,143 +1181,315 @@ body.edit-mode { padding-top: 44px; }
 <div id="edit-banner">✏️ מצב עריכה פעיל — לחץ על טקסט כלשהו לעריכה. לחץ "שמור" לשמירה.</div>
 
 <script>
-let editMode = false;
-let targetList = null;
-const SAVE_KEY = 'srs_edits_v1';
+let targetCtx = null; // context for modal (req-list / table / etc.)
+let modalType = '';
 
-/* ── Toggle ── */
+/* ════════════════════════════════════════════════
+   TOGGLE EDIT MODE
+   ════════════════════════════════════════════════ */
 function toggleEditMode() {
-  editMode = true;
   document.body.classList.add('edit-mode');
   document.getElementById('btn-toggle-edit').style.display = 'none';
-  document.getElementById('btn-save').style.display    = 'inline-block';
-  document.getElementById('btn-export').style.display  = 'inline-block';
-  document.getElementById('btn-cancel').style.display  = 'inline-block';
+  ['btn-save','btn-export','btn-cancel'].forEach(id =>
+    document.getElementById(id).style.display = 'inline-block');
 
-  // Make all req-text editable
-  document.querySelectorAll('.req-text').forEach(el => {
-    el.setAttribute('contenteditable', 'true');
+  /* 1. פסקאות טקסט */
+  document.querySelectorAll('.subsection p, .section-body > p, .alert div').forEach(el => {
+    if (!el.closest('#edit-toolbar') && !el.closest('#req-modal'))
+      ce(el);
   });
 
-  // Make all req-id editable
-  document.querySelectorAll('.req-id').forEach(el => {
-    el.setAttribute('contenteditable', 'true');
-    el.style.cursor = 'text';
+  /* 2. כרטיסי מודול — שורות רשימה */
+  document.querySelectorAll('.module-card h4, .module-card li').forEach(ce);
+  document.querySelectorAll('.module-card').forEach(card => addDeleteBtn(card, 'card-delete', () => card.remove()));
+  addAddBtn(document.querySelector('.module-grid'), '➕ הוסף מודול', openModuleModal);
+
+  /* 3. תאי טבלה (לא כותרות) */
+  document.querySelectorAll('td').forEach(td => {
+    if (!td.querySelector('code')) ce(td);   // לא עורכים תאי קוד
+  });
+  document.querySelectorAll('table').forEach(tbl => {
+    addAddBtn(tbl.parentElement, '➕ הוסף שורה', () => openRowModal(tbl), tbl);
+    tbl.querySelectorAll('tr').forEach(tr => {
+      if (tr.querySelector('td')) {
+        const td = document.createElement('td');
+        const btn = document.createElement('button');
+        btn.className = 'row-delete';
+        btn.textContent = '✕ מחק';
+        btn.onclick = () => { if (confirm('מחק שורה?')) tr.remove(); };
+        td.appendChild(btn);
+        tr.appendChild(td);
+      }
+    });
   });
 
-  // Add delete buttons
+  /* 4. דרישות (req-items) */
+  document.querySelectorAll('.req-text, .req-id').forEach(ce);
   document.querySelectorAll('.req-item').forEach(item => {
-    if (!item.querySelector('.req-delete')) {
-      const btn = document.createElement('button');
-      btn.className = 'req-delete';
-      btn.innerHTML = '✕';
-      btn.title = 'מחק דרישה';
-      btn.onclick = () => { if (confirm('מחק דרישה זו?')) item.remove(); };
-      item.appendChild(btn);
-    }
+    addDeleteBtn(item, 'req-delete', () => { if(confirm('מחק?')) item.remove(); });
   });
+  document.querySelectorAll('.req-list').forEach(list =>
+    addAddBtn(list, '➕ הוסף דרישה', () => openReqModal(list)));
 
-  // Add "Add requirement" buttons to each req-list
-  document.querySelectorAll('.req-list').forEach(list => {
-    if (!list.querySelector('.add-req-btn')) {
-      const btn = document.createElement('button');
-      btn.className = 'add-req-btn';
-      btn.textContent = '➕ הוסף דרישה';
-      btn.onclick = () => openModal(list);
-      list.appendChild(btn);
+  /* 5. Roadmap */
+  document.querySelectorAll('.roadmap-item').forEach(el => {
+    const text = el.childNodes[el.childNodes.length - 1];
+    if (text && text.nodeType === 3) {
+      const span = document.createElement('span');
+      span.textContent = text.textContent;
+      ce(span);
+      text.replaceWith(span);
     }
+    addDeleteBtn(el, 'row-delete', () => el.remove(), true);
   });
+  document.querySelectorAll('.roadmap-items').forEach(block =>
+    addAddBtn(block, '➕ הוסף פריט', () => openRoadmapModal(block)));
+
+  /* 6. גלוסרי */
+  document.querySelectorAll('.glossary-item dt, .glossary-item dd').forEach(ce);
+  document.querySelectorAll('.glossary-item').forEach(item =>
+    addDeleteBtn(item, 'card-delete', () => item.remove()));
+  addAddBtn(document.querySelector('.glossary-grid'), '➕ הוסף מונח', openGlossaryModal);
+
+  /* 7. כותרת ומטא */
+  document.querySelectorAll('.cover h1, .cover-sub, .cover-meta-item .value').forEach(ce);
+
+  /* 8. כותרות סעיפים */
+  document.querySelectorAll('.section-head h2, .subsection h3, .subsection h4').forEach(ce);
 }
 
-function cancelEdit() {
-  location.reload();
+function ce(el) {
+  el.setAttribute('contenteditable', 'true');
 }
 
-/* ── Save to localStorage ── */
+function addDeleteBtn(parent, cls, fn, inline) {
+  if (parent.querySelector('.' + cls)) return;
+  const btn = document.createElement('button');
+  btn.className = cls;
+  btn.innerHTML = '✕';
+  btn.onclick = fn;
+  if (inline) { btn.style.cssText = 'display:inline-block;margin-right:6px;'; }
+  parent.appendChild(btn);
+}
+
+function addAddBtn(container, label, fn, insertBefore) {
+  if (!container) return;
+  const btn = document.createElement('button');
+  btn.className = 'add-btn';
+  btn.textContent = label;
+  btn.onclick = fn;
+  if (insertBefore) insertBefore.after(btn);
+  else container.appendChild(btn);
+}
+
+function cancelEdit() { location.reload(); }
+
+/* ════════════════════════════════════════════════
+   SAVE & EXPORT
+   ════════════════════════════════════════════════ */
 function saveDoc() {
-  const data = {};
-
-  document.querySelectorAll('.req-item').forEach((item, i) => {
-    const idEl   = item.querySelector('.req-id');
-    const textEl = item.querySelector('.req-text');
-    const priEl  = item.querySelector('.req-priority');
-    if (idEl && textEl) {
-      data['req_' + i] = {
-        id:   idEl.textContent.trim(),
-        text: textEl.textContent.trim(),
-        pri:  priEl ? priEl.className.replace('req-priority ', '') : 'p-medium',
-        priText: priEl ? priEl.textContent.trim() : ''
-      };
-    }
-  });
-
-  localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-
-  // Visual feedback
+  localStorage.setItem('srs_html_v2', document.querySelector('.page').innerHTML);
   const btn = document.getElementById('btn-save');
   btn.textContent = '✅ נשמר';
   setTimeout(() => { btn.textContent = '💾 שמור'; }, 1500);
 }
 
-/* ── Export ── */
 function exportHtml() {
-  // Snapshot current DOM — remove edit UI
   const clone = document.documentElement.cloneNode(true);
-  clone.querySelectorAll('#edit-toolbar, #edit-banner, #req-modal, script').forEach(e => e.remove());
+  clone.querySelectorAll('#edit-toolbar,#edit-banner,#req-modal,script').forEach(e => e.remove());
   clone.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
-  clone.querySelectorAll('.req-delete, .add-req-btn').forEach(e => e.remove());
+  clone.querySelectorAll('.req-delete,.row-delete,.card-delete,.add-btn').forEach(e => e.remove());
   clone.body.classList.remove('edit-mode');
-
-  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], {type:'text/html;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'SRS_updated.html';
   a.click();
 }
 
-/* ── Modal ── */
-function openModal(list) {
-  targetList = list;
-  document.getElementById('m-id').value = '';
-  document.getElementById('m-text').value = '';
-  document.getElementById('m-priority').value = 'p-medium';
+/* load saved on startup */
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('srs_html_v2');
+  if (saved) document.querySelector('.page').innerHTML = saved;
+});
+
+/* ════════════════════════════════════════════════
+   MODAL — GENERIC
+   ════════════════════════════════════════════════ */
+function showModal(title, fields, onConfirm) {
+  document.getElementById('m-title').textContent = title;
+  const body = document.getElementById('m-fields');
+  body.innerHTML = '';
+  fields.forEach(f => {
+    const wrap = document.createElement('div');
+    wrap.className = 'mf';
+    wrap.innerHTML = `<label>${f.label}</label>`;
+    let el;
+    if (f.type === 'select') {
+      el = document.createElement('select');
+      el.id = f.id;
+      f.options.forEach(o => {
+        const opt = document.createElement('option');
+        opt.value = o.v; opt.textContent = o.t;
+        if (o.sel) opt.selected = true;
+        el.appendChild(opt);
+      });
+    } else if (f.type === 'textarea') {
+      el = document.createElement('textarea');
+      el.id = f.id; el.rows = 3;
+      el.placeholder = f.placeholder || '';
+    } else {
+      el = document.createElement('input');
+      el.type = 'text'; el.id = f.id;
+      el.placeholder = f.placeholder || '';
+    }
+    wrap.appendChild(el);
+    body.appendChild(wrap);
+  });
+  document.getElementById('m-confirm').onclick = onConfirm;
   document.getElementById('req-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('m-id').focus(), 50);
+  setTimeout(() => body.querySelector('input,textarea')?.focus(), 50);
 }
 function closeModal() {
   document.getElementById('req-modal').style.display = 'none';
-  targetList = null;
 }
-
-function addReqFromModal() {
-  const id   = document.getElementById('m-id').value.trim();
-  const text = document.getElementById('m-text').value.trim();
-  const pri  = document.getElementById('m-priority').value;
-  const priLabels = { 'p-high': 'גבוהה', 'p-medium': 'בינונית', 'p-low': 'נמוכה' };
-
-  if (!id || !text) { alert('יש למלא מזהה ותיאור'); return; }
-
-  const item = document.createElement('div');
-  item.className = 'req-item';
-  item.innerHTML = `
-    <div class="req-id" contenteditable="true">${id}</div>
-    <div class="req-text" contenteditable="true">${text}</div>
-    <div class="req-priority ${pri}">${priLabels[pri]}</div>
-    <button class="req-delete" title="מחק דרישה" onclick="if(confirm('מחק?')) this.closest('.req-item').remove()">✕</button>
-  `;
-
-  // Insert before the add button
-  const addBtn = targetList.querySelector('.add-req-btn');
-  targetList.insertBefore(item, addBtn);
-
-  closeModal();
-}
-
-// Close modal on backdrop click
-document.getElementById('req-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('req-modal').addEventListener('click', e => {
+    if (e.target.id === 'req-modal') closeModal();
+  });
 });
+
+function gv(id) { return document.getElementById(id)?.value.trim() || ''; }
+
+/* ════════════════════════════════════════════════
+   ADD REQUIREMENT
+   ════════════════════════════════════════════════ */
+function openReqModal(list) {
+  targetCtx = list;
+  showModal('➕ הוסף דרישה', [
+    { id:'m-id',   label:'מזהה (FR-XX-00)', type:'text', placeholder:'FR-WF-10' },
+    { id:'m-text', label:'תיאור הדרישה',    type:'textarea' },
+    { id:'m-pri',  label:'עדיפות', type:'select', options:[
+      {v:'p-high',t:'גבוהה'}, {v:'p-medium',t:'בינונית',sel:true}, {v:'p-low',t:'נמוכה'}
+    ]}
+  ], () => {
+    const id = gv('m-id'), text = gv('m-text'), pri = gv('m-pri');
+    if (!id || !text) return alert('יש למלא מזהה ותיאור');
+    const labels = {'p-high':'גבוהה','p-medium':'בינונית','p-low':'נמוכה'};
+    const item = document.createElement('div');
+    item.className = 'req-item';
+    item.style.position = 'relative';
+    item.innerHTML = `
+      <div class="req-id" contenteditable="true">${id}</div>
+      <div class="req-text" contenteditable="true">${text}</div>
+      <div class="req-priority ${pri}">${labels[pri]}</div>
+      <button class="req-delete" onclick="if(confirm('מחק?'))this.closest('.req-item').remove()">✕</button>`;
+    const addBtn = targetCtx.querySelector('.add-btn');
+    targetCtx.insertBefore(item, addBtn);
+    closeModal();
+  });
+}
+
+/* ════════════════════════════════════════════════
+   ADD TABLE ROW
+   ════════════════════════════════════════════════ */
+function openRowModal(tbl) {
+  targetCtx = tbl;
+  const cols = tbl.querySelectorAll('thead tr th, tr:first-child th').length || 3;
+  const fields = [];
+  for (let i = 0; i < Math.min(cols, 4); i++)
+    fields.push({ id:`m-col${i}`, label:`עמודה ${i+1}`, type:'text' });
+  showModal('➕ הוסף שורה לטבלה', fields, () => {
+    const tr = document.createElement('tr');
+    for (let i = 0; i < Math.min(cols, 4); i++) {
+      const td = document.createElement('td');
+      td.textContent = gv(`m-col${i}`);
+      td.setAttribute('contenteditable','true');
+      tr.appendChild(td);
+    }
+    // delete button cell
+    const delTd = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.className = 'row-delete';
+    delBtn.textContent = '✕ מחק';
+    delBtn.onclick = () => tr.remove();
+    delTd.appendChild(delBtn);
+    tr.appendChild(delTd);
+    tbl.querySelector('tbody')?.appendChild(tr) || tbl.appendChild(tr);
+    closeModal();
+  });
+}
+
+/* ════════════════════════════════════════════════
+   ADD MODULE CARD
+   ════════════════════════════════════════════════ */
+function openModuleModal() {
+  showModal('➕ הוסף מודול', [
+    { id:'m-title', label:'שם מודול (כולל אמוג\'י)', type:'text', placeholder:'🔔 התראות' },
+    { id:'m-items', label:'פריטים (שורה לכל פריט)',  type:'textarea', placeholder:'התראה על דדליין\nתזכורת חידוש' }
+  ], () => {
+    const title = gv('m-title'), items = gv('m-items');
+    if (!title) return alert('יש למלא שם');
+    const lis = items.split('\n').filter(Boolean).map(t => `<li contenteditable="true">${t}</li>`).join('');
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.style.position = 'relative';
+    card.innerHTML = `
+      <h4 contenteditable="true">${title}</h4>
+      <ul>${lis || '<li contenteditable="true">פריט חדש</li>'}</ul>
+      <button class="card-delete" onclick="if(confirm('מחק?'))this.closest('.module-card').remove()">✕</button>`;
+    const addBtn = document.querySelector('.module-grid .add-btn');
+    document.querySelector('.module-grid').insertBefore(card, addBtn);
+    closeModal();
+  });
+}
+
+/* ════════════════════════════════════════════════
+   ADD ROADMAP ITEM
+   ════════════════════════════════════════════════ */
+function openRoadmapModal(block) {
+  targetCtx = block;
+  showModal('➕ הוסף פריט ל-Roadmap', [
+    { id:'m-status', label:'סטטוס', type:'select', options:[
+      {v:'ri-done',t:'✅ הושלם'}, {v:'ri-planned',t:'◉ בתכנון',sel:true}, {v:'ri-future',t:'○ עתידי'}
+    ]},
+    { id:'m-rtext', label:'תיאור', type:'text', placeholder:'פיצ\'ר חדש...' }
+  ], () => {
+    const cls = gv('m-status'), text = gv('m-rtext');
+    if (!text) return alert('יש למלא תיאור');
+    const icons = {'ri-done':'✅','ri-planned':'◉','ri-future':'○'};
+    const item = document.createElement('div');
+    item.className = 'roadmap-item';
+    item.innerHTML = `<span class="${cls}">${icons[cls]}</span> <span contenteditable="true">${text}</span>
+      <button class="row-delete" style="display:inline-block;margin-right:6px;" onclick="if(confirm('מחק?'))this.closest('.roadmap-item').remove()">✕</button>`;
+    const addBtn = targetCtx.querySelector('.add-btn');
+    targetCtx.insertBefore(item, addBtn);
+    closeModal();
+  });
+}
+
+/* ════════════════════════════════════════════════
+   ADD GLOSSARY ITEM
+   ════════════════════════════════════════════════ */
+function openGlossaryModal() {
+  showModal('➕ הוסף מונח', [
+    { id:'m-term', label:'מונח',   type:'text' },
+    { id:'m-def',  label:'הגדרה', type:'textarea' }
+  ], () => {
+    const term = gv('m-term'), def = gv('m-def');
+    if (!term) return alert('יש למלא מונח');
+    const item = document.createElement('dl');
+    item.className = 'glossary-item';
+    item.style.position = 'relative';
+    item.innerHTML = `
+      <dt contenteditable="true">${term}</dt>
+      <dd contenteditable="true">${def}</dd>
+      <button class="card-delete" onclick="if(confirm('מחק?'))this.closest('.glossary-item').remove()">✕</button>`;
+    const addBtn = document.querySelector('.glossary-grid .add-btn');
+    document.querySelector('.glossary-grid').insertBefore(item, addBtn);
+    closeModal();
+  });
+}
 </script>
 </body>
 </html>
