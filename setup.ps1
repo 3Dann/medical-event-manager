@@ -61,7 +61,27 @@ if (Get-Command node -ErrorAction SilentlyContinue) {
     Write-OK "Node.js הותקן"
 }
 
-# ── 5. Clone ─────────────────────────────────────────────────
+# ── 5. Cursor ────────────────────────────────────────────────
+Write-Step "מתקין Cursor..."
+if (Get-Command cursor -ErrorAction SilentlyContinue) {
+    Write-OK "Cursor כבר מותקן"
+} else {
+    winget install --id Anysphere.Cursor -e --source winget --accept-package-agreements --accept-source-agreements
+    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+    Write-OK "Cursor הותקן"
+}
+
+# הגדרות Cursor זהות ל-iMac
+$cursorSettingsDir = "$env:APPDATA\Cursor\User"
+if (-not (Test-Path $cursorSettingsDir)) { New-Item -ItemType Directory -Force -Path $cursorSettingsDir | Out-Null }
+$cursorSettings = @{
+    "workbench.colorTheme"          = "Visual Studio Dark"
+    "workbench.layoutControl.enabled" = $false
+} | ConvertTo-Json -Depth 3
+Set-Content -Path "$cursorSettingsDir\settings.json" -Value $cursorSettings -Encoding UTF8
+Write-OK "הגדרות Cursor הוגדרו (Dark theme)"
+
+# ── 6. Clone ─────────────────────────────────────────────────
 Write-Step "מוריד את הפרויקט מ-GitHub..."
 if (Test-Path "$INSTALL_DIR\.git") {
     Write-OK "הפרויקט כבר קיים ב-$INSTALL_DIR — מעדכן..."
@@ -73,7 +93,7 @@ if (Test-Path "$INSTALL_DIR\.git") {
     Write-OK "הפרויקט הורד ל-$INSTALL_DIR"
 }
 
-# ── 6. Backend venv ──────────────────────────────────────────
+# ── 7. Backend venv ──────────────────────────────────────────
 Write-Step "מקים סביבת Python (backend)..."
 Set-Location "$INSTALL_DIR\backend"
 if (-not (Test-Path "venv")) {
@@ -83,13 +103,13 @@ if (-not (Test-Path "venv")) {
 pip install -r requirements.txt -q
 Write-OK "Backend מוכן"
 
-# ── 7. Frontend npm ──────────────────────────────────────────
+# ── 8. Frontend npm ──────────────────────────────────────────
 Write-Step "מתקין תלויות Frontend..."
 Set-Location "$INSTALL_DIR\frontend"
 npm install --silent
 Write-OK "Frontend מוכן"
 
-# ── 8. Git config ────────────────────────────────────────────
+# ── 9. Git config ────────────────────────────────────────────
 Write-Step "מגדיר Git..."
 $currentEmail = git config --global user.email 2>$null
 if (-not $currentEmail) {
@@ -100,7 +120,7 @@ if (-not $currentEmail) {
     Write-OK "Git כבר מוגדר: $currentEmail"
 }
 
-# ── 9. קיצור דרך בדסקטופ ─────────────────────────────────────
+# ── 10. קיצור דרך בדסקטופ ────────────────────────────────────
 Write-Step "יוצר קיצור דרך בדסקטופ..."
 $desktop = [Environment]::GetFolderPath("Desktop")
 $shortcutPath = "$desktop\Medical Event Manager.lnk"
@@ -122,3 +142,12 @@ Write-Host "============================================" -ForegroundColor Green
 Write-Host "`n  הפרויקט נמצא ב: $INSTALL_DIR"
 Write-Host "  להפעלה יומית: לחץ על הקיצור בדסקטופ"
 Write-Host "             או הרץ: .\start.ps1`n"
+
+# פתח את הפרויקט ב-Cursor
+Write-Step "פותח את הפרויקט ב-Cursor..."
+if (Get-Command cursor -ErrorAction SilentlyContinue) {
+    cursor $INSTALL_DIR
+    Write-OK "Cursor נפתח עם הפרויקט"
+} else {
+    Write-Warn "Cursor לא נמצא ב-PATH — פתח ידנית: File → Open Folder → $INSTALL_DIR"
+}
