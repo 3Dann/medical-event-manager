@@ -2,6 +2,27 @@
 echo "🏥 מנהל האירוע הרפואי — הפעלה"
 echo "================================"
 
+# ── סנכרון מ-GitHub ──────────────────────────────────────────
+echo ""
+echo "▶ מסנכרן קוד מ-GitHub..."
+PULL_RESULT=$(git pull origin main 2>&1)
+if echo "$PULL_RESULT" | grep -q "Already up to date"; then
+  echo "  ✓ הקוד עדכני — אין שינויים חדשים"
+else
+  echo "  ✓ עודכן:"
+  echo "$PULL_RESULT"
+  # עדכון תלויות אם requirements.txt השתנה
+  if echo "$PULL_RESULT" | grep -q "requirements.txt"; then
+    echo "  → שינויים ב-requirements.txt — מעדכן תלויות..."
+    cd backend && source venv/bin/activate && pip install -r requirements.txt -q && cd ..
+  fi
+  # עדכון npm אם package.json השתנה
+  if echo "$PULL_RESULT" | grep -q "package.json"; then
+    echo "  → שינויים ב-package.json — מעדכן npm..."
+    cd frontend && npm install --silent && cd ..
+  fi
+fi
+
 # Backend
 echo ""
 echo "▶ מפעיל Backend (FastAPI)..."
