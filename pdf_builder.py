@@ -126,7 +126,11 @@ def make_header_footer(header_text: str, generated_at: str = ""):
         canvas.line(18*mm, 13*mm, PAGE_W - 18*mm, 13*mm)
         canvas.drawRightString(PAGE_W - 18*mm, 8*mm, rtl(f"עמוד {doc.page}"))
         footer_date = generated_at or datetime.now().strftime("%d/%m/%Y %H:%M")
-        canvas.drawString(18*mm, 8*mm, rtl(f"הופק: {footer_date}"))
+        # Draw Hebrew label and date separately to avoid bidi reordering of mixed text
+        label = rtl("הופק:")
+        label_w = canvas.stringWidth(label, "Arial", 8)
+        canvas.drawString(18*mm, 8*mm, label)
+        canvas.drawString(18*mm + label_w + 3, 8*mm, footer_date)
         canvas.restoreState()
     return on_page
 
