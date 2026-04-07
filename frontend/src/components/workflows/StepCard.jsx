@@ -8,18 +8,32 @@ const STATUS_STYLES = {
   skipped:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-400',  icon: '⇢', label: 'דולג'  },
 }
 
-export default function StepCard({ step, instanceId, onUpdated }) {
-  const [expanded, setExpanded] = useState(step.status === 'active')
-  const [notes, setNotes] = useState(step.notes || '')
+export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
+  const [step, setStep] = useState(initialStep)
+  const [expanded, setExpanded] = useState(initialStep.status === 'active')
+  const [notes, setNotes] = useState(initialStep.notes || '')
   const [saving, setSaving] = useState(false)
   const [showSkipConfirm, setShowSkipConfirm] = useState(false)
+  const [showForceConfirm, setShowForceConfirm] = useState(false)
+  const [togglingTask, setTogglingTask] = useState(null)
+
+  // Keep step in sync when parent passes a new version
+  React.useEffect(() => { setStep(initialStep) }, [initialStep])
 
   const st = STATUS_STYLES[step.status] || STATUS_STYLES.pending
+  const tasks = step.tasks || []
+  const completedCount = tasks.filter(t => t.is_completed).length
+  const allTasksDone = tasks.length === 0 || completedCount === tasks.length
+  const pendingCount = tasks.length - completedCount
 
-  const handleAdvance = async () => {
+  const handleAdvance = async (force = false) => {
     setSaving(true)
+    setShowForceConfirm(false)
     try {
-      const res = await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/advance`, { notes })
+      const res = await axios.post(
+        `/api/workflows/instances/${instanceId}/steps/${step.id}/advance`,
+        { notes, force }
+      )
       onUpdated(res.data)
     } catch (e) {
       alert(e.response?.data?.detail || 'שגיאה')
@@ -41,6 +55,21 @@ export default function StepCard({ step, instanceId, onUpdated }) {
     }
   }
 
+  const handleToggleTask = async (taskId) => {
+    setTogglingTask(taskId)
+    try {
+      const res = await axios.post(
+        `/api/workflows/instances/${instanceId}/steps/${step.id}/tasks/${taskId}/toggle`
+      )
+      // res.data is the updated step dict
+      setStep(res.data)
+    } catch (e) {
+      alert(e.response?.data?.detail || 'שגיאה')
+    } finally {
+      setTogglingTask(null)
+    }
+  }
+
   const formatDate = d => d ? new Date(d).toLocaleDateString('he-IL') : null
 
   return (
@@ -57,6 +86,11 @@ export default function StepCard({ step, instanceId, onUpdated }) {
             <span className="font-medium text-slate-800 text-sm">{step.name}</span>
             {step.is_optional && (
               <span className="text-xs text-slate-400">(אופציונלי)</span>
+            )}
+            {tasks.length > 0 && step.status !== 'completed' && step.status !== 'skipped' && (
+              <span className={`text-xs px-1.5 py-0.5 rounded-full ${allTasksDone ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
+                {completedCount}/{tasks.length} משימות
+              </span>
             )}
           </div>
           {step.due_date && step.status !== 'completed' && step.status !== 'skipped' && (
@@ -82,6 +116,41 @@ export default function StepCard({ step, instanceId, onUpdated }) {
             </div>
           )}
 
+          {/* Task checklist */}
+          {tasks.length > 0 && (
+            <div className="mt-3">
+              <div className="text-xs font-medium text-slate-600 mb-2">משימות:</div>
+              <div className="space-y-1.5">
+                {tasks.map(task => (
+                  <button
+                    key={task.id}
+                    onClick={() => step.status === 'active' && handleToggleTask(task.id)}
+                    disabled={step.status !== 'active' || togglingTask === task.id}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-right transition-colors
+                      ${step.status === 'active' ? 'cursor-pointer hover:bg-white/80' : 'cursor-default'}
+                      ${task.is_completed ? 'bg-green-50/70' : 'bg-white/50'}
+                    `}
+                  >
+                    <span className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold transition-colors
+                      ${task.is_completed
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : 'border-slate-300 bg-white'
+                      }
+                    `}>
+                      {task.is_completed ? '✓' : ''}
+                    </span>
+                    <span className={task.is_completed ? 'line-through text-slate-400' : 'text-slate-700'}>
+                      {task.title}
+                    </span>
+                    {togglingTask === task.id && (
+                      <span className="text-xs text-slate-400 mr-auto">...</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Action log */}
           {step.actions?.length > 0 && (
             <div className="space-y-1">
@@ -104,32 +173,65 @@ export default function StepCard({ step, instanceId, onUpdated }) {
                 rows={2}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-right resize-none bg-white"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleAdvance}
-                  disabled={saving}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40"
-                >
-                  {saving ? 'שומר...' : '✓ השלם שלב'}
-                </button>
-                {step.is_optional && !showSkipConfirm && (
+
+              {/* Force confirm banner */}
+              {showForceConfirm && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-right">
+                  <div className="font-medium text-amber-800 mb-1">אילוץ מעבר שלב</div>
+                  <div className="text-amber-700 text-xs mb-2">
+                    {pendingCount} משימות לא הושלמו. המעבר יירשם בלוג.
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleAdvance(true)}
+                      disabled={saving}
+                      className="flex-1 bg-amber-600 text-white py-1.5 rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-40"
+                    >
+                      {saving ? 'שומר...' : 'אלץ מעבר'}
+                    </button>
+                    <button
+                      onClick={() => setShowForceConfirm(false)}
+                      className="px-3 py-1.5 text-slate-500 hover:bg-white rounded-lg text-sm border border-slate-200"
+                    >
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!showForceConfirm && (
+                <div className="flex gap-2">
                   <button
-                    onClick={() => setShowSkipConfirm(true)}
-                    className="px-3 py-2 text-slate-500 hover:bg-white rounded-lg text-sm border border-slate-200"
-                  >
-                    דלג
-                  </button>
-                )}
-                {showSkipConfirm && (
-                  <button
-                    onClick={handleSkip}
+                    onClick={() => allTasksDone ? handleAdvance(false) : setShowForceConfirm(true)}
                     disabled={saving}
-                    className="px-3 py-2 text-orange-600 hover:bg-orange-50 rounded-lg text-sm border border-orange-200"
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors
+                      ${allTasksDone
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                      }
+                    `}
                   >
-                    אשר דילוג
+                    {saving ? 'שומר...' : allTasksDone ? '✓ השלם שלב' : `השלם שלב (${pendingCount} משימות פתוחות)`}
                   </button>
-                )}
-              </div>
+                  {step.is_optional && !showSkipConfirm && (
+                    <button
+                      onClick={() => setShowSkipConfirm(true)}
+                      className="px-3 py-2 text-slate-500 hover:bg-white rounded-lg text-sm border border-slate-200"
+                    >
+                      דלג
+                    </button>
+                  )}
+                  {showSkipConfirm && (
+                    <button
+                      onClick={handleSkip}
+                      disabled={saving}
+                      className="px-3 py-2 text-orange-600 hover:bg-orange-50 rounded-lg text-sm border border-orange-200"
+                    >
+                      אשר דילוג
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

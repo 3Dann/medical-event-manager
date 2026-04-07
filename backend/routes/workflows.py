@@ -59,6 +59,7 @@ class InstanceCreate(BaseModel):
 class AdvanceStepIn(BaseModel):
     notes: Optional[str] = None
     result_data: Optional[dict] = None
+    force: bool = False
 
 
 class SkipStepIn(BaseModel):
@@ -543,7 +544,7 @@ def advance_step(
     try:
         instance = FlowEngine.advance_step(
             db, instance_id, step_id, current_user.id,
-            notes=data.notes, result_data=data.result_data,
+            notes=data.notes, result_data=data.result_data, force=data.force,
         )
         return FlowEngine.get_summary(instance)
     except ValueError as e:
@@ -658,6 +659,43 @@ def recompute_step_coverage(
     results = compute_step_coverage(db, step, patient)
     db.commit()
     return {"recomputed": len(results), "items": results}
+
+
+@router.post("/instances/{instance_id}/steps/{step_id}/tasks/{task_id}/toggle")
+def toggle_task(
+    instance_id: int,
+    step_id: int,
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    """Toggle a step task as completed / uncompleted."""
+    step = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.id == step_id,
+        models.WorkflowStep.instance_id == instance_id,
+    ).first()
+    if not step:
+        raise HTTPException(404, "Step not found")
+
+    task = db.query(models.WorkflowStepTask).filter(
+        models.WorkflowStepTask.id == task_id,
+        models.WorkflowStepTask.step_id == step_id,
+    ).first()
+    if not task:
+        raise HTTPException(404, "Task not found")
+
+    from datetime import datetime, timezone
+    if task.is_completed:
+        task.is_completed = False
+        task.completed_at = None
+        task.completed_by = None
+    else:
+        task.is_completed = True
+        task.completed_at = datetime.now(timezone.utc)
+        task.completed_by = current_user.id
+
+    db.commit()
+    return _step_dict(step)
 
 
 @router.post("/instances/{instance_id}/steps/{step_id}/notes")

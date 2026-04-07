@@ -346,7 +346,11 @@ class WorkflowStepTemplate(Base):
     estimated_cost      = Column(Float, nullable=True)   # typical cost in ILS
     required_documents  = Column(Text, nullable=True)    # JSON: ["discharge_summary","referral"]
 
-    template = relationship("WorkflowTemplate", back_populates="step_templates")
+    template       = relationship("WorkflowTemplate", back_populates="step_templates")
+    task_templates = relationship("WorkflowStepTaskTemplate",
+                                  order_by="WorkflowStepTaskTemplate.task_order",
+                                  back_populates="step_template",
+                                  cascade="all, delete-orphan")
 
 
 class WorkflowInstance(Base):
@@ -406,6 +410,10 @@ class WorkflowStep(Base):
     coverage_items  = relationship("WorkflowStepCoverage",
                                    back_populates="step",
                                    cascade="all, delete-orphan")
+    tasks           = relationship("WorkflowStepTask",
+                                   order_by="WorkflowStepTask.task_order",
+                                   back_populates="step",
+                                   cascade="all, delete-orphan")
 
 
 class WorkflowAction(Base):
@@ -420,6 +428,33 @@ class WorkflowAction(Base):
 
     step = relationship("WorkflowStep", back_populates="actions")
     user = relationship("User", foreign_keys=[user_id])
+
+
+class WorkflowStepTaskTemplate(Base):
+    """Checklist tasks defined in a step template — copied to WorkflowStepTask on instance creation."""
+    __tablename__ = "workflow_step_task_templates"
+    id               = Column(Integer, primary_key=True, index=True)
+    step_template_id = Column(Integer, ForeignKey("workflow_step_templates.id"), nullable=False)
+    title            = Column(String, nullable=False)
+    task_order       = Column(Integer, default=0)
+
+    step_template = relationship("WorkflowStepTemplate", back_populates="task_templates")
+
+
+class WorkflowStepTask(Base):
+    """Checklist task instance — one per step per patient workflow."""
+    __tablename__ = "workflow_step_tasks"
+    id           = Column(Integer, primary_key=True, index=True)
+    step_id      = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False)
+    title        = Column(String, nullable=False)
+    task_order   = Column(Integer, default=0)
+    is_completed = Column(Boolean, default=False)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    completed_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+
+    step      = relationship("WorkflowStep", back_populates="tasks")
+    completer = relationship("User", foreign_keys=[completed_by])
 
 
 class WorkflowStepCoverage(Base):

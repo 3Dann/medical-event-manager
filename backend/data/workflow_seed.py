@@ -298,6 +298,15 @@ BUILTIN_TEMPLATES = [
         "trigger_event": "general",
         "specialty": "general",
         "steps": [
+            {"step_key": "intake", "name": "קליטת מטופל", "step_order": 5,
+             "step_type": "administrative", "duration_days": 7,
+             "instructions": "שלב קליטת המטופל — השלמת כל הפרטים הבסיסיים לפני תחילת המסע הרפואי",
+             "tasks": [
+                 "רישום פרטי המטופל ומידע ראשוני",
+                 "איסוף פוליסות ביטוח",
+                 "קביעת פגישת היכרות",
+                 "חתימת הסכם ייפוי כוח",
+             ]},
             {"step_key": "stage_10", "name": "גילוי ואבחון", "step_order": 10,
              "step_type": "medical",
              "coverage_categories": ["diagnostics", "second_opinion"], "estimated_cost": 3000,

@@ -84,6 +84,8 @@ def run_migrations():
         # Phase 1 — journey + draft claims
         ("workflow_templates", "is_journey",   "BOOLEAN DEFAULT 0"),
         ("claims", "workflow_step_id", "INTEGER REFERENCES workflow_steps(id)"),
+        # Phase 2 — step tasks (checklist)
+        ("workflow_step_templates", "task_templates_json", "TEXT"),  # unused col, tables created by metadata
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -374,6 +376,18 @@ app.include_router(documents.router)
 app.include_router(workflows.router)
 
 
+def _seed_step_task_templates(db, step_template, tasks):
+    """Idempotent: create task templates for a step template if not already present."""
+    existing_titles = {t.title for t in step_template.task_templates}
+    for i, title in enumerate(tasks):
+        if title not in existing_titles:
+            db.add(models.WorkflowStepTaskTemplate(
+                step_template_id=step_template.id,
+                title=title,
+                task_order=i,
+            ))
+
+
 def seed_workflow_templates():
     import json as _json
     from data.workflow_seed import BUILTIN_TEMPLATES
@@ -391,7 +405,7 @@ def seed_workflow_templates():
                 exists.trigger_event  = tmpl_data.get("trigger_event")
                 exists.specialty      = tmpl_data.get("specialty")
                 exists.is_journey     = tmpl_data.get("is_journey", False)
-                # Update step templates with coverage fields
+                # Update/add step templates
                 for step_data in tmpl_data.get("steps", []):
                     st = db.query(models.WorkflowStepTemplate).filter(
                         models.WorkflowStepTemplate.template_id == exists.id,
@@ -404,6 +418,27 @@ def seed_workflow_templates():
                         st.estimated_cost = step_data.get("estimated_cost")
                         docs = step_data.get("required_documents")
                         st.required_documents = _json.dumps(docs) if docs else None
+                        _seed_step_task_templates(db, st, step_data.get("tasks", []))
+                    else:
+                        # New step added to existing template
+                        cats = step_data.get("coverage_categories")
+                        docs = step_data.get("required_documents")
+                        new_st = models.WorkflowStepTemplate(
+                            template_id=exists.id,
+                            step_key=step_data["step_key"],
+                            name=step_data["name"],
+                            step_order=step_data["step_order"],
+                            duration_days=step_data.get("duration_days"),
+                            is_optional=step_data.get("is_optional", False),
+                            instructions=step_data.get("instructions"),
+                            coverage_categories=_json.dumps(cats) if cats else None,
+                            step_type=step_data.get("step_type", "administrative"),
+                            estimated_cost=step_data.get("estimated_cost"),
+                            required_documents=_json.dumps(docs) if docs else None,
+                        )
+                        db.add(new_st)
+                        db.flush()
+                        _seed_step_task_templates(db, new_st, step_data.get("tasks", []))
                 continue
 
             tmpl = models.WorkflowTemplate(
@@ -422,7 +457,7 @@ def seed_workflow_templates():
             for step in tmpl_data.get("steps", []):
                 cats = step.get("coverage_categories")
                 docs = step.get("required_documents")
-                db.add(models.WorkflowStepTemplate(
+                new_st = models.WorkflowStepTemplate(
                     template_id=tmpl.id,
                     step_key=step["step_key"],
                     name=step["name"],
@@ -434,7 +469,10 @@ def seed_workflow_templates():
                     step_type=step.get("step_type", "administrative"),
                     estimated_cost=step.get("estimated_cost"),
                     required_documents=_json.dumps(docs) if docs else None,
-                ))
+                )
+                db.add(new_st)
+                db.flush()
+                _seed_step_task_templates(db, new_st, step.get("tasks", []))
         db.commit()
         logger.info("Workflow templates seeded/updated")
     except Exception as e:
@@ -528,6 +566,76 @@ def seed_journey_workflows():
 
 
 seed_journey_workflows()
+
+
+def patch_journey_intake_step():
+    """
+    Idempotent: add the 'intake' step (pre-completed) to existing journey instances
+    that were created before the intake step was added to the template.
+    """
+    db = SessionLocal()
+    try:
+        from datetime import datetime, timezone
+        tmpl = db.query(models.WorkflowTemplate).filter(
+            models.WorkflowTemplate.is_journey == True,
+            models.WorkflowTemplate.is_active == True,
+        ).first()
+        if not tmpl:
+            return
+
+        intake_st = db.query(models.WorkflowStepTemplate).filter(
+            models.WorkflowStepTemplate.template_id == tmpl.id,
+            models.WorkflowStepTemplate.step_key == "intake",
+        ).first()
+        if not intake_st:
+            return
+
+        instances = db.query(models.WorkflowInstance).filter(
+            models.WorkflowInstance.template_id == tmpl.id,
+        ).all()
+
+        now = datetime.now(timezone.utc)
+        patched = 0
+        for inst in instances:
+            has_intake = any(s.step_key == "intake" for s in inst.steps)
+            if has_intake:
+                continue
+            # Add intake step as pre-completed (patient was already onboarded)
+            step = models.WorkflowStep(
+                instance_id=inst.id,
+                step_key="intake",
+                name="קליטת מטופל",
+                step_order=5,
+                status="completed",
+                started_at=inst.started_at,
+                completed_at=now,
+                instructions=intake_st.instructions,
+                step_type=intake_st.step_type,
+                notes="הושלם אוטומטית — מטופל נוסף לפני הוספת שלב זה",
+            )
+            db.add(step)
+            db.flush()
+            for task_tmpl in intake_st.task_templates:
+                db.add(models.WorkflowStepTask(
+                    step_id=step.id,
+                    title=task_tmpl.title,
+                    task_order=task_tmpl.task_order,
+                    is_completed=True,
+                    completed_at=now,
+                ))
+            patched += 1
+
+        db.commit()
+        if patched:
+            logger.info(f"Patched {patched} journey instances with pre-completed intake step")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"patch_journey_intake_step error: {e}")
+    finally:
+        db.close()
+
+
+patch_journey_intake_step()
 
 
 @app.get("/api/health")

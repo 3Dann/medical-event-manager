@@ -193,6 +193,18 @@ class FlowEngine:
 
         db.flush()
 
+        # Copy task templates → step tasks
+        for step, st in zip(steps, template.step_templates):
+            for task_tmpl in st.task_templates:
+                db.add(models.WorkflowStepTask(
+                    step_id=step.id,
+                    title=task_tmpl.title,
+                    task_order=task_tmpl.task_order,
+                    is_completed=False,
+                ))
+
+        db.flush()
+
         # Activate first step
         if steps:
             _activate_step(db, steps[0], instance, created_by)
@@ -209,6 +221,7 @@ class FlowEngine:
         user_id: int,
         notes: str = None,
         result_data: dict = None,
+        force: bool = False,
     ) -> models.WorkflowInstance:
         """
         Complete current step and activate the next one.
@@ -231,7 +244,18 @@ class FlowEngine:
         if step.status != "active":
             raise ValueError(f"Step is {step.status}, not active")
 
+        # Check that all tasks are completed (unless manager forces)
+        pending_tasks = [t for t in step.tasks if not t.is_completed]
+        if pending_tasks and not force:
+            raise ValueError(
+                f"יש {len(pending_tasks)} משימות שלא הושלמו. סמן אותן כהושלמו או אלץ מעבר שלב."
+            )
+
         now = _now()
+        if force and pending_tasks:
+            _log(db, step, user_id, "step_forced",
+                 f"מעבר שלב מאולץ — {len(pending_tasks)} משימות לא הושלמו")
+
         step.status = "completed"
         step.completed_at = now
         if notes:
@@ -506,5 +530,16 @@ def _step_dict(step: models.WorkflowStep) -> dict:
                 "created_at":   a.created_at.isoformat() if a.created_at else None,
             }
             for a in (step.actions or [])
+        ],
+        "tasks": [
+            {
+                "id":           t.id,
+                "title":        t.title,
+                "task_order":   t.task_order,
+                "is_completed": t.is_completed,
+                "completed_at": t.completed_at.isoformat() if t.completed_at else None,
+                "completed_by": t.completed_by,
+            }
+            for t in (step.tasks or [])
         ],
     }
