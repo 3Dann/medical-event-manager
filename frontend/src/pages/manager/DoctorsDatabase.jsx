@@ -248,7 +248,7 @@ export default function DoctorsDatabase() {
   }
 
   return (
-    <div className="p-8" dir="rtl">
+    <div className="p-4 md:p-8" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>

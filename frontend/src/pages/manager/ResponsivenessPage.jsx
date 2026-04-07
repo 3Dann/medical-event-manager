@@ -33,7 +33,7 @@ export default function ResponsivenessPage() {
   }, {})
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">ציוני רספונסיביות</h1>
         <p className="text-slate-500 mt-1">ניהול ציוני מהירות תגובה ורמת בירוקרטיה לכל חברת ביטוח</p>

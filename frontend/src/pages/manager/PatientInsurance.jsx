@@ -487,14 +487,14 @@ export default function PatientInsurance() {
   )
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       {/* Modals */}
       {showHarGuide && <HarBituaGuide />}
 
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">מקורות ביטוח</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button onClick={handleImportSal} disabled={importingSal}
             className="btn-secondary text-sm">
             {importingSal ? 'מייבא...' : '🏥 ייבוא סל הבריאות'}
@@ -597,7 +597,7 @@ export default function PatientInsurance() {
             <form onSubmit={handleAddSource}>
               <div className="p-6 space-y-4">
                 {/* Source info */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="label">סוג מקור *</label>
                     <select className="input" value={form.source_type} onChange={e => setForm({...form, source_type: e.target.value})}>

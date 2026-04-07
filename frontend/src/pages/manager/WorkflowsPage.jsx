@@ -28,7 +28,7 @@ export default function WorkflowsPage() {
   )
 
   return (
-    <div className="p-6 max-w-6xl mx-auto" dir="rtl">
+    <div className="p-4 md:p-6 max-w-6xl mx-auto" dir="rtl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">תבניות זרימת עבודה</h1>
         <p className="text-slate-500 text-sm mt-1">תבניות מובנות לניהול תהליכי טיפול ותביעות</p>

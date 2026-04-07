@@ -299,7 +299,7 @@ export default function PatientStrategy() {
   const finishedInstances = instances.filter(i => ['completed','cancelled'].includes(i.status))
 
   return (
-    <div className="p-6 space-y-6" dir="rtl">
+    <div className="p-4 md:p-6 space-y-6" dir="rtl">
       {/* Conflict modal */}
       {conflict && (
         <ConflictModal
@@ -316,7 +316,7 @@ export default function PatientStrategy() {
 
       {/* Summary cards */}
       {strategy && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="card bg-purple-50 border-purple-100 p-4">
             <p className="text-sm text-purple-600">זרימות פעילות</p>
             <p className="text-3xl font-bold text-purple-800 mt-1">{instances.filter(i => i.status === 'active').length}</p>

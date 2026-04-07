@@ -10,7 +10,7 @@ body {
   color: #1e293b;
 }
 
-.card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-6; }
+.card { @apply bg-white rounded-xl shadow-sm border border-slate-200 p-4 md:p-6; }
 .btn-primary { @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium; }
 .btn-secondary { @apply bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors font-medium; }
 .btn-danger { @apply bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors font-medium; }

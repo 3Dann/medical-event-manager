@@ -108,7 +108,7 @@ export default function PatientDocuments() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto" dir="rtl">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-800">מסמכים</h2>
         <button
@@ -143,7 +143,7 @@ export default function PatientDocuments() {
             <p className="text-xs text-slate-400 mt-1">PDF, תמונות, Word, Excel — עד 20MB</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">קטגוריה</label>
               <select

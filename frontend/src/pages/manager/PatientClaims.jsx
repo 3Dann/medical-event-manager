@@ -76,14 +76,14 @@ export default function PatientClaims() {
   const outcomeLabel = { approved: 'אושרה', partial: 'אושרה חלקית', rejected: 'נדחתה' }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">מעקב תביעות</h2>
         <button onClick={() => setShowForm(true)} className="btn-primary text-sm">+ תביעה חדשה</button>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: 'סה"כ תביעות', value: claims.length, color: 'text-slate-800' },
           { label: 'סה"כ נתבע', value: `₪${totalRequested.toLocaleString()}`, color: 'text-blue-600' },
@@ -179,6 +179,7 @@ export default function PatientClaims() {
         <div className="card text-center py-10 text-slate-400">אין תביעות עדיין</div>
       ) : (
         <div className="card overflow-hidden p-0">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 border-b">
               <tr>
@@ -219,6 +220,7 @@ export default function PatientClaims() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

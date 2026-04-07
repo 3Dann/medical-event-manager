@@ -140,7 +140,7 @@ export default function PatientDetail() {
 
   return (
     <div dir="rtl">
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">{patient.full_name}</h1>
@@ -148,7 +148,7 @@ export default function PatientDetail() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200 mb-6">
+      <div className="flex gap-1 border-b border-slate-200 mb-6 overflow-x-auto">
         {tabs.map(tab => (
           <NavLink key={tab.to} to={`/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`} end={tab.end}
             className={({ isActive }) =>
@@ -160,7 +160,7 @@ export default function PatientDetail() {
       </div>
 
       {/* Patient info + quick nav */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="card">
           <div className="flex justify-between items-start mb-4">
             <h2 className="font-semibold text-slate-800">נתונים בסיסיים</h2>
@@ -308,8 +308,8 @@ export default function PatientDetail() {
         {showAddForm && (
           <form onSubmit={handleAddNode} className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3">
             <p className="text-sm font-medium text-slate-700">צומת החלטה חדש</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="col-span-1 sm:col-span-2">
                 <label className="label">תיאור *</label>
                 <input className="input" value={addForm.description} onChange={e => setAddForm({...addForm, description: e.target.value})} required placeholder="תאר את נקודת ההחלטה..." />
               </div>
@@ -336,7 +336,7 @@ export default function PatientDetail() {
                   <option value="future">עתידי</option><option value="active">פעיל</option><option value="completed">הושלם</option>
                 </select>
               </div>
-              <div className="col-span-2">
+              <div className="col-span-1 sm:col-span-2">
                 <label className="label">הערות</label>
                 <input className="input" value={addForm.notes} onChange={e => setAddForm({...addForm, notes: e.target.value})} placeholder="פרטים נוספים..." />
               </div>
