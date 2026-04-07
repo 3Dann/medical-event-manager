@@ -170,8 +170,9 @@ class FlowEngine:
         db.flush()
 
         now = _now()
+        step_templates = list(template.step_templates)  # load once before any flush
         steps = []
-        for st in template.step_templates:
+        for st in step_templates:
             due = (now + timedelta(days=st.duration_days)) if st.duration_days else None
             step = models.WorkflowStep(
                 instance_id=instance.id,
@@ -194,7 +195,7 @@ class FlowEngine:
         db.flush()
 
         # Copy task templates → step tasks
-        for step, st in zip(steps, template.step_templates):
+        for step, st in zip(steps, step_templates):
             for task_tmpl in st.task_templates:
                 db.add(models.WorkflowStepTask(
                     step_id=step.id,
