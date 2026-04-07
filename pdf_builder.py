@@ -6,6 +6,7 @@ Usage: from pdf_builder import build_pdf
 """
 
 import re
+from datetime import datetime
 from bidi.algorithm import get_display
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle
@@ -113,7 +114,7 @@ def make_styles():
     }
 
 
-def make_header_footer(header_text: str):
+def make_header_footer(header_text: str, generated_at: str = ""):
     def on_page(canvas, doc):
         canvas.saveState()
         canvas.setFont("Arial", 8)
@@ -124,7 +125,8 @@ def make_header_footer(header_text: str):
         canvas.drawRightString(PAGE_W - 18*mm, PAGE_H - 12*mm, rtl(header_text))
         canvas.line(18*mm, 13*mm, PAGE_W - 18*mm, 13*mm)
         canvas.drawRightString(PAGE_W - 18*mm, 8*mm, rtl(f"עמוד {doc.page}"))
-        canvas.drawString(18*mm, 8*mm, rtl("גרסה 1.0 | אפריל 2026"))
+        footer_date = generated_at or datetime.now().strftime("%d/%m/%Y %H:%M")
+        canvas.drawString(18*mm, 8*mm, rtl(f"הופק: {footer_date}"))
         canvas.restoreState()
     return on_page
 
@@ -249,12 +251,17 @@ def md_to_flowables(md_text: str, ST: dict) -> list:
 
 
 def build_pdf(md_path: str, pdf_path: str, header_text: str,
-              title: str = "", subject: str = ""):
+              title: str = "", subject: str = "", inject_date: bool = False):
     _register_fonts()
     ST = make_styles()
 
     with open(md_path, "r", encoding="utf-8") as f:
         md = f.read()
+
+    # Replace {{GENERATED_AT}} placeholder with current Hebrew datetime
+    generated_at = datetime.now().strftime("%d/%m/%Y %H:%M")
+    hebrew_date = datetime.now().strftime("%d.%m.%Y | %H:%M")
+    md = md.replace("{{GENERATED_AT}}", hebrew_date)
 
     doc = SimpleDocTemplate(
         pdf_path,
@@ -264,6 +271,6 @@ def build_pdf(md_path: str, pdf_path: str, header_text: str,
         title=title, subject=subject,
     )
     story = md_to_flowables(md, ST)
-    on_page = make_header_footer(header_text)
+    on_page = make_header_footer(header_text, generated_at)
     doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
-    print(f"✅  {pdf_path} נוצר בהצלחה!")
+    print(f"✅  {pdf_path} נוצר בהצלחה! ({generated_at})")
