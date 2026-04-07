@@ -537,8 +537,8 @@ export default function DoctorsDatabase() {
               {editingId ? 'עריכת רופא' : 'הוספת רופא חדש'}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">שם הרופא *</label>
                   <input
                     className="input"
@@ -586,7 +586,7 @@ export default function DoctorsDatabase() {
                 </div>
 
                 {/* HMO checkboxes */}
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">קופות חולים מקבל</label>
                   <div className="flex flex-wrap gap-3 mt-1">
                     {HMO_OPTIONS.map(([key, label]) => (
@@ -604,7 +604,7 @@ export default function DoctorsDatabase() {
                 </div>
 
                 {/* Expert opinion */}
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -616,7 +616,7 @@ export default function DoctorsDatabase() {
                   </label>
                 </div>
 
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">הערות</label>
                   <textarea
                     className="input"
@@ -625,7 +625,7 @@ export default function DoctorsDatabase() {
                     onChange={e => setForm({ ...form, notes: e.target.value })}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">מקור (URL)</label>
                   <input
                     className="input"

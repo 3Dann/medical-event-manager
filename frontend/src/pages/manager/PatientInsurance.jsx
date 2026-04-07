@@ -761,14 +761,14 @@ export default function PatientInsurance() {
         </div>
         {showEntitlementForm && (
           <form onSubmit={handleAddEntitlement} className="bg-slate-50 rounded-xl p-4 mb-4 space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><label className="label">סוג זכאות</label>
                 <select className="input" value={entForm.entitlement_type} onChange={e => setEntForm({...entForm, entitlement_type:e.target.value})}>
                   {Object.entries(ENTITLEMENT_TYPES).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
               </div>
               <div><label className="label">כותרת *</label><input className="input" value={entForm.title} onChange={e => setEntForm({...entForm, title:e.target.value})} required /></div>
-              <div className="col-span-2"><label className="label">תיאור</label><textarea className="input" rows={2} value={entForm.description} onChange={e => setEntForm({...entForm, description:e.target.value})} /></div>
+              <div className="col-span-1 sm:col-span-2"><label className="label">תיאור</label><textarea className="input" rows={2} value={entForm.description} onChange={e => setEntForm({...entForm, description:e.target.value})} /></div>
               <div><label className="label">סכום (₪)</label><input type="number" className="input" value={entForm.amount} onChange={e => setEntForm({...entForm, amount:e.target.value})} /></div>
               <div className="flex items-center gap-2 mt-6">
                 <input type="checkbox" id="approved" checked={entForm.is_approved} onChange={e => setEntForm({...entForm, is_approved:e.target.checked})} />

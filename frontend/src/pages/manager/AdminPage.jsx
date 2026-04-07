@@ -120,7 +120,7 @@ export default function AdminPage() {
   const managers = users.filter(u => u.role === 'manager' && !u.is_admin)
 
   return (
-    <div className="p-8" dir="rtl">
+    <div className="p-4 md:p-8" dir="rtl">
       <h1 className="text-2xl font-bold text-slate-800 mb-1">ניהול מערכת</h1>
 
       {/* Tab bar */}

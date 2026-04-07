@@ -66,9 +66,9 @@ export default function ManagerDashboard() {
   const hasInsights = globalInsights && globalInsights.total_claims_analyzed > 0
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">לוח בקרה</h1>
           <p className="text-slate-500 mt-1">ניהול תיקי מטופלים</p>
@@ -84,7 +84,7 @@ export default function ManagerDashboard() {
 
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-5 md:mb-6">
         <div className="card">
           <p className="text-sm text-slate-500">סה"כ מטופלים</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">{patients.length}</p>
@@ -147,8 +147,8 @@ export default function ManagerDashboard() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
             <h2 className="text-lg font-semibold mb-5">תיק מטופל חדש</h2>
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">שם מלא *</label>
                   <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required />
                 </div>
@@ -178,7 +178,7 @@ export default function ManagerDashboard() {
                   </select>
                 </div>
                 {form.diagnosis_status === 'yes' && (
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <label className="label">פירוט האבחנה</label>
                     <textarea className="input" rows={3} value={form.diagnosis_details} onChange={e => setForm({...form, diagnosis_details: e.target.value})} />
                   </div>
@@ -207,7 +207,7 @@ export default function ManagerDashboard() {
                     {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
                   </select>
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-1 sm:col-span-2">
                   <label className="label">הערות</label>
                   <textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
                 </div>
@@ -255,13 +255,13 @@ export default function ManagerDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button onClick={e => { e.stopPropagation(); navigate(`/manager/patients/${p.id}/strategy`) }}
-                    className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100">
+                    className="text-xs bg-blue-50 text-blue-600 px-2 md:px-3 py-1.5 rounded-lg hover:bg-blue-100 whitespace-nowrap">
                     אסטרטגיה
                   </button>
                   <button onClick={e => { e.stopPropagation(); handleDelete(p.id) }}
-                    className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-100">
+                    className="text-xs bg-red-50 text-red-500 px-2 md:px-3 py-1.5 rounded-lg hover:bg-red-100">
                     מחק
                   </button>
                 </div>

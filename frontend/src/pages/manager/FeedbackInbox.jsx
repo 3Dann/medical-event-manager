@@ -21,7 +21,7 @@ export default function FeedbackInbox() {
   const progressUrl = `${window.location.origin}/progress`
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-800">משובים</h2>
@@ -49,7 +49,7 @@ export default function FeedbackInbox() {
 
       {/* Summary */}
       {feedback.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="card py-4">
             <p className="text-xs text-slate-500">סה"כ משובים</p>
             <p className="text-3xl font-bold text-slate-800 mt-1">{feedback.length}</p>

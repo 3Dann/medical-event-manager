@@ -199,7 +199,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="p-8 max-w-md space-y-6">
+    <div className="p-4 md:p-8 max-w-md space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800 mb-1">פרופיל</h1>
         <p className="text-slate-500 text-sm">הגדרות חשבון ואבטחה</p>
