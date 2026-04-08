@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
+import PasskeySection from '../../components/PasskeySection'
 
 function TwoFASection() {
   const [status, setStatus] = useState(null) // {totp_enabled, totp_method}
@@ -270,6 +271,7 @@ export default function ProfilePage() {
       </div>
 
       <TwoFASection />
+      <PasskeySection />
     </div>
   )
 }

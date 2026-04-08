@@ -93,6 +93,20 @@ class User(Base):
     email_2fa_expires = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
+    webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
+
+
+class WebAuthnCredential(Base):
+    __tablename__ = "webauthn_credentials"
+    id              = Column(Integer, primary_key=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False)
+    credential_id   = Column(String, unique=True, nullable=False)   # hex
+    public_key      = Column(Text, nullable=False)                  # hex
+    sign_count      = Column(Integer, default=0)
+    device_name     = Column(String, default="מכשיר")
+    created_at      = Column(DateTime, default=func.now())
+    last_used       = Column(DateTime, nullable=True)
+    user = relationship("User", back_populates="webauthn_credentials")
 
 
 class Patient(Base):

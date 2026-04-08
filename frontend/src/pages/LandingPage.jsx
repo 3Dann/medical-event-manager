@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
+import PasskeyLoginButton from '../components/PasskeyLoginButton'
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function LoginModal({ onClose, initialTab = 'login' }) {
@@ -224,6 +225,13 @@ function LoginModal({ onClose, initialTab = 'login' }) {
             <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
               {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'הרשמה'}
             </button>
+            {tab === 'login' && (
+              <PasskeyLoginButton
+                email={form.email}
+                onSuccess={(data) => { login(data); navigate(data.role === 'manager' ? '/manager' : '/patient') }}
+                onError={(msg) => setError(msg)}
+              />
+            )}
           </form>
         )}
 
