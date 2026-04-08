@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
@@ -86,6 +86,11 @@ def run_migrations():
         ("claims", "workflow_step_id", "INTEGER REFERENCES workflow_steps(id)"),
         # Phase 2 — step tasks (checklist)
         ("workflow_step_templates", "task_templates_json", "TEXT"),  # unused col, tables created by metadata
+        # Medical specialties — learning fields
+        ("medical_specialties", "confidence_score", "FLOAT DEFAULT 1.0"),
+        ("medical_specialties", "feedback_count",   "INTEGER DEFAULT 0"),
+        ("medical_specialties", "is_verified",       "BOOLEAN DEFAULT 0"),
+        ("medical_specialty_feedback", "correction", "TEXT"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
@@ -375,6 +380,7 @@ app.include_router(admin.router)
 app.include_router(documents.router)
 app.include_router(workflows.router)
 app.include_router(webauthn_routes.router)
+app.include_router(specialties.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
@@ -517,6 +523,32 @@ def seed_condition_tags():
         db.close()
 
 seed_condition_tags()
+
+
+def seed_medical_specialties():
+    """
+    One-time seed: if the specialties table is empty, run the builtin list.
+    Scraping from external sources runs in background after startup.
+    """
+    flag = "/data/.specialties_seed_v1" if os.path.isdir("/data") else "./.specialties_seed_v1"
+    if os.path.exists(flag):
+        return
+    try:
+        from specialty_scraper import upsert_specialties
+        db = SessionLocal()
+        try:
+            count = db.query(models.MedicalSpecialty).count()
+            if count == 0:
+                result = upsert_specialties(db)
+                logger.info("Medical specialties seeded: %s", result)
+            open(flag, "w").close()
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error("seed_medical_specialties error: %s", e)
+
+
+seed_medical_specialties()
 
 
 def seed_journey_workflows():

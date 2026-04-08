@@ -492,3 +492,42 @@ class WorkflowStepCoverage(Base):
     step             = relationship("WorkflowStep", back_populates="coverage_items")
     insurance_source = relationship("InsuranceSource")
     coverage         = relationship("Coverage")
+
+
+# ── Medical Specialties ──────────────────────────────────────────────────────
+
+class MedicalSpecialty(Base):
+    __tablename__ = "medical_specialties"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    name_en         = Column(String, nullable=False, index=True)
+    name_he         = Column(String, nullable=True)
+    description_en  = Column(Text, nullable=True)
+    description_he  = Column(Text, nullable=True)
+    parent_id       = Column(Integer, ForeignKey("medical_specialties.id"), nullable=True)
+    source_url      = Column(String, nullable=True)
+    # Learning fields
+    confidence_score = Column(Float, default=1.0)   # 0-1, raised/lowered by manager feedback
+    feedback_count   = Column(Integer, default=0)   # how many times feedback was given
+    is_verified      = Column(Boolean, default=False)
+    is_active        = Column(Boolean, default=True)
+    created_at       = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at       = Column(DateTime(timezone=True), onupdate=func.now())
+
+    parent       = relationship("MedicalSpecialty", remote_side=[id], backref="sub_specialties")
+
+
+class MedicalSpecialtyFeedback(Base):
+    """Learning: manager corrections/confirmations on specialty records."""
+    __tablename__ = "medical_specialty_feedback"
+
+    id           = Column(Integer, primary_key=True, index=True)
+    specialty_id = Column(Integer, ForeignKey("medical_specialties.id"), nullable=False)
+    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
+    action       = Column(String, nullable=False)   # "confirm" | "correct" | "flag" | "merge"
+    note         = Column(Text, nullable=True)
+    correction   = Column(Text, nullable=True)      # JSON: what was corrected
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+
+    specialty = relationship("MedicalSpecialty")
+    user      = relationship("User")
