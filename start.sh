@@ -23,6 +23,20 @@ else
   fi
 fi
 
+# ── Git hooks ─────────────────────────────────────────────────
+if [ ! -f ".git/hooks/post-commit" ]; then
+  echo ""
+  echo "▶ מתקין git hooks..."
+  bash setup_hooks.sh
+else
+  echo "  ✓ git hooks מותקנים"
+fi
+
+# ── PROGRESS PDF ───────────────────────────────────────────────
+echo ""
+echo "▶ מרענן PROGRESS.pdf..."
+python3 generate_progress.py 2>/dev/null && echo "  ✓ PROGRESS.pdf עודכן" || echo "  ⚠ לא ניתן לעדכן PROGRESS.pdf"
+
 # Backend
 echo ""
 echo "▶ מפעיל Backend (FastAPI)..."
