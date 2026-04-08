@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
 const DEV_PASSWORD  = 'Dan3768354Mi'
-const STORAGE_KEY   = 'dev_gate_unlocked'
 const BUILD_VERSION = '2.1-dev'
 
 function isLocal() {
@@ -10,10 +9,7 @@ function isLocal() {
 }
 
 export default function DevGate({ children }) {
-  const [unlocked, setUnlocked] = useState(() => {
-    if (isLocal()) return true
-    return localStorage.getItem(STORAGE_KEY) === 'true'
-  })
+  const [unlocked, setUnlocked] = useState(() => isLocal())
   const [input, setInput]   = useState('')
   const [error, setError]   = useState(false)
   const [shake, setShake]   = useState(false)
@@ -23,7 +19,6 @@ export default function DevGate({ children }) {
 
   function attempt() {
     if (input === DEV_PASSWORD) {
-      localStorage.setItem(STORAGE_KEY, 'true')
       setUnlocked(true)
     } else {
       setError(true)
@@ -131,7 +126,7 @@ export default function DevGate({ children }) {
 
         {/* footer note */}
         <p className="text-center text-slate-600 text-xs mt-6">
-          הגישה לאחר אימות תישמר בדפדפן זה
+          נדרשת סיסמה בכל כניסה מחדש
         </p>
       </div>
 
