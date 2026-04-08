@@ -527,23 +527,35 @@ seed_condition_tags()
 
 def seed_medical_specialties():
     """
-    One-time seed: if the specialties table is empty, run the builtin list.
-    Scraping from external sources runs in background after startup.
+    Seed from builtin list only (fast, no network).
+    External scraping runs once in background after startup.
     """
     flag = "/data/.specialties_seed_v1" if os.path.isdir("/data") else "./.specialties_seed_v1"
     if os.path.exists(flag):
         return
     try:
-        from specialty_scraper import upsert_specialties
+        from specialty_scraper import seed_from_builtin, upsert_specialties
         db = SessionLocal()
         try:
             count = db.query(models.MedicalSpecialty).count()
             if count == 0:
-                result = upsert_specialties(db)
-                logger.info("Medical specialties seeded: %s", result)
+                result = seed_from_builtin(db)
+                logger.info("Medical specialties seeded from builtin: %s", result)
             open(flag, "w").close()
         finally:
             db.close()
+        # Kick off external scraping in background (non-blocking)
+        import threading
+        def _bg_scrape():
+            bg_db = SessionLocal()
+            try:
+                upsert_specialties(bg_db)
+                logger.info("Background specialty scrape complete")
+            except Exception as exc:
+                logger.warning("Background specialty scrape error: %s", exc)
+            finally:
+                bg_db.close()
+        threading.Thread(target=_bg_scrape, daemon=True).start()
     except Exception as e:
         logger.error("seed_medical_specialties error: %s", e)
 

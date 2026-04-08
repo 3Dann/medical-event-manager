@@ -173,13 +173,22 @@ def _scrape_wikipedia() -> list[dict]:
     if not content:
         return []
 
-    for elem in content.find_all(["h2", "h3", "li", "p"]):
+    def _strip_edit(tag):
+        """Remove Wikipedia edit-section spans before reading text."""
+        for span in tag.find_all("span", class_="mw-editsection"):
+            span.decompose()
+        return _clean_text(tag.get_text())
+
+    SKIP_SECTIONS = {"References", "External links", "See also", "Notes", "Contents",
+                     "Further reading", "History", "Branches"}
+
+    for elem in content.find_all(["h2", "h3", "li"]):
         if elem.name == "h2":
-            text = _clean_text(elem.get_text().replace("[edit]", "").replace("[ویرایش]", ""))
-            if text and len(text) < 80 and text not in ("References", "External links", "See also", "Notes", "Contents"):
+            text = _strip_edit(elem)
+            if text and len(text) < 80 and text not in SKIP_SECTIONS:
                 current_parent = text
         elif elem.name == "h3":
-            text = _clean_text(elem.get_text().replace("[edit]", ""))
+            text = _strip_edit(elem)
             if text and len(text) < 80:
                 # sub-specialty under current_parent
                 desc_elem = elem.find_next_sibling("p")
@@ -327,42 +336,31 @@ def scrape_all_specialties() -> list[dict]:
 
 # ── DB upsert ──────────────────────────────────────────────────────────────
 
-def upsert_specialties(db: Session) -> dict:
-    """
-    Scrape all sources and upsert into DB.
-    Returns summary: {"added": N, "updated": N, "total": N}
-    """
-    records = scrape_all_specialties()
-
-    # First pass: upsert top-level (no parent)
+def _upsert_records(db: Session, records: list[dict]) -> dict:
+    """Core upsert logic shared by seed_from_builtin and upsert_specialties."""
     name_to_id: dict[str, int] = {}
-
-    # Build a map of existing records by normalized name
     existing = {
         _normalize_name(s.name_en): s
         for s in db.query(models.MedicalSpecialty).all()
     }
-
     added = 0
     updated = 0
 
-    # Two passes: parents first, then children
     for pass_num in range(2):
         for rec in records:
             parent_name = rec.get("parent_name")
             if pass_num == 0 and parent_name:
-                continue  # skip children in first pass
+                continue
             if pass_num == 1 and not parent_name:
-                continue  # skip parents in second pass
+                continue
 
-            key = _normalize_name(rec["name_en"])
+            key = _normalize_name(rec.get("name_en", ""))
             if not key:
                 continue
 
             parent_id = None
             if parent_name:
-                parent_key = _normalize_name(parent_name)
-                parent_id = name_to_id.get(parent_key)
+                parent_id = name_to_id.get(_normalize_name(parent_name))
 
             if key in existing:
                 sp = existing[key]
@@ -399,5 +397,35 @@ def upsert_specialties(db: Session) -> dict:
 
     db.commit()
     total = db.query(models.MedicalSpecialty).count()
-    logger.info("Specialties upsert complete: added=%d updated=%d total=%d", added, updated, total)
     return {"added": added, "updated": updated, "total": total}
+
+
+def seed_from_builtin(db: Session) -> dict:
+    """
+    Fast seed using only the built-in curated list — no network calls.
+    Used at startup to avoid blocking Railway with external HTTP requests.
+    """
+    records = [
+        {
+            "name_en": r[0],
+            "name_he": r[1],
+            "description_en": r[2],
+            "parent_name": r[3],
+            "source_url": "builtin",
+        }
+        for r in BUILTIN_SPECIALTIES
+    ]
+    result = _upsert_records(db, records)
+    logger.info("Builtin specialties seeded: %s", result)
+    return result
+
+
+def upsert_specialties(db: Session) -> dict:
+    """
+    Scrape all external sources + builtin, then upsert into DB.
+    Returns summary: {"added": N, "updated": N, "total": N}
+    """
+    records = scrape_all_specialties()
+    result = _upsert_records(db, records)
+    logger.info("Specialties upsert complete: %s", result)
+    return result

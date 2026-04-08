@@ -18,7 +18,7 @@ import json
 
 from database import get_db
 import models
-from auth import get_current_user, require_admin
+from auth import get_current_user
 
 router = APIRouter(prefix="/api/specialties", tags=["specialties"])
 
@@ -33,10 +33,10 @@ class SpecialtyOut(BaseModel):
     description_he: Optional[str]
     parent_id: Optional[int]
     source_url: Optional[str]
-    confidence_score: float
-    feedback_count: int
-    is_verified: bool
-    is_active: bool
+    confidence_score: Optional[float] = 1.0
+    feedback_count: Optional[int] = 0
+    is_verified: Optional[bool] = False
+    is_active: Optional[bool] = True
 
     class Config:
         from_attributes = True
@@ -62,14 +62,13 @@ class FeedbackIn(BaseModel):
 
 @router.get("", response_model=list[SpecialtyOut])
 def list_specialties(
-    flat: bool = True,
     search: Optional[str] = None,
     parent_id: Optional[int] = None,
     only_top_level: bool = False,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """List specialties. Use flat=false for nested tree (top-level only with sub_specialties)."""
+    """List specialties. Filter by search, parent_id, or only_top_level."""
     q = db.query(models.MedicalSpecialty).filter(models.MedicalSpecialty.is_active == True)
 
     if search:
