@@ -88,15 +88,79 @@ function F({ label, name, required, children }) {
   )
 }
 
-// ── Date Input — DD/MM/YYYY with auto-advance ─────────────────────────────────
+// ── Date Input — day on right, month middle, year on left + dropdowns ────────
+const MONTHS_HE = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר']
+const CURRENT_YEAR = new Date().getFullYear()
+
+function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, width, hasError, itemLabel }) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef()
+
+  useEffect(() => {
+    const h = e => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const select = (v) => {
+    onChange(v)
+    setOpen(false)
+    onFilled?.(v)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative flex-shrink-0" style={{ width }}>
+      <div className="flex">
+        <input
+          ref={inputRef}
+          className={`border rounded-r-lg px-2 py-2 text-sm text-center w-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${hasError ? 'border-red-400' : 'border-slate-300'}`}
+          value={value}
+          onChange={e => {
+            const maxLen = items.maxLen
+            const v = e.target.value.replace(/\D/g,'').slice(0, maxLen)
+            onChange(v)
+            if (v.length === maxLen) { setOpen(false); onFilled?.(v) }
+          }}
+          placeholder={placeholder}
+          inputMode="numeric"
+          dir="ltr"
+          onFocus={() => setOpen(true)}
+        />
+        <button
+          type="button"
+          onMouseDown={e => { e.preventDefault(); setOpen(o => !o) }}
+          className={`px-1.5 border-t border-b border-l rounded-l-lg text-slate-400 hover:bg-slate-50 text-xs ${hasError ? 'border-red-400' : 'border-slate-300'}`}
+        >▾</button>
+      </div>
+      {open && (
+        <ul className="absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg mt-0.5 max-h-44 overflow-y-auto w-full min-w-max">
+          {items.options.map(item => {
+            const v = String(item.v).padStart(items.maxLen, '0')
+            const active = value === v || value === String(item.v)
+            return (
+              <li
+                key={item.v}
+                onMouseDown={() => select(v)}
+                className={`px-3 py-1.5 text-sm cursor-pointer ${active ? 'bg-blue-100 font-semibold text-blue-700' : 'hover:bg-slate-50'}`}
+              >
+                {item.label ?? item.v}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 function DateInput({ value, onChange, hasError }) {
   const [day,   setDay]   = useState('')
   const [month, setMonth] = useState('')
   const [year,  setYear]  = useState('')
   const monthRef = useRef()
   const yearRef  = useRef()
+  const dayRef   = useRef()
 
-  // Sync from ISO value prop (YYYY-MM-DD)
   useEffect(() => {
     if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const [y, m, d] = value.split('-')
@@ -108,63 +172,51 @@ function DateInput({ value, onChange, hasError }) {
 
   const emit = (d, m, y) => {
     if (d.length === 2 && m.length === 2 && y.length === 4) {
-      const pd = d.padStart(2,'0'), pm = m.padStart(2,'0')
-      const iso = `${y}-${pm}-${pd}`
-      if (!isNaN(new Date(iso))) onChange(iso)
+      const iso = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`
+      if (!isNaN(new Date(iso).getTime())) onChange(iso)
+      else onChange('')
     } else {
       onChange('')
     }
   }
 
-  const handleDay = (e) => {
-    const v = e.target.value.replace(/\D/g,'').slice(0,2)
-    setDay(v)
-    emit(v, month, year)
-    if (v.length === 2) monthRef.current?.focus()
-  }
-  const handleMonth = (e) => {
-    const v = e.target.value.replace(/\D/g,'').slice(0,2)
-    setMonth(v)
-    emit(day, v, year)
-    if (v.length === 2) yearRef.current?.focus()
-  }
-  const handleYear = (e) => {
-    const v = e.target.value.replace(/\D/g,'').slice(0,4)
-    setYear(v)
-    emit(day, month, v)
-  }
+  const days    = { maxLen: 2, options: Array.from({length:31},(_,i)=>({ v: i+1, label: String(i+1).padStart(2,'0') })) }
+  const months  = { maxLen: 2, options: MONTHS_HE.map((l,i)=>({ v: i+1, label: `${String(i+1).padStart(2,'0')} — ${l}` })) }
+  const years   = { maxLen: 4, options: Array.from({length: CURRENT_YEAR-1919},(_,i)=>({ v: CURRENT_YEAR-i })) }
 
-  const base = `border rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-400 ${hasError ? 'border-red-400' : 'border-slate-300'}`
-
+  // RTL container: DOM order [day][month][year] → visually day on RIGHT, year on LEFT
   return (
-    <div className="flex items-center gap-1" dir="ltr">
-      <input
-        className={`${base} w-14`}
+    <div className="flex items-center gap-1">
+      <DateSegment
+        inputRef={dayRef}
         value={day}
-        onChange={handleDay}
+        onChange={v => { setDay(v); emit(v, month, year) }}
+        onFilled={() => monthRef.current?.focus()}
+        items={days}
         placeholder="יום"
-        inputMode="numeric"
-        maxLength={2}
+        width={68}
+        hasError={hasError}
       />
       <span className="text-slate-400 font-medium">/</span>
-      <input
-        ref={monthRef}
-        className={`${base} w-14`}
+      <DateSegment
+        inputRef={monthRef}
         value={month}
-        onChange={handleMonth}
+        onChange={v => { setMonth(v); emit(day, v, year) }}
+        onFilled={() => yearRef.current?.focus()}
+        items={months}
         placeholder="חודש"
-        inputMode="numeric"
-        maxLength={2}
+        width={74}
+        hasError={hasError}
       />
       <span className="text-slate-400 font-medium">/</span>
-      <input
-        ref={yearRef}
-        className={`${base} w-20`}
+      <DateSegment
+        inputRef={yearRef}
         value={year}
-        onChange={handleYear}
+        onChange={v => { setYear(v); emit(day, month, v) }}
+        items={years}
         placeholder="שנה"
-        inputMode="numeric"
-        maxLength={4}
+        width={88}
+        hasError={hasError}
       />
     </div>
   )
@@ -424,7 +476,29 @@ export default function IntakeWizard() {
           </F>
           <div className="grid grid-cols-2 gap-4">
             <F label='מספר ת"ז' name="id_number" required>
-              <input {...inp('id_number', { maxLength: 9, inputMode: 'numeric' })} />
+              <div className="relative">
+                <input
+                  {...inp('id_number', { maxLength: 9, inputMode: 'numeric' })}
+                  onChange={e => {
+                    const v = e.target.value.replace(/\D/g,'')
+                    set('id_number', v)
+                    if (v.length === 9) {
+                      if (!validateIsraeliId(v))
+                        setErrors(er => ({ ...er, id_number: 'מספר ת"ז לא תקין' }))
+                      else
+                        setErrors(er => { const { id_number: _, ...rest } = er; return rest })
+                    } else {
+                      setErrors(er => { const { id_number: _, ...rest } = er; return rest })
+                    }
+                  }}
+                />
+                {form.id_number.length === 9 && validateIsraeliId(form.id_number) && (
+                  <span className="absolute left-2.5 top-2 text-green-500 text-base select-none">✓</span>
+                )}
+                {form.id_number.length === 9 && !validateIsraeliId(form.id_number) && (
+                  <span className="absolute left-2.5 top-2 text-red-500 text-base select-none">✗</span>
+                )}
+              </div>
             </F>
             <F label="תאריך לידה" name="birth_date" required>
               <DateInput
@@ -516,9 +590,9 @@ export default function IntakeWizard() {
           <div>
             <h3 className="font-semibold text-slate-700 mb-3">טלפון המטופל</h3>
             <F label="מספר טלפון" name="phone" required>
-              <div className="flex gap-2">
+              <div className="flex gap-2" dir="ltr">
                 <select
-                  className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-28 flex-shrink-0"
+                  className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
                   value={form.phone_prefix}
                   onChange={e => set('phone_prefix', e.target.value)}
                 >
@@ -529,7 +603,7 @@ export default function IntakeWizard() {
                   value={form.phone}
                   onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
                   maxLength={7}
-                  placeholder="7 ספרות"
+                  placeholder="1234567"
                   dir="ltr"
                 />
               </div>
@@ -546,9 +620,9 @@ export default function IntakeWizard() {
                 <input {...inp('ec_relation', { placeholder: 'בן/בת זוג, ילד/ה, אח...' })} />
               </F>
               <F label="טלפון" name="ec_phone" required>
-                <div className="flex gap-2">
+                <div className="flex gap-2" dir="ltr">
                   <select
-                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-28 flex-shrink-0"
+                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
                     value={form.ec_phone_prefix}
                     onChange={e => set('ec_phone_prefix', e.target.value)}
                   >
@@ -559,7 +633,7 @@ export default function IntakeWizard() {
                     value={form.ec_phone}
                     onChange={e => set('ec_phone', e.target.value.replace(/\D/g, ''))}
                     maxLength={7}
-                    placeholder="7 ספרות"
+                    placeholder="1234567"
                     dir="ltr"
                   />
                 </div>
