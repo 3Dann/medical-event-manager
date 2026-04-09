@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
-import { AuthContext } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 
 const CATEGORY_LABELS = {
   claim: 'תביעה', appeal: 'ערר', treatment: 'טיפול',
@@ -252,7 +252,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function WorkflowsPage() {
-  const { user } = useContext(AuthContext)
+  const { user } = useAuth()
   const isAdmin = user?.is_admin
 
   const [activeTab, setActiveTab] = useState('templates')
