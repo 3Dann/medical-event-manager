@@ -72,18 +72,28 @@ const MMSE_SECTIONS = [
   { key: 'copy',         label: 'מרחבי-חזותי — העתקה',       max: 1,  hint: 'העתק תמונה של שני מחומשים חופפים' },
 ]
 
-// ── Error Context (prevents F component remount on re-render) ─────────────────
+// ── Contexts ──────────────────────────────────────────────────────────────────
 const ErrorCtx = createContext({})
+const FormCtx  = createContext({})
 
-function F({ label, name, required, children }) {
+function F({ label, name, required, children, valid: validOverride }) {
   const errors = useContext(ErrorCtx)
+  const form   = useContext(FormCtx)
+  const hasError = !!errors[name]
+  // Determine validity: use override if provided, otherwise field has a non-empty value
+  const val = form[name]
+  const isValid = validOverride !== undefined
+    ? validOverride
+    : (val !== undefined && val !== null && String(val).length > 0 && !hasError)
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label}{required && <span className="text-red-500 mr-1">*</span>}
+      <label className="flex items-center gap-1 text-sm font-medium text-slate-700 mb-1">
+        {label}
+        {required && <span className="text-red-500">*</span>}
+        {isValid && <span className="text-green-500 text-xs leading-none">✓</span>}
       </label>
       {children}
-      {errors[name] && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>}
+      {hasError && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>}
     </div>
   )
 }
@@ -184,9 +194,30 @@ function DateInput({ value, onChange, hasError }) {
   const months  = { maxLen: 2, options: MONTHS_HE.map((l,i)=>({ v: i+1, label: `${String(i+1).padStart(2,'0')} — ${l}` })) }
   const years   = { maxLen: 4, options: Array.from({length: CURRENT_YEAR-1919},(_,i)=>({ v: CURRENT_YEAR-i })) }
 
-  // RTL container: DOM order [day][month][year] → visually day on RIGHT, year on LEFT
+  // Explicit dir="ltr" + DOM order [year][month][day] → year on LEFT, day on RIGHT
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" dir="ltr">
+      <DateSegment
+        inputRef={yearRef}
+        value={year}
+        onChange={v => { setYear(v); emit(day, month, v) }}
+        items={years}
+        placeholder="שנה"
+        width={88}
+        hasError={hasError}
+      />
+      <span className="text-slate-400 font-medium">/</span>
+      <DateSegment
+        inputRef={monthRef}
+        value={month}
+        onChange={v => { setMonth(v); emit(day, v, year) }}
+        onFilled={() => dayRef.current?.focus()}
+        items={months}
+        placeholder="חודש"
+        width={74}
+        hasError={hasError}
+      />
+      <span className="text-slate-400 font-medium">/</span>
       <DateSegment
         inputRef={dayRef}
         value={day}
@@ -195,27 +226,6 @@ function DateInput({ value, onChange, hasError }) {
         items={days}
         placeholder="יום"
         width={68}
-        hasError={hasError}
-      />
-      <span className="text-slate-400 font-medium">/</span>
-      <DateSegment
-        inputRef={monthRef}
-        value={month}
-        onChange={v => { setMonth(v); emit(day, v, year) }}
-        onFilled={() => yearRef.current?.focus()}
-        items={months}
-        placeholder="חודש"
-        width={74}
-        hasError={hasError}
-      />
-      <span className="text-slate-400 font-medium">/</span>
-      <DateSegment
-        inputRef={yearRef}
-        value={year}
-        onChange={v => { setYear(v); emit(day, month, v) }}
-        items={years}
-        placeholder="שנה"
-        width={88}
         hasError={hasError}
       />
     </div>
@@ -475,32 +485,24 @@ export default function IntakeWizard() {
             <input {...inp('full_name')} />
           </F>
           <div className="grid grid-cols-2 gap-4">
-            <F label='מספר ת"ז' name="id_number" required>
-              <div className="relative">
-                <input
-                  {...inp('id_number', { maxLength: 9, inputMode: 'numeric' })}
-                  onChange={e => {
-                    const v = e.target.value.replace(/\D/g,'')
-                    set('id_number', v)
-                    if (v.length === 9) {
-                      if (!validateIsraeliId(v))
-                        setErrors(er => ({ ...er, id_number: 'מספר ת"ז לא תקין' }))
-                      else
-                        setErrors(er => { const { id_number: _, ...rest } = er; return rest })
-                    } else {
+            <F label='מספר ת"ז' name="id_number" required valid={form.id_number.length === 9 && validateIsraeliId(form.id_number)}>
+              <input
+                {...inp('id_number', { maxLength: 9, inputMode: 'numeric' })}
+                onChange={e => {
+                  const v = e.target.value.replace(/\D/g,'')
+                  set('id_number', v)
+                  if (v.length === 9) {
+                    if (!validateIsraeliId(v))
+                      setErrors(er => ({ ...er, id_number: 'מספר ת"ז לא תקין' }))
+                    else
                       setErrors(er => { const { id_number: _, ...rest } = er; return rest })
-                    }
-                  }}
-                />
-                {form.id_number.length === 9 && validateIsraeliId(form.id_number) && (
-                  <span className="absolute left-2.5 top-2 text-green-500 text-base select-none">✓</span>
-                )}
-                {form.id_number.length === 9 && !validateIsraeliId(form.id_number) && (
-                  <span className="absolute left-2.5 top-2 text-red-500 text-base select-none">✗</span>
-                )}
-              </div>
+                  } else {
+                    setErrors(er => { const { id_number: _, ...rest } = er; return rest })
+                  }
+                }}
+              />
             </F>
-            <F label="תאריך לידה" name="birth_date" required>
+            <F label="תאריך לידה" name="birth_date" required valid={!!form.birth_date}>
               <DateInput
                 value={form.birth_date}
                 onChange={v => set('birth_date', v)}
@@ -589,15 +591,8 @@ export default function IntakeWizard() {
         <div className="space-y-6">
           <div>
             <h3 className="font-semibold text-slate-700 mb-3">טלפון המטופל</h3>
-            <F label="מספר טלפון" name="phone" required>
-              <div className="flex gap-2" dir="ltr">
-                <select
-                  className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
-                  value={form.phone_prefix}
-                  onChange={e => set('phone_prefix', e.target.value)}
-                >
-                  {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
+            <F label="מספר טלפון" name="phone" required valid={form.phone.replace(/\D/g,'').length === 7}>
+              <div className="flex gap-2">
                 <input
                   className={`flex-1 border rounded-lg px-3 py-2 text-sm ${errors.phone ? 'border-red-400' : 'border-slate-300'}`}
                   value={form.phone}
@@ -606,6 +601,13 @@ export default function IntakeWizard() {
                   placeholder="1234567"
                   dir="ltr"
                 />
+                <select
+                  className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
+                  value={form.phone_prefix}
+                  onChange={e => set('phone_prefix', e.target.value)}
+                >
+                  {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
               </div>
             </F>
           </div>
@@ -619,15 +621,8 @@ export default function IntakeWizard() {
               <F label="קשר למטופל" name="ec_relation" required>
                 <input {...inp('ec_relation', { placeholder: 'בן/בת זוג, ילד/ה, אח...' })} />
               </F>
-              <F label="טלפון" name="ec_phone" required>
-                <div className="flex gap-2" dir="ltr">
-                  <select
-                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
-                    value={form.ec_phone_prefix}
-                    onChange={e => set('ec_phone_prefix', e.target.value)}
-                  >
-                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
+              <F label="טלפון" name="ec_phone" required valid={form.ec_phone.replace(/\D/g,'').length === 7}>
+                <div className="flex gap-2">
                   <input
                     className={`flex-1 border rounded-lg px-3 py-2 text-sm ${errors.ec_phone ? 'border-red-400' : 'border-slate-300'}`}
                     value={form.ec_phone}
@@ -636,6 +631,13 @@ export default function IntakeWizard() {
                     placeholder="1234567"
                     dir="ltr"
                   />
+                  <select
+                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
+                    value={form.ec_phone_prefix}
+                    onChange={e => set('ec_phone_prefix', e.target.value)}
+                  >
+                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
                 </div>
               </F>
             </div>
@@ -932,6 +934,7 @@ export default function IntakeWizard() {
   // ── Layout ──────────────────────────────────────────────────────────────────
   return (
     <ErrorCtx.Provider value={errors}>
+    <FormCtx.Provider value={form}>
       <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -995,6 +998,7 @@ export default function IntakeWizard() {
           </div>
         </div>
       </div>
+    </FormCtx.Provider>
     </ErrorCtx.Provider>
   )
 }
