@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import PasskeyLoginButton from '../components/PasskeyLoginButton'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function LoginModal({ onClose, initialTab = 'login' }) {
@@ -350,8 +351,9 @@ function Navbar({ onLoginClick, onRegisterClick }) {
             ))}
           </div>
 
-          {/* CTA */}
-          <div className="flex items-center gap-2">
+          {/* Language Switcher + CTA */}
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             {user ? (
               <button onClick={() => navigate(user.role === 'patient' ? '/patient' : '/manager')}
                 className="btn-primary text-sm py-1.5 px-4">

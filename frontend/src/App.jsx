@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import DevGate from './components/DevGate'
+import './i18n/index.js'
+import { RTL_LANGS } from './i18n/index.js'
 
 // Auth
 import LoginPage from './pages/LoginPage'
@@ -75,11 +77,21 @@ function AppRoutes() {
   )
 }
 
+function LangDirectionSync() {
+  useEffect(() => {
+    const lang = localStorage.getItem('app_language') || 'he'
+    document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr'
+    document.documentElement.lang = lang
+  }, [])
+  return null
+}
+
 export default function App() {
   return (
     <DevGate>
       <AuthProvider>
         <BrowserRouter>
+          <LangDirectionSync />
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

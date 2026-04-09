@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 const navItems = [
   { to: '/manager', label: 'לוח בקרה', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z', end: true },
@@ -187,6 +188,7 @@ export default function ManagerLayout() {
             </svg>
             <span className="hidden sm:inline">דף הבית</span>
           </Link>
+          <LanguageSwitcher compact />
         </div>
 
         {/* Watermark */}
