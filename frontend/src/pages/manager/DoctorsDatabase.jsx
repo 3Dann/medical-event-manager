@@ -89,6 +89,7 @@ const EMPTY_FORM = {
 
 export default function DoctorsDatabase() {
   const [doctors, setDoctors] = useState([])
+  const [totalDoctors, setTotalDoctors] = useState(0)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterHmo, setFilterHmo] = useState('')
@@ -145,7 +146,8 @@ export default function DoctorsDatabase() {
       if (filterLocation) params.location = filterLocation
       if (filterExpert !== '') params.expert_opinion = filterExpert === 'yes'
       const res = await axios.get('/api/doctors', { params })
-      setDoctors(res.data)
+      setDoctors(res.data.items ?? res.data)
+      setTotalDoctors(res.data.total ?? (res.data.items ?? res.data).length)
     } catch (e) {
       console.error(e)
     } finally {
@@ -253,7 +255,7 @@ export default function DoctorsDatabase() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">מאגר רופאים מומחים</h1>
-          <p className="text-slate-500 mt-1">{doctors.length} רופאים במאגר</p>
+          <p className="text-slate-500 mt-1">{totalDoctors} רופאים במאגר</p>
         </div>
         <div className="flex items-center gap-2">
           <button

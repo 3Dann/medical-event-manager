@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from pydantic import BaseModel
 from typing import Optional
 from database import get_db
@@ -31,8 +32,7 @@ class ClaimUpdate(BaseModel):
     priority_order: Optional[int] = None
 
 
-def claim_to_dict(c, db):
-    source = db.query(models.InsuranceSource).filter(models.InsuranceSource.id == c.insurance_source_id).first()
+def claim_to_dict(c, source=None):
     source_label = ""
     if source:
         if source.source_type == "kupat_holim":
@@ -68,7 +68,12 @@ def claim_to_dict(c, db):
 def list_claims(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
     claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).order_by(models.Claim.priority_order).all()
-    return [claim_to_dict(c, db) for c in claims]
+    if not claims:
+        return []
+    # Batch-load insurance sources to avoid N+1
+    source_ids = {c.insurance_source_id for c in claims}
+    sources = {s.id: s for s in db.query(models.InsuranceSource).filter(models.InsuranceSource.id.in_(source_ids)).all()}
+    return [claim_to_dict(c, sources.get(c.insurance_source_id)) for c in claims]
 
 
 @router.post("")
@@ -78,7 +83,8 @@ def create_claim(patient_id: int, data: ClaimCreate, db: Session = Depends(get_d
     db.add(claim)
     db.commit()
     db.refresh(claim)
-    return claim_to_dict(claim, db)
+    source = db.get(models.InsuranceSource, claim.insurance_source_id)
+    return claim_to_dict(claim, source)
 
 
 @router.put("/{claim_id}")
@@ -91,7 +97,8 @@ def update_claim(patient_id: int, claim_id: int, data: ClaimUpdate, db: Session 
         setattr(claim, field, value)
     db.commit()
     db.refresh(claim)
-    return claim_to_dict(claim, db)
+    source = db.get(models.InsuranceSource, claim.insurance_source_id)
+    return claim_to_dict(claim, source)
 
 
 @router.post("/{claim_id}/approve")
@@ -106,7 +113,8 @@ def approve_claim(patient_id: int, claim_id: int, db: Session = Depends(get_db),
     claim.status = "pending"
     db.commit()
     db.refresh(claim)
-    return claim_to_dict(claim, db)
+    source = db.get(models.InsuranceSource, claim.insurance_source_id)
+    return claim_to_dict(claim, source)
 
 
 @router.delete("/{claim_id}")

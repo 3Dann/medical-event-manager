@@ -308,7 +308,7 @@ def update_template(
     ).first()
     if not tmpl:
         raise HTTPException(404, "Template not found")
-    update = data.dict(exclude_none=True)
+    update = data.model_dump(exclude_none=True)
     if "condition_tags" in update:
         update["condition_tags"] = json.dumps(update["condition_tags"])
     for field, val in update.items():

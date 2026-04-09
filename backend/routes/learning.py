@@ -38,11 +38,15 @@ def _compute_approval_rates(db: Session):
     resolved_statuses = ["approved", "partial", "rejected"]
     claims = db.query(models.Claim).filter(models.Claim.status.in_(resolved_statuses)).all()
 
+    # Batch-load all needed InsuranceSources to avoid N+1
+    source_ids = {c.insurance_source_id for c in claims}
+    sources_by_id = {s.id: s for s in db.query(models.InsuranceSource).filter(
+        models.InsuranceSource.id.in_(source_ids)
+    ).all()} if source_ids else {}
+
     company_stats = {}
     for claim in claims:
-        source = db.query(models.InsuranceSource).filter(
-            models.InsuranceSource.id == claim.insurance_source_id
-        ).first()
+        source = sources_by_id.get(claim.insurance_source_id)
         if not source:
             continue
         key = _get_company_key(source)
@@ -182,13 +186,15 @@ def get_patient_insights(
 
     # This patient's own claim outcomes per company
     patient_claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).all()
+    pat_source_ids = {c.insurance_source_id for c in patient_claims}
+    pat_sources_by_id = {s.id: s for s in db.query(models.InsuranceSource).filter(
+        models.InsuranceSource.id.in_(pat_source_ids)
+    ).all()} if pat_source_ids else {}
     confidence_map = {}
     for claim in patient_claims:
         if claim.status not in ["approved", "partial", "rejected"]:
             continue
-        src = db.query(models.InsuranceSource).filter(
-            models.InsuranceSource.id == claim.insurance_source_id
-        ).first()
+        src = pat_sources_by_id.get(claim.insurance_source_id)
         if not src:
             continue
         key = _get_company_key(src)

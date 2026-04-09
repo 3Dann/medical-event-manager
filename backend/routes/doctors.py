@@ -4,7 +4,7 @@ import logging
 import concurrent.futures
 
 logger = logging.getLogger("doctors")
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -236,6 +236,8 @@ def list_doctors(
     hmo: Optional[str] = None,
     location: Optional[str] = None,
     expert_opinion: Optional[bool] = None,
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
@@ -257,8 +259,9 @@ def list_doctors(
         q = q.filter(models.Doctor.location.ilike(f"%{location}%"))
     if expert_opinion is not None:
         q = q.filter(models.Doctor.gives_expert_opinion == expert_opinion)
-    doctors = q.order_by(models.Doctor.name).all()
-    return [doctor_to_dict(d) for d in doctors]
+    total = q.count()
+    doctors = q.order_by(models.Doctor.name).offset(offset).limit(limit).all()
+    return {"total": total, "offset": offset, "limit": limit, "items": [doctor_to_dict(d) for d in doctors]}
 
 
 @router.post("")
