@@ -344,6 +344,7 @@ export default function IntakeWizard() {
   // ── Auto-suggest specialty from diagnosis ───────────────────────────────────
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [specialtyAutoFilled, setSpecialtyAutoFilled] = useState(false)
+  const [subSpecialtyAutoFilled, setSubSpecialtyAutoFilled] = useState(false)
   const suggestTimer = useRef(null)
 
   const triggerSuggest = useCallback((diagnosis) => {
@@ -359,7 +360,8 @@ export default function IntakeWizard() {
             specialty: res.data.specialty || f.specialty,
             sub_specialty: res.data.sub_specialty || f.sub_specialty,
           }))
-          setSpecialtyAutoFilled(true)
+          if (res.data.specialty) setSpecialtyAutoFilled(true)
+          if (res.data.sub_specialty) setSubSpecialtyAutoFilled(true)
         }
       } catch (_) {}
       finally { setSuggestLoading(false) }
@@ -673,7 +675,17 @@ export default function IntakeWizard() {
               </select>
             </F>
             <F label="סטטוס אבחנה" name="diagnosis_status">
-              <select {...inp('diagnosis_status')}>
+              <select
+                {...inp('diagnosis_status')}
+                onChange={e => {
+                  set('diagnosis_status', e.target.value)
+                  if (e.target.value === 'yes' && form.diagnosis_details) {
+                    setSpecialtyAutoFilled(false)
+                    setSubSpecialtyAutoFilled(false)
+                    triggerSuggest(form.diagnosis_details)
+                  }
+                }}
+              >
                 <option value="no">ללא אבחון</option>
                 <option value="yes">אבחון קיים</option>
                 <option value="pending">בבירור</option>
@@ -687,6 +699,7 @@ export default function IntakeWizard() {
               onChange={e => {
                 set('diagnosis_details', e.target.value)
                 setSpecialtyAutoFilled(false)
+                setSubSpecialtyAutoFilled(false)
                 triggerSuggest(e.target.value)
               }}
             />
@@ -699,6 +712,7 @@ export default function IntakeWizard() {
                 <input
                   {...inp('specialty')}
                   placeholder={suggestLoading ? 'מזהה תחום...' : 'למשל: אונקולוגיה'}
+                  onChange={e => { set('specialty', e.target.value); setSpecialtyAutoFilled(false) }}
                 />
                 {suggestLoading && (
                   <span className="absolute left-3 top-2.5 text-xs text-slate-400 animate-pulse">⏳</span>
@@ -709,10 +723,19 @@ export default function IntakeWizard() {
               </div>
             </F>
             <F label="תת-התמחות" name="sub_specialty">
-              <input
-                {...inp('sub_specialty')}
-                placeholder="למשל: אונקולוגיה גינקולוגית"
-              />
+              <div className="relative">
+                <input
+                  {...inp('sub_specialty')}
+                  placeholder={suggestLoading ? 'מזהה...' : 'למשל: אונקולוגיה גינקולוגית'}
+                  onChange={e => { set('sub_specialty', e.target.value); setSubSpecialtyAutoFilled(false) }}
+                />
+                {suggestLoading && (
+                  <span className="absolute left-3 top-2.5 text-xs text-slate-400 animate-pulse">⏳</span>
+                )}
+                {subSpecialtyAutoFilled && form.sub_specialty && !suggestLoading && (
+                  <span className="absolute left-2 top-2 text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">הוצע</span>
+                )}
+              </div>
             </F>
           </div>
 

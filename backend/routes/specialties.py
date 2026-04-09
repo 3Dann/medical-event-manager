@@ -271,6 +271,57 @@ def trigger_scrape(
 
 # ── POST /api/specialties/suggest ─────────────────────────────────────────
 
+# Specific condition → (specialty_he, sub_specialty_he)
+_CONDITION_MAP = [
+    # Oncology
+    (["סרטן שד","שד ממאיר","breast cancer"],                  "אונקולוגיה", "אונקולוגיה שד"),
+    (["סרטן ריאה","ריאה ממאירה","lung cancer"],               "אונקולוגיה", "אונקולוגיה ריאתית"),
+    (["לוקמיה","leukemia"],                                    "אונקולוגיה", "אונקולוגיה המטולוגית"),
+    (["לימפומה","lymphoma"],                                   "אונקולוגיה", "אונקולוגיה המטולוגית"),
+    (["מלנומה","melanoma","סרטן עור","skin cancer"],           "עורית",       "אונקולוגיה עורית"),
+    (["סרטן מעי","סרטן קולון","colorectal","colon cancer"],   "גסטרואנטרולוגיה", "גסטרואונקולוגיה"),
+    (["גליובלסטומה","גידול מוח","brain tumor"],               "נוירולוגיה",  "נוירואונקולוגיה"),
+    (["סרטן רחם","סרטן שחלה","סרטן צוואר רחם",
+      "ovarian cancer","cervical cancer","endometrial"],       "גינקולוגיה", "אונקולוגיה גינקולוגית"),
+    (["סרטן ערמונית","prostate cancer"],                       "אורולוגיה",  "אורולוגיה אונקולוגית"),
+    # Neurology
+    (["שבץ","אירוע מוחי","stroke","cva","tia"],                "נוירולוגיה",  "נוירולוגיה וסקולרית"),
+    (["פרקינסון","parkinson"],                                 "נוירולוגיה",  "הפרעות תנועה"),
+    (["אלצהיימר","alzheimer","דמנציה","dementia"],             "נוירולוגיה",  "נוירולוגיה קוגניטיבית"),
+    (["אפילפסיה","epilepsy","פרכוסים","seizure"],              "נוירולוגיה",  "אפילפסיה"),
+    (["טרשת נפוצה","multiple sclerosis"," ms "],               "נוירולוגיה",  "נוירואימונולוגיה"),
+    # Cardiology
+    (["אוטם שריר הלב","heart attack","infarction","stemi","nstemi","mi "], "קרדיולוגיה", "קרדיולוגיה פולשנית"),
+    (["אי ספיקת לב","heart failure","cardiac failure"],        "קרדיולוגיה",  "אי ספיקת לב"),
+    (["הפרעות קצב","arrhythmia","פרפור פרוזדורים","atrial fibrillation","afib"], "קרדיולוגיה", "אלקטרופיזיולוגיה"),
+    (["מחלת לב מולדת","congenital heart"],                     "קרדיולוגיה",  "קרדיולוגיה מולדת"),
+    # Orthopedics
+    (["עמוד שדרה","דיסק","disc herniation","herniated disc","spondyl"], "אורתופדיה", "כירורגיית עמוד שדרה"),
+    (["שבר ירך","hip fracture"],                               "אורתופדיה",   "כירורגיית ירך וברך"),
+    (["החלפת ברך","החלפת ירך","knee replacement","hip replacement"], "אורתופדיה", "ניתוחי מפרקים"),
+    # Gastroenterology
+    (["שחמת","cirrhosis","הפטיטיס","hepatitis","כבד שומני","fatty liver"], "גסטרואנטרולוגיה", "הפטולוגיה"),
+    (["קרוהן","crohn","קוליטיס כיבית","ulcerative colitis","ibd"],        "גסטרואנטרולוגיה", "מחלות מעי דלקתיות"),
+    (["פנקראטיטיס","pancreatitis","לבלב"],                    "גסטרואנטרולוגיה", "לבלב ומרה"),
+    # Endocrinology
+    (["סוכרת סוג 1","סוכרת נעורים","type 1 diabetes","t1dm"],  "אנדוקרינולוגיה", "סוכרת"),
+    (["סוכרת סוג 2","type 2 diabetes","t2dm"],                 "אנדוקרינולוגיה", "סוכרת"),
+    (["בלוטת התריס","תירואיד","thyroid","hashimoto","graves"],  "אנדוקרינולוגיה", "בלוטת התריס"),
+    (["אוסטיאופורוזיס","osteoporosis"],                        "אנדוקרינולוגיה", "מטבוליזם עצם"),
+    # Pulmonology
+    (["סי-או-פי-די","copd","אמפיזמה","emphysema","ברונכיטיס כרונית"],    "ריאות", "מחלות חסימתיות"),
+    (["אסטמה","asthma","אסטמה סימפונות"],                     "ריאות",       "אסטמה"),
+    (["סרקואידוזיס","sarcoidosis","ריאות בינוניות","interstitial lung"], "ריאות", "מחלות ריאה בינוניות"),
+    # Psychiatry
+    (["דיכאון קשה","major depression","mdd"],                  "פסיכיאטריה",  "פסיכיאטריה מבוגרים"),
+    (["ביפולרי","bipolar","מאניה","mania"],                    "פסיכיאטריה",  "הפרעות מצב רוח"),
+    (["סכיזופרניה","schizophrenia","פסיכוזה","psychosis"],      "פסיכיאטריה",  "פסיכיאטריה כללית"),
+    # Rheumatology
+    (["לופוס","lupus","sle"],                                  "ראומטולוגיה", "מחלות אוטואימוניות"),
+    (["ארתריטיס ראומטואידי","rheumatoid arthritis","ra "],     "ראומטולוגיה", "דלקת מפרקים שגרונית"),
+    (["פיברומיאלגיה","fibromyalgia"],                          "ראומטולוגיה", "פיברומיאלגיה"),
+]
+
 # Keyword fallback map: Hebrew/English diagnosis keywords → specialty name_en
 _KEYWORD_MAP = [
     # Oncology
@@ -376,7 +427,12 @@ def suggest_specialty(
     if top_matches:
         return {"specialty": top_matches.name_he or top_matches.name_en, "sub_specialty": None}
 
-    # 3. Keyword fallback
+    # 3. Specific condition map — returns both specialty + sub_specialty
+    for keywords, specialty_he, sub_specialty_he in _CONDITION_MAP:
+        if any(kw in q for kw in keywords):
+            return {"specialty": specialty_he, "sub_specialty": sub_specialty_he}
+
+    # 4. Generic keyword fallback — specialty only
     for keywords, specialty_en in _KEYWORD_MAP:
         if any(kw in q for kw in keywords):
             sp = db.query(models.MedicalSpecialty).filter(
@@ -386,7 +442,6 @@ def suggest_specialty(
             ).first()
             if sp:
                 return {"specialty": sp.name_he or sp.name_en, "sub_specialty": None}
-            # Return Hebrew label from condition tags if available
             tag = db.query(models.MedicalConditionTag).filter(
                 models.MedicalConditionTag.category == specialty_en,
                 models.MedicalConditionTag.is_active == True,
