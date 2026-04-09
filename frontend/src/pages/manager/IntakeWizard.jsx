@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useContext, createContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { validateIsraeliId } from '../../utils/validateId'
@@ -72,6 +72,104 @@ const MMSE_SECTIONS = [
   { key: 'copy',         label: 'מרחבי-חזותי — העתקה',       max: 1,  hint: 'העתק תמונה של שני מחומשים חופפים' },
 ]
 
+// ── Error Context (prevents F component remount on re-render) ─────────────────
+const ErrorCtx = createContext({})
+
+function F({ label, name, required, children }) {
+  const errors = useContext(ErrorCtx)
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1">
+        {label}{required && <span className="text-red-500 mr-1">*</span>}
+      </label>
+      {children}
+      {errors[name] && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>}
+    </div>
+  )
+}
+
+// ── Date Input — DD/MM/YYYY with auto-advance ─────────────────────────────────
+function DateInput({ value, onChange, hasError }) {
+  const [day,   setDay]   = useState('')
+  const [month, setMonth] = useState('')
+  const [year,  setYear]  = useState('')
+  const monthRef = useRef()
+  const yearRef  = useRef()
+
+  // Sync from ISO value prop (YYYY-MM-DD)
+  useEffect(() => {
+    if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y, m, d] = value.split('-')
+      setDay(d); setMonth(m); setYear(y)
+    } else if (!value) {
+      setDay(''); setMonth(''); setYear('')
+    }
+  }, [value])
+
+  const emit = (d, m, y) => {
+    if (d.length === 2 && m.length === 2 && y.length === 4) {
+      const pd = d.padStart(2,'0'), pm = m.padStart(2,'0')
+      const iso = `${y}-${pm}-${pd}`
+      if (!isNaN(new Date(iso))) onChange(iso)
+    } else {
+      onChange('')
+    }
+  }
+
+  const handleDay = (e) => {
+    const v = e.target.value.replace(/\D/g,'').slice(0,2)
+    setDay(v)
+    emit(v, month, year)
+    if (v.length === 2) monthRef.current?.focus()
+  }
+  const handleMonth = (e) => {
+    const v = e.target.value.replace(/\D/g,'').slice(0,2)
+    setMonth(v)
+    emit(day, v, year)
+    if (v.length === 2) yearRef.current?.focus()
+  }
+  const handleYear = (e) => {
+    const v = e.target.value.replace(/\D/g,'').slice(0,4)
+    setYear(v)
+    emit(day, month, v)
+  }
+
+  const base = `border rounded-lg px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-400 ${hasError ? 'border-red-400' : 'border-slate-300'}`
+
+  return (
+    <div className="flex items-center gap-1" dir="ltr">
+      <input
+        className={`${base} w-14`}
+        value={day}
+        onChange={handleDay}
+        placeholder="יום"
+        inputMode="numeric"
+        maxLength={2}
+      />
+      <span className="text-slate-400 font-medium">/</span>
+      <input
+        ref={monthRef}
+        className={`${base} w-14`}
+        value={month}
+        onChange={handleMonth}
+        placeholder="חודש"
+        inputMode="numeric"
+        maxLength={2}
+      />
+      <span className="text-slate-400 font-medium">/</span>
+      <input
+        ref={yearRef}
+        className={`${base} w-20`}
+        value={year}
+        onChange={handleYear}
+        placeholder="שנה"
+        inputMode="numeric"
+        maxLength={4}
+      />
+    </div>
+  )
+}
+
 // ── Signature Canvas ──────────────────────────────────────────────────────────
 
 function SignatureCanvas({ label, onChange }) {
@@ -124,13 +222,13 @@ function SignatureCanvas({ label, onChange }) {
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700 mb-2">{label}</p>
-      <div className="border-2 border-slate-300 rounded-xl overflow-hidden bg-white relative">
+      {label && <p className="text-sm font-medium text-slate-700 mb-2">{label}</p>}
+      <div className="relative border-2 border-dashed border-slate-300 rounded-xl bg-slate-50" style={{ height: 120 }}>
         <canvas
           ref={canvasRef}
-          width={500}
-          height={150}
-          className="w-full touch-none cursor-crosshair"
+          width={600}
+          height={120}
+          style={{ width: '100%', height: '100%', cursor: 'crosshair', touchAction: 'none' }}
           onMouseDown={startDraw}
           onMouseMove={draw}
           onMouseUp={endDraw}
@@ -157,23 +255,16 @@ function SignatureCanvas({ label, onChange }) {
 // ── Wizard ────────────────────────────────────────────────────────────────────
 
 const EMPTY_FORM = {
-  // Step 1
   full_name: '', id_number: '', birth_date: '', gender: '',
   marital_status: '', num_children: '', height_cm: '', weight_kg: '',
-  // Step 2
   city: '', city_code: '', street: '', house_number: '',
   entrance: '', floor: '', apartment: '', postal_code: '',
-  // Step 3
   phone_prefix: '050', phone: '',
   ec_name: '', ec_phone_prefix: '050', ec_phone: '', ec_relation: '',
-  // Step 4
   hmo_name: '', hmo_level: '', medical_stage: '',
   diagnosis_status: 'no', diagnosis_details: '', notes: '',
-  // Step 5
   medications: [],
-  // Step 6
   adl_answers: {}, iadl_answers: {}, mmse_answers: {},
-  // Step 7
   consent_agreed: false, consent_signature: null,
   poa_agreed: false, poa_signature: null,
 }
@@ -205,11 +296,7 @@ export default function IntakeWizard() {
     }
     if (stepIdx === 2) {
       if (!form.phone) e.phone = 'שדה חובה'
-      else {
-        const digits = form.phone.replace(/\D/g, '')
-        const expected = form.phone_prefix.startsWith('0') && form.phone_prefix.length === 3 ? 7 : 7
-        if (digits.length !== expected) e.phone = `יש להזין ${expected} ספרות`
-      }
+      else if (form.phone.replace(/\D/g,'').length !== 7) e.phone = 'יש להזין 7 ספרות'
       if (!form.ec_name.trim()) e.ec_name = 'שדה חובה'
       if (!form.ec_phone) e.ec_phone = 'שדה חובה'
       if (!form.ec_relation.trim()) e.ec_relation = 'שדה חובה'
@@ -234,11 +321,8 @@ export default function IntakeWizard() {
   const back = () => { setErrors({}); setStep(s => s - 1) }
 
   // ── Scores ──────────────────────────────────────────────────────────────────
-  const adlScore = Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0)
-  const iadlScore = Object.values(form.iadl_answers).reduce((s, v) => {
-    // IADL: 1 = independent for each item
-    return s + (Number(v) === 1 ? 1 : 0)
-  }, 0)
+  const adlScore  = Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0)
+  const iadlScore = Object.values(form.iadl_answers).reduce((s, v) => s + (Number(v) === 1 ? 1 : 0), 0)
   const mmseScore = Object.entries(form.mmse_answers).reduce((s, [k, v]) => {
     const sec = MMSE_SECTIONS.find(x => x.key === k)
     return s + Math.min(Number(v || 0), sec?.max || 0)
@@ -259,22 +343,14 @@ export default function IntakeWizard() {
         num_children: form.num_children !== '' ? Number(form.num_children) : null,
         height_cm: form.height_cm !== '' ? Number(form.height_cm) : null,
         weight_kg: form.weight_kg !== '' ? Number(form.weight_kg) : null,
-        city: form.city,
-        city_code: form.city_code,
-        street: form.street,
-        house_number: form.house_number,
-        entrance: form.entrance || null,
-        floor: form.floor || null,
-        apartment: form.apartment || null,
-        postal_code: form.postal_code || null,
-        phone_prefix: form.phone_prefix,
-        phone: form.phone,
-        ec_name: form.ec_name,
-        ec_phone_prefix: form.ec_phone_prefix,
-        ec_phone: form.ec_phone,
-        ec_relation: form.ec_relation,
-        hmo_name: form.hmo_name || null,
-        hmo_level: form.hmo_level || null,
+        city: form.city, city_code: form.city_code,
+        street: form.street, house_number: form.house_number,
+        entrance: form.entrance || null, floor: form.floor || null,
+        apartment: form.apartment || null, postal_code: form.postal_code || null,
+        phone_prefix: form.phone_prefix, phone: form.phone,
+        ec_name: form.ec_name, ec_phone_prefix: form.ec_phone_prefix,
+        ec_phone: form.ec_phone, ec_relation: form.ec_relation,
+        hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
         medical_stage: form.medical_stage || null,
         diagnosis_status: form.diagnosis_status,
         diagnosis_details: form.diagnosis_details || null,
@@ -283,21 +359,16 @@ export default function IntakeWizard() {
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
         mmse_answers: JSON.stringify(form.mmse_answers),
-        adl_score: adlScore,
-        iadl_score: iadlScore,
-        mmse_score: mmseScore,
+        adl_score: adlScore, iadl_score: iadlScore, mmse_score: mmseScore,
       }
       const res = await axios.post('/api/patients', payload)
       const patientId = res.data.id
-
-      // Save signatures separately
       await axios.post(`/api/patients/${patientId}/signatures`, {
         consent_agreed: form.consent_agreed,
         consent_signature_b64: form.consent_signature,
         poa_agreed: form.poa_agreed,
         poa_signature_b64: form.poa_signature,
       })
-
       navigate(`/manager/patients/${patientId}`)
     } catch (err) {
       setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
@@ -306,17 +377,7 @@ export default function IntakeWizard() {
     }
   }
 
-  // ── Field helpers ───────────────────────────────────────────────────────────
-  const F = ({ label, name, children, required }) => (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label}{required && <span className="text-red-500 mr-1">*</span>}
-      </label>
-      {children}
-      {errors[name] && <p className="text-xs text-red-500 mt-1">{errors[name]}</p>}
-    </div>
-  )
-
+  // ── Field helper (NOT a component — just returns className + value + onChange)
   const inp = (name, extra = {}) => ({
     className: `w-full border rounded-lg px-3 py-2 text-sm ${errors[name] ? 'border-red-400' : 'border-slate-300'}`,
     value: form[name],
@@ -325,7 +386,6 @@ export default function IntakeWizard() {
   })
 
   // ── Steps render ────────────────────────────────────────────────────────────
-
   const renderStep = () => {
     switch (step) {
       // ── Step 1: פרטים אישיים ────────────────────────────────────────────────
@@ -336,10 +396,14 @@ export default function IntakeWizard() {
           </F>
           <div className="grid grid-cols-2 gap-4">
             <F label='מספר ת"ז' name="id_number" required>
-              <input {...inp('id_number', { maxLength: 9 })} />
+              <input {...inp('id_number', { maxLength: 9, inputMode: 'numeric' })} />
             </F>
             <F label="תאריך לידה" name="birth_date" required>
-              <input {...inp('birth_date', { type: 'date' })} />
+              <DateInput
+                value={form.birth_date}
+                onChange={v => set('birth_date', v)}
+                hasError={!!errors.birth_date}
+              />
             </F>
             <F label="מגדר" name="gender" required>
               <select {...inp('gender')}>
@@ -441,7 +505,6 @@ export default function IntakeWizard() {
                   dir="ltr"
                 />
               </div>
-              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
             </F>
           </div>
 
@@ -472,7 +535,6 @@ export default function IntakeWizard() {
                     dir="ltr"
                   />
                 </div>
-                {errors.ec_phone && <p className="text-xs text-red-500 mt-1">{errors.ec_phone}</p>}
               </F>
             </div>
           </div>
@@ -664,10 +726,7 @@ export default function IntakeWizard() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-slate-400">0</span>
                     <input
-                      type="range"
-                      min={0}
-                      max={sec.max}
-                      step={1}
+                      type="range" min={0} max={sec.max} step={1}
                       value={form.mmse_answers[sec.key] ?? 0}
                       onChange={e => set('mmse_answers', { ...form.mmse_answers, [sec.key]: Number(e.target.value) })}
                       className="w-24"
@@ -687,7 +746,6 @@ export default function IntakeWizard() {
       // ── Step 7: חתימות ──────────────────────────────────────────────────────
       case 6: return (
         <div className="space-y-8">
-          {/* Consent */}
           <div className="border border-slate-200 rounded-2xl p-5">
             <h3 className="font-semibold text-slate-800 mb-1">ויתור סודיות</h3>
             <p className="text-sm text-slate-500 mb-4">
@@ -703,14 +761,10 @@ export default function IntakeWizard() {
               <span className="text-sm">אני מסכים/ה לתנאי ויתור הסודיות *</span>
             </label>
             {errors.consent && <p className="text-xs text-red-500 mb-3">{errors.consent}</p>}
-            <SignatureCanvas
-              label="חתימה *"
-              onChange={sig => set('consent_signature', sig)}
-            />
+            <SignatureCanvas label="חתימה *" onChange={sig => set('consent_signature', sig)} />
             {errors.consent_sig && <p className="text-xs text-red-500 mt-1">{errors.consent_sig}</p>}
           </div>
 
-          {/* POA */}
           <div className="border border-slate-200 rounded-2xl p-5">
             <h3 className="font-semibold text-slate-800 mb-1">ייפוי כוח (אופציונלי)</h3>
             <p className="text-sm text-slate-500 mb-4">
@@ -726,10 +780,7 @@ export default function IntakeWizard() {
               <span className="text-sm">אני מסכים/ה לייפוי כוח</span>
             </label>
             {form.poa_agreed && (
-              <SignatureCanvas
-                label="חתימה על ייפוי כוח"
-                onChange={sig => set('poa_signature', sig)}
-              />
+              <SignatureCanvas label="חתימה על ייפוי כוח" onChange={sig => set('poa_signature', sig)} />
             )}
           </div>
 
@@ -745,70 +796,70 @@ export default function IntakeWizard() {
 
   // ── Layout ──────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
-      <div className="max-w-3xl mx-auto">
-        {/* Header */}
-        <div className="mb-6">
-          <button onClick={() => navigate('/manager')} className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1">
-            → חזרה ללוח בקרה
-          </button>
-          <h1 className="text-2xl font-bold text-slate-800">פתיחת תיק מטופל חדש</h1>
-        </div>
+    <ErrorCtx.Provider value={errors}>
+      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <button onClick={() => navigate('/manager')} className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1">
+              → חזרה ללוח בקרה
+            </button>
+            <h1 className="text-2xl font-bold text-slate-800">פתיחת תיק מטופל חדש</h1>
+          </div>
 
-        {/* Progress */}
-        <div className="flex gap-1 mb-8 overflow-x-auto pb-1">
-          {STEPS.map((s, i) => (
-            <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
-              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                i === step ? 'bg-blue-600 text-white' :
-                i < step ? 'bg-blue-100 text-blue-700' :
-                'bg-slate-200 text-slate-500'
-              }`}>
-                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${
-                  i < step ? 'bg-blue-600 text-white' : ''
+          {/* Progress */}
+          <div className="flex gap-1 mb-8 overflow-x-auto pb-1">
+            {STEPS.map((s, i) => (
+              <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  i === step ? 'bg-blue-600 text-white' :
+                  i < step  ? 'bg-blue-100 text-blue-700' :
+                  'bg-slate-200 text-slate-500'
                 }`}>
-                  {i < step ? '✓' : i + 1}
-                </span>
-                {s.label}
+                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${i < step ? 'bg-blue-600 text-white' : ''}`}>
+                    {i < step ? '✓' : i + 1}
+                  </span>
+                  {s.label}
+                </div>
+                {i < STEPS.length - 1 && <div className="w-3 h-0.5 bg-slate-300 flex-shrink-0" />}
               </div>
-              {i < STEPS.length - 1 && <div className="w-3 h-0.5 bg-slate-300 flex-shrink-0" />}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
-          <h2 className="text-lg font-bold text-slate-800 mb-6">{STEPS[step].label}</h2>
-          {renderStep()}
-        </div>
+          {/* Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
+            <h2 className="text-lg font-bold text-slate-800 mb-6">{STEPS[step].label}</h2>
+            {renderStep()}
+          </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between mt-6">
-          <button
-            onClick={back}
-            disabled={step === 0}
-            className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium"
-          >
-            ← חזרה
-          </button>
-          {step < STEPS.length - 1 ? (
+          {/* Navigation */}
+          <div className="flex justify-between mt-6">
             <button
-              onClick={next}
-              className="px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+              onClick={back}
+              disabled={step === 0}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium"
             >
-              המשך →
+              ← חזרה
             </button>
-          ) : (
-            <button
-              onClick={submit}
-              disabled={saving}
-              className="px-6 py-2.5 rounded-xl bg-green-600 text-white hover:bg-green-700 text-sm font-medium disabled:opacity-60"
-            >
-              {saving ? 'שומר...' : 'סיום ושמירה'}
-            </button>
-          )}
+            {step < STEPS.length - 1 ? (
+              <button
+                onClick={next}
+                className="px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+              >
+                המשך →
+              </button>
+            ) : (
+              <button
+                onClick={submit}
+                disabled={saving}
+                className="px-6 py-2.5 rounded-xl bg-green-600 text-white hover:bg-green-700 text-sm font-medium disabled:opacity-60"
+              >
+                {saving ? 'שומר...' : 'סיום ושמירה'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorCtx.Provider>
   )
 }
