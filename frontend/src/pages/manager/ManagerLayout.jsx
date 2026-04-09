@@ -2,53 +2,55 @@ import React, { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 const navItems = [
-  { to: '/manager', label: 'לוח בקרה', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z', end: true },
-  { to: '/manager/doctors', label: 'מאגר רופאים', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
-  { to: '/manager/responsiveness', label: 'ציוני רספונסיביות', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
-  { to: '/manager/workflows', label: 'זרימות עבודה', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
-  { to: '/manager/feedback', label: 'משובים', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z' },
-  { to: '/manager/profile', label: 'פרופיל', icon: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' },
+  { to: '/manager', tKey: 'nav:dashboard', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z', end: true },
+  { to: '/manager/doctors', tKey: 'nav:doctors', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
+  { to: '/manager/responsiveness', tKey: 'nav:responsiveness', icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z' },
+  { to: '/manager/workflows', tKey: 'nav:workflows', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
+  { to: '/manager/feedback', tKey: 'nav:feedback', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-3 3v-3z' },
+  { to: '/manager/profile', tKey: 'nav:profile', icon: 'M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z' },
 ]
-const adminNavItem = { to: '/manager/admin', label: 'ניהול משתמשים', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
+const adminNavItem = { to: '/manager/admin', tKey: 'nav:admin', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' }
 
-const ROUTE_LABELS = {
-  '/manager': 'לוח בקרה',
-  '/manager/doctors': 'מאגר רופאים',
-  '/manager/responsiveness': 'ציוני רספונסיביות',
-  '/manager/workflows': 'זרימות עבודה',
-  '/manager/feedback': 'משובים',
-  '/manager/profile': 'פרופיל',
-  '/manager/admin': 'ניהול משתמשים',
+const ROUTE_KEYS = {
+  '/manager': 'nav:dashboard',
+  '/manager/doctors': 'nav:doctors',
+  '/manager/responsiveness': 'nav:responsiveness',
+  '/manager/workflows': 'nav:workflows',
+  '/manager/feedback': 'nav:feedback',
+  '/manager/profile': 'nav:profile',
+  '/manager/admin': 'nav:admin',
 }
-const SUB_LABELS = { insurance: 'ביטוחים', claims: 'תביעות', strategy: 'אסטרטגיה' }
+const SUB_KEYS = { insurance: 'ביטוחים', claims: 'תביעות', strategy: 'אסטרטגיה' }
 
 function Breadcrumbs({ pathname }) {
+  const { t } = useTranslation()
   const patientMatch = pathname.match(/^\/manager\/patients\/(\d+)\/?(.*)$/)
   if (patientMatch) {
     const sub = patientMatch[2]
     return (
       <nav className="flex items-center gap-1.5 text-sm text-slate-500 min-w-0">
-        <Link to="/manager" className="hover:text-slate-800 transition-colors shrink-0">לוח בקרה</Link>
+        <Link to="/manager" className="hover:text-slate-800 transition-colors shrink-0">{t('nav:dashboard')}</Link>
         <span className="text-slate-300">/</span>
-        <Link to={`/manager/patients/${patientMatch[1]}`} className="hover:text-slate-800 transition-colors truncate">מטופל</Link>
-        {SUB_LABELS[sub] && <>
+        <Link to={`/manager/patients/${patientMatch[1]}`} className="hover:text-slate-800 transition-colors truncate">{t('nav:patients')}</Link>
+        {SUB_KEYS[sub] && <>
           <span className="text-slate-300">/</span>
-          <span className="text-slate-700 font-medium truncate">{SUB_LABELS[sub]}</span>
+          <span className="text-slate-700 font-medium truncate">{SUB_KEYS[sub]}</span>
         </>}
       </nav>
     )
   }
-  const label = ROUTE_LABELS[pathname]
-  if (!label || pathname === '/manager') return (
-    <nav className="text-sm font-medium text-slate-700 truncate">לוח בקרה</nav>
+  const tKey = ROUTE_KEYS[pathname]
+  if (!tKey || pathname === '/manager') return (
+    <nav className="text-sm font-medium text-slate-700 truncate">{t('nav:dashboard')}</nav>
   )
   return (
     <nav className="flex items-center gap-1.5 text-sm text-slate-500 min-w-0">
-      <Link to="/manager" className="hover:text-slate-800 transition-colors shrink-0">לוח בקרה</Link>
+      <Link to="/manager" className="hover:text-slate-800 transition-colors shrink-0">{t('nav:dashboard')}</Link>
       <span className="text-slate-300">/</span>
-      <span className="text-slate-700 font-medium truncate">{label}</span>
+      <span className="text-slate-700 font-medium truncate">{t(tKey)}</span>
     </nav>
   )
 }
@@ -57,6 +59,7 @@ export default function ManagerLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation()
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
@@ -79,14 +82,14 @@ export default function ManagerLayout() {
         <button
           onClick={() => { setSidebarOpen(o => !o); onClose?.() }}
           className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-colors flex-shrink-0"
-          title={sidebarOpen ? 'כווץ תפריט' : 'הרחב תפריט'}
+          title={sidebarOpen ? t('common:close') : t('common:add')}
         >
           <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d={sidebarOpen ? 'M11 19l-7-7 7-7m8 14l-7-7 7-7' : 'M13 5l7 7-7 7M5 5l7 7-7 7'} />
           </svg>
         </button>
-        {sidebarOpen && <span className="font-semibold text-sm truncate">ניהול אירוע רפואי</span>}
+        {sidebarOpen && <span className="font-semibold text-sm truncate">{t('landing:hero_title')}</span>}
       </div>
 
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
@@ -99,7 +102,7 @@ export default function ManagerLayout() {
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
             </svg>
-            {sidebarOpen && <span>{item.label}</span>}
+            {sidebarOpen && <span>{t(item.tKey)}</span>}
           </NavLink>
         ))}
       </nav>
@@ -107,10 +110,10 @@ export default function ManagerLayout() {
       <div className="p-2 border-t border-slate-700 flex-shrink-0">
         {sidebarOpen && (
           <div className="mb-2 px-2.5 py-1.5">
-            <p className="text-xs text-slate-400">מחובר כ:</p>
+            <p className="text-xs text-slate-400">{t('auth:hello')},</p>
             <p className="text-sm text-white font-medium truncate">{user?.full_name}</p>
             <p className="text-xs text-slate-400 mt-0.5">
-              {user?.is_admin ? 'מנהל ראשי' : user?.role === 'manager' ? 'מנהל אירוע רפואי' : 'מטופל'}
+              {user?.is_admin ? t('nav:admin') : user?.role === 'manager' ? t('auth:role_manager') : t('auth:role_patient')}
             </p>
           </div>
         )}
@@ -120,7 +123,7 @@ export default function ManagerLayout() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          {sidebarOpen && <span>התנתקות</span>}
+          {sidebarOpen && <span>{t('auth:logout')}</span>}
         </button>
       </div>
     </aside>
@@ -174,7 +177,7 @@ export default function ManagerLayout() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="hidden sm:inline">חזרה</span>
+            <span className="hidden sm:inline">{t('common:back')}</span>
           </button>
           <span className="text-slate-200 hidden sm:inline">|</span>
           <div className="flex-1 min-w-0">
@@ -186,7 +189,7 @@ export default function ManagerLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
-            <span className="hidden sm:inline">דף הבית</span>
+            <span className="hidden sm:inline">{t('nav:home')}</span>
           </Link>
           <LanguageSwitcher compact />
         </div>

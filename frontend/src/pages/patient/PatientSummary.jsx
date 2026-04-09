@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 
-const STATUS_LABELS = { pending: 'ממתין', submitted: 'הוגש', approved: 'אושר', partial: 'אושר חלקית', rejected: 'נדחה', draft: 'טיוטה' }
 const STATUS_COLORS = {
   pending: 'bg-slate-100 text-slate-600',
   submitted: 'bg-blue-100 text-blue-700',
@@ -25,6 +25,7 @@ const DOC_CATEGORY_LABELS = {
 }
 
 export default function PatientSummary() {
+  const { t } = useTranslation()
   const [patient, setPatient] = useState(null)
   const [claims, setClaims] = useState([])
   const [documents, setDocuments] = useState([])
@@ -52,26 +53,26 @@ export default function PatientSummary() {
       .finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="text-center py-20 text-slate-500">טוען...</div>
+  if (loading) return <div className="text-center py-20 text-slate-500">{t('common:loading')}</div>
 
   if (!patient) return (
     <div className="text-center py-20">
-      <p className="text-slate-500">אין תיק רפואי מקושר לחשבונך.</p>
-      <p className="text-slate-400 text-sm mt-2">פנה לניהול האירוע הרפואי שלך.</p>
+      <p className="text-slate-500">{t('patient_portal:no_file')}</p>
+      <p className="text-slate-400 text-sm mt-2">{t('patient_portal:no_file_hint')}</p>
     </div>
   )
 
   const tabs = [
-    { key: 'timeline', label: 'ציר זמן' },
-    { key: 'claims', label: `תביעות (${claims.filter(c => c.status !== 'draft').length})` },
-    { key: 'documents', label: `מסמכים (${documents.length})` },
+    { key: 'timeline', label: t('patient_portal:tab_timeline') },
+    { key: 'claims', label: `${t('patient_portal:tab_claims')} (${claims.filter(c => c.status !== 'draft').length})` },
+    { key: 'documents', label: `${t('patient_portal:tab_documents')} (${documents.length})` },
   ]
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="bg-gradient-to-l from-blue-600 to-blue-700 text-white rounded-2xl p-5">
-        <p className="text-blue-200 text-xs">מסע מטופל</p>
+        <p className="text-blue-200 text-xs">{t('patient_portal:title')}</p>
         <h1 className="text-xl font-bold mt-0.5">{patient.full_name}</h1>
         {patient.diagnosis_details && (
           <p className="text-blue-100 text-sm mt-1">{patient.diagnosis_details}</p>
@@ -102,7 +103,7 @@ export default function PatientSummary() {
       {tab === 'timeline' && (
         <div className="space-y-4">
           {workflows.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">אין תהליכים פעילים כרגע</p>
+            <p className="text-slate-400 text-sm text-center py-8">{t('patient_portal:no_workflows')}</p>
           ) : (
             workflows.map(wf => (
               <div key={wf.id} className="card">
@@ -117,7 +118,7 @@ export default function PatientSummary() {
                     wf.status === 'paused' ? 'bg-yellow-100 text-yellow-700' :
                     'bg-slate-100 text-slate-500'
                   }`}>
-                    {wf.status === 'active' ? 'פעיל' : wf.status === 'completed' ? 'הושלם' : wf.status === 'paused' ? 'מושהה' : wf.status}
+                    {wf.status === 'active' ? t('patient_portal:status_active') : wf.status === 'completed' ? t('patient_portal:status_completed') : wf.status === 'paused' ? t('patient_portal:status_paused') : wf.status}
                   </span>
                 </div>
                 {/* Steps timeline */}
@@ -143,7 +144,7 @@ export default function PatientSummary() {
                 {wf.progress !== undefined && (
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-slate-400 mb-1">
-                      <span>התקדמות</span>
+                      <span>{t('patient_portal:progress')}</span>
                       <span>{wf.progress}%</span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-1.5">
@@ -161,7 +162,7 @@ export default function PatientSummary() {
       {tab === 'claims' && (
         <div className="space-y-2">
           {claims.filter(c => c.status !== 'draft').length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">אין תביעות עדיין</p>
+            <p className="text-slate-400 text-sm text-center py-8">{t('patient_portal:no_claims')}</p>
           ) : (
             claims.filter(c => c.status !== 'draft').map(c => (
               <div key={c.id} className="card flex items-center justify-between gap-4">
@@ -175,7 +176,7 @@ export default function PatientSummary() {
                   )}
                 </div>
                 <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex-shrink-0 ${STATUS_COLORS[c.status] || 'bg-slate-100 text-slate-500'}`}>
-                  {STATUS_LABELS[c.status] || c.status}
+                  {t(`claim_status:${c.status}`) || c.status}
                 </span>
               </div>
             ))
@@ -187,7 +188,7 @@ export default function PatientSummary() {
       {tab === 'documents' && (
         <div className="space-y-2">
           {documents.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">אין מסמכים עדיין</p>
+            <p className="text-slate-400 text-sm text-center py-8">{t('patient_portal:no_documents')}</p>
           ) : (
             documents.map(doc => (
               <div key={doc.id} className="card flex items-center gap-3">

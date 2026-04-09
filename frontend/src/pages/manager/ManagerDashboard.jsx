@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-const DIAGNOSIS_LABELS = { yes: 'אבחון קיים', no: 'ללא אבחון', pending: 'בבירור' }
+import { useTranslation } from 'react-i18next'
 const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-yellow' }
 
 export default function ManagerDashboard() {
@@ -13,6 +13,7 @@ export default function ManagerDashboard() {
   const [importing, setImporting] = useState(false)
   const [globalInsights, setGlobalInsights] = useState(null)
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleImportSal = async (e) => {
     e.preventDefault()
@@ -42,7 +43,7 @@ export default function ManagerDashboard() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('האם למחוק תיק זה?')) return
+    if (!confirm(t('dashboard:delete_confirm'))) return
     try { await axios.delete(`/api/patients/${id}`); fetchPatients() }
     catch (e) { console.error(e) }
   }
@@ -55,14 +56,14 @@ export default function ManagerDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">לוח בקרה</h1>
-          <p className="text-slate-500 mt-1">ניהול תיקי מטופלים</p>
+          <h1 className="text-2xl font-bold text-slate-800">{t('dashboard:title')}</h1>
+          <p className="text-slate-500 mt-1">{t('dashboard:subtitle')}</p>
         </div>
         <button onClick={() => navigate('/manager/patients/new')} className="btn-primary flex items-center gap-2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          תיק מטופל חדש
+          {t('dashboard:new_patient')}
         </button>
       </div>
 
@@ -71,15 +72,15 @@ export default function ManagerDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-5 md:mb-6">
         <div className="card">
-          <p className="text-sm text-slate-500">סה"כ מטופלים</p>
+          <p className="text-sm text-slate-500">{t('dashboard:total_patients')}</p>
           <p className="text-3xl font-bold text-slate-800 mt-1">{patients.length}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">עם אבחנה</p>
+          <p className="text-sm text-slate-500">{t('dashboard:with_diagnosis')}</p>
           <p className="text-3xl font-bold text-blue-600 mt-1">{patients.filter(p => p.diagnosis_status === 'yes').length}</p>
         </div>
         <div className="card">
-          <p className="text-sm text-slate-500">בבירור</p>
+          <p className="text-sm text-slate-500">{t('dashboard:pending')}</p>
           <p className="text-3xl font-bold text-yellow-600 mt-1">{patients.filter(p => p.diagnosis_status === 'pending').length}</p>
         </div>
       </div>
@@ -91,18 +92,18 @@ export default function ManagerDashboard() {
             <span className="text-2xl">🧠</span>
             <div>
               <p className="font-semibold text-slate-800 text-sm">
-                המערכת ניתחה {globalInsights.total_claims_analyzed} תביעות
-                {globalInsights.total_patients > 0 && ` מתוך ${globalInsights.total_patients} מטופלים`}
+                {t('dashboard:ai_analyzed', { count: globalInsights.total_claims_analyzed })}
+                {globalInsights.total_patients > 0 && ` ${t('dashboard:ai_from_patients', { count: globalInsights.total_patients })}`}
               </p>
               <div className="flex flex-wrap gap-3 mt-1">
                 {topInsurer && (
                   <span className="text-xs text-slate-600">
-                    🏆 מקור עם שיעור אישור גבוה: <span className="font-medium text-green-700">{topInsurer.company_name} ({topInsurer.approval_rate}%)</span>
+                    🏆 {t('dashboard:top_insurer')}: <span className="font-medium text-green-700">{topInsurer.company_name} ({topInsurer.approval_rate}%)</span>
                   </span>
                 )}
                 {globalInsights.common_gaps?.[0] && (
                   <span className="text-xs text-slate-600">
-                    ⚠️ קטגוריה עם הכי הרבה דחיות: <span className="font-medium text-red-600">{globalInsights.common_gaps[0].category_label}</span>
+                    ⚠️ {t('dashboard:top_gap')}: <span className="font-medium text-red-600">{globalInsights.common_gaps[0].category_label}</span>
                   </span>
                 )}
               </div>
@@ -111,8 +112,8 @@ export default function ManagerDashboard() {
           <div className="flex-shrink-0 text-right">
             <p className="text-xs text-slate-400">
               {globalInsights.total_claims - globalInsights.total_claims_analyzed > 0
-                ? `${globalInsights.total_claims - globalInsights.total_claims_analyzed} תביעות פתוחות`
-                : 'כל התביעות נותחו'}
+                ? t('dashboard:open_claims', { count: globalInsights.total_claims - globalInsights.total_claims_analyzed })
+                : t('dashboard:all_analyzed')}
             </p>
           </div>
         </div>
@@ -122,14 +123,14 @@ export default function ManagerDashboard() {
       {globalInsights && !hasInsights && patients.length > 0 && (
         <div className="mb-6 rounded-xl border border-slate-100 bg-slate-50 p-3 flex items-center gap-3 text-sm text-slate-500">
           <span>🧠</span>
-          <span>ברגע שתביעות יאושרו או יידחו, תופענה כאן תובנות מהמערכת הלומדת</span>
+          <span>{t('dashboard:insights_hint')}</span>
         </div>
       )}
 
 
       {/* Patients list */}
       {loading ? (
-        <div className="text-center py-12 text-slate-500">טוען...</div>
+        <div className="text-center py-12 text-slate-500">{t('common:loading')}</div>
       ) : patients.length === 0 ? (
         <div className="card text-center py-16">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -137,8 +138,8 @@ export default function ManagerDashboard() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <p className="text-slate-600 font-medium">אין מטופלים עדיין</p>
-          <p className="text-slate-400 text-sm mt-1">לחץ על "תיק מטופל חדש" להתחלה</p>
+          <p className="text-slate-600 font-medium">{t('dashboard:no_patients')}</p>
+          <p className="text-slate-400 text-sm mt-1">{t('dashboard:no_patients_hint')}</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -152,7 +153,7 @@ export default function ManagerDashboard() {
                   <div>
                     <h3 className="font-semibold text-slate-800">{p.full_name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={DIAGNOSIS_COLORS[p.diagnosis_status]}>{DIAGNOSIS_LABELS[p.diagnosis_status]}</span>
+                      <span className={DIAGNOSIS_COLORS[p.diagnosis_status]}>{t(`diagnosis:${p.diagnosis_status}`)}</span>
                       {p.diagnosis_details && <span className="text-xs text-slate-500 truncate max-w-xs">{p.diagnosis_details}</span>}
                     </div>
                   </div>
@@ -160,11 +161,11 @@ export default function ManagerDashboard() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button onClick={e => { e.stopPropagation(); navigate(`/manager/patients/${p.id}/strategy`) }}
                     className="text-xs bg-blue-50 text-blue-600 px-2 md:px-3 py-1.5 rounded-lg hover:bg-blue-100 whitespace-nowrap">
-                    אסטרטגיה
+                    {t('dashboard:strategy')}
                   </button>
                   <button onClick={e => { e.stopPropagation(); handleDelete(p.id) }}
                     className="text-xs bg-red-50 text-red-500 px-2 md:px-3 py-1.5 rounded-lg hover:bg-red-100">
-                    מחק
+                    {t('common:delete')}
                   </button>
                 </div>
               </div>

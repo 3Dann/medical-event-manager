@@ -4,11 +4,13 @@ import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import PasskeyLoginButton from '../components/PasskeyLoginButton'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function LoginModal({ onClose, initialTab = 'login' }) {
   const { login } = useAuth()
   const navigate   = useNavigate()
+  const { t } = useTranslation()
 
   const [tab, setTab]                 = useState(initialTab)
   const [form, setForm]               = useState({ email: '', password: '', full_name: '', role: 'manager' })
@@ -124,16 +126,16 @@ function LoginModal({ onClose, initialTab = 'login' }) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-slate-800">ניהול אירוע רפואי</h2>
-          <p className="text-slate-500 text-sm mt-0.5">ניהול מסע המטופל</p>
+          <h2 className="text-xl font-bold text-slate-800">{t('landing:hero_title')}</h2>
+          <p className="text-slate-500 text-sm mt-0.5">{t('landing:login_modal_title')}</p>
         </div>
 
         {/* Tabs */}
         {!twoFAStep && (
           <div className="flex bg-slate-100 rounded-lg p-1 mb-6">
-            {[['login','התחברות'],['register','הרשמה'],['forgot','שכחתי סיסמה']].map(([t, label]) => (
-              <button key={t} onClick={() => switchTab(t)}
-                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${tab === t ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
+            {[['login', t('auth:login')],['register', t('auth:register')],['forgot', t('auth:forgot_password')]].map(([tabKey, label]) => (
+              <button key={tabKey} onClick={() => switchTab(tabKey)}
+                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${tab === tabKey ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
                 {label}
               </button>
             ))}
@@ -153,7 +155,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
               </div>
               <h3 className="text-lg font-semibold text-slate-800">אימות דו-שלבי</h3>
               <p className="text-sm text-slate-500 mt-1">
-                {twoFAMethod === 'email' ? 'אימות באמצעות אימייל' : 'אימות באמצעות אפליקציית אימות'}
+                {twoFAMethod === 'email' ? t('auth:enter_email_code') : t('auth:enter_2fa')}
               </p>
             </div>
             {twoFAMethod === 'email' && !emailCodeReady && (
@@ -167,7 +169,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
                 finally { setLoading(false) }
               }} disabled={loading} className="btn-primary w-full py-3">
-                {loading ? 'שולח...' : 'שלח קוד לאימייל'}
+                {loading ? t('common:loading') : t('auth:send_code')}
               </button>
             )}
             {twoFAMethod === 'email' && emailCodeReady && (
@@ -183,7 +185,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
             )}
             <form onSubmit={handle2FAVerify} className="space-y-4">
               <div>
-                <label className="label">{twoFAMethod === 'email' ? 'הזן קוד מהאימייל' : 'קוד מאפליקציית האימות'}</label>
+                <label className="label">{twoFAMethod === 'email' ? t('auth:enter_email_code') : t('auth:enter_2fa')}</label>
                 <input className="input text-center tracking-widest text-xl" maxLength={6}
                   value={twoFACode}
                   onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
@@ -193,13 +195,13 @@ function LoginModal({ onClose, initialTab = 'login' }) {
               <button type="submit"
                 disabled={loading || twoFACode.length !== 6 || (twoFAMethod === 'email' && !emailCodeReady)}
                 className="btn-primary w-full py-3">
-                {loading ? 'מאמת...' : 'אמת קוד'}
+                {loading ? t('auth:verifying') : t('auth:verify_code')}
               </button>
               <button type="button" onClick={() => {
                 setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay('');
                 setEmailCodeReady(false); setEmailSentMsg(''); setError('')
               }} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
-                חזור להתחברות
+                {t('auth:back_to_login')}
               </button>
             </form>
           </div>
@@ -209,12 +211,12 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         {!twoFAStep && tab !== 'forgot' && (
           <form onSubmit={handleSubmit} className="space-y-4">
             {tab === 'register' && (
-              <div><label className="label">שם מלא</label>
+              <div><label className="label">{t('auth:full_name')}</label>
                 <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required /></div>
             )}
-            <div><label className="label">{tab === 'login' ? 'אימייל / ת"ז' : 'אימייל'}</label>
+            <div><label className="label">{tab === 'login' ? t('auth:email_or_id') : t('auth:email')}</label>
               <input type={tab === 'login' ? 'text' : 'email'} className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
-            <div><label className="label">סיסמה</label>
+            <div><label className="label">{t('auth:password')}</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} className="input w-full pl-10" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
                 <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -222,15 +224,15 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 </button>
               </div></div>
             {tab === 'register' && (
-              <div><label className="label">תפקיד</label>
+              <div><label className="label">{t('auth:role')}</label>
                 <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
-                  <option value="manager">מנהל אירוע רפואי</option>
-                  <option value="patient">מטופל</option>
+                  <option value="manager">{t('auth:role_manager')}</option>
+                  <option value="patient">{t('auth:role_patient')}</option>
                 </select></div>
             )}
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
-              {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'הרשמה'}
+              {loading ? t('common:saving') : tab === 'login' ? t('auth:login') : t('auth:register')}
             </button>
             {tab === 'login' && (
               <PasskeyLoginButton
@@ -245,12 +247,12 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         {/* ── Forgot password ── */}
         {!twoFAStep && tab === 'forgot' && forgotStep === 1 && (
           <form onSubmit={handleForgotStep1} className="space-y-4">
-            <p className="text-sm text-slate-600">הזן את האימייל שלך וקבל קוד איפוס.</p>
-            <div><label className="label">אימייל</label>
+            <p className="text-sm text-slate-600">{t('auth:forgot_password')}</p>
+            <div><label className="label">{t('auth:email')}</label>
               <input type="email" className="input" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} required /></div>
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? 'שולח...' : 'קבל קוד איפוס'}
+              {loading ? t('common:loading') : t('auth:send_code')}
             </button>
           </form>
         )}
@@ -261,16 +263,16 @@ function LoginModal({ onClose, initialTab = 'login' }) {
               <p className="text-2xl font-bold text-blue-800 tracking-widest">{resetToken}</p>
               <p className="text-xs text-blue-500 mt-1">תוקף: שעה אחת</p>
             </div>
-            <div><label className="label">קוד האיפוס</label>
+            <div><label className="label">{t('auth:verify_code')}</label>
               <input className="input text-center tracking-widest uppercase" maxLength={6}
                 value={resetForm.token} onChange={e => setResetForm({...resetForm, token: e.target.value.toUpperCase()})} required /></div>
-            <div><label className="label">סיסמה חדשה</label>
+            <div><label className="label">{t('auth:new_password')}</label>
               <input type="password" className="input" value={resetForm.new_password} onChange={e => setResetForm({...resetForm, new_password: e.target.value})} required /></div>
-            <div><label className="label">אימות סיסמה</label>
+            <div><label className="label">{t('auth:confirm_password')}</label>
               <input type="password" className="input" value={resetForm.confirm} onChange={e => setResetForm({...resetForm, confirm: e.target.value})} required /></div>
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? 'מעדכן...' : 'עדכן סיסמה'}
+              {loading ? t('common:saving') : t('auth:reset_password')}
             </button>
           </form>
         )}
@@ -320,6 +322,7 @@ const STEPS = [
 function Navbar({ onLoginClick, onRegisterClick }) {
   const { user }    = useAuth()
   const navigate    = useNavigate()
+  const { t }       = useTranslation()
   const [open, setOpen] = useState(false)
 
   const scrollTo = (href) => {
@@ -338,7 +341,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <span className="font-bold text-slate-800 text-sm leading-tight">ניהול<br/>אירוע רפואי</span>
+            <span className="font-bold text-slate-800 text-sm leading-tight">{t('landing:hero_title')}</span>
           </Link>
 
           {/* Desktop links */}
@@ -362,10 +365,10 @@ function Navbar({ onLoginClick, onRegisterClick }) {
             ) : (
               <div className="flex items-center gap-2">
                 <button onClick={onRegisterClick} className="text-sm py-1.5 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                  הרשמה
+                  {t('auth:register')}
                 </button>
                 <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4">
-                  כניסה
+                  {t('auth:login')}
                 </button>
               </div>
             )}
@@ -398,6 +401,7 @@ export default function LandingPage() {
   const navigate           = useNavigate()
   const location           = useLocation()
   const { user }           = useAuth()
+  const { t }              = useTranslation()
   const [showLogin, setShowLogin]   = useState(false)
   const [loginTab,  setLoginTab]    = useState('login')
 
@@ -428,17 +432,16 @@ export default function LandingPage() {
             מערכת ניהול אירוע רפואי מקיפה
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-            ניהול אירוע רפואי
-            <span className="block text-blue-300 mt-1">מקצועי ומרכזי</span>
+            {t('landing:hero_title')}
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            פלטפורמה מקיפה לניהול מסע המטופל — ממאגר רופאים וביטוחים ועד אסטרטגיה פיננסית וצמתי החלטה
+            {t('landing:hero_subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user && (
               <button onClick={toDashboard}
                 className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
-                {user.role === 'patient' ? 'לצפייה במסע שלי ←' : 'לוח הבקרה ←'}
+                {user.role === 'patient' ? t('patient_portal:title') : t('nav:dashboard')} ←
               </button>
             )}
             <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
