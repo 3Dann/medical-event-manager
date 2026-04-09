@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext, createContext } from 'react'
+import React, { useState, useRef, useEffect, useContext, createContext, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { validateIsraeliId } from '../../utils/validateId'
@@ -263,6 +263,7 @@ const EMPTY_FORM = {
   ec_name: '', ec_phone_prefix: '050', ec_phone: '', ec_relation: '',
   hmo_name: '', hmo_level: '', medical_stage: '',
   diagnosis_status: 'no', diagnosis_details: '', notes: '',
+  specialty: '', sub_specialty: '',
   medications: [],
   adl_answers: {}, iadl_answers: {}, mmse_answers: {},
   consent_agreed: false, consent_signature: null,
@@ -277,6 +278,31 @@ export default function IntakeWizard() {
   const [saving, setSaving] = useState(false)
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
+
+  // ── Auto-suggest specialty from diagnosis ───────────────────────────────────
+  const [suggestLoading, setSuggestLoading] = useState(false)
+  const [specialtyAutoFilled, setSpecialtyAutoFilled] = useState(false)
+  const suggestTimer = useRef(null)
+
+  const triggerSuggest = useCallback((diagnosis) => {
+    clearTimeout(suggestTimer.current)
+    if (!diagnosis || diagnosis.length < 3) return
+    suggestTimer.current = setTimeout(async () => {
+      setSuggestLoading(true)
+      try {
+        const res = await axios.post('/api/specialties/suggest', { diagnosis })
+        if (res.data.specialty || res.data.sub_specialty) {
+          setForm(f => ({
+            ...f,
+            specialty: res.data.specialty || f.specialty,
+            sub_specialty: res.data.sub_specialty || f.sub_specialty,
+          }))
+          setSpecialtyAutoFilled(true)
+        }
+      } catch (_) {}
+      finally { setSuggestLoading(false) }
+    }, 600)
+  }, [])
 
   // ── Validation per step ─────────────────────────────────────────────────────
   const validate = (stepIdx) => {
@@ -354,6 +380,8 @@ export default function IntakeWizard() {
         medical_stage: form.medical_stage || null,
         diagnosis_status: form.diagnosis_status,
         diagnosis_details: form.diagnosis_details || null,
+        specialty: form.specialty || null,
+        sub_specialty: form.sub_specialty || null,
         notes: form.notes || null,
         medications: JSON.stringify(form.medications),
         adl_answers: JSON.stringify(form.adl_answers),
@@ -577,8 +605,41 @@ export default function IntakeWizard() {
             </F>
           </div>
           <F label="פרטי אבחנה" name="diagnosis_details">
-            <textarea {...inp('diagnosis_details')} rows={3} />
+            <textarea
+              {...inp('diagnosis_details')}
+              rows={3}
+              onChange={e => {
+                set('diagnosis_details', e.target.value)
+                setSpecialtyAutoFilled(false)
+                triggerSuggest(e.target.value)
+              }}
+            />
           </F>
+
+          {/* Specialty auto-suggest */}
+          <div className="grid grid-cols-2 gap-4">
+            <F label="תחום רפואה" name="specialty">
+              <div className="relative">
+                <input
+                  {...inp('specialty')}
+                  placeholder={suggestLoading ? 'מזהה תחום...' : 'למשל: אונקולוגיה'}
+                />
+                {suggestLoading && (
+                  <span className="absolute left-3 top-2.5 text-xs text-slate-400 animate-pulse">⏳</span>
+                )}
+                {specialtyAutoFilled && form.specialty && !suggestLoading && (
+                  <span className="absolute left-2 top-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">הוצע</span>
+                )}
+              </div>
+            </F>
+            <F label="תת-התמחות" name="sub_specialty">
+              <input
+                {...inp('sub_specialty')}
+                placeholder="למשל: אונקולוגיה גינקולוגית"
+              />
+            </F>
+          </div>
+
           <F label="הערות" name="notes">
             <textarea {...inp('notes')} rows={2} />
           </F>

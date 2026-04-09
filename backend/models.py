@@ -173,6 +173,10 @@ class Patient(Base):
     intake_completed = Column(Boolean, default=False)
     intake_completed_at = Column(DateTime(timezone=True), nullable=True)
 
+    # ── Medical specialty (auto-suggested from diagnosis) ─────────────────────
+    specialty = Column(String, nullable=True)          # e.g. "אונקולוגיה"
+    sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"
+
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
     insurance_sources = relationship("InsuranceSource", back_populates="patient", cascade="all, delete-orphan")

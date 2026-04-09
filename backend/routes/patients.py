@@ -49,6 +49,9 @@ class PatientCreate(BaseModel):
     ec_phone_prefix: Optional[str] = None
     ec_phone: Optional[str] = None
     ec_relation: Optional[str] = None
+    # Medical specialty
+    specialty: Optional[str] = None
+    sub_specialty: Optional[str] = None
     # Medications
     medications: Optional[str] = None   # JSON string
     # Assessments
@@ -90,6 +93,8 @@ class PatientUpdate(BaseModel):
     ec_phone_prefix: Optional[str] = None
     ec_phone: Optional[str] = None
     ec_relation: Optional[str] = None
+    specialty: Optional[str] = None
+    sub_specialty: Optional[str] = None
     medications: Optional[str] = None
     adl_answers: Optional[str] = None
     iadl_answers: Optional[str] = None

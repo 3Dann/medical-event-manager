@@ -11,7 +11,7 @@ Endpoints:
 
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session, subqueryload
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from pydantic import BaseModel
 from typing import Optional
 import json
@@ -267,3 +267,131 @@ def trigger_scrape(
 
     background_tasks.add_task(_run)
     return {"ok": True, "message": "Scrape started in background"}
+
+
+# ── POST /api/specialties/suggest ─────────────────────────────────────────
+
+# Keyword fallback map: Hebrew/English diagnosis keywords → specialty name_en
+_KEYWORD_MAP = [
+    # Oncology
+    (["סרטן","גידול","אונקול","ממאיר","לוקמיה","לימפומה","מלנומה","מטסטז",
+      "cancer","tumor","oncol","leukemia","lymphoma","melanoma","metasta"], "oncology"),
+    # Cardiology
+    (["לב","קרדיו","עורקים","אוטם","הפרעות קצב","כלילי","אנגינה",
+      "heart","cardio","coronary","arrhythmia","angina","myocard"], "cardiology"),
+    # Neurology
+    (["מוח","עצב","נוירו","שבץ","אפילפסיה","פרקינסון","טרשת","דמנציה","אלצהיימר",
+      "brain","neuro","stroke","epilepsy","parkinson","sclerosis","dementia","alzheimer"], "neurology"),
+    # Orthopedics
+    (["עצם","מפרק","עמוד שדרה","ברך","ירך","שבר","ארתריטיס","אוסטיאו",
+      "bone","joint","spine","knee","hip","fracture","arthrit","orthop"], "orthopedics"),
+    # Gastroenterology
+    (["קיבה","מעי","כבד","לבלב","קרוהן","קוליטיס","גסטרו","כיב",
+      "gastro","stomach","intestin","liver","pancreas","crohn","colitis","ulcer"], "gastroenterology"),
+    # Pulmonology
+    (["ריאה","נשימה","אסטמה","סי-או-פי-די","ריאתי","פנאומוניה","ברונכ",
+      "lung","pulmon","asthma","copd","pneumonia","bronch","respir"], "pulmonology"),
+    # Endocrinology
+    (["סוכרת","בלוטת התריס","הורמון","אנדוקרין","תירואיד","אוסטיאופורוזיס",
+      "diabetes","thyroid","hormon","endocrin","osteoporosis"], "endocrinology"),
+    # Nephrology
+    (["כליה","כליות","דיאליזה","נפרו",
+      "kidney","renal","nephro","dialysis"], "nephrology"),
+    # Hematology
+    (["דם","המטו","אנמיה","טסיות","קרישה",
+      "blood","hematol","anaemia","anemia","platelet","coagul"], "hematology"),
+    # Psychiatry / Neurology
+    (["דיכאון","חרדה","פסיכ","סכיזופרניה","ביפולרי",
+      "depress","anxiety","psychi","schizophren","bipolar"], "psychiatry"),
+    # Gynecology
+    (["גינקו","רחם","שחלה","ערמונית","צוואר רחם",
+      "gynec","uterus","ovary","cervix","uterine","endometri"], "gynecology"),
+    # Urology
+    (["שתן","שלפוחית","ערמונית","ורולו",
+      "urol","bladder","prostate","urin"], "urology"),
+    # Dermatology
+    (["עור","עורית","דרמ","פסוריאזיס","אטופיק",
+      "skin","dermat","psoriasis","atopic","eczema"], "dermatology"),
+    # Ophthalmology
+    (["עיניים","עין","ראייה","גלוקומה","קטרקט","רשתית",
+      "eye","ophthalm","vision","glaucoma","cataract","retina"], "ophthalmology"),
+    # Rheumatology
+    (["ראומ","לופוס","פיברומיאלגיה","גאוט","דלקת מפרקים",
+      "rheumat","lupus","fibromyalg","gout","arthrit"], "rheumatology"),
+]
+
+class SuggestIn(BaseModel):
+    diagnosis: str
+
+@router.post("/suggest")
+def suggest_specialty(
+    body: SuggestIn,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Given a free-text diagnosis, return the best matching specialty and sub-specialty."""
+    q = body.diagnosis.strip().lower()
+    if len(q) < 2:
+        return {"specialty": None, "sub_specialty": None}
+
+    # 1. Search DB sub-specialties (leaf nodes)
+    sub_matches = (
+        db.query(models.MedicalSpecialty)
+        .filter(
+            models.MedicalSpecialty.is_active == True,
+            models.MedicalSpecialty.parent_id != None,
+            or_(
+                func.lower(models.MedicalSpecialty.name_he).contains(q),
+                func.lower(models.MedicalSpecialty.name_en).contains(q),
+                func.lower(models.MedicalSpecialty.description_he).contains(q),
+            )
+        )
+        .order_by(models.MedicalSpecialty.confidence_score.desc())
+        .limit(3)
+        .all()
+    )
+    if sub_matches:
+        sub = sub_matches[0]
+        parent = db.get(models.MedicalSpecialty, sub.parent_id)
+        return {
+            "specialty": parent.name_he or parent.name_en if parent else None,
+            "sub_specialty": sub.name_he or sub.name_en,
+        }
+
+    # 2. Search DB top-level specialties
+    top_matches = (
+        db.query(models.MedicalSpecialty)
+        .filter(
+            models.MedicalSpecialty.is_active == True,
+            models.MedicalSpecialty.parent_id == None,
+            or_(
+                func.lower(models.MedicalSpecialty.name_he).contains(q),
+                func.lower(models.MedicalSpecialty.name_en).contains(q),
+                func.lower(models.MedicalSpecialty.description_he).contains(q),
+            )
+        )
+        .order_by(models.MedicalSpecialty.confidence_score.desc())
+        .first()
+    )
+    if top_matches:
+        return {"specialty": top_matches.name_he or top_matches.name_en, "sub_specialty": None}
+
+    # 3. Keyword fallback
+    for keywords, specialty_en in _KEYWORD_MAP:
+        if any(kw in q for kw in keywords):
+            sp = db.query(models.MedicalSpecialty).filter(
+                models.MedicalSpecialty.is_active == True,
+                models.MedicalSpecialty.parent_id == None,
+                func.lower(models.MedicalSpecialty.name_en).contains(specialty_en),
+            ).first()
+            if sp:
+                return {"specialty": sp.name_he or sp.name_en, "sub_specialty": None}
+            # Return Hebrew label from condition tags if available
+            tag = db.query(models.MedicalConditionTag).filter(
+                models.MedicalConditionTag.category == specialty_en,
+                models.MedicalConditionTag.is_active == True,
+            ).first()
+            if tag:
+                return {"specialty": tag.category_he or tag.category, "sub_specialty": None}
+
+    return {"specialty": None, "sub_specialty": None}

@@ -129,6 +129,9 @@ def run_migrations():
         ("patients", "intake_completed_at",    "DATETIME"),
         # Patient portal
         ("patients", "patient_user_id",        "INTEGER REFERENCES users(id)"),
+        # Medical specialty (auto-suggested)
+        ("patients", "specialty",              "VARCHAR"),
+        ("patients", "sub_specialty",          "VARCHAR"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
