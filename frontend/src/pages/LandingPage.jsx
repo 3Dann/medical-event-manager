@@ -281,41 +281,14 @@ function LoginModal({ onClose, initialTab = 'login' }) {
   )
 }
 
-// ── Landing page constants ────────────────────────────────────────────────────
-const NAV_LINKS = [
-  { label: 'מסע מטופל',         href: '#journey'    },
-  { label: 'מאגר רופאים',       href: '#doctors'    },
-  { label: 'ביטוחים ותביעות',   href: '#insurance'  },
-  { label: 'אסטרטגיה פיננסית', href: '#strategy'   },
-  { label: 'רספונסיביות',       href: '#responsive' },
-  { label: 'אבטחה',             href: '#security'   },
-]
-
-const FEATURES = [
-  { id: 'journey',   icon: '🗺️', title: 'מסע מטופל',          color: 'from-blue-500 to-blue-600',    ring: 'border-blue-200',    text: 'text-blue-700',
-    desc: 'ציר זמן ויזואלי מלא עם 5 שלבי המסע הרפואי: גילוי ואבחון, תכנון הטיפול, שלב הטיפולים, החלמה ושיקום ומעקב. הוסף צמתי החלטה מותאמים אישית.',
-    points: ['5 שלבים קבועים לכל מטופל', 'צמתי החלטה ידניים', 'עדכון סטטוס בזמן אמת', 'תאריכים והערות לכל שלב'] },
-  { id: 'doctors',   icon: '👨‍⚕️', title: 'מאגר רופאים',        color: 'from-emerald-500 to-emerald-600', ring: 'border-emerald-200', text: 'text-emerald-700',
-    desc: 'מאגר מרכזי של מאות רופאים מוסמכים ממשרד הבריאות, tteam ו-data.gov.il. סינון לפי מומחיות, קופה, מיקום וחוות דעת.',
-    points: ['370+ רופאים מאומתים', 'סינון רב-פרמטרי', 'ייצוא לאקסל RTL', 'עדכון אוטומטי'] },
-  { id: 'insurance', icon: '🛡️', title: 'ביטוחים ותביעות',    color: 'from-violet-500 to-violet-600', ring: 'border-violet-200', text: 'text-violet-700',
-    desc: 'ניהול כל מקורות הביטוח — קופת חולים, ביטוח פרטי, ביטוח לאומי. מעקב תביעות עם סטטוסים, עדיפויות ותאריכי יעד.',
-    points: ['ייבוא פוליסות אוטומטי', 'מעקב סטטוס תביעות', 'עדיפויות וסדרי פעולה', 'כיסויים לפי קטגוריות'] },
-  { id: 'strategy',  icon: '💡', title: 'אסטרטגיה פיננסית',  color: 'from-amber-500 to-amber-600',   ring: 'border-amber-200',  text: 'text-amber-700',
-    desc: 'מיפוי זכויות, כיסויים וזכאויות ממכלול מקורות הביטוח. המלצות לניצול מיטבי וזיהוי הזדמנויות להחזרים.',
-    points: ['מיפוי זכויות מלא', 'זיהוי כיסויים חופפים', 'המלצות מבוססות נתונים', 'תחזית החזרים'] },
-  { id: 'responsive',icon: '⭐', title: 'ציוני רספונסיביות',  color: 'from-rose-500 to-rose-600',     ring: 'border-rose-200',   text: 'text-rose-700',
-    desc: 'השוואת קופות חולים וחברות ביטוח לפי מהירות תגובה, רמת בירוקרטיה וציון כולל. מסייע לקבלת החלטות מושכלות.',
-    points: ['ציון רספונסיביות 1-10', 'השוואה בין קופות', 'השוואת ביטוח פרטי', 'עדכון ידני ואוטומטי'] },
-  { id: 'security',  icon: '🔒', title: 'אבטחה ופרטיות',      color: 'from-slate-600 to-slate-700',   ring: 'border-slate-200',  text: 'text-slate-700',
-    desc: 'אימות דו-שלבי חובה — QR (TOTP) או מייל. ניהול הרשאות: מנהל אירוע רפואי, מטופל ומנהל ראשי. JWT מאובטח.',
-    points: ['אימות דו-שלבי QR / מייל', 'תפקידים מדורגים', 'JWT עם תוקף מוגבל', 'ניהול משתמשים מרכזי'] },
-]
-
-const STEPS = [
-  { num: '01', title: 'הגדרת מטופל',   desc: 'הוסף מטופל עם פרטי קופת חולים ואבחנה — המערכת יוצרת את מסע המטופל אוטומטית.' },
-  { num: '02', title: 'ניהול ביטוחים', desc: 'ייבא פוליסות, הוסף ביטוחים פרטיים ועקוב אחר כל הכיסויים במקום אחד.' },
-  { num: '03', title: 'אסטרטגיה',      desc: 'קבל המלצות פיננסיות, הגש תביעות בסדר הנכון ומקסם ניצול זכויות.' },
+// ── FEATURE meta (non-translatable props only) ───────────────────────────────
+const FEATURE_META = [
+  { id: 'journey',    icon: '🗺️',  color: 'from-blue-500 to-blue-600',    ring: 'border-blue-200',    text: 'text-blue-700'    },
+  { id: 'doctors',    icon: '👨‍⚕️', color: 'from-emerald-500 to-emerald-600', ring: 'border-emerald-200', text: 'text-emerald-700' },
+  { id: 'insurance',  icon: '🛡️',  color: 'from-violet-500 to-violet-600', ring: 'border-violet-200', text: 'text-violet-700'  },
+  { id: 'strategy',   icon: '💡',  color: 'from-amber-500 to-amber-600',   ring: 'border-amber-200',  text: 'text-amber-700'   },
+  { id: 'responsive', icon: '⭐',  color: 'from-rose-500 to-rose-600',     ring: 'border-rose-200',   text: 'text-rose-700'    },
+  { id: 'security',   icon: '🔒',  color: 'from-slate-600 to-slate-700',   ring: 'border-slate-200',  text: 'text-slate-700'   },
 ]
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
@@ -401,9 +374,36 @@ export default function LandingPage() {
   const navigate           = useNavigate()
   const location           = useLocation()
   const { user }           = useAuth()
-  const { t }              = useTranslation()
+  const { t, i18n }        = useTranslation()
   const [showLogin, setShowLogin]   = useState(false)
   const [loginTab,  setLoginTab]    = useState('login')
+
+  const NAV_LINKS = [
+    { label: t('landing:feat_journey'),    href: '#journey'    },
+    { label: t('nav:doctors'),             href: '#doctors'    },
+    { label: t('landing:feat_insurance'),  href: '#insurance'  },
+    { label: t('landing:feat_strategy'),   href: '#strategy'   },
+    { label: t('nav:responsiveness'),      href: '#responsive' },
+    { label: t('landing:feat_security'),   href: '#security'   },
+  ]
+
+  const FEATURES = FEATURE_META.map(m => ({
+    ...m,
+    title:  t(`landing:feat_${m.id}`),
+    desc:   t(`landing:feat_${m.id}_desc`),
+    points: [
+      t(`landing:feat_${m.id}_p1`),
+      t(`landing:feat_${m.id}_p2`),
+      t(`landing:feat_${m.id}_p3`),
+      t(`landing:feat_${m.id}_p4`),
+    ],
+  }))
+
+  const STEPS = [
+    { num: '01', title: t('landing:step1_title'), desc: t('landing:step1_desc') },
+    { num: '02', title: t('landing:step2_title'), desc: t('landing:step2_desc') },
+    { num: '03', title: t('landing:step3_title'), desc: t('landing:step3_desc') },
+  ]
 
   // If navigated here from /login redirect, open modal immediately
   useEffect(() => {
@@ -416,7 +416,7 @@ export default function LandingPage() {
   const toDashboard  = () => navigate(user?.role === 'patient' ? '/patient' : '/manager')
 
   return (
-    <div className="min-h-screen bg-white" style={{ direction: 'rtl' }}>
+    <div className="min-h-screen bg-white">
       <Navbar onLoginClick={openLogin} onRegisterClick={openRegister} />
       {showLogin && <LoginModal onClose={closeLogin} initialTab={loginTab} />}
 
