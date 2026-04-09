@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { validateIsraeliId } from '../../utils/validateId'
@@ -515,10 +515,10 @@ export default function IntakeWizard() {
             </F>
           </div>
           <F label="פרטי אבחנה" name="diagnosis_details">
-            <textarea {...inp('diagnosis_details')} rows={3} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <textarea {...inp('diagnosis_details')} rows={3} />
           </F>
           <F label="הערות" name="notes">
-            <textarea {...inp('notes')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+            <textarea {...inp('notes')} rows={2} />
           </F>
         </div>
       )

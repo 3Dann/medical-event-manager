@@ -97,6 +97,7 @@ export function StreetAutocomplete({ value, cityCode, onChange, required, error,
   const ref = useRef()
 
   useEffect(() => { setInput(value || '') }, [value])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setInput(''); setResults([]); onChange('') }, [cityCode])
 
   useEffect(() => {

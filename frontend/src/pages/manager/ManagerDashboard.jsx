@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { validateIsraeliId } from '../../utils/validateId'
-
 const DIAGNOSIS_LABELS = { yes: 'אבחון קיים', no: 'ללא אבחון', pending: 'בבירור' }
 const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-yellow' }
 
 export default function ManagerDashboard() {
   const [patients, setPatients] = useState([])
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '', hmo_name: '', hmo_level: '' })
   const [loading, setLoading] = useState(true)
-  const [hmoPlans, setHmoPlans] = useState([])
   const [showImportSal, setShowImportSal] = useState(false)
   const [importIdNumber, setImportIdNumber] = useState('')
   const [importResult, setImportResult] = useState(null)
@@ -44,16 +39,6 @@ export default function ManagerDashboard() {
       const res = await axios.get('/api/learning/insights')
       setGlobalInsights(res.data)
     } catch (e) { /* insights are non-critical */ }
-  }
-
-  const handleCreate = async (e) => {
-    e.preventDefault()
-    try {
-      await axios.post('/api/patients', form)
-      setShowForm(false)
-      setForm({ full_name: '', id_number: '', diagnosis_status: 'no', diagnosis_details: '', notes: '', hmo_name: '', hmo_level: '' })
-      fetchPatients()
-    } catch (e) { console.error(e) }
   }
 
   const handleDelete = async (id) => {
