@@ -7,11 +7,16 @@ import models
 import auth as auth_utils
 from data.seed_data import HMO_COVERAGES
 from data.hmo_plans_data import HMO_PLANS, get_plan_coverages, get_plan_label
+import os, base64, json
+from datetime import datetime, timezone
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
+SIGNATURES_DIR = os.environ.get("SIGNATURES_DIR", "/data/signatures")
+
 
 class PatientCreate(BaseModel):
+    # Core
     full_name: str
     id_number: Optional[str] = None
     diagnosis_status: str = "no"
@@ -19,6 +24,40 @@ class PatientCreate(BaseModel):
     notes: Optional[str] = None
     hmo_name: Optional[str] = None
     hmo_level: Optional[str] = None
+    condition_tags: Optional[str] = None
+    medical_stage: Optional[str] = None
+    # Demographics
+    phone_prefix: Optional[str] = None
+    phone: Optional[str] = None
+    gender: Optional[str] = None
+    birth_date: Optional[str] = None
+    marital_status: Optional[str] = None
+    num_children: Optional[int] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    # Address
+    city: Optional[str] = None
+    city_code: Optional[str] = None
+    street: Optional[str] = None
+    house_number: Optional[str] = None
+    entrance: Optional[str] = None
+    floor: Optional[str] = None
+    apartment: Optional[str] = None
+    postal_code: Optional[str] = None
+    # Emergency contact
+    ec_name: Optional[str] = None
+    ec_phone_prefix: Optional[str] = None
+    ec_phone: Optional[str] = None
+    ec_relation: Optional[str] = None
+    # Medications
+    medications: Optional[str] = None   # JSON string
+    # Assessments
+    adl_answers: Optional[str] = None
+    iadl_answers: Optional[str] = None
+    mmse_answers: Optional[str] = None
+    adl_score: Optional[int] = None
+    iadl_score: Optional[int] = None
+    mmse_score: Optional[int] = None
 
 
 class PatientUpdate(BaseModel):
@@ -29,8 +68,42 @@ class PatientUpdate(BaseModel):
     notes: Optional[str] = None
     hmo_name: Optional[str] = None
     hmo_level: Optional[str] = None
-    condition_tags: Optional[str] = None   # JSON string
+    condition_tags: Optional[str] = None
     medical_stage: Optional[str] = None
+    phone_prefix: Optional[str] = None
+    phone: Optional[str] = None
+    gender: Optional[str] = None
+    birth_date: Optional[str] = None
+    marital_status: Optional[str] = None
+    num_children: Optional[int] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    city: Optional[str] = None
+    city_code: Optional[str] = None
+    street: Optional[str] = None
+    house_number: Optional[str] = None
+    entrance: Optional[str] = None
+    floor: Optional[str] = None
+    apartment: Optional[str] = None
+    postal_code: Optional[str] = None
+    ec_name: Optional[str] = None
+    ec_phone_prefix: Optional[str] = None
+    ec_phone: Optional[str] = None
+    ec_relation: Optional[str] = None
+    medications: Optional[str] = None
+    adl_answers: Optional[str] = None
+    iadl_answers: Optional[str] = None
+    mmse_answers: Optional[str] = None
+    adl_score: Optional[int] = None
+    iadl_score: Optional[int] = None
+    mmse_score: Optional[int] = None
+
+
+class SignaturesIn(BaseModel):
+    consent_agreed: bool = False
+    consent_signature_b64: Optional[str] = None   # base64 PNG data URL
+    poa_agreed: bool = False
+    poa_signature_b64: Optional[str] = None
 
 
 class NodeCreate(BaseModel):
@@ -66,6 +139,38 @@ def patient_to_dict(p):
         "medical_stage": p.medical_stage,
         "manager_id": p.manager_id,
         "created_at": str(p.created_at) if p.created_at else None,
+        # Demographics
+        "phone_prefix": p.phone_prefix,
+        "phone": p.phone,
+        "gender": p.gender,
+        "birth_date": p.birth_date,
+        "marital_status": p.marital_status,
+        "num_children": p.num_children,
+        "height_cm": p.height_cm,
+        "weight_kg": p.weight_kg,
+        # Address
+        "city": p.city,
+        "city_code": p.city_code,
+        "street": p.street,
+        "house_number": p.house_number,
+        "entrance": p.entrance,
+        "floor": p.floor,
+        "apartment": p.apartment,
+        "postal_code": p.postal_code,
+        # Emergency contact
+        "ec_name": p.ec_name,
+        "ec_phone_prefix": p.ec_phone_prefix,
+        "ec_phone": p.ec_phone,
+        "ec_relation": p.ec_relation,
+        # Medications & assessments
+        "medications": json.loads(p.medications) if p.medications else [],
+        "adl_score": p.adl_score,
+        "iadl_score": p.iadl_score,
+        "mmse_score": p.mmse_score,
+        # Intake status
+        "consent_agreed": p.consent_agreed,
+        "poa_agreed": p.poa_agreed,
+        "intake_completed": p.intake_completed,
     }
 
 
@@ -210,6 +315,46 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
         pass  # journey workflow is advisory — never block patient creation
 
     return patient_to_dict(patient)
+
+
+@router.post("/{patient_id}/signatures")
+def save_signatures(
+    patient_id: int,
+    data: SignaturesIn,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+
+    def _save_sig(b64_data_url: str, filename: str) -> str:
+        sig_dir = os.path.join(SIGNATURES_DIR, str(patient_id))
+        os.makedirs(sig_dir, exist_ok=True)
+        # Strip data URL prefix: "data:image/png;base64,<data>"
+        if "," in b64_data_url:
+            b64_data_url = b64_data_url.split(",", 1)[1]
+        img_bytes = base64.b64decode(b64_data_url)
+        path = os.path.join(sig_dir, filename)
+        with open(path, "wb") as f:
+            f.write(img_bytes)
+        return path
+
+    now = datetime.now(timezone.utc)
+
+    patient.consent_agreed = data.consent_agreed
+    if data.consent_agreed and data.consent_signature_b64:
+        patient.consent_signature_path = _save_sig(data.consent_signature_b64, "consent.png")
+        patient.consent_signed_at = now
+
+    patient.poa_agreed = data.poa_agreed
+    if data.poa_agreed and data.poa_signature_b64:
+        patient.poa_signature_path = _save_sig(data.poa_signature_b64, "poa.png")
+        patient.poa_signed_at = now
+
+    patient.intake_completed = True
+    patient.intake_completed_at = now
+
+    db.commit()
+    return {"ok": True, "intake_completed": True}
 
 
 @router.get("/{patient_id}")

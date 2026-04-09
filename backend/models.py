@@ -117,15 +117,61 @@ class Patient(Base):
     diagnosis_status = Column(String, default=DiagnosisStatus.no)
     diagnosis_details = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
-    hmo_name = Column(String, nullable=True)   # clalit / maccabi / meuhedet / leumit
-    hmo_level = Column(String, nullable=True)  # basic / mushlam / premium / zahav
-    # Workflow engine fields
-    condition_tags = Column(Text, nullable=True)   # JSON: ["cancer","surgery"]
-    medical_stage = Column(String, nullable=True)  # pre_diagnosis|active_treatment|recovery|monitoring
+    hmo_name = Column(String, nullable=True)
+    hmo_level = Column(String, nullable=True)
+    condition_tags = Column(Text, nullable=True)
+    medical_stage = Column(String, nullable=True)
     manager_id = Column(Integer, ForeignKey("users.id"))
     patient_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # ── Intake — Demographics ─────────────────────────────────────────────
+    phone_prefix = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    gender = Column(String, nullable=True)           # male / female
+    birth_date = Column(String, nullable=True)        # ISO date string
+    marital_status = Column(String, nullable=True)    # single/married/divorced/widowed
+    num_children = Column(Integer, nullable=True)
+    height_cm = Column(Float, nullable=True)
+    weight_kg = Column(Float, nullable=True)
+
+    # ── Intake — Address ──────────────────────────────────────────────────
+    city = Column(String, nullable=True)
+    city_code = Column(String, nullable=True)
+    street = Column(String, nullable=True)
+    house_number = Column(String, nullable=True)
+    entrance = Column(String, nullable=True)
+    floor = Column(String, nullable=True)
+    apartment = Column(String, nullable=True)
+    postal_code = Column(String, nullable=True)
+
+    # ── Intake — Emergency contact ────────────────────────────────────────
+    ec_name = Column(String, nullable=True)
+    ec_phone_prefix = Column(String, nullable=True)
+    ec_phone = Column(String, nullable=True)
+    ec_relation = Column(String, nullable=True)
+
+    # ── Intake — Medications ──────────────────────────────────────────────
+    medications = Column(Text, nullable=True)         # JSON: [{name, dosage}]
+
+    # ── Intake — Functional assessments ──────────────────────────────────
+    adl_answers = Column(Text, nullable=True)         # JSON: {item_key: score}
+    iadl_answers = Column(Text, nullable=True)        # JSON: {item_key: score}
+    mmse_answers = Column(Text, nullable=True)        # JSON: {section_key: score}
+    adl_score = Column(Integer, nullable=True)        # 0–100
+    iadl_score = Column(Integer, nullable=True)       # 0–8
+    mmse_score = Column(Integer, nullable=True)       # 0–30
+
+    # ── Intake — Signatures ───────────────────────────────────────────────
+    consent_agreed = Column(Boolean, default=False)
+    consent_signed_at = Column(DateTime(timezone=True), nullable=True)
+    consent_signature_path = Column(String, nullable=True)
+    poa_agreed = Column(Boolean, default=False)
+    poa_signed_at = Column(DateTime(timezone=True), nullable=True)
+    poa_signature_path = Column(String, nullable=True)
+    intake_completed = Column(Boolean, default=False)
+    intake_completed_at = Column(DateTime(timezone=True), nullable=True)
 
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")

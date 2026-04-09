@@ -73,7 +73,7 @@ export default function ManagerDashboard() {
           <h1 className="text-2xl font-bold text-slate-800">לוח בקרה</h1>
           <p className="text-slate-500 mt-1">ניהול תיקי מטופלים</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
+        <button onClick={() => navigate('/manager/patients/new')} className="btn-primary flex items-center gap-2">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -141,89 +141,6 @@ export default function ManagerDashboard() {
         </div>
       )}
 
-      {/* Create form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-            <h2 className="text-lg font-semibold mb-5">תיק מטופל חדש</h2>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="col-span-1 sm:col-span-2">
-                  <label className="label">שם מלא *</label>
-                  <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required />
-                </div>
-                <div>
-                  <label className="label">מספר ת.ז.</label>
-                  <input
-                    className={`input ${form.id_number && validateIsraeliId(form.id_number) === false ? 'border-red-400 focus:ring-red-300' : form.id_number && validateIsraeliId(form.id_number) === true ? 'border-green-400 focus:ring-green-300' : ''}`}
-                    value={form.id_number}
-                    onChange={e => setForm({...form, id_number: e.target.value.replace(/\D/g, '').slice(0, 9)})}
-                    placeholder="9 ספרות"
-                    maxLength={9}
-                    inputMode="numeric"
-                  />
-                  {form.id_number && validateIsraeliId(form.id_number) === false && (
-                    <p className="text-red-500 text-xs mt-1">תעודת זהות לא תקינה</p>
-                  )}
-                  {form.id_number && validateIsraeliId(form.id_number) === true && (
-                    <p className="text-green-600 text-xs mt-1">✓ תעודת זהות תקינה</p>
-                  )}
-                </div>
-                <div>
-                  <label className="label">סטטוס אבחנה</label>
-                  <select className="input" value={form.diagnosis_status} onChange={e => setForm({...form, diagnosis_status: e.target.value})}>
-                    <option value="no">ללא אבחנה</option>
-                    <option value="yes">אבחנה קיימת</option>
-                    <option value="pending">בבירור</option>
-                  </select>
-                </div>
-                {form.diagnosis_status === 'yes' && (
-                  <div className="col-span-1 sm:col-span-2">
-                    <label className="label">פירוט האבחנה</label>
-                    <textarea className="input" rows={3} value={form.diagnosis_details} onChange={e => setForm({...form, diagnosis_details: e.target.value})} />
-                  </div>
-                )}
-                <div>
-                  <label className="label">קופת חולים</label>
-                  <select className="input" value={form.hmo_name} onChange={async e => {
-                    const hmo = e.target.value
-                    setForm({...form, hmo_name: hmo, hmo_level: ''})
-                    if (hmo) {
-                      const res = await axios.get(`/api/patients/hmo-plans/${hmo}`)
-                      setHmoPlans(res.data)
-                    } else { setHmoPlans([]) }
-                  }}>
-                    <option value="">— בחר קופה —</option>
-                    <option value="clalit">כללית</option>
-                    <option value="maccabi">מכבי</option>
-                    <option value="meuhedet">מאוחדת</option>
-                    <option value="leumit">לאומית</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="label">ביטוח משלים</label>
-                  <select className="input" value={form.hmo_level} onChange={e => setForm({...form, hmo_level: e.target.value})} disabled={!form.hmo_name}>
-                    <option value="">— בחר תוכנית —</option>
-                    {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
-                  </select>
-                </div>
-                <div className="col-span-1 sm:col-span-2">
-                  <label className="label">הערות</label>
-                  <textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} />
-                </div>
-              </div>
-              <div className="flex gap-3 justify-end pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
-                <button
-                  type="submit"
-                  disabled={form.id_number && validateIsraeliId(form.id_number) === false}
-                  className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
-                >יצירת תיק</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Patients list */}
       {loading ? (
