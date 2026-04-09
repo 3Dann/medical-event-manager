@@ -46,6 +46,7 @@ class TemplateUpdate(BaseModel):
     trigger_event: Optional[str] = None
     specialty: Optional[str] = None
     is_active: Optional[bool] = None
+    steps: Optional[List[StepTemplateIn]] = None
 
 
 class InstanceCreate(BaseModel):
@@ -248,7 +249,7 @@ def list_templates(
 def create_template(
     data: TemplateCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_manager),
+    current_user: models.User = Depends(auth_utils.require_admin),
 ):
     tmpl = models.WorkflowTemplate(
         name=data.name,
@@ -301,18 +302,81 @@ def update_template(
     template_id: int,
     data: TemplateUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_manager),
+    current_user: models.User = Depends(auth_utils.require_admin),
 ):
     tmpl = db.query(models.WorkflowTemplate).filter(
         models.WorkflowTemplate.id == template_id
     ).first()
     if not tmpl:
         raise HTTPException(404, "Template not found")
+
+    # Auto-backup builtin templates before first edit
+    if tmpl.is_builtin:
+        from datetime import date
+        backup_name = f"[גיבוי] {tmpl.name} — {date.today()}"
+        existing_backup = db.query(models.WorkflowTemplate).filter(
+            models.WorkflowTemplate.name == backup_name
+        ).first()
+        if not existing_backup:
+            backup = models.WorkflowTemplate(
+                name=backup_name,
+                description=tmpl.description,
+                category=tmpl.category,
+                condition_tags=tmpl.condition_tags,
+                trigger_event=tmpl.trigger_event,
+                specialty=tmpl.specialty,
+                is_builtin=False,
+                is_active=False,
+                created_by=current_user.id,
+            )
+            db.add(backup)
+            db.flush()
+            for s in tmpl.step_templates:
+                db.add(models.WorkflowStepTemplate(
+                    template_id=backup.id,
+                    step_key=s.step_key,
+                    name=s.name,
+                    description=s.description,
+                    step_order=s.step_order,
+                    assignee_role=s.assignee_role,
+                    duration_days=s.duration_days,
+                    is_optional=s.is_optional,
+                    instructions=s.instructions,
+                    coverage_categories=s.coverage_categories,
+                    step_type=s.step_type,
+                    estimated_cost=s.estimated_cost,
+                    required_documents=s.required_documents,
+                ))
+
     update = data.model_dump(exclude_none=True)
+    steps_data = update.pop("steps", None)
     if "condition_tags" in update:
         update["condition_tags"] = json.dumps(update["condition_tags"])
     for field, val in update.items():
         setattr(tmpl, field, val)
+
+    # Replace steps if provided
+    if steps_data is not None:
+        db.query(models.WorkflowStepTemplate).filter(
+            models.WorkflowStepTemplate.template_id == tmpl.id
+        ).delete()
+        for s in steps_data:
+            db.add(models.WorkflowStepTemplate(
+                template_id=tmpl.id,
+                step_key=s["step_key"],
+                name=s["name"],
+                description=s.get("description"),
+                step_order=s["step_order"],
+                assignee_role=s.get("assignee_role", "manager"),
+                duration_days=s.get("duration_days"),
+                is_optional=s.get("is_optional", False),
+                instructions=s.get("instructions"),
+                coverage_categories=json.dumps(s["coverage_categories"]) if s.get("coverage_categories") else None,
+                step_type=s.get("step_type", "administrative"),
+                estimated_cost=s.get("estimated_cost"),
+                required_documents=json.dumps(s["required_documents"]) if s.get("required_documents") else None,
+            ))
+
     db.commit()
     db.refresh(tmpl)
     return template_dict(tmpl)
@@ -322,7 +386,7 @@ def update_template(
 def delete_template(
     template_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_manager),
+    current_user: models.User = Depends(auth_utils.require_admin),
 ):
     tmpl = db.query(models.WorkflowTemplate).filter(
         models.WorkflowTemplate.id == template_id
@@ -387,13 +451,26 @@ def list_instances(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
-    q = db.query(models.WorkflowInstance)
+    q = db.query(models.WorkflowInstance).join(
+        models.Patient, models.WorkflowInstance.patient_id == models.Patient.id
+    )
     if patient_id:
         q = q.filter(models.WorkflowInstance.patient_id == patient_id)
     if status:
         q = q.filter(models.WorkflowInstance.status == status)
+    # Non-admin managers see only their own patients
+    if not current_user.is_admin:
+        q = q.filter(models.Patient.manager_id == current_user.id)
     instances = q.order_by(models.WorkflowInstance.started_at.desc()).all()
-    return [FlowEngine.get_summary(i) for i in instances]
+
+    result = []
+    for i in instances:
+        summary = FlowEngine.get_summary(i)
+        patient = db.get(models.Patient, i.patient_id)
+        summary["patient_name"] = patient.full_name if patient else None
+        summary["diagnosis"] = patient.diagnosis_details if patient else None
+        result.append(summary)
+    return result
 
 
 @router.post("/instances")

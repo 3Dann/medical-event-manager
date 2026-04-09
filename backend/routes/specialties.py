@@ -110,6 +110,7 @@ def get_tree(
 
 @router.get("/insights")
 def get_insights(
+    flagged_limit: int = 10,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -132,7 +133,7 @@ def get_insights(
         .join(models.MedicalSpecialty)
         .filter(models.MedicalSpecialtyFeedback.action == "flag")
         .order_by(models.MedicalSpecialtyFeedback.created_at.desc())
-        .limit(10)
+        .limit(flagged_limit)
         .all()
     )
 

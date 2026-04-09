@@ -171,6 +171,42 @@ def _clean_text(text: str) -> str:
 
 # ── Source 1: SGU ──────────────────────────────────────────────────────────
 
+_NOISE_WORDS = {
+    "home", "menu", "search", "contact", "about", "blog", "sgu", "school",
+    "apply", "admissions", "tuition", "fees", "faq", "sitemap", "login",
+    "register", "donate", "careers", "news", "events", "back to top",
+    "share", "print", "download", "subscribe", "follow us", "resources",
+    "references", "external links", "see also", "contents", "navigation",
+    "skip to content", "accessibility", "privacy", "cookie", "terms",
+    "copyright", "disclaimer", "policy",
+}
+
+_NOISE_FRAGMENTS = ["©", "™", "®", "http", "www.", "cookie", "privacy", "terms of"]
+
+_NOISE_CONTAINERS = {"nav", "header", "footer", "aside"}
+
+
+def _is_noise_heading(tag) -> bool:
+    """Return True if a heading tag is navigation/UI noise, not a specialty name."""
+    text = _clean_text(tag.get_text())
+    tl = text.lower()
+
+    if len(text) < 3 or len(text) > 100:
+        return True
+    if tl in _NOISE_WORDS:
+        return True
+    if any(f in tl for f in _NOISE_FRAGMENTS):
+        return True
+    # Check if the heading lives inside a nav/header/footer/aside ancestor
+    for parent in tag.parents:
+        if parent.name in _NOISE_CONTAINERS:
+            return True
+        if parent.name in {"main", "article", "section", "div"}:
+            # Stop climbing once we hit a content container
+            break
+    return False
+
+
 def _scrape_sgu() -> list[dict]:
     """Scrape specialties from www.sgu.edu/school-of-medicine"""
     results = []
@@ -184,22 +220,15 @@ def _scrape_sgu() -> list[dict]:
             continue
         soup = BeautifulSoup(html, "html.parser")
 
-        # Look for heading-based specialty lists
         for tag in ["h2", "h3", "h4"]:
             for heading in soup.find_all(tag):
+                if _is_noise_heading(heading):
+                    continue
                 text = _clean_text(heading.get_text())
-                if len(text) < 3 or len(text) > 80:
-                    continue
-                # Skip navigation/generic headings
-                skip = {"home", "menu", "search", "contact", "about", "blog", "sgu", "school"}
-                if text.lower() in skip or any(s in text.lower() for s in ["©", "privacy", "cookie"]):
-                    continue
-                # Collect description from next sibling paragraph
                 desc = ""
                 sib = heading.find_next_sibling()
                 if sib and sib.name == "p":
                     desc = _clean_text(sib.get_text())[:500]
-
                 results.append({
                     "name_en": text,
                     "description_en": desc or None,
@@ -284,12 +313,9 @@ def _scrape_abms() -> list[dict]:
     results = []
 
     for heading in soup.find_all(["h2", "h3", "h4"]):
+        if _is_noise_heading(heading):
+            continue
         text = _clean_text(heading.get_text())
-        if len(text) < 3 or len(text) > 100:
-            continue
-        skip_words = {"abms", "about", "home", "search", "menu", "contact", "board", "certification"}
-        if any(w in text.lower() for w in skip_words):
-            continue
         desc_elem = heading.find_next_sibling("p")
         desc = _clean_text(desc_elem.get_text())[:400] if desc_elem else None
         results.append({
@@ -339,6 +365,8 @@ def _merge_results(scraped: list[dict], builtin: list[dict]) -> list[dict]:
                 existing["description_en"] = item["description_en"]
             if not existing.get("name_he") and item.get("name_he"):
                 existing["name_he"] = item["name_he"]
+            if not existing.get("description_he") and item.get("description_he"):
+                existing["description_he"] = item["description_he"]
 
     return list(seen.values())
 
