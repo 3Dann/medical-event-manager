@@ -298,6 +298,15 @@ function Navbar({ onLoginClick, onRegisterClick }) {
   const { t }       = useTranslation()
   const [open, setOpen] = useState(false)
 
+  const navLinks = [
+    { label: t('landing:feat_journey'),    href: '#journey'    },
+    { label: t('nav:doctors'),             href: '#doctors'    },
+    { label: t('landing:feat_insurance'),  href: '#insurance'  },
+    { label: t('landing:feat_strategy'),   href: '#strategy'   },
+    { label: t('nav:responsiveness'),      href: '#responsive' },
+    { label: t('landing:feat_security'),   href: '#security'   },
+  ]
+
   const scrollTo = (href) => {
     setOpen(false)
     document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' })
@@ -319,7 +328,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-0.5">
-            {NAV_LINKS.map(l => (
+            {navLinks.map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
                 className="text-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
                 {l.label}
@@ -356,7 +365,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
         {/* Mobile menu */}
         {open && (
           <div className="lg:hidden border-t border-slate-100 py-3 space-y-0.5">
-            {NAV_LINKS.map(l => (
+            {navLinks.map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
                 className="w-full text-right text-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors block">
                 {l.label}
@@ -377,15 +386,6 @@ export default function LandingPage() {
   const { t, i18n }        = useTranslation()
   const [showLogin, setShowLogin]   = useState(false)
   const [loginTab,  setLoginTab]    = useState('login')
-
-  const NAV_LINKS = [
-    { label: t('landing:feat_journey'),    href: '#journey'    },
-    { label: t('nav:doctors'),             href: '#doctors'    },
-    { label: t('landing:feat_insurance'),  href: '#insurance'  },
-    { label: t('landing:feat_strategy'),   href: '#strategy'   },
-    { label: t('nav:responsiveness'),      href: '#responsive' },
-    { label: t('landing:feat_security'),   href: '#security'   },
-  ]
 
   const FEATURES = FEATURE_META.map(m => ({
     ...m,
@@ -541,7 +541,12 @@ export default function LandingPage() {
           </div>
           <p className="text-xs text-slate-500">Orly Medical © {new Date().getFullYear()}</p>
           <div className="flex gap-4 text-xs">
-            {NAV_LINKS.slice(0, 4).map(l => (
+            {[
+              { label: t('landing:feat_journey'),   href: '#journey'   },
+              { label: t('nav:doctors'),            href: '#doctors'   },
+              { label: t('landing:feat_insurance'), href: '#insurance' },
+              { label: t('landing:feat_strategy'),  href: '#strategy'  },
+            ].map(l => (
               <button key={l.href} onClick={() => document.getElementById(l.href.slice(1))?.scrollIntoView({ behavior: 'smooth' })}
                 className="hover:text-slate-200 transition-colors">{l.label}</button>
             ))}
