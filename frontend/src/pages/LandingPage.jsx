@@ -18,6 +18,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
   const [error, setError]             = useState('')
   const [success, setSuccess]         = useState('')
   const [loading, setLoading]         = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const [twoFAStep,        setTwoFAStep]        = useState(false)
   const [tempToken,        setTempToken]        = useState('')
@@ -213,7 +214,12 @@ function LoginModal({ onClose, initialTab = 'login' }) {
             <div><label className="label">אימייל</label>
               <input type="email" className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
             <div><label className="label">סיסמה</label>
-              <input type="password" className="input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required /></div>
+              <div className="relative">
+                <input type={showPassword ? 'text' : 'password'} className="input w-full pl-10" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
+                <button type="button" onClick={() => setShowPassword(v => !v)} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div></div>
             {tab === 'register' && (
               <div><label className="label">תפקיד</label>
                 <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
