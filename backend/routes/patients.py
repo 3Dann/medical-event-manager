@@ -278,11 +278,34 @@ _JOURNEY_STAGES = [
 ]
 
 
+@router.get("/me")
+def get_my_patient(db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    if current_user.role != models.UserRole.patient:
+        raise HTTPException(status_code=403, detail="נגיש רק למשתמשי מטופל")
+    patient = db.query(models.Patient).filter(models.Patient.patient_user_id == current_user.id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="לא נמצא תיק מטופל מקושר")
+    return patient_to_dict(patient)
+
+
 @router.post("")
 def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     patient = models.Patient(**data.model_dump(), manager_id=current_user.id)
     db.add(patient)
     db.flush()
+    # Auto-create patient portal account if id_number provided
+    if data.id_number:
+        existing = db.query(models.User).filter(models.User.email == data.id_number).first()
+        if not existing:
+            patient_user = models.User(
+                full_name=data.full_name,
+                email=data.id_number,
+                hashed_password=auth_utils.get_password_hash(data.id_number),
+                role=models.UserRole.patient,
+            )
+            db.add(patient_user)
+            db.flush()
+            patient.patient_user_id = patient_user.id
     if patient.hmo_name:
         _auto_import_hmo(db, patient.id, patient.hmo_name, patient.hmo_level)
     for stage in _JOURNEY_STAGES:

@@ -127,6 +127,8 @@ def run_migrations():
         ("patients", "poa_signature_path",     "VARCHAR"),
         ("patients", "intake_completed",       "BOOLEAN DEFAULT 0"),
         ("patients", "intake_completed_at",    "DATETIME"),
+        # Patient portal
+        ("patients", "patient_user_id",        "INTEGER REFERENCES users(id)"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:

@@ -458,8 +458,10 @@ def list_instances(
         q = q.filter(models.WorkflowInstance.patient_id == patient_id)
     if status:
         q = q.filter(models.WorkflowInstance.status == status)
-    # Non-admin managers see only their own patients
-    if not current_user.is_admin:
+    # Scope by role
+    if current_user.role == models.UserRole.patient:
+        q = q.filter(models.Patient.patient_user_id == current_user.id)
+    elif not current_user.is_admin:
         q = q.filter(models.Patient.manager_id == current_user.id)
     instances = q.order_by(models.WorkflowInstance.started_at.desc()).all()
 

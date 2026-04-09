@@ -211,8 +211,8 @@ function LoginModal({ onClose, initialTab = 'login' }) {
               <div><label className="label">שם מלא</label>
                 <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required /></div>
             )}
-            <div><label className="label">אימייל</label>
-              <input type="email" className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
+            <div><label className="label">{tab === 'login' ? 'אימייל / ת"ז' : 'אימייל'}</label>
+              <input type={tab === 'login' ? 'text' : 'email'} className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
             <div><label className="label">סיסמה</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} className="input w-full pl-10" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
