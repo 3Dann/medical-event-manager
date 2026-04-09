@@ -9,8 +9,8 @@ Endpoints:
   GET  /api/specialties/insights     — learning analytics (confidence distribution, top flagged)
 """
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
+from sqlalchemy.orm import Session, subqueryload
 from sqlalchemy import func
 from pydantic import BaseModel
 from typing import Optional
@@ -65,10 +65,12 @@ def list_specialties(
     search: Optional[str] = None,
     parent_id: Optional[int] = None,
     only_top_level: bool = False,
+    limit: int = Query(default=200, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """List specialties. Filter by search, parent_id, or only_top_level."""
+    """List specialties. Filter by search, parent_id, or only_top_level. Supports pagination."""
     q = db.query(models.MedicalSpecialty).filter(models.MedicalSpecialty.is_active == True)
 
     if search:
@@ -82,7 +84,7 @@ def list_specialties(
     if only_top_level:
         q = q.filter(models.MedicalSpecialty.parent_id == None)
 
-    return q.order_by(models.MedicalSpecialty.name_en).all()
+    return q.order_by(models.MedicalSpecialty.name_en).offset(offset).limit(limit).all()
 
 
 @router.get("/tree", response_model=list[SpecialtyWithChildren])
@@ -93,6 +95,7 @@ def get_tree(
     """Return top-level specialties with their sub_specialties nested."""
     top = (
         db.query(models.MedicalSpecialty)
+        .options(subqueryload(models.MedicalSpecialty.sub_specialties))
         .filter(
             models.MedicalSpecialty.parent_id == None,
             models.MedicalSpecialty.is_active == True,
@@ -207,15 +210,19 @@ def submit_feedback(
 
     # Apply learning delta
     if body.action == "confirm":
-        sp.confidence_score = min(1.0, (sp.confidence_score or 0.8) + 0.05)
+        sp.confidence_score = min(1.0, (sp.confidence_score or 0.8) + 0.1)
         sp.is_verified = True
     elif body.action == "flag":
         sp.confidence_score = max(0.0, (sp.confidence_score or 0.8) - 0.1)
+        sp.is_verified = False
     elif body.action == "correct" and body.correction:
         allowed_fields = {"name_he", "description_he", "description_en", "name_en"}
         for field, value in body.correction.items():
             if field in allowed_fields and value:
                 setattr(sp, field, value)
+        # Correction means the record was wrong — reset verification
+        sp.is_verified = False
+        sp.confidence_score = max(0.0, (sp.confidence_score or 0.8) - 0.05)
 
     sp.feedback_count = (sp.feedback_count or 0) + 1
 
