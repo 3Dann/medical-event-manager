@@ -564,7 +564,6 @@ export default function IntakeWizard() {
                 value={form.street}
                 cityCode={form.city_code}
                 onChange={name => set('street', name)}
-                onPostalCode={zip => set('postal_code', zip)}
                 required
                 error={!!errors.street}
                 disabled={!form.city_code}

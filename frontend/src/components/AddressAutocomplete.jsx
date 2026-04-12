@@ -1,62 +1,54 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 const GOV_API = 'https://data.gov.il/api/3/action/datastore_search'
 const CITIES_RESOURCE  = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba'
 const STREETS_RESOURCE = 'a7296d1a-f8c9-4b70-96c2-6ebb4352f8e3'
-const POSTAL_RESOURCE  = 'bf185c7f-1a4e-4662-88c5-fa118a244bda'
 
-function useDebounce(value, delay) {
-  const [debounced, setDebounced] = useState(value)
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(t)
-  }, [value, delay])
-  return debounced
+// Module-level cache — loaded once per session
+let _citiesCache = null
+let _citiesLoading = false
+const _citiesListeners = []
+
+function loadCities() {
+  if (_citiesCache) return Promise.resolve(_citiesCache)
+  if (_citiesLoading) return new Promise(r => _citiesListeners.push(r))
+  _citiesLoading = true
+  return fetch(`${GOV_API}?resource_id=${CITIES_RESOURCE}&limit=1500`)
+    .then(r => r.json())
+    .then(data => {
+      _citiesCache = (data?.result?.records || [])
+        .map(r => ({ name: r['שם_ישוב']?.trim(), code: String(r['סמל_ישוב'] || '') }))
+        .filter(r => r.name)
+        .sort((a, b) => a.name.localeCompare(b.name, 'he'))
+      _citiesListeners.forEach(r => r(_citiesCache))
+      return _citiesCache
+    })
+    .catch(() => { _citiesLoading = false; return [] })
 }
 
 // ── City autocomplete ─────────────────────────────────────────────────────────
 
-export function CityAutocomplete({ value, cityCode, onChange, required, error }) {
-  const [input, setInput] = useState(value || '')
-  const [results, setResults] = useState([])
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const debounced = useDebounce(input, 300)
+export function CityAutocomplete({ value, onChange, required, error }) {
+  const [input, setInput]     = useState(value || '')
+  const [allCities, setAll]   = useState(_citiesCache || [])
+  const [open, setOpen]       = useState(false)
   const ref = useRef()
 
-  // Sync external value changes
   useEffect(() => { setInput(value || '') }, [value])
 
   useEffect(() => {
-    if (!debounced || debounced.length < 1) { setResults([]); return }
-    // Don't search if already selected
-    if (debounced === value) return
-    setLoading(true)
-    fetch(`${GOV_API}?resource_id=${CITIES_RESOURCE}&q=${encodeURIComponent(debounced)}&limit=10`)
-      .then(r => r.json())
-      .then(data => {
-        const records = data?.result?.records || []
-        setResults(records.map(r => ({
-          name: r['שם_ישוב']?.trim(),
-          code: String(r['סמל_ישוב'] || ''),
-        })).filter(r => r.name))
-        setOpen(true)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [debounced])
-
-  useEffect(() => {
-    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    if (!_citiesCache) loadCities().then(setAll)
   }, [])
 
-  const select = (city) => {
-    setInput(city.name)
-    setOpen(false)
-    onChange(city.name, city.code)
-  }
+  useEffect(() => {
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const filtered = input.length > 0
+    ? allCities.filter(c => c.name.startsWith(input) || c.name.includes(input)).slice(0, 12)
+    : []
 
   return (
     <div ref={ref} className="relative">
@@ -64,18 +56,25 @@ export function CityAutocomplete({ value, cityCode, onChange, required, error })
         className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'}`}
         value={input}
         placeholder="הקלד שם עיר..."
-        onChange={e => { setInput(e.target.value); if (!e.target.value) onChange('', '') }}
-        onFocus={() => results.length > 0 && setOpen(true)}
+        onChange={e => {
+          const v = e.target.value
+          setInput(v)
+          setOpen(v.length > 0)
+          if (!v) onChange('', '')
+        }}
+        onFocus={() => filtered.length > 0 && setOpen(true)}
         required={required}
         autoComplete="off"
       />
-      {loading && <span className="absolute left-3 top-2.5 text-xs text-slate-400">...</span>}
-      {open && results.length > 0 && (
+      {!_citiesCache && input.length > 0 && (
+        <span className="absolute left-3 top-2.5 text-xs text-slate-400">טוען...</span>
+      )}
+      {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-          {results.map(city => (
+          {filtered.map(city => (
             <li
               key={city.code}
-              onMouseDown={() => select(city)}
+              onMouseDown={() => { setInput(city.name); setOpen(false); onChange(city.name, city.code) }}
               className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
             >
               {city.name}
@@ -89,80 +88,68 @@ export function CityAutocomplete({ value, cityCode, onChange, required, error })
 
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
-async function fetchPostalCode(cityCode, street) {
-  try {
-    const filters = JSON.stringify({ 'סמל_ישוב': cityCode })
-    const q = JSON.stringify({ 'שם_רחוב': street })
-    const res = await fetch(`${GOV_API}?resource_id=${POSTAL_RESOURCE}&filters=${encodeURIComponent(filters)}&q=${encodeURIComponent(q)}&limit=1`)
-    const data = await res.json()
-    const record = data?.result?.records?.[0]
-    return record?.['מיקוד'] ? String(record['מיקוד']) : ''
-  } catch {
-    return ''
-  }
-}
-
 export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, required, error, disabled }) {
-  const [input, setInput] = useState(value || '')
-  const [results, setResults] = useState([])
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const debounced = useDebounce(input, 300)
+  const [input, setInput]       = useState(value || '')
+  const [allStreets, setStreets] = useState([])
+  const [loadingStreets, setLoadingStreets] = useState(false)
+  const [open, setOpen]         = useState(false)
   const ref = useRef()
 
   useEffect(() => { setInput(value || '') }, [value])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setInput(''); setResults([]); onChange('') }, [cityCode])
 
+  // Load all streets for city once when city changes
   useEffect(() => {
-    if (!debounced || debounced.length < 1 || !cityCode) { setResults([]); return }
-    if (debounced === value) return
-    setLoading(true)
-    const filters = JSON.stringify({ 'סמל_ישוב': cityCode })
-    const q = JSON.stringify({ 'שם_רחוב': debounced })
-    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${encodeURIComponent(filters)}&q=${encodeURIComponent(q)}&limit=15`)
+    setInput('')
+    setStreets([])
+    onChange('')
+    if (!cityCode) return
+    setLoadingStreets(true)
+    const filters = encodeURIComponent(JSON.stringify({ 'סמל_ישוב': Number(cityCode) }))
+    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${filters}&limit=500`)
       .then(r => r.json())
       .then(data => {
-        const records = data?.result?.records || []
-        setResults(records.map(r => r['שם_רחוב']?.trim()).filter(Boolean))
-        setOpen(true)
+        const recs = data?.result?.records || []
+        setStreets(
+          recs.map(r => r['שם_רחוב']?.trim()).filter(Boolean).sort((a, b) => a.localeCompare(b, 'he'))
+        )
       })
       .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [debounced, cityCode])
+      .finally(() => setLoadingStreets(false))
+  }, [cityCode])
 
   useEffect(() => {
-    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
   }, [])
+
+  const filtered = input.length > 0
+    ? allStreets.filter(s => s.startsWith(input) || s.includes(input)).slice(0, 15)
+    : []
 
   return (
     <div ref={ref} className="relative">
       <input
         className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${disabled ? 'bg-slate-50 text-slate-400' : ''}`}
         value={input}
-        placeholder={disabled ? 'בחר עיר תחילה' : 'הקלד שם רחוב...'}
-        onChange={e => { setInput(e.target.value); if (!e.target.value) onChange('') }}
-        onFocus={() => results.length > 0 && setOpen(true)}
+        placeholder={disabled ? 'בחר עיר תחילה' : loadingStreets ? 'טוען רחובות...' : 'הקלד שם רחוב...'}
+        onChange={e => {
+          const v = e.target.value
+          setInput(v)
+          onChange(v)
+          setOpen(v.length > 0 && allStreets.length > 0)
+        }}
+        onFocus={() => filtered.length > 0 && setOpen(true)}
         required={required}
-        disabled={disabled}
+        disabled={disabled || loadingStreets}
         autoComplete="off"
       />
-      {loading && <span className="absolute left-3 top-2.5 text-xs text-slate-400">...</span>}
-      {open && results.length > 0 && (
+      {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-          {results.map(street => (
+          {filtered.map(street => (
             <li
               key={street}
-              onMouseDown={() => {
-            setInput(street)
-            setOpen(false)
-            onChange(street)
-            if (onPostalCode && cityCode) {
-              fetchPostalCode(cityCode, street).then(zip => { if (zip) onPostalCode(zip) })
-            }
-          }}
+              onMouseDown={() => { setInput(street); setOpen(false); onChange(street) }}
               className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
             >
               {street}
