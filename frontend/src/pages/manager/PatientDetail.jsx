@@ -223,7 +223,7 @@ export default function PatientDetail() {
                 </div>
                 <div>
                   <label className="label">ביטוח משלים</label>
-                  <select className="input" value={editForm.hmo_level || ''} onChange={e => setEditForm({...editForm, hmo_level: e.target.value})} disabled={!editForm.hmo_name}>
+                  <select className="input" value={editForm.hmo_level || ''} onChange={e => setEditForm({...editForm, hmo_level: e.target.value})}>
                     <option value="">— בחר תוכנית —</option>
                     {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
                   </select>
@@ -232,8 +232,7 @@ export default function PatientDetail() {
               <div><label className="label">הערות</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
               <button
                 onClick={handleSavePatient}
-                disabled={editForm.id_number && idValid === false}
-                className="btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+                className="btn-primary w-full"
               >שמור</button>
             </div>
           ) : (

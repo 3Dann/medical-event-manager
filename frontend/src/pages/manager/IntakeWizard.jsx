@@ -563,7 +563,6 @@ export default function IntakeWizard() {
               <StreetAutocomplete
                 value={form.street}
                 cityCode={form.city_code}
-                cityName={form.city}
                 onChange={name => set('street', name)}
                 onPostalCode={zip => set('postal_code', zip)}
                 required

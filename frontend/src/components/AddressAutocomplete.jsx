@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 const GOV_API = 'https://data.gov.il/api/3/action/datastore_search'
-const CITIES_RESOURCE = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba'
+const CITIES_RESOURCE  = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba'
 const STREETS_RESOURCE = 'a7296d1a-f8c9-4b70-96c2-6ebb4352f8e3'
+const POSTAL_RESOURCE  = 'bf185c7f-1a4e-4662-88c5-fa118a244bda'
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value)
@@ -88,20 +89,20 @@ export function CityAutocomplete({ value, cityCode, onChange, required, error })
 
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
-async function fetchPostalCode(city, street) {
+async function fetchPostalCode(cityCode, street) {
   try {
-    const q = encodeURIComponent(`${street}, ${city}, ישראל`)
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&countrycodes=il&format=json&addressdetails=1&limit=1`, {
-      headers: { 'Accept-Language': 'he' }
-    })
+    const filters = JSON.stringify({ 'סמל_ישוב': cityCode })
+    const q = JSON.stringify({ 'שם_רחוב': street })
+    const res = await fetch(`${GOV_API}?resource_id=${POSTAL_RESOURCE}&filters=${encodeURIComponent(filters)}&q=${encodeURIComponent(q)}&limit=1`)
     const data = await res.json()
-    return data?.[0]?.address?.postcode || ''
+    const record = data?.result?.records?.[0]
+    return record?.['מיקוד'] ? String(record['מיקוד']) : ''
   } catch {
     return ''
   }
 }
 
-export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPostalCode, required, error, disabled }) {
+export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, required, error, disabled }) {
   const [input, setInput] = useState(value || '')
   const [results, setResults] = useState([])
   const [open, setOpen] = useState(false)
@@ -118,7 +119,8 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
     if (debounced === value) return
     setLoading(true)
     const filters = JSON.stringify({ 'סמל_ישוב': cityCode })
-    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${encodeURIComponent(filters)}&q=${encodeURIComponent(debounced)}&limit=15`)
+    const q = JSON.stringify({ 'שם_רחוב': debounced })
+    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${encodeURIComponent(filters)}&q=${encodeURIComponent(q)}&limit=15`)
       .then(r => r.json())
       .then(data => {
         const records = data?.result?.records || []
@@ -157,8 +159,8 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
             setInput(street)
             setOpen(false)
             onChange(street)
-            if (onPostalCode && cityName) {
-              fetchPostalCode(cityName, street).then(zip => { if (zip) onPostalCode(zip) })
+            if (onPostalCode && cityCode) {
+              fetchPostalCode(cityCode, street).then(zip => { if (zip) onPostalCode(zip) })
             }
           }}
               className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
