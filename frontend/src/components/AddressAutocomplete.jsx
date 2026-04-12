@@ -27,7 +27,7 @@ export function CityAutocomplete({ value, cityCode, onChange, required, error })
   useEffect(() => { setInput(value || '') }, [value])
 
   useEffect(() => {
-    if (!debounced || debounced.length < 2) { setResults([]); return }
+    if (!debounced || debounced.length < 1) { setResults([]); return }
     // Don't search if already selected
     if (debounced === value) return
     setLoading(true)
@@ -88,7 +88,20 @@ export function CityAutocomplete({ value, cityCode, onChange, required, error })
 
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
-export function StreetAutocomplete({ value, cityCode, onChange, required, error, disabled }) {
+async function fetchPostalCode(city, street) {
+  try {
+    const q = encodeURIComponent(`${street}, ${city}, ישראל`)
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&countrycodes=il&format=json&addressdetails=1&limit=1`, {
+      headers: { 'Accept-Language': 'he' }
+    })
+    const data = await res.json()
+    return data?.[0]?.address?.postcode || ''
+  } catch {
+    return ''
+  }
+}
+
+export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPostalCode, required, error, disabled }) {
   const [input, setInput] = useState(value || '')
   const [results, setResults] = useState([])
   const [open, setOpen] = useState(false)
@@ -101,7 +114,7 @@ export function StreetAutocomplete({ value, cityCode, onChange, required, error,
   useEffect(() => { setInput(''); setResults([]); onChange('') }, [cityCode])
 
   useEffect(() => {
-    if (!debounced || debounced.length < 2 || !cityCode) { setResults([]); return }
+    if (!debounced || debounced.length < 1 || !cityCode) { setResults([]); return }
     if (debounced === value) return
     setLoading(true)
     const filters = JSON.stringify({ 'סמל_ישוב': cityCode })
@@ -140,7 +153,14 @@ export function StreetAutocomplete({ value, cityCode, onChange, required, error,
           {results.map(street => (
             <li
               key={street}
-              onMouseDown={() => { setInput(street); setOpen(false); onChange(street) }}
+              onMouseDown={() => {
+            setInput(street)
+            setOpen(false)
+            onChange(street)
+            if (onPostalCode && cityName) {
+              fetchPostalCode(cityName, street).then(zip => { if (zip) onPostalCode(zip) })
+            }
+          }}
               className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
             >
               {street}

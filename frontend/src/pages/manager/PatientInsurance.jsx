@@ -767,7 +767,7 @@ export default function PatientInsurance() {
                   {Object.entries(ENTITLEMENT_TYPES).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
               </div>
-              <div><label className="label">כותרת *</label><input className="input" value={entForm.title} onChange={e => setEntForm({...entForm, title:e.target.value})} required /></div>
+              <div><label className="label">כותרת</label><input className="input" value={entForm.title} onChange={e => setEntForm({...entForm, title:e.target.value})} /></div>
               <div className="col-span-1 sm:col-span-2"><label className="label">תיאור</label><textarea className="input" rows={2} value={entForm.description} onChange={e => setEntForm({...entForm, description:e.target.value})} /></div>
               <div><label className="label">סכום (₪)</label><input type="number" className="input" value={entForm.amount} onChange={e => setEntForm({...entForm, amount:e.target.value})} /></div>
               <div className="flex items-center gap-2 mt-6">

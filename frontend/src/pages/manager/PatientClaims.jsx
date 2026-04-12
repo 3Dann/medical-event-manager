@@ -141,8 +141,8 @@ export default function PatientClaims() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
             <h3 className="font-semibold mb-4">תביעה חדשה</h3>
             <form onSubmit={handleCreate} className="space-y-3">
-              <div><label className="label">מקור ביטוח *</label>
-                <select className="input" value={form.insurance_source_id} onChange={e => setForm({...form, insurance_source_id: e.target.value})} required>
+              <div><label className="label">מקור ביטוח</label>
+                <select className="input" value={form.insurance_source_id} onChange={e => setForm({...form, insurance_source_id: e.target.value})}>
                   <option value="">בחר מקור...</option>
                   {sources.map(s => <option key={s.id} value={s.id}>{s.source_type === 'kupat_holim' ? `קופ"ח ${s.hmo_name}` : s.company_name || s.source_type}</option>)}
                 </select>

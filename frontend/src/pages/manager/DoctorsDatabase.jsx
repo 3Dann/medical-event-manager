@@ -387,7 +387,6 @@ export default function DoctorsDatabase() {
               placeholder="https://..."
               value={importUrl}
               onChange={e => setImportUrl(e.target.value)}
-              required
               dir="ltr"
             />
             <button type="submit" disabled={importing} className="btn-primary text-sm whitespace-nowrap">
@@ -546,7 +545,6 @@ export default function DoctorsDatabase() {
                     className="input"
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
-                    required
                   />
                 </div>
                 <div>

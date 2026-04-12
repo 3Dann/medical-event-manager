@@ -310,8 +310,8 @@ export default function PatientDetail() {
             <p className="text-sm font-medium text-slate-700">צומת החלטה חדש</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="col-span-1 sm:col-span-2">
-                <label className="label">תיאור *</label>
-                <input className="input" value={addForm.description} onChange={e => setAddForm({...addForm, description: e.target.value})} required placeholder="תאר את נקודת ההחלטה..." />
+                <label className="label">תיאור</label>
+                <input className="input" value={addForm.description} onChange={e => setAddForm({...addForm, description: e.target.value})} placeholder="תאר את נקודת ההחלטה..." />
               </div>
               <div>
                 <label className="label">מיקום בציר הזמן</label>
