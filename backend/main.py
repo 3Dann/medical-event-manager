@@ -158,19 +158,6 @@ def seed_responsiveness():
 
 seed_responsiveness()
 
-# Ensure the first admin user is always a Creator
-def seed_creator():
-    db = SessionLocal()
-    try:
-        admin = db.query(models.User).filter(models.User.is_admin == True).order_by(models.User.id).first()
-        if admin and not admin.is_creator:
-            admin.is_creator = True
-            db.commit()
-    finally:
-        db.close()
-
-seed_creator()
-
 # Seed predefined Israeli scraping sources
 def seed_israeli_sources():
     from routes.doctors import PREDEFINED_ISRAELI_SOURCES
