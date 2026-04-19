@@ -67,6 +67,8 @@ def require_admin(current_user: models.User = Depends(get_current_user)):
     return current_user
 
 
+
+
 def get_patient_with_access(patient_id: int, user: models.User, db: Session) -> models.Patient:
     """Fetch patient and verify the user has access. Raises 404/403 as appropriate.
 

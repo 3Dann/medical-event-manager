@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { DevProvider } from './context/DevContext'
 import DevGate from './components/DevGate'
 import './i18n/index.js'
 import { RTL_LANGS } from './i18n/index.js'
@@ -88,13 +89,15 @@ function LangDirectionSync() {
 
 export default function App() {
   return (
-    <DevGate>
-      <AuthProvider>
-        <BrowserRouter>
-          <LangDirectionSync />
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </DevGate>
+    <DevProvider>
+      <DevGate>
+        <AuthProvider>
+          <BrowserRouter>
+            <LangDirectionSync />
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
+      </DevGate>
+    </DevProvider>
   )
 }

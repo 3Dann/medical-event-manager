@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useDev } from '../context/DevContext'
 
 const DEV_PASSWORD  = 'Dan3768354Mi'
 const BUILD_VERSION = '2.1-dev'
@@ -9,17 +10,30 @@ function isLocal() {
 }
 
 export default function DevGate({ children }) {
-  const [unlocked, setUnlocked] = useState(() => isLocal())
+  const { setDevUnlocked } = useDev()
+  const [unlocked, setUnlocked] = useState(() => {
+    if (isLocal()) { return true }
+    return false
+  })
   const [input, setInput]   = useState('')
   const [error, setError]   = useState(false)
   const [shake, setShake]   = useState(false)
   const [show, setShow]     = useState(false)
 
+  useEffect(() => {
+    if (isLocal()) setDevUnlocked(true)
+  }, []) // eslint-disable-line
+
   if (unlocked) return children
 
+  function getActivePassword() {
+    return localStorage.getItem('dev_gate_password') || DEV_PASSWORD
+  }
+
   function attempt() {
-    if (input === DEV_PASSWORD) {
+    if (input === getActivePassword()) {
       setUnlocked(true)
+      setDevUnlocked(true)
     } else {
       setError(true)
       setShake(true)

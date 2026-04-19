@@ -26,14 +26,16 @@ export function AuthProvider({ children }) {
 
   const login = (tokenData) => {
     localStorage.setItem('token', tokenData.access_token)
-    localStorage.setItem('user', JSON.stringify({
+    const userData = {
       id: tokenData.user_id,
       full_name: tokenData.full_name,
       role: tokenData.role,
       is_admin: tokenData.is_admin || false,
-    }))
+      is_creator: tokenData.is_creator || false,
+    }
+    localStorage.setItem('user', JSON.stringify(userData))
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokenData.access_token}`
-    setUser({ id: tokenData.user_id, full_name: tokenData.full_name, role: tokenData.role, is_admin: tokenData.is_admin || false })
+    setUser(userData)
   }
 
   const logout = () => {

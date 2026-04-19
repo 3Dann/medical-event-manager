@@ -5,6 +5,7 @@ import axios from 'axios'
 import PasskeyLoginButton from '../components/PasskeyLoginButton'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
+import { getLandingOverrides, LANDING_DEFAULTS } from '../components/LandingEditor'
 
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function LoginModal({ onClose, initialTab = 'login' }) {
@@ -386,6 +387,25 @@ export default function LandingPage() {
   const { t, i18n }        = useTranslation()
   const [showLogin, setShowLogin]   = useState(false)
   const [loginTab,  setLoginTab]    = useState('login')
+  const [overrides, setOverrides]   = useState(() => getLandingOverrides())
+
+  // Fetch overrides from backend on load; cache in localStorage for next visit
+  useEffect(() => {
+    axios.get('/api/settings/landing').then(res => {
+      const data = res.data
+      if (data && Object.keys(data).length > 0) {
+        const merged = { ...LANDING_DEFAULTS, ...data }
+        localStorage.setItem('landing_overrides', JSON.stringify(merged))
+        setOverrides(merged)
+      }
+    }).catch(() => { /* use localStorage fallback */ })
+  }, [])
+
+  useEffect(() => {
+    const handler = () => setOverrides(getLandingOverrides())
+    window.addEventListener('landing_overrides_changed', handler)
+    return () => window.removeEventListener('landing_overrides_changed', handler)
+  }, [])
 
   const FEATURES = FEATURE_META.map(m => ({
     ...m,
@@ -429,7 +449,7 @@ export default function LandingPage() {
         <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 text-sm px-4 py-1.5 rounded-full mb-6 border border-white/20">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            מערכת ניהול אירוע רפואי מקיפה
+            {overrides.heroBadge}
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             {t('landing:hero_title')}
@@ -452,8 +472,7 @@ export default function LandingPage() {
 
           {/* Stats */}
           <div className="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
-            {[{ val: '370+', label: 'רופאים מאומתים' }, { val: '5', label: 'שלבי מסע מטופל' }, { val: '4', label: 'קופות חולים' }]
-              .map(s => (
+            {overrides.stats.map(s => (
                 <div key={s.label} className="text-center">
                   <p className="text-3xl font-bold text-white">{s.val}</p>
                   <p className="text-blue-200 text-xs mt-0.5">{s.label}</p>
@@ -513,8 +532,8 @@ export default function LandingPage() {
       {/* ── CTA ── */}
       <section className="py-20 bg-gradient-to-bl from-blue-600 to-slate-800 text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-white mb-4">מוכן להתחיל?</h2>
-          <p className="text-blue-200 mb-8 text-lg">הצטרף למערכת וקבל שליטה מלאה על האירוע הרפואי</p>
+          <h2 className="text-3xl font-bold text-white mb-4">{overrides.ctaTitle}</h2>
+          <p className="text-blue-200 mb-8 text-lg">{overrides.ctaSubtitle}</p>
           {user ? (
             <button onClick={toDashboard}
               className="bg-white text-blue-700 font-semibold px-10 py-4 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">

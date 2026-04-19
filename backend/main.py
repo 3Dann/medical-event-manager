@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
@@ -157,6 +157,19 @@ def seed_responsiveness():
         db.close()
 
 seed_responsiveness()
+
+# Ensure the first admin user is always a Creator
+def seed_creator():
+    db = SessionLocal()
+    try:
+        admin = db.query(models.User).filter(models.User.is_admin == True).order_by(models.User.id).first()
+        if admin and not admin.is_creator:
+            admin.is_creator = True
+            db.commit()
+    finally:
+        db.close()
+
+seed_creator()
 
 # Seed predefined Israeli scraping sources
 def seed_israeli_sources():
@@ -418,6 +431,7 @@ app.include_router(learning.router)
 app.include_router(public.router)
 app.include_router(doctors.router)
 app.include_router(admin.router)
+app.include_router(settings_routes.router)
 app.include_router(documents.router)
 app.include_router(workflows.router)
 app.include_router(webauthn_routes.router)

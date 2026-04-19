@@ -82,7 +82,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(String, default=UserRole.manager)
-    is_admin = Column(Boolean, default=False)
+    is_admin    = Column(Boolean, default=False)
     preserve_data = Column(Boolean, default=False)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
@@ -581,3 +581,13 @@ class MedicalSpecialtyFeedback(Base):
 
     specialty = relationship("MedicalSpecialty")
     user      = relationship("User")
+
+
+class SiteSetting(Base):
+    """Global key-value store for site settings (e.g. landing page content)."""
+    __tablename__ = "site_settings"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    key        = Column(String, unique=True, nullable=False, index=True)
+    value      = Column(Text, nullable=True)   # JSON or plain string
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
