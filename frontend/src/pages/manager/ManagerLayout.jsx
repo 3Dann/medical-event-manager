@@ -111,10 +111,10 @@ export default function ManagerLayout() {
           </NavLink>
         ))}
 
-        {/* Send feedback — separate from inbox nav item */}
+        {/* Send feedback — dedicated page */}
         <div className={`mx-0 mt-2 ${sidebarOpen ? 'px-1' : ''}`}>
           <button
-            onClick={() => setFeedbackOpen(true)}
+            onClick={() => navigate('/manager/feedback/submit')}
             className={`flex items-center gap-3 w-full rounded-xl transition-all text-sm font-medium
               bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm
               ${sidebarOpen ? 'px-3 py-2.5' : 'px-2.5 py-2.5 justify-center'}`}
