@@ -279,11 +279,6 @@ export default function ManagerLayout() {
           <Outlet />
         </div>
 
-        {/* Lion logo */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 pointer-events-none z-10 pb-2 md:pb-4">
-          <img src="/roaring-lion-he.png" alt="שאגת הארי"
-            className="w-12 md:w-20 h-auto opacity-80 md:opacity-100" />
-        </div>
       </main>
     </div>
   )
