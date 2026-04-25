@@ -59,9 +59,11 @@ function Breadcrumbs({ pathname }) {
 
 export default function ManagerLayout() {
   const { user, logout } = useAuth()
+  const { isDemoMode, toggleDemoMode } = useDemoMode()
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation()
+  const canUseDemo = user?.is_admin || user?.demo_mode_allowed
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
