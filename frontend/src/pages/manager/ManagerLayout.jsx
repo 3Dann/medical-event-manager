@@ -26,7 +26,7 @@ const ROUTE_KEYS = {
   '/manager/profile': 'nav:profile',
   '/manager/admin': 'nav:admin',
 }
-const SUB_KEYS = { insurance: 'ביטוחים', claims: 'תביעות', strategy: 'אסטרטגיה' }
+const SUB_KEYS = { insurance: 'nav:insurance', claims: 'nav:claims', strategy: 'nav:strategy' }
 
 function Breadcrumbs({ pathname }) {
   const { t } = useTranslation()
