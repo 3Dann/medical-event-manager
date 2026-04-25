@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useDemoMode } from '../../context/DemoModeContext'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 
