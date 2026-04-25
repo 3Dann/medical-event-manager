@@ -77,7 +77,7 @@ def mark_all_read(
 ):
     db.query(models.ProjectFeedback).filter(
         models.ProjectFeedback.is_read == False
-    ).update({"is_read": True})
+    ).update({"is_read": True}, synchronize_session=False)
     db.commit()
     return {"message": "סומן כנקרא"}
 
