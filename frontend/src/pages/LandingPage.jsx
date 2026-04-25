@@ -342,8 +342,8 @@ function Navbar({ onLoginClick, onRegisterClick }) {
             <LanguageSwitcher />
             {user ? (
               <button onClick={() => navigate(user.role === 'patient' ? '/patient' : '/manager')}
-                className="btn-primary text-sm py-1.5 px-4">
-                {user.role === 'patient' ? 'מסע שלי ←' : 'לוח הבקרה ←'}
+                className="btn-primary text-sm py-1.5 px-4 whitespace-nowrap">
+                {user.role === 'patient' ? t('patient_portal:title') : t('nav:dashboard')} ←
               </button>
             ) : (
               <div className="flex items-center gap-2">
