@@ -63,6 +63,7 @@ function AppRoutes() {
         <Route path="doctors" element={<DoctorsDatabase />} />
         <Route path="responsiveness" element={<ResponsivenessPage />} />
         <Route path="feedback" element={<FeedbackInbox />} />
+        <Route path="feedback/submit" element={<FeedbackSubmitPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="workflows" element={<WorkflowsPage />} />
         <Route path="patients/new" element={<IntakeWizard />} />
