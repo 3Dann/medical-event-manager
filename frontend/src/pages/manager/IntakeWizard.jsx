@@ -335,6 +335,7 @@ const EMPTY_FORM = {
 
 export default function IntakeWizard() {
   const navigate = useNavigate()
+  const { isDemoMode } = useDemoMode()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
