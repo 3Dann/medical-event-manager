@@ -258,7 +258,6 @@ export default function ManagerLayout() {
         <div className="flex-1 relative z-10">
           <Outlet />
         </div>
-        <FeedbackWidget open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
         {/* Lion logo */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 pointer-events-none z-10 pb-2 md:pb-4">
