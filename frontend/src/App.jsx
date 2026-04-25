@@ -95,10 +95,12 @@ export default function App() {
     <DevProvider>
       <DevGate>
         <AuthProvider>
-          <BrowserRouter>
-            <LangDirectionSync />
-            <AppRoutes />
-          </BrowserRouter>
+          <DemoModeProvider>
+            <BrowserRouter>
+              <LangDirectionSync />
+              <AppRoutes />
+            </BrowserRouter>
+          </DemoModeProvider>
         </AuthProvider>
       </DevGate>
     </DevProvider>
