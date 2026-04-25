@@ -138,7 +138,7 @@ export default function ManagerLayout() {
             className={`flex items-center gap-3 w-full rounded-xl transition-all text-sm font-medium
               bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm
               ${sidebarOpen ? 'px-3 py-2.5' : 'px-2.5 py-2.5 justify-center'}`}
-            title="שלח משוב"
+            title={t('nav:send_feedback')}
           >
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
