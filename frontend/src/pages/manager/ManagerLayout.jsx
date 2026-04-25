@@ -40,7 +40,7 @@ function Breadcrumbs({ pathname }) {
         <Link to={`/manager/patients/${patientMatch[1]}`} className="hover:text-slate-800 transition-colors truncate">{t('nav:patients')}</Link>
         {SUB_KEYS[sub] && <>
           <span className="text-slate-300">/</span>
-          <span className="text-slate-700 font-medium truncate">{SUB_KEYS[sub]}</span>
+          <span className="text-slate-700 font-medium truncate">{t(SUB_KEYS[sub])}</span>
         </>}
       </nav>
     )
