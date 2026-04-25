@@ -109,16 +109,26 @@ export default function ManagerLayout() {
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
             </svg>
-            {sidebarOpen && <span className="flex-1">{t(item.tKey)}</span>}
-            {item.to === '/manager/feedback' && unreadFeedback > 0 && (
-              <span className={`text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ${
-                sidebarOpen ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
-              }`}>
-                {unreadFeedback > 9 ? '9+' : unreadFeedback}
-              </span>
-            )}
+            {sidebarOpen && <span>{t(item.tKey)}</span>}
           </NavLink>
         ))}
+
+        {/* Send feedback — separate from inbox nav item */}
+        <div className={`mx-0 mt-2 ${sidebarOpen ? 'px-1' : ''}`}>
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className={`flex items-center gap-3 w-full rounded-xl transition-all text-sm font-medium
+              bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm
+              ${sidebarOpen ? 'px-3 py-2.5' : 'px-2.5 py-2.5 justify-center'}`}
+            title="שלח משוב"
+          >
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                d="M7 8h10M7 12h6m-9 8l4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+            </svg>
+            {sidebarOpen && <span>שלח משוב</span>}
+          </button>
+        </div>
       </nav>
 
       <div className="p-2 border-t border-slate-700 flex-shrink-0 space-y-1">
