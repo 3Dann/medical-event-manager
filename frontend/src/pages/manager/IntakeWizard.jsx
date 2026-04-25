@@ -976,11 +976,16 @@ export default function IntakeWizard() {
           <div className="flex gap-1 mb-8 overflow-x-auto pb-1">
             {STEPS.map((s, i) => (
               <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  i === step ? 'bg-blue-600 text-white' :
-                  i < step  ? 'bg-blue-100 text-blue-700' :
-                  'bg-slate-200 text-slate-500'
-                }`}>
+                <div
+                  onClick={() => isDemoMode && setStep(i)}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    isDemoMode ? 'cursor-pointer hover:opacity-80' : ''
+                  } ${
+                    i === step ? 'bg-blue-600 text-white' :
+                    i < step  ? 'bg-blue-100 text-blue-700' :
+                    'bg-slate-200 text-slate-500'
+                  }`}
+                >
                   <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${i < step ? 'bg-blue-600 text-white' : ''}`}>
                     {i < step ? '✓' : i + 1}
                   </span>
