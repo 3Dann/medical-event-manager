@@ -94,7 +94,7 @@ export default function ManagerLayout() {
       </div>
 
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        {[...navItems, ...(user?.is_admin ? [adminNavItem] : [])].map(item => (
+        {[...navItems, ...(user?.is_admin ? [adminNavItem, landingEditorNavItem] : [])].map(item => (
           <NavLink key={item.to} to={item.to} end={item.end}
             className={({ isActive }) =>
               `flex items-center gap-3 px-2.5 py-2.5 rounded-lg transition-colors text-sm
