@@ -153,7 +153,7 @@ export default function ManagerLayout() {
         {canUseDemo && (
           <button
             onClick={toggleDemoMode}
-            title={isDemoMode ? 'כבה מצב הצגה' : 'הפעל מצב הצגה'}
+            title={isDemoMode ? t('nav:demo_mode_off') : t('nav:demo_mode_on')}
             className={`flex items-center gap-3 w-full px-2.5 py-2.5 rounded-lg text-sm transition-colors ${
               isDemoMode
                 ? 'bg-amber-500 text-white hover:bg-amber-600'
