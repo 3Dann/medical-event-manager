@@ -18,6 +18,7 @@ def user_to_dict(u: models.User) -> dict:
         "role": u.role,
         "is_admin": u.is_admin,
         "preserve_data": u.preserve_data,
+        "demo_mode_allowed": getattr(u, 'demo_mode_allowed', False),
         "created_at": str(u.created_at) if u.created_at else None,
     }
 
