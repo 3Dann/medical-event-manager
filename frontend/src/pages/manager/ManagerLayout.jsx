@@ -65,7 +65,6 @@ export default function ManagerLayout() {
   const location = useLocation()
   const { t } = useTranslation()
   const canUseDemo = user?.is_admin || user?.demo_mode_allowed
-  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
