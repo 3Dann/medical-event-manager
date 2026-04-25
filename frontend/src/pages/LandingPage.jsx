@@ -463,7 +463,7 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user && (
               <button onClick={toDashboard}
-                className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
+                className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base whitespace-nowrap">
                 {user.role === 'patient' ? t('patient_portal:title') : t('nav:dashboard')} ←
               </button>
             )}
