@@ -159,7 +159,7 @@ def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_
 
 @router.get("/me")
 def get_me(current_user: models.User = Depends(auth_utils.get_current_user)):
-    return {"id": current_user.id, "full_name": current_user.full_name, "email": current_user.email, "role": current_user.role, "is_admin": current_user.is_admin}
+    return {"id": current_user.id, "full_name": current_user.full_name, "email": current_user.email, "role": current_user.role, "is_admin": current_user.is_admin, "demo_mode_allowed": getattr(current_user, 'demo_mode_allowed', False)}
 
 
 @router.post("/forgot-password")
