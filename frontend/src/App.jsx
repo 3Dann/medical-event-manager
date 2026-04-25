@@ -30,6 +30,7 @@ import AdminPage from './pages/manager/AdminPage'
 import WorkflowsPage from './pages/manager/WorkflowsPage'
 import IntakeWizard from './pages/manager/IntakeWizard'
 import LandingEditorPage from './pages/manager/LandingEditorPage'
+import FeedbackSubmitPage from './pages/manager/FeedbackSubmitPage'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
