@@ -104,6 +104,20 @@ def delete_user_data(
     return {"message": f"נמחקו {len(patients)} תיקים"}
 
 
+@router.put("/users/{user_id}/demo-mode")
+def toggle_demo_mode_allowed(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="משתמש לא נמצא")
+    user.demo_mode_allowed = not getattr(user, 'demo_mode_allowed', False)
+    db.commit()
+    return user_to_dict(user)
+
+
 @router.put("/users/{user_id}/preserve-data")
 def toggle_preserve_data(
     user_id: int,
