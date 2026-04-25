@@ -84,6 +84,7 @@ class User(Base):
     role = Column(String, default=UserRole.manager)
     is_admin    = Column(Boolean, default=False)
     preserve_data = Column(Boolean, default=False)
+    demo_mode_allowed = Column(Boolean, default=False)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
     totp_secret = Column(String, nullable=True)
