@@ -65,6 +65,24 @@ export default function ManagerLayout() {
   const location = useLocation()
   const { t } = useTranslation()
   const canUseDemo = user?.is_admin || user?.demo_mode_allowed
+  const [unreadFeedback, setUnreadFeedback] = useState(0)
+
+  const fetchUnread = useCallback(async () => {
+    if (!user?.is_admin) return
+    try {
+      const r = await axios.get('/api/public/feedback/unread-count')
+      setUnreadFeedback(r.data.count)
+    } catch (_) {}
+  }, [user?.is_admin])
+
+  useEffect(() => { fetchUnread() }, [fetchUnread])
+
+  // Reset badge when visiting feedback page
+  useEffect(() => {
+    if (location.pathname === '/manager/feedback' && unreadFeedback > 0) {
+      setUnreadFeedback(0)
+    }
+  }, [location.pathname])
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
