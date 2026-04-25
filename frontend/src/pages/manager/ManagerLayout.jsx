@@ -144,7 +144,7 @@ export default function ManagerLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                 d="M7 8h10M7 12h6m-9 8l4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
             </svg>
-            {sidebarOpen && <span>שלח משוב</span>}
+            {sidebarOpen && <span>{t('nav:send_feedback')}</span>}
           </button>
         </div>
       </nav>
