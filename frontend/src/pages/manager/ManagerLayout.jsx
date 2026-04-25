@@ -102,7 +102,7 @@ export default function ManagerLayout() {
         <button
           onClick={() => { setSidebarOpen(o => !o); onClose?.() }}
           className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-700 transition-colors flex-shrink-0"
-          title={sidebarOpen ? t('common:close') : t('common:add')}
+          title={sidebarOpen ? t('common:close') : t('nav:expand')}
         >
           <svg className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
