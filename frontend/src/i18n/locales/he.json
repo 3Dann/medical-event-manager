@@ -50,7 +50,17 @@
     "profile": "פרופיל",
     "logout": "התנתק",
     "home": "בית",
-    "landing_editor": "עריכת דף נחיתה"
+    "landing_editor": "עריכת דף נחיתה",
+    "insurance": "ביטוחים",
+    "claims": "תביעות",
+    "strategy": "אסטרטגיה",
+    "send_feedback": "שלח משוב",
+    "expand": "פתח",
+    "demo_mode": "מצב הצגה",
+    "demo_mode_active": "מצב הצגה פעיל",
+    "demo_mode_off": "כבה מצב הצגה",
+    "demo_mode_on": "הפעל מצב הצגה",
+    "demo_mode_banner": "מצב הצגה פעיל — אין שמירת נתונים"
   },
   "auth": {
     "login": "התחברות",
