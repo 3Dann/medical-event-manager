@@ -372,6 +372,7 @@ export default function IntakeWizard() {
 
   // ── Validation per step ─────────────────────────────────────────────────────
   const validate = (stepIdx) => {
+    if (isDemoMode) return {}
     const e = {}
     if (stepIdx === 0) {
       if (!form.full_name.trim()) e.full_name = 'שדה חובה'
