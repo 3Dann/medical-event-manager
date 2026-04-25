@@ -126,7 +126,14 @@ export default function ManagerLayout() {
             <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={item.icon} />
             </svg>
-            {sidebarOpen && <span>{t(item.tKey)}</span>}
+            {sidebarOpen && <span className="flex-1">{t(item.tKey)}</span>}
+            {item.to === '/manager/feedback' && unreadFeedback > 0 && (
+              <span className={`text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center ${
+                sidebarOpen ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
+              }`}>
+                {unreadFeedback > 9 ? '9+' : unreadFeedback}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>
