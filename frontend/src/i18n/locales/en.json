@@ -50,7 +50,17 @@
     "profile": "Profile",
     "logout": "Sign Out",
     "home": "Home",
-    "landing_editor": "Landing Editor"
+    "landing_editor": "Landing Editor",
+    "insurance": "Insurance",
+    "claims": "Claims",
+    "strategy": "Strategy",
+    "send_feedback": "Send Feedback",
+    "expand": "Expand",
+    "demo_mode": "Demo Mode",
+    "demo_mode_active": "Demo Mode Active",
+    "demo_mode_off": "Turn Off Demo",
+    "demo_mode_on": "Turn On Demo",
+    "demo_mode_banner": "Demo Mode Active — Data Not Saved"
   },
   "auth": {
     "login": "Sign In",
