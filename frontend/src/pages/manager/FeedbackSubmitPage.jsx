@@ -147,7 +147,7 @@ export default function FeedbackSubmitPage() {
                     : selected.btn
                 }`}
               >
-                {sending ? 'שולח...' : type === 'bug' ? '🐛 שלח דיווח' : '💡 שלח בקשה'}
+                {sending ? 'שולח...' : 'שלח'}
               </button>
 
             </div>
