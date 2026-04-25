@@ -125,6 +125,13 @@ export default function AdminPage() {
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
+  const handleToggleDemoMode = async (user) => {
+    try {
+      await axios.put(`/api/admin/users/${user.id}/demo-mode`)
+      fetchUsers()
+    } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
+  }
+
   const managers = users.filter(u => u.role === 'manager' && !u.is_admin)
 
   return (
