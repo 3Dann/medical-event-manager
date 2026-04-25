@@ -32,6 +32,7 @@ export function AuthProvider({ children }) {
       email: tokenData.email || '',
       role: tokenData.role,
       is_admin: tokenData.is_admin || false,
+      demo_mode_allowed: tokenData.demo_mode_allowed || false,
     }
     localStorage.setItem('user', JSON.stringify(userData))
     axios.defaults.headers.common['Authorization'] = `Bearer ${tokenData.access_token}`
