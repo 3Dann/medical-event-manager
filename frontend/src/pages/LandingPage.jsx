@@ -407,23 +407,26 @@ export default function LandingPage() {
     return () => window.removeEventListener('landing_overrides_changed', handler)
   }, [])
 
-  const FEATURES = FEATURE_META.map(m => ({
-    ...m,
-    title:  t(`landing:feat_${m.id}`),
-    desc:   t(`landing:feat_${m.id}_desc`),
-    points: [
-      t(`landing:feat_${m.id}_p1`),
-      t(`landing:feat_${m.id}_p2`),
-      t(`landing:feat_${m.id}_p3`),
-      t(`landing:feat_${m.id}_p4`),
-    ],
-  }))
+  const FEATURES = FEATURE_META.map((m, i) => {
+    const ov = overrides.features?.[i]
+    return {
+      ...m,
+      title:  ov?.title  ?? t(`landing:feat_${m.id}`),
+      desc:   ov?.desc   ?? t(`landing:feat_${m.id}_desc`),
+      points: ov?.points ?? [
+        t(`landing:feat_${m.id}_p1`),
+        t(`landing:feat_${m.id}_p2`),
+        t(`landing:feat_${m.id}_p3`),
+        t(`landing:feat_${m.id}_p4`),
+      ],
+    }
+  })
 
-  const STEPS = [
+  const STEPS = (overrides.steps ?? [
     { num: '01', title: t('landing:step1_title'), desc: t('landing:step1_desc') },
     { num: '02', title: t('landing:step2_title'), desc: t('landing:step2_desc') },
     { num: '03', title: t('landing:step3_title'), desc: t('landing:step3_desc') },
-  ]
+  ])
 
   // If navigated here from /login redirect, open modal immediately
   useEffect(() => {
@@ -452,10 +455,10 @@ export default function LandingPage() {
             {overrides.heroBadge}
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-            {t('landing:hero_title')}
+            {overrides.heroTitle ?? t('landing:hero_title')}
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            {t('landing:hero_subtitle')}
+            {overrides.heroSubtitle ?? t('landing:hero_subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user && (
@@ -488,7 +491,7 @@ export default function LandingPage() {
       {/* ── How it works ── */}
       <section className="py-16 max-w-5xl mx-auto px-6">
         <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">איך זה עובד</p>
-        <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">שלושה שלבים פשוטים</h2>
+        <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{overrides.stepsTitle ?? 'שלושה שלבים פשוטים'}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {STEPS.map((step) => (
             <div key={step.num} className="text-center">
@@ -506,7 +509,7 @@ export default function LandingPage() {
       <section id="features" className="py-16 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6">
           <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">תכונות המערכת</p>
-          <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">כל מה שצריך לניהול אירוע רפואי</h2>
+          <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{overrides.featuresTitle ?? 'כל מה שצריך לניהול אירוע רפואי'}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map(f => (
               <div key={f.id} id={f.id} className={`bg-white rounded-2xl border ${f.ring} p-6 hover:shadow-md transition-shadow`}>

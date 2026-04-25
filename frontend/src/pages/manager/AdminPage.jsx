@@ -1,120 +1,23 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
+
+const DEV_EMAIL = 'da.tzalik@gmail.com'
 
 const ROLE_LABELS = { manager: 'מנהל אירוע', patient: 'מטופל' }
 
-const LANDING_DEFAULTS = {
-  heroBadge:   'מערכת ניהול אירוע רפואי מקיפה',
-  stats: [
-    { val: '370+', label: 'רופאים מאומתים' },
-    { val: '5',    label: 'שלבי מסע מטופל' },
-    { val: '4',    label: 'קופות חולים'    },
-  ],
-  ctaTitle:    'מוכן להתחיל?',
-  ctaSubtitle: 'הצטרף למערכת וקבל שליטה מלאה על האירוע הרפואי',
-}
-
-function LandingTab() {
-  const [draft,  setDraft]  = useState(LANDING_DEFAULTS)
-  const [status, setStatus] = useState(null) // null | 'loading' | 'saving' | 'saved' | 'error'
-
-  useEffect(() => {
-    setStatus('loading')
-    axios.get('/api/settings/landing').then(res => {
-      const data = res.data
-      if (data && Object.keys(data).length > 0)
-        setDraft({ ...LANDING_DEFAULTS, ...data })
-    }).finally(() => setStatus(null))
-  }, [])
-
-  function setStat(i, field, val) {
-    setDraft(d => ({ ...d, stats: d.stats.map((s, idx) => idx === i ? { ...s, [field]: val } : s) }))
-  }
-
-  async function save() {
-    setStatus('saving')
-    try {
-      await axios.put('/api/settings/landing', draft)
-      // sync localStorage so landing page updates immediately
-      localStorage.setItem('landing_overrides', JSON.stringify(draft))
-      window.dispatchEvent(new Event('landing_overrides_changed'))
-      setStatus('saved')
-    } catch {
-      setStatus('error')
-    }
-    setTimeout(() => setStatus(null), 2500)
-  }
-
-  async function reset() {
-    setDraft({ ...LANDING_DEFAULTS })
-    try {
-      await axios.put('/api/settings/landing', LANDING_DEFAULTS)
-      localStorage.removeItem('landing_overrides')
-      window.dispatchEvent(new Event('landing_overrides_changed'))
-    } catch { /* ignore */ }
-  }
-
-  const field = (label, key, multiline = false) => (
-    <div>
-      <label className="block text-xs font-medium text-slate-500 mb-1">{label}</label>
-      {multiline
-        ? <textarea rows={2} className="input w-full resize-none text-sm" value={draft[key]}
-            onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} />
-        : <input className="input w-full text-sm" value={draft[key]}
-            onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))} />
-      }
-    </div>
-  )
-
-  return (
-    <div className="max-w-lg space-y-5">
-      {status === 'loading' && <p className="text-sm text-slate-400">טוען...</p>}
-
-      {field('תגית Hero (פס ירוק מהבהב)', 'heroBadge')}
-
-      <div>
-        <label className="block text-xs font-medium text-slate-500 mb-2">סטטיסטיקות Hero</label>
-        <div className="space-y-2">
-          {draft.stats.map((s, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input className="input w-24 text-sm text-center font-bold" value={s.val}
-                onChange={e => setStat(i, 'val', e.target.value)} placeholder="ערך" />
-              <input className="input flex-1 text-sm" value={s.label}
-                onChange={e => setStat(i, 'label', e.target.value)} placeholder="תיאור" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {field('כותרת CTA', 'ctaTitle')}
-      {field('תת-כותרת CTA', 'ctaSubtitle', true)}
-
-      <div className="flex gap-3 pt-2">
-        <button
-          onClick={save}
-          disabled={status === 'saving'}
-          className="btn-primary text-sm px-6 py-2 disabled:opacity-50"
-        >
-          {status === 'saving' ? 'שומר...' : status === 'saved' ? '✓ נשמר!' : status === 'error' ? '⚠ שגיאה' : 'שמור שינויים'}
-        </button>
-        <button onClick={reset} className="text-sm px-4 py-2 text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50">
-          אפס לברירת מחדל
-        </button>
-      </div>
-    </div>
-  )
-}
-
 export default function AdminPage() {
   const { user: currentUser } = useAuth()
+  const navigate = useNavigate()
+  const isDev = currentUser?.email === DEV_EMAIL
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [resetResult, setResetResult] = useState(null)
   const [actionStatus, setActionStatus] = useState({})
 
   // Permissions state
-  const [tab, setTab] = useState('users') // 'users' | 'permissions' | 'landing'
+  const [tab, setTab] = useState('users') // 'users' | 'permissions'
   const [patients, setPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [permissions, setPermissions] = useState([])
@@ -200,13 +103,6 @@ export default function AdminPage() {
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
-  const handleCreatorToggle = async (user) => {
-    try {
-      await axios.put(`/api/admin/users/${user.id}/creator`)
-      setStatus(user.id, true, !user.is_creator ? 'הוגדר כ-Creator' : 'הוסרה הרשאת Creator')
-      fetchUsers()
-    } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
-  }
 
   const handleReset = async (user) => {
     try {
@@ -236,11 +132,10 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold text-slate-800 mb-1">ניהול מערכת</h1>
 
       {/* Tab bar */}
-      <div className="flex gap-2 mb-6 mt-4 border-b border-slate-200">
+      <div className="flex gap-2 mb-6 mt-4 border-b border-slate-200 flex-wrap items-end">
         {[
           { key: 'users',       label: 'משתמשים' },
           { key: 'permissions', label: 'הרשאות גישה לתיקים' },
-          { key: 'landing',     label: '✏️ דף נחיתה' },
         ].map(t => (
           <button key={t.key}
             onClick={() => setTab(t.key)}
@@ -249,6 +144,14 @@ export default function AdminPage() {
             {t.label}
           </button>
         ))}
+        {isDev && (
+          <button
+            onClick={() => navigate('/manager/landing-editor')}
+            className="pb-2 px-4 text-sm font-medium border-b-2 border-transparent text-amber-600 hover:text-amber-700 hover:border-amber-400 transition-colors ms-auto"
+          >
+            ✏️ עריכת דף נחיתה
+          </button>
+        )}
       </div>
 
       {/* ── Users tab ── */}
@@ -282,9 +185,6 @@ export default function AdminPage() {
                         {user.is_admin && (
                           <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">אדמין</span>
                         )}
-                        {user.is_creator && (
-                          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Creator</span>
-                        )}
                         {user.preserve_data && (
                           <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">שמור מידע</span>
                         )}
@@ -316,14 +216,6 @@ export default function AdminPage() {
                       >
                         {user.is_admin ? 'הסר אדמין' : 'הגדר אדמין'}
                       </button>
-                      {currentUser?.is_creator && (
-                        <button
-                          onClick={() => handleCreatorToggle(user)}
-                          className={`text-xs px-3 py-1.5 rounded-lg ${user.is_creator ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                        >
-                          {user.is_creator ? 'הסר Creator' : 'הגדר Creator'}
-                        </button>
-                      )}
                       <button
                         onClick={() => handleTogglePreserve(user)}
                         className={`text-xs px-3 py-1.5 rounded-lg ${user.preserve_data ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
@@ -352,9 +244,6 @@ export default function AdminPage() {
           )}
         </>
       )}
-
-      {/* ── Landing tab ── */}
-      {tab === 'landing' && <LandingTab />}
 
       {/* ── Permissions tab ── */}
       {tab === 'permissions' && (

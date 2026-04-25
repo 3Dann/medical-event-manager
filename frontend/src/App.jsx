@@ -28,6 +28,7 @@ import ProfilePage from './pages/manager/ProfilePage'
 import AdminPage from './pages/manager/AdminPage'
 import WorkflowsPage from './pages/manager/WorkflowsPage'
 import IntakeWizard from './pages/manager/IntakeWizard'
+import LandingEditorPage from './pages/manager/LandingEditorPage'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="workflows" element={<WorkflowsPage />} />
         <Route path="patients/new" element={<IntakeWizard />} />
         <Route path="admin" element={<ProtectedRoute role="manager" adminOnly><AdminPage /></ProtectedRoute>} />
+        <Route path="landing-editor" element={<ProtectedRoute role="manager" adminOnly><LandingEditorPage /></ProtectedRoute>} />
       </Route>
 
       {/* Patient routes */}

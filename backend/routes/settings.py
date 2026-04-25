@@ -1,7 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
-from typing import Any
 import json
 
 from database import get_db
@@ -9,13 +7,6 @@ import models
 import auth as auth_utils
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
-
-
-class LandingOverrides(BaseModel):
-    heroBadge:   str
-    stats:       Any   # list of {val, label}
-    ctaTitle:    str
-    ctaSubtitle: str
 
 
 def _get(db: Session, key: str):
@@ -45,14 +36,15 @@ def get_landing(db: Session = Depends(get_db)):
 
 
 @router.put("/landing")
-def save_landing(
-    data: LandingOverrides,
+async def save_landing(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
     """Admin-only — saves landing page overrides to DB."""
-    if not current_user.is_admin:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=403, detail="נדרשת הרשאת מנהל")
-    _set(db, "landing_overrides", json.dumps(data.model_dump()))
+    from fastapi import HTTPException
+    if current_user.email != "da.tzalik@gmail.com":
+        raise HTTPException(status_code=403, detail="גישה מורשית למפתח בלבד")
+    data = await request.json()
+    _set(db, "landing_overrides", json.dumps(data))
     return {"ok": True}

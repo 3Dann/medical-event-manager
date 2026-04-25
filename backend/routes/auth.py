@@ -29,6 +29,7 @@ class Token(BaseModel):
     token_type: str
     user_id: int
     full_name: str
+    email: str = ""
     role: str
     is_admin: bool = False
     requires_2fa: bool = False
@@ -69,7 +70,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, role=user.role, is_admin=user.is_admin)
+    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
 
 
 @router.post("/login", response_model=Token)
@@ -84,7 +85,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         return Token(access_token="", token_type="bearer", user_id=user.id, full_name=user.full_name,
                      role=user.role, is_admin=user.is_admin, requires_2fa=True, temp_token=temp, tfa_method=method)
     token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, role=user.role, is_admin=user.is_admin)
+    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
 
 
 class Verify2FARequest(BaseModel):
@@ -121,7 +122,7 @@ def verify_2fa(data: Verify2FARequest, db: Session = Depends(get_db)):
         if not totp.verify(data.code, valid_window=1):
             raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
     token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, role=user.role, is_admin=user.is_admin)
+    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
 
 
 class RequestEmailCodeRequest(BaseModel):
