@@ -132,6 +132,11 @@ def run_migrations():
         # Medical specialty (auto-suggested)
         ("patients", "specialty",              "VARCHAR"),
         ("patients", "sub_specialty",          "VARCHAR"),
+        # Demo mode permission
+        ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
+        # Feedback enhancements
+        ("project_feedback", "feedback_type", "VARCHAR DEFAULT 'general'"),
+        ("project_feedback", "is_read",       "BOOLEAN DEFAULT 0"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
