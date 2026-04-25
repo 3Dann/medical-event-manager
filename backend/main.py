@@ -137,6 +137,7 @@ def run_migrations():
         # Feedback enhancements
         ("project_feedback", "feedback_type", "VARCHAR DEFAULT 'general'"),
         ("project_feedback", "is_read",       "BOOLEAN DEFAULT 0"),
+        ("project_feedback", "is_handled",    "BOOLEAN DEFAULT 0"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
