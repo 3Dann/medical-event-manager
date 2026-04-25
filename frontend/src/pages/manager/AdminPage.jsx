@@ -230,6 +230,13 @@ export default function AdminPage() {
                         {user.preserve_data ? 'בטל שמירת מידע' : 'שמור מידע'}
                       </button>
                       <button
+                        onClick={() => handleToggleDemoMode(user)}
+                        className={`text-xs px-3 py-1.5 rounded-lg ${user.demo_mode_allowed ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        title="הרשאה להפעיל מצב הצגה"
+                      >
+                        {user.demo_mode_allowed ? 'בטל מצב הצגה' : 'אפשר מצב הצגה'}
+                      </button>
+                      <button
                         onClick={() => handleReset(user)}
                         className="text-xs bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg hover:bg-amber-100"
                       >
