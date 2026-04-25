@@ -65,6 +65,21 @@ export default function ManagerLayout() {
   const location = useLocation()
   const { t } = useTranslation()
   const canUseDemo = user?.is_admin || user?.demo_mode_allowed
+  const [hasUnread, setHasUnread] = useState(false)
+
+  const fetchUnread = useCallback(async () => {
+    if (!user?.is_admin) return
+    try {
+      const r = await axios.get('/api/public/feedback/unread-count')
+      setHasUnread(r.data.count > 0)
+    } catch (_) {}
+  }, [user?.is_admin])
+
+  useEffect(() => { fetchUnread() }, [fetchUnread])
+
+  useEffect(() => {
+    if (location.pathname === '/manager/feedback') setHasUnread(false)
+  }, [location.pathname])
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
