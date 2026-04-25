@@ -308,6 +308,8 @@ class ProjectFeedback(Base):
     role = Column(String, nullable=True)
     message = Column(Text, nullable=False)
     rating = Column(Integer, nullable=True)  # 1-5
+    feedback_type = Column(String, default='general')  # 'feature' | 'bug' | 'general'
+    is_read = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
