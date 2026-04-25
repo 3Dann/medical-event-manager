@@ -3,6 +3,7 @@ import { Outlet, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../../components/LanguageSwitcher'
+import FeedbackWidget from '../../components/FeedbackWidget'
 
 export default function PatientLayout() {
   const { user, logout } = useAuth()
