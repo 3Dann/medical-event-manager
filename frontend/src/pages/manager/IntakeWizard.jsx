@@ -413,6 +413,7 @@ export default function IntakeWizard() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const [medDosageSuggestions, setMedDosageSuggestions] = useState([])
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
 
