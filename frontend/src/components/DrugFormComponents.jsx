@@ -236,9 +236,12 @@ export function DosageCombobox({ value, onChange, suggestions, className = 'inpu
 // ── MedicationCard — shared add/edit form ─────────────────────────────────────
 export function MedicationCard({ med, onChange, onRemove }) {
   const [dosageSuggestions, setDosageSuggestions] = useState([])
+  const [showExtra, setShowExtra] = useState(
+    // Open extra fields if any of them already have data
+    () => !!(med.start_date || med.end_date || med.notes || med.is_active === false)
+  )
 
   const handleDrugSelect = (drug) => {
-    // Always apply map indication when drug has one; keep manual value only if map has nothing
     const mappedIndication = DRUG_INDICATION_MAP[drug.name] || ''
     const newIndication = mappedIndication || med.indication || ''
     onChange({ ...med, name: drug.name, generic_name: drug.generic_name || med.generic_name || '', indication: newIndication })
@@ -284,6 +287,48 @@ export function MedicationCard({ med, onChange, onRemove }) {
           />
         </div>
       </div>
+
+      {/* ── Collapsible extra fields ─────────────────────────────────── */}
+      <div className="border-t border-slate-100 pt-2">
+        <button
+          type="button"
+          onClick={() => setShowExtra(v => !v)}
+          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 select-none"
+        >
+          <span>{showExtra ? '▾' : '▸'}</span>
+          שדות נוספים
+          {(med.start_date || med.end_date || med.notes) && !showExtra && (
+            <span className="mr-1 w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />
+          )}
+        </button>
+        {showExtra && (
+          <div className="mt-3 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label text-xs">תאריך התחלה</label>
+                <input type="date" className="input" value={med.start_date || ''}
+                  onChange={e => onChange({ ...med, start_date: e.target.value })} />
+              </div>
+              <div>
+                <label className="label text-xs">תאריך סיום</label>
+                <input type="date" className="input" value={med.end_date || ''}
+                  onChange={e => onChange({ ...med, end_date: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <label className="label text-xs">הערות</label>
+              <textarea className="input" rows={2} value={med.notes || ''}
+                onChange={e => onChange({ ...med, notes: e.target.value })} />
+            </div>
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="med-is-active" checked={med.is_active !== false}
+                onChange={e => onChange({ ...med, is_active: e.target.checked })} className="w-4 h-4" />
+              <label htmlFor="med-is-active" className="text-sm text-slate-700">תרופה פעילה</label>
+            </div>
+          </div>
+        )}
+      </div>
+
       {onRemove && (
         <div className="flex justify-end pt-1">
           <button type="button" onClick={onRemove}
