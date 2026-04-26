@@ -664,14 +664,9 @@ export default function IntakeWizard() {
               <input {...inp('postal_code', { maxLength: 7, placeholder: '7 ספרות' })} />
             </F>
           </div>
-        </div>
-      )
 
-      // ── Step 3: פרטי קשר ────────────────────────────────────────────────────
-      case 2: return (
-        <div className="space-y-6">
           <div>
-            <h3 className="font-semibold text-slate-700 mb-3">טלפון המטופל</h3>
+            <h3 className="font-semibold text-slate-700 mb-3">טלפון</h3>
             <F label="מספר טלפון" name="phone" required valid={form.phone.replace(/\D/g,'').length === 7}>
               <div className="flex gap-2">
                 <input
@@ -692,7 +687,12 @@ export default function IntakeWizard() {
               </div>
             </F>
           </div>
+        </div>
+      )
 
+      // ── Step 3: פרטי קשר ────────────────────────────────────────────────────
+      case 2: return (
+        <div className="space-y-6">
           <div>
             <h3 className="font-semibold text-slate-700 mb-3">איש קשר לחירום</h3>
             <div className="grid grid-cols-2 gap-4">
