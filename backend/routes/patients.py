@@ -396,6 +396,42 @@ def save_signatures(
     patient.intake_completed = True
     patient.intake_completed_at = now
 
+    # ── שמור חתימות כמסמכים בתיק המטופל ──────────────────────────────────────
+    date_str = now.strftime("%d.%m.%Y")
+    signer_label = data.signer_name or patient.full_name
+
+    def _register_sig_doc(sig_path: str, doc_name: str):
+        if not sig_path:
+            return
+        patient_upload_dir = os.path.join(UPLOAD_DIR, str(patient_id))
+        os.makedirs(patient_upload_dir, exist_ok=True)
+        dest_filename = os.path.basename(sig_path)
+        dest_path = os.path.join(patient_upload_dir, dest_filename)
+        if os.path.exists(sig_path) and sig_path != dest_path:
+            import shutil
+            shutil.copy2(sig_path, dest_path)
+        file_size = os.path.getsize(dest_path) if os.path.exists(dest_path) else 0
+        doc = models.PatientDocument(
+            patient_id=patient_id,
+            uploaded_by=current_user.id,
+            filename=dest_filename,
+            original_name=f"{doc_name} — חתום {date_str}.png",
+            file_type="image/png",
+            file_size=file_size,
+            category="משפטי",
+            notes=f"נחתם על ידי: {signer_label} | תאריך: {date_str}",
+        )
+        db.add(doc)
+
+    if data.consent_agreed and patient.consent_signature_path:
+        _register_sig_doc(patient.consent_signature_path, "ויתור סודיות רפואית")
+
+    if data.financial_consent_agreed and patient.financial_consent_signature_path:
+        _register_sig_doc(patient.financial_consent_signature_path, "ויתור סודיות פיננסי")
+
+    if data.poa_agreed and patient.poa_signature_path:
+        _register_sig_doc(patient.poa_signature_path, "ייפוי כוח")
+
     db.commit()
     return {"ok": True, "intake_completed": True}
 
