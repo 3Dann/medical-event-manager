@@ -405,6 +405,95 @@ const EMPTY_FORM = {
   signer_is_self: true, signer_name: '', signer_relation: '',
 }
 
+// ── MedicationsStep — same card as PatientMedications ─────────────────────────
+function MedicationsStep({ medications, onChange }) {
+  const [showAdd, setShowAdd] = useState(false)
+  const [draft, setDraft] = useState({ name: '', generic_name: '', dosage: '', frequency: '', indication: '' })
+  const [editIdx, setEditIdx] = useState(null)
+
+  const openAdd = () => {
+    setDraft({ name: '', generic_name: '', dosage: '', frequency: '', indication: '' })
+    setEditIdx(null)
+    setShowAdd(true)
+  }
+
+  const openEdit = (idx) => {
+    setDraft({ ...medications[idx] })
+    setEditIdx(idx)
+    setShowAdd(true)
+  }
+
+  const handleSave = () => {
+    if (!draft.name?.trim()) return
+    if (editIdx !== null) {
+      const updated = [...medications]
+      updated[editIdx] = draft
+      onChange(updated)
+    } else {
+      onChange([...medications, draft])
+    }
+    setShowAdd(false)
+  }
+
+  const handleRemove = (idx) => {
+    onChange(medications.filter((_, i) => i !== idx))
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* List */}
+      {medications.length === 0 ? (
+        <div className="text-center py-10 text-slate-400 bg-slate-50 rounded-xl text-sm">
+          אין תרופות — לחץ "הוסף תרופה" להתחלה
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {medications.map((med, idx) => (
+            <MedRow
+              key={idx}
+              med={{ ...med, id: idx, is_active: true }}
+              onEdit={() => openEdit(idx)}
+              onDelete={() => handleRemove(idx)}
+            />
+          ))}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={openAdd}
+        className="w-full border-2 border-dashed border-blue-200 text-blue-600 hover:bg-blue-50 py-2.5 rounded-xl text-sm font-medium transition-colors"
+      >
+        + הוסף תרופה
+      </button>
+
+      {/* Modal — same card as PatientMedications */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h3 className="font-bold text-slate-800">{editIdx !== null ? 'עריכת תרופה' : 'הוספת תרופה'}</h3>
+              <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+            <div className="p-6">
+              <MedicationCard
+                med={draft}
+                onChange={setDraft}
+              />
+              <div className="flex gap-3 justify-end border-t pt-4 mt-4">
+                <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary">ביטול</button>
+                <button type="button" onClick={handleSave} disabled={!draft.name?.trim()} className="btn-primary disabled:opacity-50">
+                  {editIdx !== null ? 'עדכן' : 'הוסף'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function IntakeWizard() {
   const navigate = useNavigate()
   const { isDemoMode } = useDemoMode()
