@@ -852,7 +852,7 @@ export default function IntakeWizard() {
             <p className="text-sm text-slate-500">הוסף תרופות שהמטופל נוטל</p>
             <button
               type="button"
-              onClick={() => set('medications', [...form.medications, { name: '', dosage: '' }])}
+              onClick={() => set('medications', [...form.medications, { name: '', generic_name: '', dosage: '', indication: '' }])}
               className="text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-medium"
             >
               + הוסף תרופה
@@ -865,22 +865,21 @@ export default function IntakeWizard() {
           )}
           <div className="space-y-3">
             {form.medications.map((med, idx) => (
-              <div key={idx} className="flex gap-3 items-start bg-slate-50 rounded-xl p-3 border border-slate-200">
-                <div className="flex-1 grid grid-cols-2 gap-3">
-                  <input
-                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                    placeholder="שם תרופה *"
+              <div key={idx} className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <MedicationAutocomplete
                     value={med.name}
-                    onChange={e => {
+                    onChange={drug => {
                       const meds = [...form.medications]
-                      meds[idx] = { ...meds[idx], name: e.target.value }
+                      meds[idx] = { ...meds[idx], name: drug.name, generic_name: drug.generic_name || meds[idx].generic_name }
                       set('medications', meds)
                     }}
+                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
                   />
                   <input
                     className="border border-slate-300 rounded-lg px-3 py-2 text-sm"
                     placeholder="מינון (למשל: 10mg פעמיים ביום)"
-                    value={med.dosage}
+                    value={med.dosage || ''}
                     onChange={e => {
                       const meds = [...form.medications]
                       meds[idx] = { ...meds[idx], dosage: e.target.value }
@@ -888,13 +887,25 @@ export default function IntakeWizard() {
                     }}
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => set('medications', form.medications.filter((_, i) => i !== idx))}
-                  className="text-red-400 hover:text-red-600 mt-2"
-                >
-                  ✕
-                </button>
+                <div className="flex gap-3 items-center">
+                  <input
+                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm flex-1"
+                    placeholder="התוויה / סיבת הטיפול"
+                    value={med.indication || ''}
+                    onChange={e => {
+                      const meds = [...form.medications]
+                      meds[idx] = { ...meds[idx], indication: e.target.value }
+                      set('medications', meds)
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => set('medications', form.medications.filter((_, i) => i !== idx))}
+                    className="text-red-400 hover:text-red-600 shrink-0"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             ))}
           </div>
