@@ -535,11 +535,11 @@ export default function IntakeWizard() {
             <F label="מספר ילדים" name="num_children">
               <input {...inp('num_children', { type: 'number', min: 0 })} />
             </F>
-            <F label="מטרת הפניה" name="height_cm">
-              <input {...inp('height_cm', { placeholder: 'מהי מטרת הפניה?' })} />
+            <F label="מטרת הפניה" name="referral_goal">
+              <input {...inp('referral_goal', { placeholder: 'מהי מטרת הפניה?' })} />
             </F>
-            <F label="כיצד הגיע" name="weight_kg">
-              <input {...inp('weight_kg', { placeholder: 'הפניה, עצמאי, גורם אחר...' })} />
+            <F label="כיצד הגיע" name="referral_source">
+              <input {...inp('referral_source', { placeholder: 'הפניה, עצמאי, גורם אחר...' })} />
             </F>
           </div>
         </div>
