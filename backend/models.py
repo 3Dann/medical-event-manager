@@ -197,6 +197,23 @@ class Patient(Base):
 
 
 
+class PatientMedication(Base):
+    __tablename__ = "patient_medications"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    name = Column(String, nullable=False)           # trade/brand name as entered
+    generic_name = Column(String, nullable=True)    # INN from MOH registry
+    dosage = Column(String, nullable=True)          # e.g. "10mg"
+    frequency = Column(String, nullable=True)       # e.g. "פעמיים ביום"
+    start_date = Column(String, nullable=True)
+    end_date = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    patient = relationship("Patient", back_populates="patient_medications")
+
+
 class PatientDocument(Base):
     __tablename__ = "patient_documents"
     id = Column(Integer, primary_key=True, index=True)
