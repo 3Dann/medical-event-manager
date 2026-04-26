@@ -120,6 +120,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
     setInput('')
     setStreets([])
     onChange('')
+    onPostalCode?.('')
     if (!cityCode) return
     setLoad(true)
     const filters = encodeURIComponent(JSON.stringify({ 'סמל_ישוב': Number(cityCode) }))
