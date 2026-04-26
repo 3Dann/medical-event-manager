@@ -331,7 +331,9 @@ const EMPTY_FORM = {
   medications: [],
   adl_answers: {}, iadl_answers: {}, mmse_answers: {},
   consent_agreed: false, consent_signature: null,
+  financial_consent_agreed: false, financial_consent_signature: null,
   poa_agreed: false, poa_signature: null,
+  signer_is_self: true, signer_name: '', signer_relation: '',
 }
 
 export default function IntakeWizard() {
