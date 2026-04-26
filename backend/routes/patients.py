@@ -106,9 +106,13 @@ class PatientUpdate(BaseModel):
 
 class SignaturesIn(BaseModel):
     consent_agreed: bool = False
-    consent_signature_b64: Optional[str] = None   # base64 PNG data URL
+    consent_signature_b64: Optional[str] = None
+    financial_consent_agreed: bool = False
+    financial_consent_signature_b64: Optional[str] = None
     poa_agreed: bool = False
     poa_signature_b64: Optional[str] = None
+    signer_name: Optional[str] = None
+    signer_relation: Optional[str] = None
 
 
 class NodeCreate(BaseModel):
