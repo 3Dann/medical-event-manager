@@ -152,6 +152,7 @@ export default function PatientMedications() {
       start_date: m.start_date || '', end_date: m.end_date || '',
       notes: m.notes || '', is_active: m.is_active,
     })
+    setDosageSuggestions([])
     setEditId(m.id)
     setShowForm(true)
   }
