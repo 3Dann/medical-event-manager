@@ -667,26 +667,46 @@ export default function IntakeWizard() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-slate-700 mb-3">טלפון</h3>
-            <F label="מספר טלפון" name="phone" required valid={form.phone.replace(/\D/g,'').length === 7}>
-              <div className="flex gap-2">
-                <input
-                  className={`flex-1 border rounded-lg px-3 py-2 text-sm ${errors.phone ? 'border-red-400' : 'border-slate-300'}`}
-                  value={form.phone}
-                  onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
-                  maxLength={7}
-                  placeholder="1234567"
-                  dir="ltr"
-                />
-                <select
-                  className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
-                  value={form.phone_prefix}
-                  onChange={e => set('phone_prefix', e.target.value)}
-                >
-                  {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
-                </select>
-              </div>
-            </F>
+            <div className="grid grid-cols-2 gap-4">
+              <F label="טלפון" name="phone" required valid={form.phone.replace(/\D/g,'').length === 7}>
+                <div className="flex gap-2">
+                  <input
+                    className={`flex-1 border rounded-lg px-3 py-2 text-sm ${errors.phone ? 'border-red-400' : 'border-slate-300'}`}
+                    value={form.phone}
+                    onChange={e => set('phone', e.target.value.replace(/\D/g, ''))}
+                    maxLength={7}
+                    placeholder="1234567"
+                    dir="ltr"
+                  />
+                  <select
+                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
+                    value={form.phone_prefix}
+                    onChange={e => set('phone_prefix', e.target.value)}
+                  >
+                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </F>
+              <F label="טלפון נוסף" name="phone2">
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    value={form.phone2}
+                    onChange={e => set('phone2', e.target.value.replace(/\D/g, ''))}
+                    maxLength={7}
+                    placeholder="1234567"
+                    dir="ltr"
+                  />
+                  <select
+                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
+                    value={form.phone2_prefix}
+                    onChange={e => set('phone2_prefix', e.target.value)}
+                  >
+                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </F>
+            </div>
           </div>
         </div>
       )
