@@ -520,6 +520,7 @@ export default function IntakeWizard() {
                 <option value="">בחר...</option>
                 <option value="male">זכר</option>
                 <option value="female">נקבה</option>
+                <option value="other">אחר</option>
               </select>
             </F>
             <F label="מצב משפחתי" name="marital_status">
