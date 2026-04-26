@@ -456,3 +456,116 @@ def trigger_drug_update(
     t = threading.Thread(target=_run, daemon=True)
     t.start()
     return {"ok": True, "message": "עדכון מאגר תרופות הופעל ברקע"}
+
+
+# ── openFDA enrichment ────────────────────────────────────────────────────────
+
+_OPENFDA_LABEL_URL = "https://api.fda.gov/drug/label.json"
+_CACHE_TTL_DAYS = 30  # re-fetch after 30 days
+
+
+def _extract_dosages_from_text(text: str) -> list[str]:
+    """Pull 'Xmg' / 'X mg' patterns from free-form dosage text."""
+    found = set()
+    for m in re.finditer(r'\b(\d+(?:\.\d+)?)\s*(mg|mcg|µg|g|ml|IU)\b', text, re.IGNORECASE):
+        dose = f"{m.group(1)}{m.group(2).lower()}"
+        found.add(dose)
+    return sorted(found, key=lambda x: float(re.match(r'[\d.]+', x).group()))
+
+
+def _first_sentence(text: str, max_chars: int = 200) -> str:
+    """Return first meaningful sentence, truncated."""
+    text = re.sub(r'\s+', ' ', text).strip()
+    for sep in ['. ', '.\n', ';']:
+        idx = text.find(sep)
+        if 0 < idx < max_chars:
+            return text[:idx + 1].strip()
+    return text[:max_chars].strip()
+
+
+def _fetch_openfda_drug(name: str) -> dict | None:
+    """Fetch label data for a single drug from openFDA. Returns None on failure."""
+    for search_field in ("openfda.brand_name", "openfda.generic_name"):
+        try:
+            resp = http_requests.get(
+                _OPENFDA_LABEL_URL,
+                params={"search": f'{search_field}:"{name}"', "limit": 1},
+                timeout=8,
+            )
+            if resp.status_code != 200:
+                continue
+            results = resp.json().get("results", [])
+            if results:
+                return results[0]
+        except Exception:
+            continue
+    return None
+
+
+@router.get("/api/medications/enrich")
+def enrich_drug(
+    name: str,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    """
+    Return openFDA enrichment for a drug name: indication, dosages, interactions.
+    Caches result in DrugEntry for 30 days.
+    """
+    from datetime import datetime, timezone, timedelta
+
+    # Check cache
+    entry = db.query(models.DrugEntry).filter(models.DrugEntry.name == name).first()
+    cache_valid = (
+        entry
+        and entry.openfda_fetched_at
+        and entry.openfda_fetched_at > datetime.now(timezone.utc) - timedelta(days=_CACHE_TTL_DAYS)
+        and entry.openfda_indication is not None
+    )
+
+    if cache_valid:
+        dosages = json.loads(entry.openfda_dosages) if entry.openfda_dosages else []
+        return {
+            "name": name,
+            "indication": entry.openfda_indication,
+            "dosages": dosages,
+            "interactions_text": entry.openfda_interactions or "",
+            "from_cache": True,
+        }
+
+    # Fetch from openFDA
+    label = _fetch_openfda_drug(name)
+    if not label:
+        return {"name": name, "indication": None, "dosages": [], "interactions_text": "", "from_cache": False}
+
+    raw_indication = " ".join(label.get("indications_and_usage", []))
+    raw_dosage    = " ".join(label.get("dosage_and_administration", []))
+    raw_interact  = " ".join(label.get("drug_interactions", []))
+
+    indication  = _first_sentence(raw_indication) if raw_indication else None
+    dosages     = _extract_dosages_from_text(raw_dosage) if raw_dosage else []
+    interact_txt = raw_interact[:2000] if raw_interact else ""  # cap size
+
+    # Cache in DrugEntry (create minimal entry if not found)
+    if not entry:
+        entry = models.DrugEntry(name=name, source="openfda")
+        db.add(entry)
+
+    entry.openfda_indication   = indication
+    entry.openfda_dosages      = json.dumps(dosages, ensure_ascii=False) if dosages else None
+    entry.openfda_interactions = interact_txt or None
+    entry.openfda_fetched_at   = datetime.now(timezone.utc)
+
+    # Also update common_dosages if it was empty
+    if dosages and not entry.common_dosages:
+        entry.common_dosages = json.dumps(dosages, ensure_ascii=False)
+
+    db.commit()
+
+    return {
+        "name": name,
+        "indication": indication,
+        "dosages": dosages,
+        "interactions_text": interact_txt,
+        "from_cache": False,
+    }

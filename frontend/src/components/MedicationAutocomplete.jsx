@@ -63,12 +63,19 @@ export default function MedicationAutocomplete({
     }, 300)
   }
 
-  const handleSelect = (drug) => {
+  const handleSelect = async (drug) => {
     setQuery(drug.name)
     onChange(drug)
     if (onDosagesAvailable) onDosagesAvailable(drug.common_dosages || [])
     setSuggestions([])
     setOpen(false)
+    // Fetch openFDA enrichment in background
+    try {
+      const res = await axios.get('/api/medications/enrich', { params: { name: drug.name } })
+      const data = res.data
+      if (data.dosages?.length && onDosagesAvailable) onDosagesAvailable(data.dosages)
+      if (onEnrichment) onEnrichment(data)
+    } catch {}
   }
 
   return (
