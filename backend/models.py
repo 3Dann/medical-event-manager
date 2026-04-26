@@ -197,6 +197,31 @@ class Patient(Base):
 
 
 
+class DrugEntry(Base):
+    __tablename__ = "drug_entries"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)   # trade/brand name
+    generic_name = Column(String, nullable=True)
+    dosage_form = Column(String, nullable=True)
+    hebrew_name = Column(String, nullable=True)
+    common_dosages = Column(Text, nullable=True)          # JSON: ["10mg","20mg"]
+    source = Column(String, default="local")              # local / openfda
+    is_active = Column(Boolean, default=True)
+    last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class DrugUpdateLog(Base):
+    __tablename__ = "drug_update_logs"
+    id = Column(Integer, primary_key=True, index=True)
+    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    status = Column(String, default="running")            # running / success / failed
+    drugs_added = Column(Integer, default=0)
+    drugs_updated = Column(Integer, default=0)
+    source = Column(String, nullable=True)
+    message = Column(Text, nullable=True)
+
+
 class PatientMedication(Base):
     __tablename__ = "patient_medications"
     id = Column(Integer, primary_key=True, index=True)
