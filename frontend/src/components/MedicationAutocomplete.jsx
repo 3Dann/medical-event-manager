@@ -8,14 +8,12 @@ function DropdownPortal({ inputRef, open, children }) {
   useEffect(() => {
     if (!open || !inputRef.current) return
     const r = inputRef.current.getBoundingClientRect()
-    setPos({ top: r.bottom + window.scrollY, left: r.left + window.scrollX, width: r.width })
+    setPos({ top: r.bottom, left: r.left, width: r.width })
   }, [open, inputRef])
 
   if (!open) return null
   return createPortal(
-    <div
-      style={{ position: 'absolute', top: pos.top + 4, left: pos.left, width: pos.width, zIndex: 9999 }}
-    >
+    <div style={{ position: 'fixed', top: pos.top + 4, left: pos.left, width: pos.width, zIndex: 9999 }}>
       {children}
     </div>,
     document.body
