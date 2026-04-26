@@ -19,6 +19,7 @@ const tabs = [
   { to: 'insurance', label: 'ביטוחים' },
   { to: 'claims', label: 'תביעות' },
   { to: 'strategy', label: 'אסטרטגיה' },
+  { to: 'medications', label: 'תרופות' },
   { to: 'documents', label: 'מסמכים' },
 ]
 
