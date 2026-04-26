@@ -272,55 +272,22 @@ export default function PatientMedications() {
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
             </div>
             <form onSubmit={handleSave} autoComplete="off" className="p-6 space-y-4">
-              <div>
-                <label className="label">שם תרופה *</label>
-                <MedicationAutocomplete
-                  value={form.name}
-                  onChange={drug => setForm(f => ({ ...f, name: drug.name, generic_name: drug.generic_name || f.generic_name }))}
-                  onDosagesAvailable={dosages => setDosageSuggestions(dosages || [])}
-                  className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
-                />
-              </div>
-              <div>
-                <label className="label">שם גנרי / חומר פעיל</label>
-                <input className="input" value={form.generic_name} onChange={e => setForm(f => ({ ...f, generic_name: e.target.value }))} placeholder="למשל: atorvastatin" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+              <MedicationCard
+                med={form}
+                onChange={updated => setForm(f => ({ ...f, ...updated }))}
+              />
+              <div className="grid grid-cols-2 gap-3 border-t pt-4">
                 <div>
-                  <label className="label">מינון</label>
-                  <DosageCombobox
-                    value={form.dosage}
-                    onChange={v => setForm(f => ({ ...f, dosage: v }))}
-                    suggestions={dosageSuggestions}
-                  />
-                </div>
-                <div>
-                  <label className="label">תדירות</label>
-                  <select className="input" value={form.frequency} onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))}>
-                    <option value="">— בחר —</option>
-                    {FREQUENCY_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="label">התוויה (סיבת הטיפול)</label>
-                <IndicationCombobox
-                  value={form.indication}
-                  onChange={val => setForm(f => ({ ...f, indication: val }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="label">תאריך התחלה</label>
+                  <label className="label text-xs">תאריך התחלה</label>
                   <input type="date" className="input" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="label">תאריך סיום</label>
+                  <label className="label text-xs">תאריך סיום</label>
                   <input type="date" className="input" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
                 </div>
               </div>
               <div>
-                <label className="label">הערות</label>
+                <label className="label text-xs">הערות</label>
                 <textarea className="input" rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
               </div>
               <div className="flex items-center gap-2">
