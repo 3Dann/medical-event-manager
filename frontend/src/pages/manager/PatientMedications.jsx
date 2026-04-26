@@ -363,6 +363,7 @@ export default function PatientMedications() {
                 <MedicationAutocomplete
                   value={form.name}
                   onChange={drug => setForm(f => ({ ...f, name: drug.name, generic_name: drug.generic_name || f.generic_name }))}
+                  onDosagesAvailable={dosages => setDosageSuggestions(dosages || [])}
                   className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
                 />
               </div>
