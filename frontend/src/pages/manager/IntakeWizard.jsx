@@ -715,7 +715,6 @@ export default function IntakeWizard() {
       case 2: return (
         <div className="space-y-6">
           <div>
-            <h3 className="font-semibold text-slate-700 mb-3">איש קשר לחירום</h3>
             <div className="grid grid-cols-2 gap-4">
               <F label="שם מלא" name="ec_name" required>
                 <input {...inp('ec_name')} />
