@@ -75,13 +75,14 @@ export default function MedicationAutocomplete({
     <div ref={containerRef} className="relative">
       <input
         ref={inputRef}
-        className={className || 'border border-slate-300 rounded-lg px-3 py-2 text-sm w-full'}
+        type="search"
+        className={`${className || 'border border-slate-300 rounded-lg px-3 py-2 text-sm w-full'} [&::-webkit-search-cancel-button]:hidden`}
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
-        autoComplete="new-password"
-        name="drug-autocomplete-field"
+        autoComplete="off"
+        name={`drug-${Math.random()}`}
       />
       {loading && (
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">טוען...</span>
