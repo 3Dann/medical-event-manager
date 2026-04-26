@@ -14,6 +14,24 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("main")
 
+def _seed_drugs_on_startup():
+    from drug_updater import seed_drugs
+    db = SessionLocal()
+    try:
+        seed_drugs(db)
+    finally:
+        db.close()
+
+
+def _weekly_drug_update():
+    from drug_updater import run_drug_update
+    db = SessionLocal()
+    try:
+        run_drug_update(db)
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
@@ -28,9 +46,17 @@ async def lifespan(app: FastAPI):
         id="auto_scrape",
         replace_existing=True,
     )
+    scheduler.add_job(
+        _weekly_drug_update,
+        trigger="interval",
+        weeks=1,
+        id="weekly_drug_update",
+        replace_existing=True,
+    )
     scheduler.start()
     app.state.scheduler = scheduler
     logger.info("Background scraper scheduler started (every 24h)")
+    _seed_drugs_on_startup()
     yield
     # ── Shutdown ─────────────────────────────────────────────────────────
     scheduler.shutdown(wait=False)
