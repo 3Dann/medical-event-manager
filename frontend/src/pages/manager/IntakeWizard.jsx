@@ -4,6 +4,7 @@ import axios from 'axios'
 import { validateIsraeliId } from '../../utils/validateId'
 import { CityAutocomplete, StreetAutocomplete } from '../../components/AddressAutocomplete'
 import MedicationAutocomplete from '../../components/MedicationAutocomplete'
+import { DosageCombobox, IndicationCombobox, FREQUENCY_OPTIONS as FREQ_OPTS } from '../../components/DrugFormComponents'
 import { useDemoMode } from '../../context/DemoModeContext'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
