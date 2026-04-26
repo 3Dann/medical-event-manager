@@ -973,27 +973,33 @@ export default function IntakeWizard() {
           </div>
 
           {/* Progress */}
-          <div className="flex gap-1 mb-8 overflow-x-auto pb-1">
-            {STEPS.map((s, i) => (
-              <div key={s.id} className="flex items-center gap-1 flex-shrink-0">
-                <div
-                  onClick={() => isDemoMode && setStep(i)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    isDemoMode ? 'cursor-pointer hover:opacity-80' : ''
-                  } ${
-                    i === step ? 'bg-blue-600 text-white' :
-                    i < step  ? 'bg-blue-100 text-blue-700' :
-                    'bg-slate-200 text-slate-500'
-                  }`}
-                >
-                  <span className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${i < step ? 'bg-blue-600 text-white' : ''}`}>
+          <div className="mb-6">
+            <div className="flex items-center mb-3">
+              {STEPS.map((s, i) => (
+                <React.Fragment key={s.id}>
+                  <button
+                    onClick={() => isDemoMode && setStep(i)}
+                    disabled={!isDemoMode && i > step}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${
+                      isDemoMode ? 'cursor-pointer' : i > step ? 'cursor-default' : 'cursor-pointer'
+                    } ${
+                      i === step ? 'bg-blue-600 text-white shadow-md scale-110' :
+                      i < step  ? 'bg-blue-500 text-white' :
+                      'bg-slate-200 text-slate-400'
+                    }`}
+                  >
                     {i < step ? '✓' : i + 1}
-                  </span>
-                  {s.label}
-                </div>
-                {i < STEPS.length - 1 && <div className="w-3 h-0.5 bg-slate-300 flex-shrink-0" />}
-              </div>
-            ))}
+                  </button>
+                  {i < STEPS.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-1 ${i < step ? 'bg-blue-400' : 'bg-slate-200'}`} />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+            <p className="text-sm font-medium text-slate-500">
+              שלב {step + 1} מתוך {STEPS.length} —{' '}
+              <span className="text-slate-800 font-semibold">{STEPS[step].label}</span>
+            </p>
           </div>
 
           {/* Card */}
