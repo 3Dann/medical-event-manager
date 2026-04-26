@@ -238,8 +238,10 @@ export function MedicationCard({ med, onChange, onRemove }) {
   const [dosageSuggestions, setDosageSuggestions] = useState([])
 
   const handleDrugSelect = (drug) => {
-    const autoIndication = !med.indication ? (DRUG_INDICATION_MAP[drug.name] || '') : med.indication
-    onChange({ ...med, name: drug.name, generic_name: drug.generic_name || med.generic_name || '', indication: autoIndication })
+    // Always apply map indication when drug has one; keep manual value only if map has nothing
+    const mappedIndication = DRUG_INDICATION_MAP[drug.name] || ''
+    const newIndication = mappedIndication || med.indication || ''
+    onChange({ ...med, name: drug.name, generic_name: drug.generic_name || med.generic_name || '', indication: newIndication })
   }
 
   return (
