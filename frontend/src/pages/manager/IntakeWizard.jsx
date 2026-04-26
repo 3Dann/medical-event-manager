@@ -516,6 +516,7 @@ export default function IntakeWizard() {
         entrance: form.entrance || null, floor: form.floor || null,
         apartment: form.apartment || null, postal_code: form.postal_code || null,
         phone_prefix: form.phone_prefix, phone: form.phone,
+        phone2_prefix: form.phone2_prefix || null, phone2: form.phone2 || null,
         ec_name: form.ec_name, ec_phone_prefix: form.ec_phone_prefix,
         ec_phone: form.ec_phone, ec_relation: form.ec_relation,
         hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
