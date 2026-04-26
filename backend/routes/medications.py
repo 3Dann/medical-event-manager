@@ -420,32 +420,8 @@ def search_drugs(
     q: str,
     current_user=Depends(auth_utils.get_current_user),
 ):
-    if len(q.strip()) < 2:
+    q = q.strip()
+    if len(q) < 2:
         return []
-    try:
-        resp = http_requests.get(
-            _CKAN_SEARCH_URL,
-            params={"resource_id": _MOH_RESOURCE_ID, "q": q.strip(), "limit": 10},
-            timeout=5,
-        )
-        data = resp.json()
-        if not data.get("success"):
-            return []
-        records = data.get("result", {}).get("records", [])
-        seen = set()
-        results = []
-        for r in records:
-            name = (r.get("shem_mirkhari") or r.get("shem_mirkhari_en") or "").strip()
-            generic = (r.get("shem_klali") or r.get("chomer_peeel") or "").strip()
-            if not name or name in seen:
-                continue
-            seen.add(name)
-            results.append({
-                "name": name,
-                "generic_name": generic,
-                "dosage_form": (r.get("tzurat_matan") or "").strip(),
-                "manufacturer": (r.get("baal_harsha") or "").strip(),
-            })
-        return results
-    except Exception:
-        return []
+    # Always return local results immediately (instant UX)
+    return _search_local(q)
