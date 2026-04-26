@@ -3,6 +3,96 @@
 פורמט: (שם_מסחרי, שם_גנרי, צורת_מתן)
 """
 
+# שם מסחרי (אנגלי) → שם עברי נפוץ
+HEBREW_NAMES: dict[str, str] = {
+    # כאב / חום
+    "Acamol": "אקמול", "Optalgin": "אופטלגין", "Ibufen": "איבופן",
+    "Advil": "אדוויל", "Voltaren": "וולטרן", "Arcoxia": "ארקוקסיה",
+    "Tramadex": "טרמדקס", "Tramadol": "טרמדול",
+    # לחץ דם / לב
+    "Concor": "קונקור", "Norvasc": "נורוואסק", "Amlopin": "אמלופין",
+    "Tritace": "טריטייס", "Coversyl": "קוברסיל", "Zestril": "זסטריל",
+    "Lasix": "לאסיקס", "Aldactone": "אלדקטון", "Cordarone": "קורדרון",
+    "Digoxin": "דיגוקסין", "Lanoxin": "לנוקסין", "Entresto": "אנטרסטו",
+    "Procoralan": "פרוקורלן",
+    # נוגדי קרישה / אנטי-טסיות
+    "Coumadin": "קומדין", "Plavix": "פלביקס", "Xarelto": "קסרלטו",
+    "Eliquis": "אליקויס", "Pradaxa": "פרדקסה", "Clexane": "קלקסיין",
+    "Brilique": "ברילינטה",
+    # כולסטרול
+    "Lipitor": "ליפיטור", "Crestor": "קרסטור", "Zocor": "זוקור",
+    "Ezetrol": "אזטרול", "Inegy": "אינגי",
+    # סוכרת
+    "Glucophage": "גלוקופאג'", "Januvia": "ג'נוויה", "Jardiance": "ג'ארדיאנס",
+    "Forxiga": "פורקסיגה", "Ozempic": "אוזמפיק", "Victoza": "ויקטוזה",
+    "Trulicity": "טרוליסיטי", "Lantus": "לנטוס", "Novorapid": "נוברפיד",
+    "Humalog": "הומלוג", "Tresiba": "טרסיבה", "Levemir": "לבמיר",
+    "Toujeo": "טוג'יאו", "Rybelsus": "ריבלסוס",
+    # בלוטת תריס
+    "Eltroxin": "אלטרוקסין", "Euthyrox": "אוטירוקס",
+    # נוירולוגיה
+    "Tegretol": "טגרטול", "Depakine": "דפאקין", "Lamictal": "לאמיקטל",
+    "Keppra": "קפרה", "Topamax": "טופמקס", "Rivotril": "ריבוטריל",
+    "Neurontin": "נוירונטין", "Lyrica": "ליריקה",
+    # פרקינסון
+    "Madopar": "מאדופר", "Sinemet": "סינמט", "Azilect": "אזילקט",
+    "Rasagiline": "רסגילין",
+    # MS
+    "Copaxone": "קופקסון", "Gilenya": "ג'ילניה", "Tecfidera": "טקפידרה",
+    "Tysabri": "טיסברי", "Ocrevus": "אוקרבוס",
+    # דמנציה
+    "Aricept": "אריספט", "Exelon": "אקסלון", "Ebixa": "אביקסה",
+    # פסיכיאטריה
+    "Cipralex": "ציפרלקס", "Prozac": "פרוזק", "Zoloft": "זולופט",
+    "Effexor": "אפקסור", "Cymbalta": "סימבלטה", "Remeron": "רמרון",
+    "Xanax": "קסנקס", "Rivotril": "ריבוטריל", "Stilnox": "סטילנוקס",
+    "Risperdal": "ריספרדל", "Zyprexa": "זיפרקסה", "Seroquel": "סרוקוול",
+    "Abilify": "אביליפיי", "Haldol": "הלדול",
+    # ADHD
+    "Ritalin": "ריטאלין", "Concerta": "קונצרטה",
+    # ריאות
+    "Ventolin": "ונטולין", "Spiriva": "ספיריבה", "Symbicort": "סימביקורט",
+    "Seretide": "סרטייד", "Flixotide": "פליקסוטייד",
+    "Singulair": "סינגולייר", "Montelukast": "מונטלוקסט",
+    "Xolair": "זולייר", "Dupixent": "דופיקסנט",
+    # קיבה
+    "Losec": "לוסק", "Nexium": "נקסיום", "Controloc": "קונטרולוק",
+    "Primpiran": "פרימפרן", "Motilium": "מוטיליום",
+    "Pentasa": "פנטסה", "Mezavant": "מזוונט",
+    # אלרגיה
+    "Clarityn": "קלריטין", "Zyrtec": "זירטק", "Aerius": "אריוס",
+    # אוסטאופורוזיס
+    "Fosamax": "פוסאמקס", "Prolia": "פרוליה", "Bonviva": "בונויבה",
+    "Evenity": "אוונייטי",
+    # אנטיביוטיקה
+    "Augmentin": "אוגמנטין", "Zithromax": "זיתרומקס", "Klacid": "קלאסיד",
+    "Ciprobay": "ציפרובי", "Tavanic": "טוואניק", "Bactrim": "בקטרים",
+    "Flagyl": "פלגיל", "Zinnat": "זינאט",
+    # אונקולוגיה
+    "Xeloda": "קסלודה", "Taxol": "טקסול", "Taxotere": "טקסוטר",
+    "Herceptin": "הרספטין", "Avastin": "אוואסטין", "Keytruda": "קייטרודה",
+    "Opdivo": "אופדיבו", "Gleevec": "גליבק", "Tasigna": "טסיניה",
+    "Tagrisso": "טגריסו", "Ibrance": "איברנס", "Kisqali": "קיסקלי",
+    "Lynparza": "לינפרזה", "Imbruvica": "אימברוויקה",
+    "Venclexta": "וונקלקסטה", "Revlimid": "רבלימיד", "Velcade": "וולקייד",
+    "Darzalex": "דרזלקס", "Zytiga": "זיטיגה", "Xtandi": "אקסטנדי",
+    "Tamoxifen": "טמוקסיפן", "Femara": "פמרה", "Arimidex": "ארימידקס",
+    "Zoladex": "זולדקס",
+    # ראומטולוגיה
+    "Plaquenil": "פלקווניל", "Arava": "ארבה", "Humira": "הומירה",
+    "Enbrel": "אנברל", "Remicade": "רמיקייד", "Actemra": "אקטמרה",
+    "Rinvoq": "רינבוק", "Xeljanz": "זלג'אנס", "Olumiant": "אולומיאנט",
+    "Cosentyx": "קוסנטיקס", "Stelara": "סטלארה", "MabThera": "מבתרה",
+    "Imuran": "אימוראן", "CellCept": "סלסמט", "Neoral": "נאורל",
+    # שונות
+    "Allopurinol": "אלופורינול", "Zyloric": "זילוריק",
+    "Colchicine": "קולכיצין", "Colchicum": "קולכיקום",
+    "Methotrexate": "מתוטרקסט", "Sildenafil": "סילדנאפיל",
+    "Viagra": "ויאגרה", "Cialis": "סיאליס",
+    "Vitamin D3": "ויטמין D3", "Vitamin B12": "ויטמין B12",
+    "Calcium Carbonate": "סידן", "Folic Acid": "חומצה פולית",
+}
+
 DRUGS = [
     # ═══════════════════════════════════════════════════
     # כאב / אנטי-דלקתי / חום
