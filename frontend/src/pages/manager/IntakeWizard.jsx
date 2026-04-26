@@ -554,7 +554,7 @@ export default function IntakeWizard() {
               <CityAutocomplete
                 value={form.city}
                 cityCode={form.city_code}
-                onChange={(name, code) => { set('city', name); set('city_code', code) }}
+                onChange={(name, code) => { set('city', name); set('city_code', code); if (!name) set('postal_code', '') }}
                 required
                 error={!!errors.city}
               />
