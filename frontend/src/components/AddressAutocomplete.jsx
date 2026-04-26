@@ -65,7 +65,7 @@ export function CityAutocomplete({ value, onChange, required, error }) {
   }, [])
 
   const filtered = input.length > 0
-    ? allCities.filter(c => c.name.startsWith(input) || c.name.includes(input)).slice(0, 12)
+    ? allCities.filter(c => c.name.startsWith(input)).slice(0, 12)
     : []
 
   return (
