@@ -309,6 +309,28 @@ export function MedicationCard({ med, onChange, onRemove }) {
         </div>
       </div>
 
+      {/* ── openFDA interactions ────────────────────────────────────── */}
+      {interactionsText && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+          <button
+            type="button"
+            onClick={() => setShowInteractions(v => !v)}
+            className="text-xs font-medium text-amber-800 flex items-center gap-1 w-full text-right"
+          >
+            <span>{showInteractions ? '▾' : '▸'}</span>
+            ⚠️ אינטראקציות ידועות (openFDA)
+          </button>
+          {showInteractions && (
+            <div className="mt-2">
+              <p className="text-xs text-amber-700 leading-relaxed whitespace-pre-line">{interactionsText}</p>
+              <p className="text-xs text-amber-500 mt-2 italic">
+                ⚕️ מידע זה הוא לצורך מידע בלבד ואינו תחליף לייעוץ רפואי מקצועי.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── Collapsible extra fields ─────────────────────────────────── */}
       <div className="border-t border-slate-100 pt-2">
         <button
