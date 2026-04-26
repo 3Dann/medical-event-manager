@@ -179,6 +179,11 @@ class Patient(Base):
     sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"
     referral_goal = Column(String, nullable=True)
     referral_source = Column(String, nullable=True)
+    financial_consent_agreed = Column(Boolean, default=False)
+    financial_consent_signature_path = Column(String, nullable=True)
+    financial_consent_signed_at = Column(DateTime(timezone=True), nullable=True)
+    signer_name = Column(String, nullable=True)
+    signer_relation = Column(String, nullable=True)
 
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
