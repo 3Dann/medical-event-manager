@@ -120,14 +120,22 @@ export default function PatientMedications() {
   return (
     <div className="p-6 space-y-6 max-w-4xl">
 
-      {/* Interactions panel */}
-      {interactions.length > 0 && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-3">
+      {/* Interactions panel — stays visible during background check */}
+      {(interactions.length > 0 || checkingInteractions) && (
+        <div className={`rounded-2xl border p-4 space-y-3 transition-opacity ${
+          checkingInteractions && interactions.length === 0 ? 'opacity-50' : ''
+        } ${interactions.length > 0 ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-slate-50'}`}>
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-red-800 flex items-center gap-2">
-              ⚠️ התנגשויות תרופות שזוהו ({interactions.length})
+            <h3 className={`font-semibold flex items-center gap-2 ${interactions.length > 0 ? 'text-red-800' : 'text-slate-500'}`}>
+              {checkingInteractions
+                ? <span className="flex items-center gap-2 text-slate-500 text-sm">
+                    <span className="inline-block w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                    בודק אינטראקציות...
+                  </span>
+                : <>⚠️ התנגשויות תרופות שזוהו ({interactions.length})</>
+              }
             </h3>
-            {drugsComNames.length > 1 && (
+            {drugsComNames.length > 1 && interactions.length > 0 && (
               <a
                 href={DRUGS_COM_URL(drugsComNames)}
                 target="_blank"
@@ -157,9 +165,11 @@ export default function PatientMedications() {
               </div>
             )
           })}
-          <p className="text-xs text-slate-500 italic border-t border-red-200 pt-2">
-            ⚕️ מידע זה הוא לצורך מידע בלבד ואינו מהווה תחליף לייעוץ רפואי מקצועי. יש להתייעץ עם רופא או רוקח לפני כל שינוי בטיפול התרופתי.
-          </p>
+          {interactions.length > 0 && (
+            <p className="text-xs text-slate-500 italic border-t border-red-200 pt-2">
+              ⚕️ מידע זה הוא לצורך מידע בלבד ואינו מהווה תחליף לייעוץ רפואי מקצועי. יש להתייעץ עם רופא או רוקח לפני כל שינוי בטיפול התרופתי.
+            </p>
+          )}
         </div>
       )}
 
