@@ -177,6 +177,8 @@ class Patient(Base):
     # ── Medical specialty (auto-suggested from diagnosis) ─────────────────────
     specialty = Column(String, nullable=True)          # e.g. "אונקולוגיה"
     sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"
+    referral_goal = Column(String, nullable=True)
+    referral_source = Column(String, nullable=True)
 
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
