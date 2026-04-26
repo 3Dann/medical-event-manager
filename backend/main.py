@@ -141,6 +141,8 @@ def run_migrations():
         ("patients", "financial_consent_signed_at",      "DATETIME"),
         ("patients", "signer_name",                      "VARCHAR"),
         ("patients", "signer_relation",                  "VARCHAR"),
+        ("patients", "phone2_prefix",                    "VARCHAR"),
+        ("patients", "phone2",                           "VARCHAR"),
         # Demo mode permission
         ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
         # Feedback enhancements
