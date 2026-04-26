@@ -152,9 +152,9 @@ export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, re
     setInput(street.name)
     setOpen(false)
     onChange(street.name)
-    if (onPostalCode && cityCode && street.code) {
+    if (onPostalCode && cityName && street.name) {
       setLoadingZip(true)
-      const zip = await fetchPostalCode(cityCode, street.code)
+      const zip = await fetchPostalCode(cityName, street.name)
       setLoadingZip(false)
       if (zip) onPostalCode(String(zip))
     }
