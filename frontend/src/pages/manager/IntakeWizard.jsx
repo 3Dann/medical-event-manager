@@ -401,8 +401,11 @@ export default function IntakeWizard() {
       if (!form.hmo_name) e.hmo_name = 'שדה חובה'
     }
     if (stepIdx === 6) {
-      if (!form.consent_agreed) e.consent = 'יש לאשר ויתור סודיות'
+      if (!form.signer_is_self && !form.signer_name.trim()) e.signer_name = 'יש להזין שם החותם'
+      if (!form.consent_agreed) e.consent = 'יש לאשר ולחתום על ויתור סודיות רפואית'
       if (!form.consent_signature) e.consent_sig = 'יש לחתום'
+      if (!form.financial_consent_agreed) e.financial_consent = 'יש לאשר ולחתום על ויתור סודיות פיננסי'
+      if (!form.financial_consent_signature) e.financial_consent_sig = 'יש לחתום'
     }
     return e
   }
