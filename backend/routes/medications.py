@@ -129,30 +129,87 @@ def check_interactions(medications: list[dict]) -> list[dict]:
 
 # ── Medication extraction from document text ──────────────────────────────────
 
-MED_PATTERNS = [
-    # Lines like "תרופה: X 10mg פעמיים ביום"
-    re.compile(r"(?:תרופה|תכשיר|טיפול)[:\s]+([א-תA-Za-z][^\n,;]{2,40})", re.IGNORECASE),
-    # Dose patterns: "Metformin 500mg", "Atorvastatin 20mg"
-    re.compile(r"\b([A-Za-zא-ת][A-Za-zא-ת\s]{2,25})\s+(\d+(?:\.\d+)?\s*(?:mg|mcg|ug|ml|g|IU|יח))", re.IGNORECASE),
-    # Lines ending with dosage
-    re.compile(r"^\s*[-•·]\s*([A-Za-zא-ת][^\n]{3,40}(?:mg|ug|mcg|ml|g))", re.MULTILINE | re.IGNORECASE),
-]
+_DOSE_RE = re.compile(
+    r"(\d+(?:[.,]\d+)?\s*(?:mg|mcg|ug|µg|ml|g|IU|יח(?:\'?ד)?|מ\"?ג|מ\"?ל))",
+    re.IGNORECASE,
+)
+_FREQ_WORDS = {
+    "פעם": "פעם ביום", "פעמיים": "פעמיים ביום", "שלוש": "שלוש פעמים ביום",
+    "daily": "פעם ביום", "twice": "פעמיים ביום", "bid": "פעמיים ביום",
+    "tid": "שלוש פעמים ביום", "qid": "ארבע פעמים ביום",
+    "prn": "לפי הצורך (PRN)", "sos": "לפי הצורך (PRN)",
+}
+_NAME_WITH_DOSE_RE = re.compile(
+    r"\b([A-Za-zא-ת][A-Za-zא-ת\s\-]{1,30}?)\s+"
+    r"(\d+(?:[.,]\d+)?\s*(?:mg|mcg|ug|µg|ml|g|IU|יח(?:\'?ד)?|מ\"?ג|מ\"?ל))",
+    re.IGNORECASE,
+)
+_LABELED_RE = re.compile(
+    r"(?:תרופה|תכשיר|טיפול|medication|drug)[:\s]+([A-Za-zא-ת][^\n,;]{2,50})",
+    re.IGNORECASE,
+)
+_BULLET_RE = re.compile(
+    r"^\s*[-•·*]\s*([A-Za-zא-ת][^\n]{3,60})",
+    re.MULTILINE,
+)
 
-# Common stop-words that look like drugs but aren't
-MED_STOPWORDS = {"medical", "hospital", "report", "name", "date", "patient", "לא", "כן", "שם", "תאריך"}
+MED_STOPWORDS = {
+    "medical", "hospital", "report", "name", "date", "patient",
+    "לא", "כן", "שם", "תאריך", "חתימה", "טלפון", "כתובת",
+    "מינון", "dosage", "dose", "frequency", "times", "tablet",
+}
+
+
+def _clean_name(raw: str) -> str:
+    return raw.strip().rstrip(".,;:()").strip()
 
 
 def extract_medications_from_text(text: str) -> list[dict]:
-    candidates = set()
-    for pat in MED_PATTERNS:
-        for m in pat.finditer(text):
-            name = m.group(1).strip().rstrip(".,;:")
-            if len(name) < 3 or len(name) > 50:
-                continue
-            if name.lower() in MED_STOPWORDS:
-                continue
-            candidates.add(name)
-    return [{"name": c, "generic_name": None, "dosage": None, "frequency": None, "indication": None} for c in candidates]
+    results: dict[str, dict] = {}  # name → candidate
+
+    # Pattern 1: "DrugName 10mg [frequency]"
+    for m in _NAME_WITH_DOSE_RE.finditer(text):
+        name = _clean_name(m.group(1))
+        dosage = m.group(2).strip()
+        if len(name) < 3 or name.lower() in MED_STOPWORDS:
+            continue
+        # Try to find frequency in the rest of the line
+        line_rest = text[m.end(): m.end() + 60].split("\n")[0].lower()
+        freq = next((v for k, v in _FREQ_WORDS.items() if k in line_rest), None)
+        if name not in results:
+            results[name] = {"name": name, "dosage": dosage, "frequency": freq, "generic_name": None, "indication": None}
+
+    # Pattern 2: labeled lines — "תרופה: Metformin 500mg"
+    for m in _LABELED_RE.finditer(text):
+        raw = _clean_name(m.group(1))
+        dose_m = _DOSE_RE.search(raw)
+        if dose_m:
+            name = _clean_name(raw[: dose_m.start()])
+            dosage = dose_m.group(1).strip()
+        else:
+            name = raw
+            dosage = None
+        if len(name) < 3 or name.lower() in MED_STOPWORDS:
+            continue
+        if name not in results:
+            results[name] = {"name": name, "dosage": dosage, "frequency": None, "generic_name": None, "indication": None}
+
+    # Pattern 3: bullet lines that weren't caught above
+    for m in _BULLET_RE.finditer(text):
+        raw = _clean_name(m.group(1))
+        dose_m = _DOSE_RE.search(raw)
+        if dose_m:
+            name = _clean_name(raw[: dose_m.start()])
+            dosage = dose_m.group(1).strip()
+        else:
+            name = raw
+            dosage = None
+        if len(name) < 3 or len(name) > 50 or name.lower() in MED_STOPWORDS:
+            continue
+        if name not in results:
+            results[name] = {"name": name, "dosage": dosage, "frequency": None, "generic_name": None, "indication": None}
+
+    return list(results.values())
 
 
 # ── Pydantic schemas ──────────────────────────────────────────────────────────
