@@ -78,6 +78,8 @@ class PatientUpdate(BaseModel):
     medical_stage: Optional[str] = None
     phone_prefix: Optional[str] = None
     phone: Optional[str] = None
+    phone2_prefix: Optional[str] = None
+    phone2: Optional[str] = None
     gender: Optional[str] = None
     birth_date: Optional[str] = None
     marital_status: Optional[str] = None
