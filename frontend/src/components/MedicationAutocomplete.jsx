@@ -76,13 +76,20 @@ export default function MedicationAutocomplete({
       <input
         ref={inputRef}
         type="search"
-        className={`${className || 'border border-slate-300 rounded-lg px-3 py-2 text-sm w-full'} [&::-webkit-search-cancel-button]:hidden`}
+        className={`${className || 'border border-slate-300 rounded-lg px-3 py-2 text-sm w-full'} [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden`}
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         autoComplete="off"
-        name={`drug-${Math.random()}`}
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck={false}
+        data-lpignore="true"
+        data-form-type="other"
+        name="med-drug-search"
+        role="combobox"
+        aria-autocomplete="list"
       />
       {loading && (
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">טוען...</span>
