@@ -205,6 +205,7 @@ class PatientMedication(Base):
     generic_name = Column(String, nullable=True)    # INN from MOH registry
     dosage = Column(String, nullable=True)          # e.g. "10mg"
     frequency = Column(String, nullable=True)       # e.g. "פעמיים ביום"
+    indication = Column(String, nullable=True)      # reason for taking / therapeutic use
     start_date = Column(String, nullable=True)
     end_date = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
