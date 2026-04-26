@@ -13,14 +13,8 @@ import auth as auth_utils
 router = APIRouter(tags=["medications"])
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "../../uploads"))
 
-from drug_list import DRUGS as _ALL_DRUGS, HEBREW_NAMES as _HEBREW_NAMES
-
-# ── Local drug search ─────────────────────────────────────────────────────────
-_LOCAL_DRUGS = _ALL_DRUGS
-
-
 def _word_prefix_match(text: str, prefix: str) -> bool:
-    """True if text itself or any word/component in text starts with prefix."""
+    """True if text or any word-component starts with prefix."""
     t = text.lower()
     if t.startswith(prefix):
         return True
@@ -30,26 +24,30 @@ def _word_prefix_match(text: str, prefix: str) -> bool:
     return False
 
 
-def _search_local(q: str) -> list[dict]:
+def _search_db(q: str, db: Session) -> list[dict]:
     q_low = q.lower()
-    seen = set()
+    # Fetch all active drugs from DB and filter in Python (DB is small, <5k rows)
+    drugs = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).all()
     results = []
-    for name, generic, form in _LOCAL_DRUGS:
-        if name in seen:
+    seen = set()
+    for d in drugs:
+        if d.name in seen:
             continue
-        hebrew = _HEBREW_NAMES.get(name, "")
+        hebrew = d.hebrew_name or ""
         if (
-            _word_prefix_match(name, q_low)
-            or _word_prefix_match(generic, q_low)
-            or (hebrew and q_low in hebrew)  # Hebrew: substring match (RTL)
+            _word_prefix_match(d.name, q_low)
+            or (d.generic_name and _word_prefix_match(d.generic_name, q_low))
+            or (hebrew and q_low in hebrew)
         ):
-            seen.add(name)
+            seen.add(d.name)
+            dosages = json.loads(d.common_dosages) if d.common_dosages else []
             results.append({
-                "name": name,
-                "generic_name": generic,
-                "dosage_form": form,
+                "name": d.name,
+                "generic_name": d.generic_name or "",
+                "dosage_form": d.dosage_form or "",
                 "manufacturer": "",
                 "hebrew_name": hebrew,
+                "common_dosages": dosages,
             })
     return results
 
