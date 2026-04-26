@@ -132,6 +132,9 @@ def run_migrations():
         # Medical specialty (auto-suggested)
         ("patients", "specialty",              "VARCHAR"),
         ("patients", "sub_specialty",          "VARCHAR"),
+        # Referral fields (replaced height/weight in intake form)
+        ("patients", "referral_goal",          "VARCHAR"),
+        ("patients", "referral_source",        "VARCHAR"),
         # Demo mode permission
         ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
         # Feedback enhancements
