@@ -205,6 +205,10 @@ class DrugEntry(Base):
     dosage_form = Column(String, nullable=True)
     hebrew_name = Column(String, nullable=True)
     common_dosages = Column(Text, nullable=True)          # JSON: ["10mg","20mg"]
+    openfda_indication = Column(Text, nullable=True)      # short indication from openFDA
+    openfda_dosages = Column(Text, nullable=True)         # JSON: extracted from openFDA
+    openfda_interactions = Column(Text, nullable=True)    # raw interaction text from openFDA
+    openfda_fetched_at = Column(DateTime(timezone=True), nullable=True)
     source = Column(String, default="local")              # local / openfda
     is_active = Column(Boolean, default=True)
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
