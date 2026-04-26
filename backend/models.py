@@ -184,6 +184,8 @@ class Patient(Base):
     financial_consent_signed_at = Column(DateTime(timezone=True), nullable=True)
     signer_name = Column(String, nullable=True)
     signer_relation = Column(String, nullable=True)
+    phone2_prefix = Column(String, nullable=True)
+    phone2 = Column(String, nullable=True)
 
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
