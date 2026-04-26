@@ -110,8 +110,8 @@ function DosageCombobox({ value, onChange, suggestions }) {
         value={query}
         onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true) }}
         onFocus={() => { if (suggestions.length > 0) setOpen(true) }}
-        autoComplete="new-password"
-        name="dosage-field"
+        autoComplete="off"
+        name="dosage-combobox"
       />
       <DropdownPortal inputRef={inputRef} open={open && filtered.length > 0}>
         <ul className="bg-white border border-slate-200 rounded-xl shadow-lg max-h-44 overflow-y-auto text-sm">
