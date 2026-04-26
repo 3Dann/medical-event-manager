@@ -986,6 +986,21 @@ export default function IntakeWizard() {
       case 6: return (
         <div className="space-y-6">
 
+          {/* אזהרה משפטית */}
+          <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex gap-3">
+            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+            <div>
+              <p className="text-sm font-bold text-amber-800">טיוטה בלבד — לא אושרה משפטית</p>
+              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                המסמכים שלהלן הם טיוטות שנוסחו על בסיס חוק זכויות החולה, חוק הפיקוח על הביטוח וחוק ייפוי הכוח.
+                הם <strong>טרם עברו בדיקה של עורך דין</strong> ואין בהם משום ייעוץ משפטי.
+                יש להעבירם לאישור משפטי לפני שימוש מחייב.
+              </p>
+            </div>
+          </div>
+
           {/* חותם */}
           <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
             <p className="text-sm font-semibold text-slate-700 mb-3">מי חותם על המסמכים?</p>
