@@ -68,9 +68,14 @@ export default function MedicationAutocomplete({ value, onChange, placeholder = 
               onMouseDown={() => handleSelect(d)}
               className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 border-b border-slate-100 last:border-0"
             >
-              <span className="font-medium text-slate-800">{d.name}</span>
-              {d.generic_name && <span className="text-slate-400 text-xs mr-2">({d.generic_name})</span>}
-              {d.dosage_form && <span className="text-slate-400 text-xs mr-1">· {d.dosage_form}</span>}
+              <div className="flex items-baseline gap-2 flex-wrap">
+                <span className="font-medium text-slate-800">{d.name}</span>
+                {d.hebrew_name && <span className="font-medium text-blue-700 text-sm">{d.hebrew_name}</span>}
+              </div>
+              <div className="text-xs text-slate-400 mt-0.5">
+                {d.generic_name && <span>{d.generic_name}</span>}
+                {d.dosage_form && <span className="mr-2">· {d.dosage_form}</span>}
+              </div>
             </li>
           ))}
         </ul>
