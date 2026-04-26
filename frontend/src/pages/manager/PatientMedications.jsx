@@ -7,17 +7,6 @@ import {
   INDICATION_OPTIONS, FREQUENCY_OPTIONS,
 } from '../../components/DrugFormComponents'
 
-const FREQUENCY_OPTIONS = [
-  'פעם ביום', 'פעמיים ביום', 'שלוש פעמים ביום', 'ארבע פעמים ביום',
-  'כל 8 שעות', 'כל 12 שעות', 'פעם בשבוע', 'לפי הצורך (PRN)', 'אחר',
-]
-
-const INDICATION_OPTIONS = [
-  'יתר לחץ דם', 'סוכרת', 'כולסטרול גבוה', 'אי ספיקת לב', 'פרפור פרוזדורים',
-  'מניעת קרישי דם', 'כאב', 'דיכאון / חרדה', 'אפילפסיה', 'תת פעילות בלוטת תריס',
-  'רפלוקס / קיבה', 'אוסטאופורוזיס', 'מחלה אוטואימונית', 'אחר',
-]
-
 const SEVERITY_COLORS = {
   high:   { bg: 'bg-red-50',    border: 'border-red-300',    text: 'text-red-700',    badge: 'bg-red-100 text-red-700',   icon: '🔴' },
   medium: { bg: 'bg-amber-50',  border: 'border-amber-300',  text: 'text-amber-700',  badge: 'bg-amber-100 text-amber-700', icon: '🟡' },
