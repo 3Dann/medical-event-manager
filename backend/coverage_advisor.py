@@ -40,13 +40,15 @@ CATEGORY_LABELS = {
 }
 
 
-def _company_name(source: models.InsuranceSource) -> str:
+def _company_name(source) -> str:
     """Return the display name of an insurance source for responsiveness lookup."""
+    if source is None:
+        return ""
     if source.source_type == "kupat_holim" and source.hmo_name:
         return HMO_TO_COMPANY.get(source.hmo_name, source.hmo_name)
     if source.company_name:
         return source.company_name
-    return SOURCE_TYPE_TO_COMPANY.get(source.source_type, source.source_type)
+    return SOURCE_TYPE_TO_COMPANY.get(source.source_type, source.source_type or "")
 
 
 def _responsiveness(db: Session, company: str) -> Optional[float]:
