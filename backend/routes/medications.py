@@ -13,7 +13,7 @@ import auth as auth_utils
 router = APIRouter(tags=["medications"])
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "../../uploads"))
 
-from drug_list import DRUGS as _ALL_DRUGS
+from drug_list import DRUGS as _ALL_DRUGS, HEBREW_NAMES as _HEBREW_NAMES
 
 # ── Local drug search ─────────────────────────────────────────────────────────
 _LOCAL_DRUGS = _ALL_DRUGS
