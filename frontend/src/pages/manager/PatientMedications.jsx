@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
-import MedicationAutocomplete from '../../components/MedicationAutocomplete'
 import {
-  DropdownPortal, IndicationCombobox, DosageCombobox,
-  INDICATION_OPTIONS, FREQUENCY_OPTIONS,
+  MedicationCard, MedRow, DRUG_INDICATION_MAP,
 } from '../../components/DrugFormComponents'
 
 const SEVERITY_COLORS = {
