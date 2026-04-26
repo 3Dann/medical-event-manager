@@ -236,8 +236,10 @@ export function DosageCombobox({ value, onChange, suggestions, className = 'inpu
 // ── MedicationCard — shared add/edit form ─────────────────────────────────────
 export function MedicationCard({ med, onChange, onRemove }) {
   const [dosageSuggestions, setDosageSuggestions] = useState([])
+  const [interactionsText, setInteractionsText] = useState('')
+  const [showInteractions, setShowInteractions] = useState(false)
+  const [enriching, setEnriching] = useState(false)
   const [showExtra, setShowExtra] = useState(
-    // Open extra fields if any of them already have data
     () => !!(med.start_date || med.end_date || med.notes || med.is_active === false)
   )
 
@@ -245,6 +247,24 @@ export function MedicationCard({ med, onChange, onRemove }) {
     const mappedIndication = DRUG_INDICATION_MAP[drug.name] || ''
     const newIndication = mappedIndication || med.indication || ''
     onChange({ ...med, name: drug.name, generic_name: drug.generic_name || med.generic_name || '', indication: newIndication })
+    setInteractionsText('')
+    setShowInteractions(false)
+  }
+
+  const handleEnrichment = (data) => {
+    setEnriching(false)
+    // Update dosage suggestions if openFDA has better data
+    if (data.dosages?.length) setDosageSuggestions(data.dosages)
+    // Auto-fill indication if empty and openFDA has one
+    if (data.indication && !med.indication) {
+      // Map long English text to our Hebrew options or use as-is
+      const mapped = Object.entries(DRUG_INDICATION_MAP).find(([k]) =>
+        k.toLowerCase() === med.name?.toLowerCase()
+      )
+      if (!mapped) onChange(prev => ({ ...prev, indication: data.indication }))
+    }
+    // Store interaction text for display
+    if (data.interactions_text) setInteractionsText(data.interactions_text)
   }
 
   return (
