@@ -24,6 +24,7 @@ export default function PatientMedications() {
   const { id } = useParams()
   const [medications, setMedications] = useState([])
   const [interactions, setInteractions] = useState([])
+  const [checkingInteractions, setCheckingInteractions] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState(null)
   const [form, setForm] = useState(emptyForm())
@@ -40,6 +41,13 @@ export default function PatientMedications() {
     const res = await axios.get(`/api/patients/${id}/medications`)
     setMedications(res.data.medications)
     setInteractions(res.data.interactions)
+    setCheckingInteractions(false)
+  }
+
+  // Background interaction check — keeps old interactions visible while loading
+  const checkInBackground = () => {
+    setCheckingInteractions(true)
+    fetchAll()   // fetchAll sets checkingInteractions false when done
   }
 
   const fetchDocuments = async () => {
@@ -50,7 +58,7 @@ export default function PatientMedications() {
   useEffect(() => { fetchAll(); fetchDocuments() }, [id])
 
   const openAdd = () => { setForm(emptyForm()); setEditId(null); setShowForm(true) }
-  const openEdit = async (m) => {
+  const openEdit = (m) => {
     setForm({
       name: m.name || '', generic_name: m.generic_name || '', dosage: m.dosage || '',
       frequency: m.frequency || '', indication: m.indication || '',
@@ -71,20 +79,21 @@ export default function PatientMedications() {
       } else {
         await axios.post(`/api/patients/${id}/medications`, form)
       }
-      setShowForm(false)
-      fetchAll()
-    } finally { setSaving(false) }
+      setShowForm(false)   // close modal immediately
+      setSaving(false)
+      checkInBackground()  // check interactions without blocking UI
+    } catch { setSaving(false) }
   }
 
   const handleDelete = async (medId) => {
     if (!confirm('למחוק תרופה זו?')) return
     await axios.delete(`/api/patients/${id}/medications/${medId}`)
-    fetchAll()
+    checkInBackground()
   }
 
   const toggleActive = async (m) => {
     await axios.put(`/api/patients/${id}/medications/${m.id}`, { is_active: !m.is_active })
-    fetchAll()
+    checkInBackground()
   }
 
   const handleExtract = async () => {
