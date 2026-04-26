@@ -3,15 +3,22 @@ import React, { useState, useEffect, useRef } from 'react'
 const GOV_API = 'https://data.gov.il/api/3/action/datastore_search'
 const CITIES_RESOURCE  = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba'
 const STREETS_RESOURCE = 'a7296d1a-f8c9-4b70-96c2-6ebb4352f8e3'
-const POSTAL_RESOURCE  = 'f7f8b71f-73d8-4e1c-a06b-f87cd8b9c8b3'
-
-async function fetchPostalCode(cityCode, streetCode) {
+async function fetchPostalCode(cityName, streetName) {
   try {
-    const filters = encodeURIComponent(JSON.stringify({ CITY_CODE: Number(cityCode), STREET_CODE: Number(streetCode) }))
-    const res = await fetch(`${GOV_API}?resource_id=${POSTAL_RESOURCE}&filters=${filters}&limit=1`)
+    const params = new URLSearchParams({
+      street: streetName,
+      city: cityName,
+      country: 'IL',
+      format: 'json',
+      addressdetails: '1',
+      limit: '1',
+    })
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?${params}`,
+      { headers: { 'User-Agent': 'OrlyMedical/1.0' } }
+    )
     const data = await res.json()
-    const rec = data?.result?.records?.[0]
-    return rec?.ZIP ?? rec?.מיקוד ?? null
+    return data?.[0]?.address?.postcode ?? null
   } catch { return null }
 }
 
