@@ -140,8 +140,8 @@ _FREQ_WORDS = {
     "prn": "לפי הצורך (PRN)", "sos": "לפי הצורך (PRN)",
 }
 _NAME_WITH_DOSE_RE = re.compile(
-    r"\b([A-Za-zא-ת][A-Za-zא-ת\s\-]{1,30}?)\s+"
-    r"(\d+(?:[.,]\d+)?\s*(?:mg|mcg|ug|µg|ml|g|IU|יח(?:\'?ד)?|מ\"?ג|מ\"?ל))",
+    r"\b([A-Za-zא-ת][A-Za-zא-ת \-]{1,30}?)[ \t]+"
+    r"(\d+(?:[.,]\d+)?[ \t]*(?:mg|mcg|ug|µg|ml|g|IU|יח(?:\'?ד)?|מ\"?ג|מ\"?ל))",
     re.IGNORECASE,
 )
 _LABELED_RE = re.compile(
