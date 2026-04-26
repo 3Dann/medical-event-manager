@@ -374,7 +374,11 @@ export default function PatientMedications() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">מינון</label>
-                  <input className="input" value={form.dosage} onChange={e => setForm(f => ({ ...f, dosage: e.target.value }))} placeholder="למשל: 10mg" />
+                  <DosageCombobox
+                    value={form.dosage}
+                    onChange={v => setForm(f => ({ ...f, dosage: v }))}
+                    suggestions={dosageSuggestions}
+                  />
                 </div>
                 <div>
                   <label className="label">תדירות</label>
