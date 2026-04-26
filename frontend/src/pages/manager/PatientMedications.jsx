@@ -242,7 +242,7 @@ export default function PatientMedications() {
         </div>
       ) : (
         <div className="space-y-3">
-          {active.map(m => <MedCard key={m.id} med={m} onEdit={openEdit} onDelete={handleDelete} onToggle={toggleActive} />)}
+          {active.map(m => <MedRow key={m.id} med={m} onEdit={openEdit} onDelete={handleDelete} onToggle={toggleActive} />)}
         </div>
       )}
 
@@ -257,7 +257,7 @@ export default function PatientMedications() {
           </button>
           {showInactive && (
             <div className="space-y-2 opacity-70">
-              {inactive.map(m => <MedCard key={m.id} med={m} onEdit={openEdit} onDelete={handleDelete} onToggle={toggleActive} />)}
+              {inactive.map(m => <MedRow key={m.id} med={m} onEdit={openEdit} onDelete={handleDelete} onToggle={toggleActive} />)}
             </div>
           )}
         </div>
@@ -323,7 +323,7 @@ export default function PatientMedications() {
   )
 }
 
-function MedCard({ med, onEdit, onDelete, onToggle }) {
+function MedRow({ med, onEdit, onDelete, onToggle }) {
   return (
     <div className={`card flex items-start gap-4 ${!med.is_active ? 'opacity-60' : ''}`}>
       <div className="flex-1 min-w-0">
