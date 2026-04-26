@@ -261,30 +261,12 @@ export default function PatientMedications() {
               <h3 className="font-bold text-slate-800">{editId ? 'עריכת תרופה' : 'הוספת תרופה'}</h3>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
             </div>
-            <form onSubmit={handleSave} autoComplete="off" className="p-6 space-y-4">
+            <form onSubmit={handleSave} autoComplete="off" className="p-6">
               <MedicationCard
                 med={form}
                 onChange={updated => setForm(f => ({ ...f, ...updated }))}
               />
-              <div className="grid grid-cols-2 gap-3 border-t pt-4">
-                <div>
-                  <label className="label text-xs">תאריך התחלה</label>
-                  <input type="date" className="input" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} />
-                </div>
-                <div>
-                  <label className="label text-xs">תאריך סיום</label>
-                  <input type="date" className="input" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} />
-                </div>
-              </div>
-              <div>
-                <label className="label text-xs">הערות</label>
-                <textarea className="input" rows={2} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
-              </div>
-              <div className="flex items-center gap-2">
-                <input type="checkbox" id="is_active" checked={form.is_active} onChange={e => setForm(f => ({ ...f, is_active: e.target.checked }))} className="w-4 h-4" />
-                <label htmlFor="is_active" className="text-sm text-slate-700">תרופה פעילה</label>
-              </div>
-              <div className="flex gap-3 justify-end border-t pt-4">
+              <div className="flex gap-3 justify-end border-t pt-4 mt-4">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
                 <button type="submit" disabled={saving || !form.name.trim()} className="btn-primary disabled:opacity-50">
                   {saving ? 'שומר...' : 'שמור'}
