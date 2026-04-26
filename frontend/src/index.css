@@ -4,6 +4,11 @@
 
 * { direction: rtl; }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   font-family: 'Segoe UI', 'Arial Hebrew', Arial, sans-serif;
   background-color: #f8fafc;
