@@ -106,7 +106,7 @@ export function CityAutocomplete({ value, onChange, required, error }) {
 
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
-export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, required, error, disabled }) {
+export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPostalCode, required, error, disabled }) {
   const [input, setInput]         = useState(value || '')
   const [allStreets, setStreets]  = useState([])  // [{name, code}]
   const [loadingStreets, setLoad] = useState(false)
