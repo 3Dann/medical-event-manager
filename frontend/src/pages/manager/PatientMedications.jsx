@@ -86,11 +86,12 @@ function IndicationCombobox({ value, onChange }) {
 function DosageCombobox({ value, onChange, suggestions }) {
   const [query, setQuery] = useState(value || '')
   const [open, setOpen] = useState(false)
-  const ref = useRef(null)
+  const wrapRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => { setQuery(value || '') }, [value])
   useEffect(() => {
-    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const h = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
     document.addEventListener('mousedown', h)
     return () => document.removeEventListener('mousedown', h)
   }, [])
@@ -100,25 +101,27 @@ function DosageCombobox({ value, onChange, suggestions }) {
     : suggestions
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={wrapRef}>
       <input
+        ref={inputRef}
         className="input w-full"
-        placeholder="מינון (למשל: 10mg)"
+        placeholder={suggestions.length > 0 ? `מינון (${suggestions.slice(0, 3).join(' / ')})` : 'מינון (למשל: 10mg)'}
         value={query}
         onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true) }}
-        onFocus={() => suggestions.length > 0 && setOpen(true)}
-        autoComplete="off"
+        onFocus={() => { if (suggestions.length > 0) setOpen(true) }}
+        autoComplete="new-password"
+        name="dosage-field"
       />
-      {open && filtered.length > 0 && (
-        <ul className="absolute z-50 right-0 left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-40 overflow-y-auto text-sm">
+      <DropdownPortal inputRef={inputRef} open={open && filtered.length > 0}>
+        <ul className="bg-white border border-slate-200 rounded-xl shadow-lg max-h-44 overflow-y-auto text-sm">
           {filtered.map(d => (
             <li key={d} onMouseDown={() => { setQuery(d); onChange(d); setOpen(false) }}
-              className="px-4 py-2 cursor-pointer hover:bg-blue-50 border-b border-slate-100 last:border-0">
+              className="px-4 py-2.5 cursor-pointer hover:bg-blue-50 border-b border-slate-100 last:border-0 font-medium text-slate-700">
               {d}
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   )
 }
