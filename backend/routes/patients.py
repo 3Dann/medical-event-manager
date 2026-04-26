@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
 SIGNATURES_DIR = os.environ.get("SIGNATURES_DIR", "/data/signatures")
+UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/data/uploads")
 
 
 class PatientCreate(BaseModel):
