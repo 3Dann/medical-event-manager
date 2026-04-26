@@ -962,7 +962,7 @@ export default function IntakeWizard() {
   return (
     <ErrorCtx.Provider value={errors}>
     <FormCtx.Provider value={form}>
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8" dir="rtl">
+      <div className="min-h-full bg-slate-50 p-4 md:p-8" dir="rtl">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="mb-6">
