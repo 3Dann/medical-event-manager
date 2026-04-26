@@ -212,7 +212,7 @@ export default function ManagerLayout() {
       )}
 
       {/* ── Main content ── */}
-      <main className="flex-1 overflow-auto relative flex flex-col min-w-0">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col min-w-0">
 
         {/* Top nav bar */}
         <div className="sticky top-0 z-20 bg-white border-b border-slate-200 px-3 md:px-6 py-2.5 flex items-center gap-2 md:gap-3">
