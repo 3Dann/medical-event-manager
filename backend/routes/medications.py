@@ -13,9 +13,13 @@ import auth as auth_utils
 router = APIRouter(tags=["medications"])
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "../../uploads"))
 
-# ── Local fallback drug list (common Israeli medications) ─────────────────────
-# Format: (trade_name, generic_name, dosage_form)
-_LOCAL_DRUGS = [
+from drug_list import DRUGS as _ALL_DRUGS
+
+# ── Local drug search ─────────────────────────────────────────────────────────
+_LOCAL_DRUGS = _ALL_DRUGS  # keep alias for _search_local
+
+# DELETE old inline list placeholder (loaded from drug_list.py above)
+_PLACEHOLDER = [
     # כאב / חום
     ("Acamol", "Paracetamol", "טבליות"),
     ("Optalgin", "Dipyrone (Metamizole)", "טבליות"),
