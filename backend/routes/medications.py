@@ -11,10 +11,144 @@ import models
 import auth as auth_utils
 
 router = APIRouter(tags=["medications"])
-
-_MOH_RESOURCE_ID = "fc8ada28-7b38-4b4f-8a32-8e47d9d10bca"
-_CKAN_SEARCH_URL  = "https://data.gov.il/api/3/action/datastore_search"
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "../../uploads"))
+
+# ── Local fallback drug list (common Israeli medications) ─────────────────────
+# Format: (trade_name, generic_name, dosage_form)
+_LOCAL_DRUGS = [
+    # כאב / חום
+    ("Acamol", "Paracetamol", "טבליות"),
+    ("Optalgin", "Dipyrone (Metamizole)", "טבליות"),
+    ("Ibufen", "Ibuprofen", "טבליות"),
+    ("Advil", "Ibuprofen", "טבליות"),
+    ("Voltaren", "Diclofenac", "טבליות / ג'ל"),
+    ("Arcoxia", "Etoricoxib", "טבליות"),
+    ("Tramadex", "Tramadol", "טבליות"),
+    # לב ולחץ דם
+    ("Enalapril", "Enalapril", "טבליות"),
+    ("Ramipril", "Ramipril", "טבליות"),
+    ("Lisinopril", "Lisinopril", "טבליות"),
+    ("Perindopril", "Perindopril", "טבליות"),
+    ("Concor", "Bisoprolol", "טבליות"),
+    ("Betaloc", "Metoprolol", "טבליות"),
+    ("Norvasc", "Amlodipine", "טבליות"),
+    ("Amlopin", "Amlodipine", "טבליות"),
+    ("Losartan", "Losartan", "טבליות"),
+    ("Valsartan", "Valsartan", "טבליות"),
+    ("Irbesartan", "Irbesartan", "טבליות"),
+    ("Coversyl", "Perindopril", "טבליות"),
+    ("Zestril", "Lisinopril", "טבליות"),
+    ("Tritace", "Ramipril", "טבליות"),
+    # משתנים
+    ("Lasix", "Furosemide", "טבליות"),
+    ("Furosemide", "Furosemide", "טבליות"),
+    ("Aldactone", "Spironolactone", "טבליות"),
+    ("Moduretic", "Amiloride + Hydrochlorothiazide", "טבליות"),
+    # נוגדי קרישה / אנטי-טסיות
+    ("Aspirin Cardio", "Aspirin", "טבליות"),
+    ("Plavix", "Clopidogrel", "טבליות"),
+    ("Clopidogrel", "Clopidogrel", "טבליות"),
+    ("Coumadin", "Warfarin", "טבליות"),
+    ("Xarelto", "Rivaroxaban", "טבליות"),
+    ("Eliquis", "Apixaban", "טבליות"),
+    ("Pradaxa", "Dabigatran", "כמוסות"),
+    # כולסטרול
+    ("Lipitor", "Atorvastatin", "טבליות"),
+    ("Atorvastatin", "Atorvastatin", "טבליות"),
+    ("Crestor", "Rosuvastatin", "טבליות"),
+    ("Rosuvastatin", "Rosuvastatin", "טבליות"),
+    ("Zocor", "Simvastatin", "טבליות"),
+    ("Simvastatin", "Simvastatin", "טבליות"),
+    ("Ezetimibe", "Ezetimibe", "טבליות"),
+    ("Inegy", "Ezetimibe + Simvastatin", "טבליות"),
+    # סוכרת
+    ("Glucophage", "Metformin", "טבליות"),
+    ("Metformin", "Metformin", "טבליות"),
+    ("Januvia", "Sitagliptin", "טבליות"),
+    ("Trajenta", "Linagliptin", "טבליות"),
+    ("Jardiance", "Empagliflozin", "טבליות"),
+    ("Forxiga", "Dapagliflozin", "טבליות"),
+    ("Ozempic", "Semaglutide", "זריקה"),
+    ("Victoza", "Liraglutide", "זריקה"),
+    ("Lantus", "Insulin Glargine", "זריקה"),
+    ("Novorapid", "Insulin Aspart", "זריקה"),
+    ("Humalog", "Insulin Lispro", "זריקה"),
+    # בלוטת תריס
+    ("Eltroxin", "Levothyroxine", "טבליות"),
+    ("Euthyrox", "Levothyroxine", "טבליות"),
+    ("Levothyroxine", "Levothyroxine", "טבליות"),
+    # נפשי / נוירולוגי
+    ("Cipralex", "Escitalopram", "טבליות"),
+    ("Prozac", "Fluoxetine", "כמוסות"),
+    ("Zoloft", "Sertraline", "טבליות"),
+    ("Sertraline", "Sertraline", "טבליות"),
+    ("Effexor", "Venlafaxine", "כמוסות"),
+    ("Cymbalta", "Duloxetine", "כמוסות"),
+    ("Remeron", "Mirtazapine", "טבליות"),
+    ("Risperdal", "Risperidone", "טבליות"),
+    ("Zyprexa", "Olanzapine", "טבליות"),
+    ("Seroquel", "Quetiapine", "טבליות"),
+    ("Abilify", "Aripiprazole", "טבליות"),
+    ("Tegretol", "Carbamazepine", "טבליות"),
+    ("Depakine", "Valproic Acid", "טבליות"),
+    ("Lamictal", "Lamotrigine", "טבליות"),
+    ("Rivotril", "Clonazepam", "טבליות"),
+    ("Xanax", "Alprazolam", "טבליות"),
+    ("Stilnox", "Zolpidem", "טבליות"),
+    # אנטיביוטיקה נפוצה
+    ("Amoxicillin", "Amoxicillin", "כמוסות"),
+    ("Augmentin", "Amoxicillin + Clavulanate", "טבליות"),
+    ("Azithromycin", "Azithromycin", "טבליות"),
+    ("Zithromax", "Azithromycin", "טבליות"),
+    ("Klacid", "Clarithromycin", "טבליות"),
+    ("Cipro", "Ciprofloxacin", "טבליות"),
+    ("Ciprobay", "Ciprofloxacin", "טבליות"),
+    ("Doxycycline", "Doxycycline", "כמוסות"),
+    # קיבה / עיכול
+    ("Losec", "Omeprazole", "כמוסות"),
+    ("Omepradex", "Omeprazole", "כמוסות"),
+    ("Nexium", "Esomeprazole", "טבליות"),
+    ("Controloc", "Pantoprazole", "טבליות"),
+    ("Zantac", "Ranitidine", "טבליות"),
+    ("Motilium", "Domperidone", "טבליות"),
+    ("Primpiran", "Metoclopramide", "טבליות"),
+    # נשימה / אלרגיה
+    ("Ventolin", "Salbutamol", "אינהלר"),
+    ("Salbutamol", "Salbutamol", "אינהלר"),
+    ("Flixotide", "Fluticasone", "אינהלר"),
+    ("Symbicort", "Budesonide + Formoterol", "אינהלר"),
+    ("Seretide", "Salmeterol + Fluticasone", "אינהלר"),
+    ("Spiriva", "Tiotropium", "אינהלר"),
+    ("Clarityn", "Loratadine", "טבליות"),
+    ("Zyrtec", "Cetirizine", "טבליות"),
+    ("Aerius", "Desloratadine", "טבליות"),
+    # אוסטאופורוזיס
+    ("Fosamax", "Alendronate", "טבליות"),
+    ("Bonviva", "Ibandronate", "טבליות"),
+    ("Prolia", "Denosumab", "זריקה"),
+    # אחר
+    ("Digoxin", "Digoxin", "טבליות"),
+    ("Amiodarone", "Amiodarone", "טבליות"),
+    ("Cordarone", "Amiodarone", "טבליות"),
+    ("Allopurinol", "Allopurinol", "טבליות"),
+    ("Methotrexate", "Methotrexate", "טבליות"),
+    ("Prednisolone", "Prednisolone", "טבליות"),
+    ("Prednisone", "Prednisone", "טבליות"),
+    ("Vitamin D3", "Cholecalciferol", "טיפות / טבליות"),
+    ("Calcium", "Calcium Carbonate", "טבליות"),
+    ("Omacor", "Omega-3", "כמוסות"),
+    ("Viagra", "Sildenafil", "טבליות"),
+    ("Cialis", "Tadalafil", "טבליות"),
+]
+
+
+def _search_local(q: str) -> list[dict]:
+    q_low = q.lower()
+    results = []
+    for name, generic, form in _LOCAL_DRUGS:
+        if q_low in name.lower() or q_low in generic.lower():
+            results.append({"name": name, "generic_name": generic, "dosage_form": form, "manufacturer": ""})
+    return results[:10]
 
 # ── Known drug interactions (generic name → list of interactions) ─────────────
 # severity: high / medium / low
