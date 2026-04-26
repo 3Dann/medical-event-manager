@@ -19,12 +19,39 @@ from drug_list import DRUGS as _ALL_DRUGS
 _LOCAL_DRUGS = _ALL_DRUGS
 
 
+def _word_prefix_match(text: str, prefix: str) -> bool:
+    """True if text itself or any word/component in text starts with prefix."""
+    t = text.lower()
+    if t.startswith(prefix):
+        return True
+    for word in re.split(r'[\s\-\+/(,]', t):
+        if word and word.startswith(prefix):
+            return True
+    return False
+
+
 def _search_local(q: str) -> list[dict]:
     q_low = q.lower()
+    seen = set()
     results = []
-    for name, generic, form in _LOCAL_DRUGS:
-        if q_low in name.lower() or q_low in generic.lower():
-            results.append({"name": name, "generic_name": generic, "dosage_form": form, "manufacturer": ""})
+    for entry in _LOCAL_DRUGS:
+        name, generic, form = entry[0], entry[1], entry[2]
+        hebrew = entry[3] if len(entry) > 3 else None
+        if name in seen:
+            continue
+        if (
+            _word_prefix_match(name, q_low)
+            or _word_prefix_match(generic, q_low)
+            or (hebrew and q_low in hebrew)  # Hebrew: substring OK (RTL words)
+        ):
+            seen.add(name)
+            results.append({
+                "name": name,
+                "generic_name": generic,
+                "dosage_form": form,
+                "manufacturer": "",
+                "hebrew_name": hebrew or "",
+            })
     return results
 
 # ── Known drug interactions (generic name → list of interactions) ─────────────
