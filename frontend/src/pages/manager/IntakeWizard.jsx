@@ -320,6 +320,7 @@ function SignatureCanvas({ label, onChange }) {
 const EMPTY_FORM = {
   full_name: '', id_number: '', birth_date: '', gender: '',
   marital_status: '', num_children: '', height_cm: '', weight_kg: '',
+  referral_goal: '', referral_source: '',
   city: '', city_code: '', street: '', house_number: '',
   entrance: '', floor: '', apartment: '', postal_code: '',
   phone_prefix: '050', phone: '',
