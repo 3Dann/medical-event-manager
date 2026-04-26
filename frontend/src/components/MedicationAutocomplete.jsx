@@ -1,5 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import axios from 'axios'
+
+function DropdownPortal({ inputRef, open, children }) {
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 })
+
+  useEffect(() => {
+    if (!open || !inputRef.current) return
+    const r = inputRef.current.getBoundingClientRect()
+    setPos({ top: r.bottom + window.scrollY, left: r.left + window.scrollX, width: r.width })
+  }, [open, inputRef])
+
+  if (!open) return null
+  return createPortal(
+    <div
+      style={{ position: 'absolute', top: pos.top + 4, left: pos.left, width: pos.width, zIndex: 9999 }}
+    >
+      {children}
+    </div>,
+    document.body
+  )
+}
 
 export default function MedicationAutocomplete({
   value, onChange, onDosagesAvailable,
@@ -11,6 +32,7 @@ export default function MedicationAutocomplete({
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef(null)
   const containerRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => { setQuery(value || '') }, [value])
 
@@ -54,18 +76,20 @@ export default function MedicationAutocomplete({
   return (
     <div ref={containerRef} className="relative">
       <input
+        ref={inputRef}
         className={className || 'border border-slate-300 rounded-lg px-3 py-2 text-sm w-full'}
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
-        autoComplete="off"
+        autoComplete="new-password"
+        name="drug-autocomplete-field"
       />
       {loading && (
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">טוען...</span>
       )}
-      {open && suggestions.length > 0 && (
-        <ul className="absolute z-50 right-0 left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto text-sm">
+      <DropdownPortal inputRef={inputRef} open={open && suggestions.length > 0}>
+        <ul className="bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto text-sm">
           {suggestions.map((d, i) => (
             <li
               key={i}
@@ -86,7 +110,7 @@ export default function MedicationAutocomplete({
             </li>
           ))}
         </ul>
-      )}
+      </DropdownPortal>
     </div>
   )
 }
