@@ -411,8 +411,10 @@ function MedCard({ med, onEdit, onDelete, onToggle }) {
         <div className="flex gap-3 mt-1 flex-wrap text-sm text-slate-600">
           {med.dosage && <span>💊 {med.dosage}</span>}
           {med.frequency && <span>🕐 {med.frequency}</span>}
-          {med.indication && <span className="text-blue-600">📋 {med.indication}</span>}
         </div>
+        {med.indication && (
+          <p className="text-sm text-blue-700 mt-1">📋 <span className="font-medium">התוויה:</span> {med.indication}</p>
+        )}
         {(med.start_date || med.end_date) && (
           <p className="text-xs text-slate-400 mt-0.5">
             {med.start_date && `מ-${med.start_date}`}{med.end_date && ` עד ${med.end_date}`}
