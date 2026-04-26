@@ -468,8 +468,12 @@ export default function IntakeWizard() {
       await axios.post(`/api/patients/${patientId}/signatures`, {
         consent_agreed: form.consent_agreed,
         consent_signature_b64: form.consent_signature,
+        financial_consent_agreed: form.financial_consent_agreed,
+        financial_consent_signature_b64: form.financial_consent_signature,
         poa_agreed: form.poa_agreed,
         poa_signature_b64: form.poa_signature,
+        signer_name: form.signer_is_self ? form.full_name : form.signer_name,
+        signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
       })
       navigate(`/manager/patients/${patientId}`)
     } catch (err) {
