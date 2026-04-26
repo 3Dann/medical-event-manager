@@ -537,6 +537,17 @@ export default function IntakeWizard() {
       }
       const res = await axios.post('/api/patients', payload)
       const patientId = res.data.id
+      // Save medications to patient_medications table (same as PatientMedications tab)
+      for (const med of form.medications) {
+        if (!med.name?.trim()) continue
+        await axios.post(`/api/patients/${patientId}/medications`, {
+          name: med.name.trim(),
+          generic_name: med.generic_name || null,
+          dosage: med.dosage || null,
+          frequency: med.frequency || null,
+          indication: med.indication || null,
+        }).catch(() => {}) // non-blocking — don't fail the whole intake for a medication
+      }
       await axios.post(`/api/patients/${patientId}/signatures`, {
         consent_agreed: form.consent_agreed,
         consent_signature_b64: form.consent_signature,
