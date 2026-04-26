@@ -315,6 +315,74 @@ function SignatureCanvas({ label, onChange }) {
   )
 }
 
+// ── DocSign — מסמך לחתימה עם חובת קריאה ─────────────────────────────────────
+
+function DocSign({ title, text, required, signerName, agreed, signature, onAgreed, onSignature, errorAgreed, errorSig, hideAgreedCheckbox }) {
+  const [hasRead, setHasRead] = useState(false)
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target
+    if (scrollTop + clientHeight >= scrollHeight - 20) setHasRead(true)
+  }
+
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden">
+      {title && (
+        <div className="bg-slate-800 px-5 py-3 flex items-center justify-between">
+          <h3 className="font-bold text-white text-sm">{title}</h3>
+          {required && <span className="text-xs text-red-300 bg-red-900/30 px-2 py-0.5 rounded-full">חובה</span>}
+        </div>
+      )}
+      <div className="p-5 space-y-4">
+        {/* גוף המסמך */}
+        <div
+          onScroll={handleScroll}
+          className="bg-slate-50 border border-slate-200 rounded-xl p-4 h-44 overflow-y-auto text-sm text-slate-700 leading-relaxed whitespace-pre-line font-mono"
+          dir="rtl"
+        >
+          {text}
+          {signerName && (
+            <div className="mt-4 pt-3 border-t border-slate-300 text-slate-600 text-xs">
+              שם החותם: <strong>{signerName}</strong>
+              {'  '}|{'  '}
+              תאריך: <strong>{new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+            </div>
+          )}
+        </div>
+
+        {!hasRead && (
+          <p className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+            יש לגלול ולקרוא את המסמך במלואו לפני החתימה
+          </p>
+        )}
+
+        {/* אישור קריאה */}
+        {!hideAgreedCheckbox && (
+          <label className={`flex items-center gap-3 cursor-pointer ${!hasRead ? 'opacity-40 pointer-events-none' : ''}`}>
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={e => onAgreed(e.target.checked)}
+              disabled={!hasRead}
+              className="w-4 h-4"
+            />
+            <span className={`text-sm font-medium ${errorAgreed ? 'text-red-600' : 'text-slate-700'}`}>
+              קראתי את המסמך במלואו ואני מסכים/ה לתוכנו {required && '*'}
+            </span>
+          </label>
+        )}
+        {errorAgreed && <p className="text-xs text-red-500">{errorAgreed}</p>}
+
+        {/* לוח חתימה */}
+        <div className={`${(!agreed && !hideAgreedCheckbox) ? 'opacity-40 pointer-events-none' : ''}`}>
+          <SignatureCanvas label={`חתימה${required ? ' *' : ''}`} onChange={onSignature} />
+          {errorSig && <p className="text-xs text-red-500 mt-1">{errorSig}</p>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Wizard ────────────────────────────────────────────────────────────────────
 
 const EMPTY_FORM = {
