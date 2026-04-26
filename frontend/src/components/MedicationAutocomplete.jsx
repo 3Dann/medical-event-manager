@@ -21,7 +21,7 @@ function DropdownPortal({ inputRef, open, children }) {
 }
 
 export default function MedicationAutocomplete({
-  value, onChange, onDosagesAvailable,
+  value, onChange, onDosagesAvailable, onEnrichment,
   placeholder = 'שם תרופה *', className = '',
 }) {
   const [query, setQuery] = useState(value || '')
