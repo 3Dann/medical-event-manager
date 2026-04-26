@@ -843,7 +843,7 @@ export default function IntakeWizard() {
           {/* IADL */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-800">IADL — מדד לאוטון <span className="text-slate-400 font-normal text-sm">(0-8)</span></h3>
+              <h3 className="font-semibold text-slate-800">IADL <span className="text-slate-400 font-normal text-sm">(0-8)</span></h3>
               <span className="text-lg font-bold text-blue-600">{iadlScore}/8</span>
             </div>
             <div className="space-y-3">
