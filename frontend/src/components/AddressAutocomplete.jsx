@@ -100,32 +100,35 @@ export function CityAutocomplete({ value, onChange, required, error }) {
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
 export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, required, error, disabled }) {
-  const [input, setInput]       = useState(value || '')
-  const [allStreets, setStreets] = useState([])
-  const [loadingStreets, setLoadingStreets] = useState(false)
-  const [open, setOpen]         = useState(false)
+  const [input, setInput]         = useState(value || '')
+  const [allStreets, setStreets]  = useState([])  // [{name, code}]
+  const [loadingStreets, setLoad] = useState(false)
+  const [loadingZip, setLoadingZip] = useState(false)
+  const [open, setOpen]           = useState(false)
   const ref = useRef()
 
   useEffect(() => { setInput(value || '') }, [value])
 
-  // Load all streets for city once when city changes
   useEffect(() => {
     setInput('')
     setStreets([])
     onChange('')
     if (!cityCode) return
-    setLoadingStreets(true)
+    setLoad(true)
     const filters = encodeURIComponent(JSON.stringify({ 'סמל_ישוב': Number(cityCode) }))
     fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${filters}&limit=500`)
       .then(r => r.json())
       .then(data => {
         const recs = data?.result?.records || []
         setStreets(
-          recs.map(r => r['שם_רחוב']?.trim()).filter(Boolean).sort((a, b) => a.localeCompare(b, 'he'))
+          recs
+            .map(r => ({ name: r['שם_רחוב']?.trim(), code: String(r['סמל_רחוב'] || '') }))
+            .filter(r => r.name)
+            .sort((a, b) => a.name.localeCompare(b.name, 'he'))
         )
       })
       .catch(() => {})
-      .finally(() => setLoadingStreets(false))
+      .finally(() => setLoad(false))
   }, [cityCode])
 
   useEffect(() => {
@@ -135,8 +138,20 @@ export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, re
   }, [])
 
   const filtered = input.length > 0
-    ? allStreets.filter(s => s.startsWith(input) || s.includes(input)).slice(0, 15)
+    ? allStreets.filter(s => s.name.startsWith(input) || s.name.includes(input)).slice(0, 15)
     : []
+
+  const selectStreet = async (street) => {
+    setInput(street.name)
+    setOpen(false)
+    onChange(street.name)
+    if (onPostalCode && cityCode && street.code) {
+      setLoadingZip(true)
+      const zip = await fetchPostalCode(cityCode, street.code)
+      setLoadingZip(false)
+      if (zip) onPostalCode(String(zip))
+    }
+  }
 
   return (
     <div ref={ref} className="relative">
@@ -155,15 +170,18 @@ export function StreetAutocomplete({ value, cityCode, onChange, onPostalCode, re
         disabled={disabled || loadingStreets}
         autoComplete="off"
       />
+      {loadingZip && (
+        <span className="absolute left-3 top-2.5 text-xs text-blue-400">מאתר מיקוד...</span>
+      )}
       {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
           {filtered.map(street => (
             <li
-              key={street}
-              onMouseDown={() => { setInput(street); setOpen(false); onChange(street) }}
+              key={street.code}
+              onMouseDown={() => selectStreet(street)}
               className="px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer"
             >
-              {street}
+              {street.name}
             </li>
           ))}
         </ul>
