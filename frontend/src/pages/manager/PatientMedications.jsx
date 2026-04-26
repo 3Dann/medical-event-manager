@@ -343,10 +343,10 @@ export default function PatientMedications() {
               </div>
               <div>
                 <label className="label">התוויה (סיבת הטיפול)</label>
-                <select className="input" value={form.indication} onChange={e => setForm(f => ({ ...f, indication: e.target.value }))}>
-                  <option value="">— בחר —</option>
-                  {INDICATION_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
+                <IndicationCombobox
+                  value={form.indication}
+                  onChange={val => setForm(f => ({ ...f, indication: val }))}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
