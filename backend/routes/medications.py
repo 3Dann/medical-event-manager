@@ -315,15 +315,67 @@ def extract_from_document(
     return {"candidates": candidates, "document_name": doc.original_name}
 
 
-# ── MOH drug search (proxy to data.gov.il) ───────────────────────────────────
+# ── Drug search (DB-backed) ───────────────────────────────────────────────────
 
 @router.get("/api/medications/search")
 def search_drugs(
     q: str,
+    db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
     q = q.strip()
     if len(q) < 2:
         return []
-    # Always return local results immediately (instant UX)
-    return _search_local(q)
+    return _search_db(q, db)
+
+
+# ── Drug database admin ───────────────────────────────────────────────────────
+
+@router.get("/api/drugs/status")
+def drug_db_status(
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    total = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).count()
+    by_source = {}
+    for row in db.query(models.DrugEntry.source, models.DrugEntry.source).distinct():
+        src = row[0] or "local"
+        by_source[src] = db.query(models.DrugEntry).filter(
+            models.DrugEntry.source == src, models.DrugEntry.is_active == True
+        ).count()
+    last_log = (
+        db.query(models.DrugUpdateLog)
+        .order_by(models.DrugUpdateLog.started_at.desc())
+        .first()
+    )
+    return {
+        "total_drugs": total,
+        "by_source": by_source,
+        "last_update": {
+            "started_at": last_log.started_at.isoformat() if last_log else None,
+            "completed_at": last_log.completed_at.isoformat() if last_log and last_log.completed_at else None,
+            "status": last_log.status if last_log else None,
+            "drugs_added": last_log.drugs_added if last_log else 0,
+            "message": last_log.message if last_log else None,
+        } if last_log else None,
+    }
+
+
+@router.post("/api/drugs/update")
+def trigger_drug_update(
+    current_user=Depends(auth_utils.get_current_user),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="נדרשות הרשאות מנהל")
+
+    def _run():
+        from drug_updater import run_drug_update
+        db = SessionLocal()
+        try:
+            run_drug_update(db)
+        finally:
+            db.close()
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+    return {"ok": True, "message": "עדכון מאגר תרופות הופעל ברקע"}
