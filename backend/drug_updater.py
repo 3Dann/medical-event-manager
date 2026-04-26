@@ -190,9 +190,11 @@ def seed_drugs(db: Session) -> int:
     """Seed DrugEntry from drug_list.py. Returns count added."""
     existing = {row.name for row in db.query(models.DrugEntry.name).all()}
     added = 0
+    seen_in_batch = set()
     for name, generic, form in DRUGS:
-        if name in existing:
+        if name in existing or name in seen_in_batch:
             continue
+        seen_in_batch.add(name)
         hebrew = HEBREW_NAMES.get(name, "")
         dosages = COMMON_DOSAGES.get(name, [])
         db.add(models.DrugEntry(
