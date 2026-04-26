@@ -383,7 +383,7 @@ export default function PatientMedications() {
               <h3 className="font-bold text-slate-800">{editId ? 'עריכת תרופה' : 'הוספת תרופה'}</h3>
               <button onClick={() => setShowForm(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
             </div>
-            <form onSubmit={handleSave} className="p-6 space-y-4">
+            <form onSubmit={handleSave} autoComplete="off" className="p-6 space-y-4">
               <div>
                 <label className="label">שם תרופה *</label>
                 <MedicationAutocomplete
