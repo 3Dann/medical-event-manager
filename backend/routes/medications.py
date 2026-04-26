@@ -25,32 +25,52 @@ def _word_prefix_match(text: str, prefix: str) -> bool:
     return False
 
 
+def _score(name: str, generic: str, hebrew: str, q: str) -> int:
+    """
+    Higher score = more relevant. Sorting key (descending).
+    0  exact match on trade name
+    1  trade name starts with query
+    2  word in trade name starts with query
+    3  generic name starts with query
+    4  word in generic starts with query
+    5  Hebrew name contains query
+    """
+    n, g, h = name.lower(), (generic or "").lower(), (hebrew or "").lower()
+    if n == q:              return 0
+    if n.startswith(q):     return 1
+    for w in re.split(r'[\s\-\+/(,]', n):
+        if w and w.startswith(q): return 2
+    if g.startswith(q):     return 3
+    for w in re.split(r'[\s\-\+/(,]', g):
+        if w and w.startswith(q): return 4
+    if q in h:              return 5
+    return 9
+
+
 def _search_db(q: str, db: Session) -> list[dict]:
     q_low = q.lower()
-    # Fetch all active drugs from DB and filter in Python (DB is small, <5k rows)
     drugs = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).all()
-    results = []
     seen = set()
+    scored = []
     for d in drugs:
         if d.name in seen:
             continue
         hebrew = d.hebrew_name or ""
-        if (
-            _word_prefix_match(d.name, q_low)
-            or (d.generic_name and _word_prefix_match(d.generic_name, q_low))
-            or (hebrew and q_low in hebrew)
-        ):
+        score = _score(d.name, d.generic_name or "", hebrew, q_low)
+        if score < 9:
             seen.add(d.name)
             dosages = json.loads(d.common_dosages) if d.common_dosages else []
-            results.append({
+            scored.append((score, d.name.lower(), {
                 "name": d.name,
                 "generic_name": d.generic_name or "",
                 "dosage_form": d.dosage_form or "",
                 "manufacturer": "",
                 "hebrew_name": hebrew,
                 "common_dosages": dosages,
-            })
-    return results
+            }))
+    # Sort: by score (asc), then alphabetically within same score
+    scored.sort(key=lambda x: (x[0], x[1]))
+    return [r for _, _, r in scored]
 
 # ── Known drug interactions (generic name → list of interactions) ─────────────
 # severity: high / medium / low
