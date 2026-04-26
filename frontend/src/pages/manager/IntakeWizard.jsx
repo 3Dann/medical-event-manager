@@ -859,71 +859,10 @@ export default function IntakeWizard() {
 
       // ── Step 5: תרופות ──────────────────────────────────────────────────────
       case 4: return (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-500">הוסף תרופות שהמטופל נוטל</p>
-            <button
-              type="button"
-              onClick={() => { set('medications', [...form.medications, { name: '', generic_name: '', dosage: '', frequency: '', indication: '' }]); setMedDosageSuggestions([]) }}
-              className="text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-medium"
-            >
-              + הוסף תרופה
-            </button>
-          </div>
-          {form.medications.length === 0 && (
-            <div className="text-center py-10 text-slate-400 bg-slate-50 rounded-xl">
-              אין תרופות — לחץ "הוסף תרופה" להתחלה
-            </div>
-          )}
-          <div className="space-y-3">
-            {form.medications.map((med, idx) => (
-              <div key={idx} className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
-                <div className="grid grid-cols-2 gap-3">
-                  <MedicationAutocomplete
-                    value={med.name}
-                    onChange={drug => {
-                      const meds = [...form.medications]
-                      meds[idx] = { ...meds[idx], name: drug.name, generic_name: drug.generic_name || meds[idx].generic_name }
-                      set('medications', meds)
-                    }}
-                    onDosagesAvailable={d => setMedDosageSuggestions(d || [])}
-                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
-                  />
-                  <DosageCombobox
-                    value={med.dosage || ''}
-                    onChange={v => { const meds = [...form.medications]; meds[idx] = { ...meds[idx], dosage: v }; set('medications', meds) }}
-                    suggestions={medDosageSuggestions}
-                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <IndicationCombobox
-                    value={med.indication || ''}
-                    onChange={v => { const meds = [...form.medications]; meds[idx] = { ...meds[idx], indication: v }; set('medications', meds) }}
-                    className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-full"
-                  />
-                  <div className="flex gap-2 items-center">
-                    <select
-                      className="border border-slate-300 rounded-lg px-3 py-2 text-sm flex-1"
-                      value={med.frequency || ''}
-                      onChange={e => { const meds = [...form.medications]; meds[idx] = { ...meds[idx], frequency: e.target.value }; set('medications', meds) }}
-                    >
-                      <option value="">תדירות</option>
-                      {FREQ_OPTS.map(o => <option key={o} value={o}>{o}</option>)}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => set('medications', form.medications.filter((_, i) => i !== idx))}
-                      className="text-red-400 hover:text-red-600 shrink-0 text-lg leading-none"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <MedicationsStep
+          medications={form.medications}
+          onChange={meds => set('medications', meds)}
+        />
       )
 
       // ── Step 6: הערכות תפקודיות ─────────────────────────────────────────────
