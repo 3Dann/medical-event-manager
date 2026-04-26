@@ -133,8 +133,14 @@ def run_migrations():
         ("patients", "specialty",              "VARCHAR"),
         ("patients", "sub_specialty",          "VARCHAR"),
         # Referral fields (replaced height/weight in intake form)
-        ("patients", "referral_goal",          "VARCHAR"),
-        ("patients", "referral_source",        "VARCHAR"),
+        ("patients", "referral_goal",                    "VARCHAR"),
+        ("patients", "referral_source",                  "VARCHAR"),
+        # Extended signatures
+        ("patients", "financial_consent_agreed",         "BOOLEAN DEFAULT 0"),
+        ("patients", "financial_consent_signature_path", "VARCHAR"),
+        ("patients", "financial_consent_signed_at",      "DATETIME"),
+        ("patients", "signer_name",                      "VARCHAR"),
+        ("patients", "signer_relation",                  "VARCHAR"),
         # Demo mode permission
         ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
         # Feedback enhancements
