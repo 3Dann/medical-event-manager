@@ -374,13 +374,23 @@ def save_signatures(
 
     patient.consent_agreed = data.consent_agreed
     if data.consent_agreed and data.consent_signature_b64:
-        patient.consent_signature_path = _save_sig(data.consent_signature_b64, "consent.png")
+        patient.consent_signature_path = _save_sig(data.consent_signature_b64, "consent_medical.png")
         patient.consent_signed_at = now
+
+    patient.financial_consent_agreed = data.financial_consent_agreed
+    if data.financial_consent_agreed and data.financial_consent_signature_b64:
+        patient.financial_consent_signature_path = _save_sig(data.financial_consent_signature_b64, "consent_financial.png")
+        patient.financial_consent_signed_at = now
 
     patient.poa_agreed = data.poa_agreed
     if data.poa_agreed and data.poa_signature_b64:
         patient.poa_signature_path = _save_sig(data.poa_signature_b64, "poa.png")
         patient.poa_signed_at = now
+
+    if data.signer_name:
+        patient.signer_name = data.signer_name
+    if data.signer_relation:
+        patient.signer_relation = data.signer_relation
 
     patient.intake_completed = True
     patient.intake_completed_at = now
