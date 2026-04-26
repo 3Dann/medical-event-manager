@@ -124,7 +124,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
     if (!cityCode) return
     setLoad(true)
     const filters = encodeURIComponent(JSON.stringify({ 'סמל_ישוב': Number(cityCode) }))
-    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${filters}&limit=500`)
+    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${filters}&limit=3000`)
       .then(r => r.json())
       .then(data => {
         const recs = data?.result?.records || []
