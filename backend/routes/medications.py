@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
-import requests as http_requests
 import os
 import re
 import io
-from database import get_db
+import json
+import threading
+from database import get_db, SessionLocal
 import models
 import auth as auth_utils
 
