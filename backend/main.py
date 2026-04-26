@@ -175,6 +175,12 @@ def run_migrations():
         ("project_feedback", "feedback_type", "VARCHAR DEFAULT 'general'"),
         ("project_feedback", "is_read",       "BOOLEAN DEFAULT 0"),
         ("project_feedback", "is_handled",    "BOOLEAN DEFAULT 0"),
+        # openFDA enrichment columns
+        ("drug_entries", "openfda_indication",    "TEXT"),
+        ("drug_entries", "openfda_dosages",       "TEXT"),
+        ("drug_entries", "openfda_interactions",  "TEXT"),
+        ("drug_entries", "openfda_fetched_at",    "DATETIME"),
+        ("patient_medications", "indication",     "VARCHAR"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
