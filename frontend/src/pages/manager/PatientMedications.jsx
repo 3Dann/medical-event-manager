@@ -123,6 +123,7 @@ export default function PatientMedications() {
   const [form, setForm] = useState(emptyForm())
   const [saving, setSaving] = useState(false)
   const [showInactive, setShowInactive] = useState(false)
+  const [dosageSuggestions, setDosageSuggestions] = useState([])
   // Document extraction
   const [documents, setDocuments] = useState([])
   const [extractDocId, setExtractDocId] = useState('')
