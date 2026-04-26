@@ -67,8 +67,8 @@ function IndicationCombobox({ value, onChange }) {
         value={query}
         onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true) }}
         onFocus={() => setOpen(true)}
-        autoComplete="new-password"
-        name="indication-field"
+        autoComplete="off"
+        name="indication-combobox"
       />
       <DropdownPortal inputRef={inputRef} open={open && filtered.length > 0}>
         <ul className="bg-white border border-slate-200 rounded-xl shadow-lg max-h-52 overflow-y-auto text-sm">
