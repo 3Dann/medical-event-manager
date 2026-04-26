@@ -916,43 +916,137 @@ export default function IntakeWizard() {
 
       // ── Step 7: חתימות ──────────────────────────────────────────────────────
       case 6: return (
-        <div className="space-y-8">
-          <div className="border border-slate-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-slate-800 mb-1">ויתור סודיות</h3>
-            <p className="text-sm text-slate-500 mb-4">
-              אני מאשר/ת בזאת לניהול האירוע הרפואי לעיין במידע רפואי, ביטוחי, ופיננסי הקשור לטיפולי.
+        <div className="space-y-6">
+
+          {/* חותם */}
+          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <p className="text-sm font-semibold text-slate-700 mb-3">מי חותם על המסמכים?</p>
+            <div className="flex gap-4 mb-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" checked={form.signer_is_self} onChange={() => set('signer_is_self', true)} className="w-4 h-4" />
+                <span className="text-sm text-slate-700">המטופל/ת עצמו/ה</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" checked={!form.signer_is_self} onChange={() => set('signer_is_self', false)} className="w-4 h-4" />
+                <span className="text-sm text-slate-700">בא/ת כוח / אפוטרופוס</span>
+              </label>
+            </div>
+            {!form.signer_is_self && (
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <label className="text-xs font-medium text-slate-600 mb-1 block">שם מלא של החותם *</label>
+                  <input
+                    className={`w-full border rounded-lg px-3 py-2 text-sm ${errors.signer_name ? 'border-red-400' : 'border-slate-300'}`}
+                    value={form.signer_name}
+                    onChange={e => set('signer_name', e.target.value)}
+                    placeholder="שם החותם"
+                  />
+                  {errors.signer_name && <p className="text-xs text-red-500 mt-1">{errors.signer_name}</p>}
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-slate-600 mb-1 block">קשר למטופל</label>
+                  <input
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    value={form.signer_relation}
+                    onChange={e => set('signer_relation', e.target.value)}
+                    placeholder="בן/בת זוג, ילד/ה, אפוטרופוס..."
+                  />
+                </div>
+              </div>
+            )}
+            <p className="text-xs text-slate-400 mt-3">
+              תאריך חתימה: <strong>{new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
             </p>
-            <label className={`flex items-center gap-3 mb-4 cursor-pointer ${errors.consent ? 'text-red-500' : 'text-slate-700'}`}>
-              <input
-                type="checkbox"
-                checked={form.consent_agreed}
-                onChange={e => set('consent_agreed', e.target.checked)}
-                className="w-4 h-4"
-              />
-              <span className="text-sm">אני מסכים/ה לתנאי ויתור הסודיות *</span>
-            </label>
-            {errors.consent && <p className="text-xs text-red-500 mb-3">{errors.consent}</p>}
-            <SignatureCanvas label="חתימה *" onChange={sig => set('consent_signature', sig)} />
-            {errors.consent_sig && <p className="text-xs text-red-500 mt-1">{errors.consent_sig}</p>}
           </div>
 
-          <div className="border border-slate-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-slate-800 mb-1">ייפוי כוח (אופציונלי)</h3>
-            <p className="text-sm text-slate-500 mb-4">
-              אני מייפה את כוחו/ה של מנהל האירוע הרפואי לפעול בשמי מול גורמים רפואיים וביטוחיים.
-            </p>
-            <label className="flex items-center gap-3 mb-4 cursor-pointer text-slate-700">
-              <input
-                type="checkbox"
-                checked={form.poa_agreed}
-                onChange={e => set('poa_agreed', e.target.checked)}
-                className="w-4 h-4"
-              />
-              <span className="text-sm">אני מסכים/ה לייפוי כוח</span>
-            </label>
-            {form.poa_agreed && (
-              <SignatureCanvas label="חתימה על ייפוי כוח" onChange={sig => set('poa_signature', sig)} />
-            )}
+          {/* מסמך 1: ויתור סודיות רפואית */}
+          <DocSign
+            title="1. ויתור סודיות רפואית"
+            required
+            signerName={form.signer_is_self ? form.full_name : form.signer_name}
+            agreed={form.consent_agreed}
+            signature={form.consent_signature}
+            onAgreed={v => set('consent_agreed', v)}
+            onSignature={s => set('consent_signature', s)}
+            errorAgreed={errors.consent}
+            errorSig={errors.consent_sig}
+            text={`אני החתום/ה מטה מאשר/ת בזאת את מנהל האירוע הרפואי ו/או מי מנציגיו המורשים לקבל, לעיין ולהחזיק בכל מידע רפואי הנוגע אליי, לרבות ובלי לגרוע:
+
+• תיקים רפואיים, רישומים קליניים ותוצאות בדיקות מכל גורם רפואי ו/או מוסד רפואי.
+• אבחנות רפואיות, חוות דעת מומחים, פרוטוקולי טיפול ותוכניות טיפול עתידיות.
+• תוצאות בדיקות מעבדה, הדמיה, פתולוגיה וכל בדיקה אחרת.
+• מידע על אשפוזים, ניתוחים, טיפולים ונהלים רפואיים.
+
+הרשאה זו ניתנת לצורך: ניהול האירוע הרפואי, הגשת תביעות לחברות ביטוח, קבלת חוות דעת רפואיות שנייה, תיאום טיפול רב-מקצועי ומיצוי זכויות הבריאות שלי.
+
+הרשאה זו תקפה למשך תקופת ההתקשרות עם מנהל האירוע הרפואי בלבד, ואינה מועברת לצד שלישי שאינו קשור ישירות לניהול האירוע. הרשאה זו ניתנת לביטול בכל עת על ידי הודעה בכתב.
+
+אני מצהיר/ה כי קראתי ויתור זה בעיון ובמלואו, הבנתי את תוכנו ואת משמעויותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+          />
+
+          {/* מסמך 2: ויתור סודיות פיננסי */}
+          <DocSign
+            title="2. ויתור סודיות פיננסי"
+            required
+            signerName={form.signer_is_self ? form.full_name : form.signer_name}
+            agreed={form.financial_consent_agreed}
+            signature={form.financial_consent_signature}
+            onAgreed={v => set('financial_consent_agreed', v)}
+            onSignature={s => set('financial_consent_signature', s)}
+            errorAgreed={errors.financial_consent}
+            errorSig={errors.financial_consent_sig}
+            text={`אני החתום/ה מטה מאשר/ת בזאת את מנהל האירוע הרפואי ו/או מי מנציגיו המורשים לקבל, לעיין ולהחזיק בכל מידע פיננסי וביטוחי הנוגע אליי, לרבות ובלי לגרוע:
+
+• פרטי פוליסות ביטוח חיים, ביטוח בריאות, ביטוח סיעוד, ביטוח מנהלים וכל ביטוח אחר.
+• היסטוריית תשלומי פרמיות, תנאי כיסוי, חריגים ומדיניות חברות הביטוח.
+• מסמכי תביעות, אישורים, סירובים ותכתובות עם חברות ביטוח.
+• מידע על הטבות ביטוח לאומי, גמלאות וזכויות סוציאליות רלוונטיות.
+
+הרשאה זו ניתנת לצורך: הגשת תביעות ביטוח ומעקב אחריהן, ניהול משא ומתן עם חברות ביטוח, ערעור על החלטות דחייה, וקבלת פיצויים ותגמולים המגיעים על פי הפוליסות.
+
+הרשאה זו תקפה למשך תקופת ההתקשרות עם מנהל האירוע הרפואי בלבד, ואינה מועברת לצד שלישי שאינו קשור ישירות לניהול האירוע. הרשאה זו ניתנת לביטול בכל עת על ידי הודעה בכתב.
+
+אני מצהיר/ה כי קראתי ויתור זה בעיון ובמלואו, הבנתי את תוכנו ואת משמעויותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+          />
+
+          {/* מסמך 3: ייפוי כוח (אופציונלי) */}
+          <div className="border border-slate-200 rounded-2xl overflow-hidden">
+            <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="font-bold text-slate-800 text-sm">3. ייפוי כוח</h3>
+              <span className="text-xs text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-full">אופציונלי</span>
+            </div>
+            <div className="p-5">
+              <label className="flex items-center gap-3 mb-4 cursor-pointer text-slate-700">
+                <input type="checkbox" checked={form.poa_agreed} onChange={e => set('poa_agreed', e.target.checked)} className="w-4 h-4" />
+                <span className="text-sm font-medium">ברצוני לחתום על ייפוי כוח</span>
+              </label>
+              {form.poa_agreed && (
+                <DocSign
+                  title=""
+                  signerName={form.signer_is_self ? form.full_name : form.signer_name}
+                  agreed={form.poa_agreed}
+                  signature={form.poa_signature}
+                  onAgreed={() => {}}
+                  onSignature={s => set('poa_signature', s)}
+                  hideAgreedCheckbox
+                  text={`אני החתום/ה מטה מייפה בזאת את כוחו/ה של מנהל האירוע הרפואי ונציגיו המורשים לפעול בשמי ובמקומי בכל הנוגע לניהול האירוע הרפואי, לרבות הסמכויות הבאות:
+
+1. פנייה לגורמים רפואיים — בתי חולים, קופות חולים, קליניקות פרטיות ורופאים מומחים, לקבלת מידע, מסמכים ותיאום טיפול.
+
+2. פנייה לגורמים ביטוחיים — חברות ביטוח, סוכני ביטוח, ביטוח לאומי וגורמי רווחה, לצורך הגשת תביעות, ערעורים וקבלת זכויות.
+
+3. חתימה על מסמכים — טפסי שחרור מידע, הרשאות גישה, תביעות ביטוח, ערעורים ופניות מנהליות הנדרשים לניהול האירוע.
+
+4. ייצוג — בפגישות, שיחות ותכתובות מול כל גורם הקשור לאירוע הרפואי ולזכויותיי.
+
+ייפוי כוח זה מוגבל לפעולות הנדרשות לניהול האירוע הרפואי בלבד, ואינו מקנה סמכות לפעול בענייניי הכספיים הכלליים.
+
+ייפוי כוח זה תקף מיום חתימתו ועד לסיום ההתקשרות עם מנהל האירוע הרפואי, אלא אם יבוטל בהודעה בכתב מוקדמת של 14 יום.
+
+אני מצהיר/ה כי קראתי ייפוי כוח זה בעיון ובמלואו, הבנתי את תוכנו, היקפו ומגבלותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+                />
+              )}
+            </div>
           </div>
 
           {errors.submit && (
