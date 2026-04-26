@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 from database import engine, SessionLocal
 import models
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes, medications as medications_routes
 from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
