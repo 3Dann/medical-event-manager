@@ -34,15 +34,14 @@ def _search_local(q: str) -> list[dict]:
     q_low = q.lower()
     seen = set()
     results = []
-    for entry in _LOCAL_DRUGS:
-        name, generic, form = entry[0], entry[1], entry[2]
-        hebrew = entry[3] if len(entry) > 3 else None
+    for name, generic, form in _LOCAL_DRUGS:
         if name in seen:
             continue
+        hebrew = _HEBREW_NAMES.get(name, "")
         if (
             _word_prefix_match(name, q_low)
             or _word_prefix_match(generic, q_low)
-            or (hebrew and q_low in hebrew)  # Hebrew: substring OK (RTL words)
+            or (hebrew and q_low in hebrew)  # Hebrew: substring match (RTL)
         ):
             seen.add(name)
             results.append({
@@ -50,7 +49,7 @@ def _search_local(q: str) -> list[dict]:
                 "generic_name": generic,
                 "dosage_form": form,
                 "manufacturer": "",
-                "hebrew_name": hebrew or "",
+                "hebrew_name": hebrew,
             })
     return results
 
