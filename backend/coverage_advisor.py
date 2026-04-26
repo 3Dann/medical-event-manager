@@ -275,7 +275,7 @@ def get_step_coverage_summary(step: models.WorkflowStep) -> dict:
             {
                 "rank":                i.priority_rank,
                 "source_name":         _company_name(i.insurance_source),
-                "source_type":         i.insurance_source.source_type,
+                "source_type":         i.insurance_source.source_type if i.insurance_source else None,
                 "coverage_category":   i.coverage_category,
                 "is_covered":          i.is_covered,
                 "covered_amount":      i.covered_amount,
