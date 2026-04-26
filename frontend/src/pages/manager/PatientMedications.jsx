@@ -1,7 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import MedicationAutocomplete from '../../components/MedicationAutocomplete'
+
+function DropdownPortal({ inputRef, open, children }) {
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 })
+  useEffect(() => {
+    if (!open || !inputRef?.current) return
+    const r = inputRef.current.getBoundingClientRect()
+    setPos({ top: r.bottom + window.scrollY, left: r.left + window.scrollX, width: r.width })
+  }, [open, inputRef])
+  if (!open) return null
+  return createPortal(
+    <div style={{ position: 'absolute', top: pos.top + 4, left: pos.left, width: pos.width, zIndex: 9999 }}>
+      {children}
+    </div>,
+    document.body
+  )
+}
 
 const FREQUENCY_OPTIONS = [
   'פעם ביום', 'פעמיים ביום', 'שלוש פעמים ביום', 'ארבע פעמים ביום',
