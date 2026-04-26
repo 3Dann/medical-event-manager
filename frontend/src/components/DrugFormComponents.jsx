@@ -276,6 +276,7 @@ export function MedicationCard({ med, onChange, onRemove }) {
             value={med.name}
             onChange={handleDrugSelect}
             onDosagesAvailable={d => setDosageSuggestions(d || [])}
+            onEnrichment={data => { setEnriching(false); handleEnrichment(data) }}
           />
         </div>
         <div>
