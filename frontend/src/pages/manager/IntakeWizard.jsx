@@ -962,8 +962,8 @@ export default function IntakeWizard() {
   return (
     <ErrorCtx.Provider value={errors}>
     <FormCtx.Provider value={form}>
-      <div className="min-h-full bg-slate-50 p-4 md:p-8" dir="rtl">
-        <div className="max-w-3xl mx-auto">
+      <div className="min-h-full bg-slate-50 p-4 md:p-6" dir="rtl">
+        <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="mb-6">
             <button onClick={() => navigate('/manager')} className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1">

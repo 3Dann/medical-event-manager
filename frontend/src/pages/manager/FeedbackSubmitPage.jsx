@@ -54,7 +54,7 @@ export default function FeedbackSubmitPage() {
 
   return (
     <div className="min-h-full bg-slate-50 p-4 md:p-10" dir="rtl">
-      <div className="max-w-xl mx-auto">
+      <div className="max-w-3xl mx-auto">
 
         {/* Back */}
         <button

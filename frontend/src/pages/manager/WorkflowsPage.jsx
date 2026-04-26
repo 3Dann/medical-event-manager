@@ -305,7 +305,7 @@ export default function WorkflowsPage() {
   )
 
   return (
-    <div className="p-4 md:p-6 max-w-6xl mx-auto" dir="rtl">
+    <div className="p-4 md:p-6" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
