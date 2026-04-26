@@ -356,6 +356,81 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* ── Drug Database Panel ─────────────────────────────────────── */}
+      <DrugDatabasePanel />
+    </div>
+  )
+}
+
+function DrugDatabasePanel() {
+  const [status, setStatus] = useState(null)
+  const [updating, setUpdating] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/drugs/status')
+      setStatus(res.data)
+    } catch {}
+  }, [])
+
+  useEffect(() => { fetchStatus() }, [fetchStatus])
+
+  const triggerUpdate = async () => {
+    setUpdating(true); setMsg('')
+    try {
+      const res = await axios.post('/api/drugs/update')
+      setMsg(res.data.message)
+      setTimeout(fetchStatus, 3000)
+    } catch (e) {
+      setMsg(e.response?.data?.detail || 'שגיאה')
+    } finally { setUpdating(false) }
+  }
+
+  const last = status?.last_update
+
+  return (
+    <div className="card mt-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="font-bold text-slate-800">מאגר תרופות</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            עדכון אוטומטי שבועי מ-openFDA · עדכון ידני זמין
+          </p>
+        </div>
+        <button
+          onClick={triggerUpdate}
+          disabled={updating}
+          className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 disabled:opacity-50 font-medium"
+        >
+          {updating ? 'מעדכן...' : '↻ עדכן עכשיו'}
+        </button>
+      </div>
+
+      {status && (
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="bg-slate-50 rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-blue-700">{status.total_drugs.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 mt-0.5">תרופות במאגר</p>
+          </div>
+          <div className="bg-slate-50 rounded-xl p-3 text-center">
+            <p className="text-lg font-bold text-slate-700">{status.by_source?.openfda ?? 0}</p>
+            <p className="text-xs text-slate-500 mt-0.5">נוספו מ-openFDA</p>
+          </div>
+        </div>
+      )}
+
+      {last && (
+        <div className={`text-xs rounded-lg px-3 py-2 ${last.status === 'success' ? 'bg-green-50 text-green-700' : last.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+          עדכון אחרון: {last.status === 'success' ? '✓' : last.status === 'failed' ? '✗' : '⏳'}
+          {' '}{last.started_at ? new Date(last.started_at).toLocaleString('he-IL') : '—'}
+          {last.drugs_added > 0 && <span className="mr-2">· +{last.drugs_added} תרופות חדשות</span>}
+          {last.message && <span className="mr-2">· {last.message}</span>}
+        </div>
+      )}
+
+      {msg && <p className="text-xs text-blue-600 mt-2">{msg}</p>}
     </div>
   )
 }
