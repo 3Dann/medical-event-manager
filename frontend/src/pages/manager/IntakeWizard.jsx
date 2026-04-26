@@ -535,19 +535,13 @@ export default function IntakeWizard() {
             <F label="מספר ילדים" name="num_children">
               <input {...inp('num_children', { type: 'number', min: 0 })} />
             </F>
-            <div />
-            <F label="גובה (ס״מ)" name="height_cm">
-              <input {...inp('height_cm', { type: 'number', min: 50, max: 250 })} />
+            <F label="מטרת הפניה" name="height_cm">
+              <input {...inp('height_cm', { placeholder: 'מהי מטרת הפניה?' })} />
             </F>
-            <F label="משקל (ק״ג)" name="weight_kg">
-              <input {...inp('weight_kg', { type: 'number', min: 10, max: 300 })} />
+            <F label="כיצד הגיע" name="weight_kg">
+              <input {...inp('weight_kg', { placeholder: 'הפניה, עצמאי, גורם אחר...' })} />
             </F>
           </div>
-          {form.height_cm && form.weight_kg && (
-            <p className="text-sm text-slate-500 bg-slate-50 px-3 py-2 rounded-lg">
-              BMI: <strong>{(form.weight_kg / ((form.height_cm / 100) ** 2)).toFixed(1)}</strong>
-            </p>
-          )}
         </div>
       )
 
