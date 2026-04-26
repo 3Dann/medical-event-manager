@@ -9,7 +9,7 @@ import { useDemoMode } from '../../context/DemoModeContext'
 
 const STEPS = [
   { id: 'personal',    label: 'פרטים אישיים' },
-  { id: 'address',     label: 'כתובת' },
+  { id: 'address',     label: 'כתובת להתקשרות' },
   { id: 'contact',     label: 'פרטי קשר' },
   { id: 'medical',     label: 'מידע רפואי' },
   { id: 'medications', label: 'תרופות' },
