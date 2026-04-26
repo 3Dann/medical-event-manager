@@ -57,17 +57,8 @@ export default function PatientMedications() {
       start_date: m.start_date || '', end_date: m.end_date || '',
       notes: m.notes || '', is_active: m.is_active,
     })
-    setDosageSuggestions([])
     setEditId(m.id)
     setShowForm(true)
-    // Fetch dosage suggestions for the existing drug name
-    if (m.name && m.name.length >= 2) {
-      try {
-        const res = await axios.get('/api/medications/search', { params: { q: m.name } })
-        const match = res.data.find(d => d.name.toLowerCase() === m.name.toLowerCase())
-        if (match?.common_dosages?.length) setDosageSuggestions(match.common_dosages)
-      } catch {}
-    }
   }
 
   const handleSave = async (e) => {
