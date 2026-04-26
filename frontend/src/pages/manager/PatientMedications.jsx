@@ -23,6 +23,52 @@ const SEVERITY_COLORS = {
 const DRUGS_COM_URL = (names) =>
   `https://www.drugs.com/drug_interactions.html?drugs=${encodeURIComponent(names.join('+'))}`
 
+function IndicationCombobox({ value, onChange }) {
+  const [query, setQuery] = useState(value || '')
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+
+  useEffect(() => { setQuery(value || '') }, [value])
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const filtered = query.trim()
+    ? INDICATION_OPTIONS.filter(o => o.includes(query.trim()))
+    : INDICATION_OPTIONS
+
+  const handleSelect = (opt) => { setQuery(opt); onChange(opt); setOpen(false) }
+
+  return (
+    <div ref={ref} className="relative">
+      <input
+        className="input w-full"
+        placeholder="הקלד או בחר התוויה"
+        value={query}
+        onChange={e => { setQuery(e.target.value); onChange(e.target.value); setOpen(true) }}
+        onFocus={() => setOpen(true)}
+        autoComplete="off"
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 right-0 left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-52 overflow-y-auto text-sm">
+          {filtered.map(opt => (
+            <li
+              key={opt}
+              onMouseDown={() => handleSelect(opt)}
+              className="px-4 py-2 cursor-pointer hover:bg-blue-50 border-b border-slate-100 last:border-0"
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const emptyForm = () => ({
   name: '', generic_name: '', dosage: '', frequency: '', indication: '',
   start_date: '', end_date: '', notes: '', is_active: true,
