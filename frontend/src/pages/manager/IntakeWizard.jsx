@@ -391,7 +391,7 @@ const EMPTY_FORM = {
   referral_goal: '', referral_source: '',
   city: '', city_code: '', street: '', house_number: '',
   entrance: '', floor: '', apartment: '', postal_code: '',
-  phone_prefix: '050', phone: '',
+  phone_prefix: '050', phone: '', phone2_prefix: '050', phone2: '',
   ec_name: '', ec_phone_prefix: '050', ec_phone: '', ec_relation: '',
   hmo_name: '', hmo_level: '', medical_stage: '',
   diagnosis_status: 'no', diagnosis_details: '', notes: '',
