@@ -162,7 +162,7 @@ export default function PatientMedications() {
   useEffect(() => { fetchAll(); fetchDocuments() }, [id])
 
   const openAdd = () => { setForm(emptyForm()); setEditId(null); setShowForm(true) }
-  const openEdit = (m) => {
+  const openEdit = async (m) => {
     setForm({
       name: m.name || '', generic_name: m.generic_name || '', dosage: m.dosage || '',
       frequency: m.frequency || '', indication: m.indication || '',
@@ -172,6 +172,14 @@ export default function PatientMedications() {
     setDosageSuggestions([])
     setEditId(m.id)
     setShowForm(true)
+    // Fetch dosage suggestions for the existing drug name
+    if (m.name && m.name.length >= 2) {
+      try {
+        const res = await axios.get('/api/medications/search', { params: { q: m.name } })
+        const match = res.data.find(d => d.name.toLowerCase() === m.name.toLowerCase())
+        if (match?.common_dosages?.length) setDosageSuggestions(match.common_dosages)
+      } catch {}
+    }
   }
 
   const handleSave = async (e) => {
