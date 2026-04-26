@@ -138,7 +138,7 @@ export default function LandingEditorPage() {
     }))
 
   return (
-    <div className="min-h-screen bg-white" dir="rtl">
+    <div className="min-h-full bg-white" dir="rtl">
 
       {/* ── Sticky save bar ── */}
       <div className="sticky top-0 z-50 bg-amber-500 text-white px-4 py-3 flex items-center gap-3 shadow-lg flex-wrap">
