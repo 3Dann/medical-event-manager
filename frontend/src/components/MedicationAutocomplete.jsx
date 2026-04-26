@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 
-export default function MedicationAutocomplete({ value, onChange, placeholder = 'שם תרופה *', className = '' }) {
+export default function MedicationAutocomplete({
+  value, onChange, onDosagesAvailable,
+  placeholder = 'שם תרופה *', className = '',
+}) {
   const [query, setQuery] = useState(value || '')
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
@@ -9,21 +12,21 @@ export default function MedicationAutocomplete({ value, onChange, placeholder = 
   const debounceRef = useRef(null)
   const containerRef = useRef(null)
 
-  // Sync external value changes
   useEffect(() => { setQuery(value || '') }, [value])
 
   useEffect(() => {
-    const handleClick = (e) => {
+    const handler = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
     }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
   const handleChange = (e) => {
     const val = e.target.value
     setQuery(val)
-    onChange({ name: val, generic_name: null })
+    onChange({ name: val, generic_name: null, common_dosages: [] })
+    if (onDosagesAvailable) onDosagesAvailable([])
     clearTimeout(debounceRef.current)
     if (val.length < 2) { setSuggestions([]); setOpen(false); return }
     debounceRef.current = setTimeout(async () => {
@@ -37,12 +40,13 @@ export default function MedicationAutocomplete({ value, onChange, placeholder = 
       } finally {
         setLoading(false)
       }
-    }, 350)
+    }, 300)
   }
 
   const handleSelect = (drug) => {
     setQuery(drug.name)
     onChange(drug)
+    if (onDosagesAvailable) onDosagesAvailable(drug.common_dosages || [])
     setSuggestions([])
     setOpen(false)
   }
@@ -70,11 +74,14 @@ export default function MedicationAutocomplete({ value, onChange, placeholder = 
             >
               <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="font-medium text-slate-800">{d.name}</span>
-                {d.hebrew_name && <span className="font-medium text-blue-700 text-sm">{d.hebrew_name}</span>}
+                {d.hebrew_name && <span className="font-medium text-blue-700">{d.hebrew_name}</span>}
               </div>
-              <div className="text-xs text-slate-400 mt-0.5">
+              <div className="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
                 {d.generic_name && <span>{d.generic_name}</span>}
-                {d.dosage_form && <span className="mr-2">· {d.dosage_form}</span>}
+                {d.dosage_form && <span>· {d.dosage_form}</span>}
+                {d.common_dosages?.length > 0 && (
+                  <span className="text-slate-300">· {d.common_dosages.slice(0, 4).join(', ')}</span>
+                )}
               </div>
             </li>
           ))}
