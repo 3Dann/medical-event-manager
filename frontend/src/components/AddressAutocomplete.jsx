@@ -145,7 +145,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
   }, [])
 
   const filtered = input.length > 0
-    ? allStreets.filter(s => s.name.startsWith(input) || s.name.includes(input)).slice(0, 15)
+    ? allStreets.filter(s => s.name.startsWith(input)).slice(0, 15)
     : []
 
   const selectStreet = async (street) => {
