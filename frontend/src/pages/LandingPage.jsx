@@ -172,8 +172,8 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 try {
                   const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
                   setEmailCodeReady(true)
-                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
-                  else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
+                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('DEV: code shown here') }
+                  else setEmailSentMsg(r.data.message || t('auth:email_code_sent', { email: r.data.email }))
                 } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
                 finally { setLoading(false) }
               }} disabled={loading} className="btn-primary w-full py-3">
