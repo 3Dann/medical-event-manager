@@ -155,7 +155,19 @@
     "step2_title": "Manage Insurance",
     "step2_desc": "Import policies, add private insurance and track all coverage in one place.",
     "step3_title": "Strategy",
-    "step3_desc": "Get financial recommendations, submit claims in the right order and maximize rights."
+    "step3_desc": "Get financial recommendations, submit claims in the right order and maximize rights.",
+    "hero_badge": "Comprehensive Medical Case Management System",
+    "discover_features": "Discover Features",
+    "how_it_works": "How It Works",
+    "three_steps": "Three Simple Steps",
+    "features_label": "System Features",
+    "all_features": "Everything You Need for Medical Case Management",
+    "cta_title": "Ready to Get Started?",
+    "cta_subtitle": "Join the system and take full control of the medical case",
+    "go_to_journey": "My Journey ←",
+    "go_to_dashboard": "Dashboard ←",
+    "login_hint_before": "To sign in or register — use the",
+    "login_hint_after": "button at the top of the page"
   },
   "dashboard": {
     "title": "Dashboard",
