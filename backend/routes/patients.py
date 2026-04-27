@@ -199,6 +199,10 @@ def node_to_dict(n):
         "notes": n.notes,
         "stage_order": n.stage_order,
         "created_at": str(n.created_at) if n.created_at else None,
+        "sub_items": [
+            {"id": s.id, "text": s.text, "is_done": s.is_done, "sort_order": s.sort_order}
+            for s in (n.sub_items or [])
+        ],
     }
 
 
