@@ -464,7 +464,7 @@ export default function LandingPage() {
             {ovOrT(overrides, 'heroBadge', t('landing:hero_badge'))}
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-            {overrides.heroTitle ?? t('landing:hero_title')}
+            {ovOrT(overrides, 'heroTitle', t('landing:hero_title'))}
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             {overrides.heroSubtitle ?? t('landing:hero_subtitle')}
