@@ -515,8 +515,8 @@ export default function LandingPage() {
       {/* ── Features grid ── */}
       <section id="features" className="py-16 bg-slate-50">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">תכונות המערכת</p>
-          <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{overrides.featuresTitle ?? 'כל מה שצריך לניהול אירוע רפואי'}</h2>
+          <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">{t('landing:features_label')}</p>
+          <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{ovOrT(overrides, 'featuresTitle', t('landing:all_features'))}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {FEATURES.map(f => (
               <div key={f.id} id={f.id} className={`bg-white rounded-2xl border ${f.ring} p-6 hover:shadow-md transition-shadow`}>
