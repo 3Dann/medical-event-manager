@@ -6,6 +6,7 @@ import { DemoModeProvider } from './context/DemoModeContext'
 import DevGate from './components/DevGate'
 import './i18n/index.js'
 import { RTL_LANGS } from './i18n/index.js'
+import i18n from './i18n/index.js'
 
 // Auth
 import LoginPage from './pages/LoginPage'
