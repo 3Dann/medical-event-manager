@@ -467,7 +467,7 @@ export default function LandingPage() {
             {ovOrT(overrides, 'heroTitle', t('landing:hero_title'))}
           </h1>
           <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            {overrides.heroSubtitle ?? t('landing:hero_subtitle')}
+            {ovOrT(overrides, 'heroSubtitle', t('landing:hero_subtitle'))}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user && (
