@@ -188,6 +188,19 @@ export default function PatientInsurance() {
     } finally { setUploadingPrivate(false) }
   }
 
+  const handleAnalyzeAI = async (e) => {
+    const file = e.target.files[0]; if (!file) return
+    e.target.value = ''; setAnalyzingAI(true); setAiResult(null)
+    const fd = new FormData(); fd.append('file', file)
+    try {
+      const res = await axios.post(`/api/patients/${id}/insurance/analyze-ai`, fd)
+      setAiResult({ success: true, ...res.data })
+      setShowForm(false); fetchAll()
+    } catch (err) {
+      setAiResult({ success: false, error: err.response?.data?.detail || err.message })
+    } finally { setAnalyzingAI(false) }
+  }
+
   const handleDeleteEntitlement = async (entId) => {
     if (!confirm('למחוק זכאות זו?')) return
     await axios.delete(`/api/patients/${id}/entitlements/${entId}`); fetchAll()
