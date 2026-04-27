@@ -49,7 +49,18 @@ function sortNodes(nodes) {
 }
 
 export default function PatientDetail() {
+  const { t } = useTranslation('nav')
   const { id } = useParams()
+
+  const tabs = [
+    { to: '', label: t('details_nodes'), end: true },
+    { to: 'insurance', label: t('insurance') },
+    { to: 'claims', label: t('claims') },
+    { to: 'financial-map', label: t('financial_map') },
+    { to: 'strategy', label: t('strategy') },
+    { to: 'medications', label: t('medications') },
+    { to: 'documents', label: t('documents') },
+  ]
   const navigate = useNavigate()
 
   const [patient,      setPatient]      = useState(null)
