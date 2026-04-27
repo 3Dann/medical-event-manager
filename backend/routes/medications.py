@@ -48,8 +48,16 @@ def _score(name: str, generic: str, hebrew: str, q: str) -> int:
     return 9
 
 
+_HEBREW_CHARS = set('אבגדהוזחטיכלמנסעפצקרשתךםןףץ')
+
+
+def _is_hebrew(q: str) -> bool:
+    return any(c in _HEBREW_CHARS for c in q)
+
+
 def _search_db(q: str, db: Session) -> list[dict]:
     q_low = q.lower()
+    is_heb = _is_hebrew(q)
     drugs = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).all()
     seen = set()
     scored = []
@@ -61,7 +69,9 @@ def _search_db(q: str, db: Session) -> list[dict]:
         if score < 9:
             seen.add(d.name)
             dosages = json.loads(d.common_dosages) if d.common_dosages else []
-            scored.append((score, d.name.lower(), {
+            # Sort key: for Hebrew queries sort by Hebrew name, else by English name
+            sort_key = hebrew.lower() if (is_heb and hebrew) else d.name.lower()
+            scored.append((score, sort_key, {
                 "name": d.name,
                 "generic_name": d.generic_name or "",
                 "dosage_form": d.dosage_form or "",
@@ -69,7 +79,6 @@ def _search_db(q: str, db: Session) -> list[dict]:
                 "hebrew_name": hebrew,
                 "common_dosages": dosages,
             }))
-    # Sort: by score (asc), then alphabetically within same score
     scored.sort(key=lambda x: (x[0], x[1]))
     return [r for _, _, r in scored]
 
