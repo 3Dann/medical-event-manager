@@ -72,7 +72,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
       login(res.data)
       navigate(res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
-      setError(err.response?.data?.detail || 'שגיאה בהתחברות')
+      setError(err.response?.data?.detail || t('auth:error_login'))
     } finally { setLoading(false) }
   }
 
