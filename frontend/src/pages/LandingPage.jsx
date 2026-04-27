@@ -83,7 +83,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
       login(res.data)
       navigate(res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
-      setError(err.response?.data?.detail || 'קוד שגוי')
+      setError(err.response?.data?.detail || t('auth:error_wrong_code'))
     } finally { setLoading(false) }
   }
 
