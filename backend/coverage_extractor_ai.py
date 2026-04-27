@@ -2,7 +2,14 @@
 מחלץ דוח כיסויים מסוכם לכל פוליסות המטופל
 """
 from typing import Any, Dict, List
-from app.models.policy import POLICY_TYPES
+
+POLICY_TYPES = {
+    "life": "ביטוח חיים",
+    "health": "ביטוח בריאות",
+    "nursing": "ביטוח סיעוד",
+    "critical_illness": "ביטוח מחלות קשות",
+    "disability": "אובדן כושר עבודה",
+}
 
 COVERAGE_LABELS = {
     "hospitalization": "אשפוז",
