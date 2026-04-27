@@ -513,3 +513,98 @@ def delete_node(patient_id: int, node_id: int, db: Session = Depends(get_db), cu
     db.delete(node)
     db.commit()
     return {"message": "Node deleted"}
+
+
+# ── Node Sub-Items ──────────────────────────────────────────
+
+class SubItemCreate(BaseModel):
+    text: str
+    sort_order: int = 0
+
+class SubItemUpdate(BaseModel):
+    text: Optional[str] = None
+    is_done: Optional[bool] = None
+    sort_order: Optional[int] = None
+
+
+@router.post("/{patient_id}/nodes/{node_id}/subitems")
+def add_subitem(patient_id: int, node_id: int, data: SubItemCreate,
+                db: Session = Depends(get_db),
+                current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
+    node = db.query(models.Node).filter(
+        models.Node.id == node_id, models.Node.patient_id == patient_id).first()
+    if not node:
+        raise HTTPException(status_code=404, detail="Node not found")
+    item = models.NodeSubItem(node_id=node_id, **data.model_dump())
+    db.add(item); db.commit(); db.refresh(item)
+    return {"id": item.id, "text": item.text, "is_done": item.is_done, "sort_order": item.sort_order}
+
+
+@router.put("/{patient_id}/nodes/{node_id}/subitems/{item_id}")
+def update_subitem(patient_id: int, node_id: int, item_id: int, data: SubItemUpdate,
+                   db: Session = Depends(get_db),
+                   current_user: models.User = Depends(auth_utils.require_manager)):
+    item = db.query(models.NodeSubItem).filter(
+        models.NodeSubItem.id == item_id,
+        models.NodeSubItem.node_id == node_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Sub-item not found")
+    for f, v in data.model_dump(exclude_none=True).items():
+        setattr(item, f, v)
+    db.commit(); db.refresh(item)
+    return {"id": item.id, "text": item.text, "is_done": item.is_done, "sort_order": item.sort_order}
+
+
+@router.delete("/{patient_id}/nodes/{node_id}/subitems/{item_id}")
+def delete_subitem(patient_id: int, node_id: int, item_id: int,
+                   db: Session = Depends(get_db),
+                   current_user: models.User = Depends(auth_utils.require_manager)):
+    item = db.query(models.NodeSubItem).filter(
+        models.NodeSubItem.id == item_id,
+        models.NodeSubItem.node_id == node_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Sub-item not found")
+    db.delete(item); db.commit()
+    return {"ok": True}
+
+
+# ── Journey Templates ───────────────────────────────────────
+
+@router.get("/{patient_id}/journey-templates")
+def list_journey_templates(patient_id: int,
+                            db: Session = Depends(get_db),
+                            current_user=Depends(auth_utils.get_current_user)):
+    from data.journey_templates import JOURNEY_TEMPLATES
+    return JOURNEY_TEMPLATES
+
+
+@router.post("/{patient_id}/journey-templates/{template_key}/apply")
+def apply_journey_template(patient_id: int, template_key: str,
+                            db: Session = Depends(get_db),
+                            current_user=Depends(auth_utils.require_manager)):
+    from data.journey_templates import JOURNEY_TEMPLATES
+    tpl = next((t for t in JOURNEY_TEMPLATES if t["key"] == template_key), None)
+    if not tpl:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
+
+    created = []
+    for i, node_def in enumerate(tpl["nodes"]):
+        node = models.Node(
+            patient_id=patient_id,
+            node_type=node_def.get("node_type", "medical"),
+            description=node_def["description"],
+            planned_date=node_def.get("planned_date"),
+            status="future",
+            notes=node_def.get("notes"),
+            stage_order=node_def.get("stage_order"),
+        )
+        db.add(node); db.flush()
+        for j, sub_text in enumerate(node_def.get("sub_items", [])):
+            db.add(models.NodeSubItem(node_id=node.id, text=sub_text, sort_order=j))
+        created.append(node_to_dict(node))
+
+    db.commit()
+    return {"created": len(created), "nodes": created}
