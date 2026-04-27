@@ -519,6 +519,44 @@ export default function PatientDetail() {
 
     </div>
 
+    {/* ── Journey template modal ────────────────────────────────────── */}
+    {showJourneyModal && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b">
+            <div>
+              <h3 className="font-bold text-slate-800">החל מסע מחלה</h3>
+              <p className="text-xs text-slate-500 mt-0.5">בחר תבנית — תוסיף צמתים עם תת-סעיפים לציר הזמן של המטופל</p>
+            </div>
+            <button onClick={() => setShowJourneyModal(false)} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+          </div>
+          <div className="overflow-y-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {journeyTemplates.map(tpl => (
+              <button
+                key={tpl.key}
+                onClick={() => applyTemplate(tpl.key)}
+                disabled={applyingTemplate}
+                className="text-right p-4 rounded-xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-colors disabled:opacity-50"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xl">{tpl.icon}</span>
+                  <span className="font-semibold text-slate-800 text-sm">{tpl.label}</span>
+                </div>
+                <p className="text-xs text-slate-500">{tpl.category} · {tpl.nodes.length} צמתים</p>
+                <p className="text-xs text-slate-400 mt-1">{tpl.nodes.map(n => n.description).join(' → ')}</p>
+              </button>
+            ))}
+          </div>
+          {applyingTemplate && (
+            <div className="px-6 pb-4 text-center text-sm text-violet-600">
+              <span className="inline-block w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin mr-2" />
+              מחיל תבנית...
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
     {/* Full-width resizable workflow panel */}
     <ResizablePanel
       direction="vertical"
@@ -529,6 +567,65 @@ export default function PatientDetail() {
     >
       <WorkflowPanel patientId={id} />
     </ResizablePanel>
+    </div>
+  )
+}
+
+// ── NodeChecklist component ────────────────────────────────────────────────────
+function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
+  const [newText, setNewText] = useState('')
+  const [showAdd, setShowAdd] = useState(false)
+  const items = node.sub_items || []
+  const done = items.filter(i => i.is_done).length
+
+  return (
+    <div className="mt-2">
+      {items.length > 0 && (
+        <div className="space-y-1 mb-1">
+          {items.map(item => (
+            <div key={item.id} className="flex items-center gap-2 group">
+              <input
+                type="checkbox"
+                checked={item.is_done}
+                onChange={e => onToggle(item.id, e.target.checked)}
+                className="w-3.5 h-3.5 accent-blue-600 cursor-pointer shrink-0"
+              />
+              <span className={`text-xs flex-1 ${item.is_done ? 'line-through text-slate-400' : 'text-slate-600'}`}>
+                {item.text}
+              </span>
+              <button
+                onClick={() => onDelete(item.id)}
+                className="opacity-0 group-hover:opacity-100 text-red-300 hover:text-red-500 text-xs leading-none transition-opacity"
+              >✕</button>
+            </div>
+          ))}
+          {items.length > 0 && (
+            <p className="text-[10px] text-slate-400 mt-1">{done}/{items.length} הושלמו</p>
+          )}
+        </div>
+      )}
+
+      {showAdd ? (
+        <div className="flex gap-1 mt-1">
+          <input
+            className="flex-1 border border-slate-200 rounded px-2 py-0.5 text-xs"
+            placeholder="תת-סעיף חדש..."
+            value={newText}
+            onChange={e => setNewText(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { onAdd(newText); setNewText(''); setShowAdd(false) } }}
+            autoFocus
+          />
+          <button onClick={() => { onAdd(newText); setNewText(''); setShowAdd(false) }}
+            className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">+</button>
+          <button onClick={() => { setShowAdd(false); setNewText('') }}
+            className="text-xs text-slate-400 px-1">✕</button>
+        </div>
+      ) : (
+        <button onClick={() => setShowAdd(true)}
+          className="text-[10px] text-slate-400 hover:text-blue-600 mt-0.5">
+          + הוסף תת-סעיף
+        </button>
+      )}
     </div>
   )
 }
