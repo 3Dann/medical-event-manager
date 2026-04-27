@@ -59,7 +59,7 @@ function AppRoutes() {
       <Route path="/manager" element={<ProtectedRoute role="manager"><ManagerLayout /></ProtectedRoute>}>
         <Route index element={<ManagerDashboard />} />
         <Route path="patients/:id" element={<PatientDetail />} />
-        <Route path="patients/:id/insurance" element={<PatientInsurance />} />
+        <Route path="patients/:id/insurance" element={<PatientInsurancePolicies />} />
         <Route path="patients/:id/claims" element={<PatientClaims />} />
         <Route path="patients/:id/strategy" element={<PatientStrategy />} />
         <Route path="patients/:id/documents" element={<PatientDocuments />} />
