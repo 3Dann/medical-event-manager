@@ -90,9 +90,15 @@ function AppRoutes() {
 
 function LangDirectionSync() {
   useEffect(() => {
-    const lang = localStorage.getItem('app_language') || 'he'
-    document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr'
-    document.documentElement.lang = lang
+    const applyDir = (lang) => {
+      document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr'
+      document.documentElement.lang = lang
+    }
+    // Apply on mount
+    applyDir(i18n.language || localStorage.getItem('app_language') || 'he')
+    // Subscribe to language changes
+    i18n.on('languageChanged', applyDir)
+    return () => i18n.off('languageChanged', applyDir)
   }, [])
   return null
 }
