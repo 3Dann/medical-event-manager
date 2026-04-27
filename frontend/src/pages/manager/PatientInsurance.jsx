@@ -668,28 +668,53 @@ export default function PatientInsurance() {
                 </div>
                 <div><label className="label">הערות</label><textarea className="input" rows={1} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
 
-                {/* Private insurance auto-import */}
+                {/* Policy import — AI + basic */}
                 {(form.source_type === 'private' || form.source_type === 'har_habitua') && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <p className="text-sm font-medium text-blue-800 mb-1">ייבוא אוטומטי מתיק הביטוח</p>
-                    <p className="text-xs text-blue-600 mb-3">העלה קובץ מאתר חברת הביטוח — המערכת תנסה לחלץ אוטומטית את הכיסויים, החברה ומספר הפוליסה.</p>
-                    <div className="flex gap-2">
-                      <label className={`flex items-center gap-2 text-sm bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        {uploadingPrivate ? 'מנתח...' : 'ייבא מ-PDF'}
-                        <input type="file" accept=".pdf" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
+                  <div className="space-y-3">
+                    {/* AI analysis — primary */}
+                    <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-violet-800">✨ ניתוח AI — מומלץ</span>
+                        <span className="text-xs bg-violet-100 text-violet-600 px-2 py-0.5 rounded-full">Claude</span>
+                      </div>
+                      <p className="text-xs text-violet-600 mb-3">ניתוח מלא של הפוליסה: כיסויים, סכומים, חריגים, מספר פוליסה — דיוק גבוה.</p>
+                      <label className={`inline-flex items-center gap-2 text-sm bg-violet-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-violet-700 font-medium ${analyzingAI ? 'opacity-50 pointer-events-none' : ''}`}>
+                        {analyzingAI
+                          ? <><span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin inline-block" /> מנתח עם AI...</>
+                          : '✨ נתח פוליסה עם AI'}
+                        <input type="file" accept=".pdf,.xlsx,.xls,.docx" className="hidden" onChange={handleAnalyzeAI} disabled={analyzingAI} />
                       </label>
-                      <label className={`flex items-center gap-2 text-sm bg-white border border-blue-300 text-blue-700 px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18M10 3v18M14 3v18" />
-                        </svg>
-                        {uploadingPrivate ? 'מנתח...' : 'ייבא מ-Excel'}
-                        <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
-                      </label>
+                      {aiResult && (
+                        <div className={`mt-3 rounded-lg p-3 text-xs ${aiResult.success ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                          {aiResult.success ? (
+                            <>
+                              <p className="font-semibold">✅ {aiResult.insurer} — {aiResult.policy_number || 'ללא מספר'}</p>
+                              <p>כיסויים שזוהו: {aiResult.coverages_detected} | דיוק: {Math.round((aiResult.confidence || 0) * 100)}%</p>
+                              {aiResult.key_exclusions?.length > 0 && <p>חריגים: {aiResult.key_exclusions.join(', ')}</p>}
+                            </>
+                          ) : <p>❌ {aiResult.error}</p>}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-xs text-blue-400 mt-2">או מלא ידנית את הפרטים והכיסויים למטה</p>
+                    {/* Basic import — fallback */}
+                    <details className="group">
+                      <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 select-none">
+                        ייבוא בסיסי (ללא AI) ▸
+                      </summary>
+                      <div className="mt-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+                        <p className="text-xs text-blue-600 mb-2">חילוץ חלקי מ-PDF / Excel — ללא ניתוח תוכן.</p>
+                        <div className="flex gap-2">
+                          <label className={`flex items-center gap-1 text-xs bg-white border border-blue-300 text-blue-700 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {uploadingPrivate ? 'מנתח...' : '📄 PDF'}
+                            <input type="file" accept=".pdf" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
+                          </label>
+                          <label className={`flex items-center gap-1 text-xs bg-white border border-blue-300 text-blue-700 px-2 py-1.5 rounded-lg cursor-pointer hover:bg-blue-50 font-medium ${uploadingPrivate ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {uploadingPrivate ? 'מנתח...' : '📊 Excel'}
+                            <input type="file" accept=".xlsx,.xls" className="hidden" onChange={handleUploadPrivate} disabled={uploadingPrivate} />
+                          </label>
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 )}
 
