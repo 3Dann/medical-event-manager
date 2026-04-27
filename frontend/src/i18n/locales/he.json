@@ -91,7 +91,15 @@
     "enter_2fa": "הזן קוד מאפליקציית האימות",
     "enter_email_code": "הזן קוד מהאימייל",
     "verifying": "מאמת...",
-    "hello": "שלום"
+    "hello": "שלום",
+    "two_fa_title": "אימות דו-שלבי",
+    "validity_10min": "תוקף: 10 דקות",
+    "reset_code_label": "קוד האיפוס שלך:",
+    "validity_1hr": "תוקף: שעה אחת",
+    "email_code_sent": "קוד נשלח לאימייל {{email}}",
+    "error_login": "שגיאה בהתחברות",
+    "error_wrong_code": "קוד שגוי",
+    "password_updated": "הסיסמה עודכנה — ניתן להתחבר"
   },
   "landing": {
     "hero_title": "ניהול אירוע רפואי",
