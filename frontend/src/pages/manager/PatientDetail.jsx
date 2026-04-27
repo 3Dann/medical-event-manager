@@ -15,15 +15,7 @@ const MEDICAL_STAGES = [
   { value: 'monitoring',       label: 'מעקב' },
 ]
 
-const tabs = [
-  { to: '', label: 'פרטים וצמתים', end: true },
-  { to: 'insurance', label: 'ביטוחים' },
-  { to: 'claims', label: 'תביעות' },
-  { to: 'financial-map', label: '💰 מפה פיננסית' },
-  { to: 'strategy', label: 'אסטרטגיה' },
-  { to: 'medications', label: 'תרופות' },
-  { to: 'documents', label: 'מסמכים' },
-]
+// tabs are built inside the component using t()
 
 // Fixed journey stages — order values 10,20,30,40,50
 const FIXED_STAGES = [10, 20, 30, 40, 50]
