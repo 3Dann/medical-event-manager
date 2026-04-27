@@ -91,7 +91,15 @@
     "enter_2fa": "Enter code from authenticator app",
     "enter_email_code": "Enter code from email",
     "verifying": "Verifying...",
-    "hello": "Hello"
+    "hello": "Hello",
+    "two_fa_title": "Two-Factor Authentication",
+    "validity_10min": "Valid for: 10 minutes",
+    "reset_code_label": "Your reset code:",
+    "validity_1hr": "Valid for: 1 hour",
+    "email_code_sent": "Code sent to email {{email}}",
+    "error_login": "Login error",
+    "error_wrong_code": "Wrong code",
+    "password_updated": "Password updated — you can now sign in"
   },
   "landing": {
     "hero_title": "Medical Case Management",
