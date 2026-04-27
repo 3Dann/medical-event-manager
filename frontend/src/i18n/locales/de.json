@@ -50,7 +50,17 @@
     "profile": "Profil",
     "logout": "Abmelden",
     "home": "Startseite",
-    "landing_editor": "Landing-Editor"
+    "landing_editor": "Landing-Editor",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "Abbrechen",
+    "insurance": "Versicherung",
+    "claims": "Ansprüche",
+    "strategy": "Strategie"
   },
   "auth": {
     "login": "Anmelden",

@@ -50,7 +50,17 @@
     "profile": "Профиль",
     "logout": "Выйти",
     "home": "Главная",
-    "landing_editor": "Редактор лендинга"
+    "landing_editor": "Редактор лендинга",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "Отмена",
+    "insurance": "Страхование",
+    "claims": "Претензии",
+    "strategy": "Стратегия"
   },
   "auth": {
     "login": "Вход",

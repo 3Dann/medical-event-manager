@@ -50,7 +50,17 @@
     "profile": "Perfil",
     "logout": "Cerrar sesión",
     "home": "Inicio",
-    "landing_editor": "Editor de página de inicio"
+    "landing_editor": "Editor de página de inicio",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "Cancelar",
+    "insurance": "Seguros",
+    "claims": "Reclamaciones",
+    "strategy": "Estrategia"
   },
   "auth": {
     "login": "Iniciar sesión",

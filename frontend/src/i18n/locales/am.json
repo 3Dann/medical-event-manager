@@ -50,7 +50,17 @@
     "profile": "መገለጫ",
     "logout": "ውጣ",
     "home": "መነሻ",
-    "landing_editor": "የመግቢያ ገጽ አርታዒ"
+    "landing_editor": "የመግቢያ ገጽ አርታዒ",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "ሰርዝ",
+    "insurance": "ኢንሹራንስ",
+    "claims": "ጥያቄዎች",
+    "strategy": "ስትራቴጂ"
   },
   "auth": {
     "login": "ግባ",

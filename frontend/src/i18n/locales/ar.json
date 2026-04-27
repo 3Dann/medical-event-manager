@@ -50,7 +50,17 @@
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
     "home": "الرئيسية",
-    "landing_editor": "محرر الصفحة الرئيسية"
+    "landing_editor": "محرر الصفحة الرئيسية",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "إلغاء",
+    "insurance": "التأمين",
+    "claims": "المطالبات",
+    "strategy": "الاستراتيجية"
   },
   "auth": {
     "login": "تسجيل الدخول",

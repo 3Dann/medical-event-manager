@@ -50,7 +50,17 @@
     "profile": "Perfil",
     "logout": "Sair",
     "home": "Início",
-    "landing_editor": "Editor de página inicial"
+    "landing_editor": "Editor de página inicial",
+    "documents": "Documents",
+    "medications": "Medications",
+    "financial_map": "💰 Financial Map",
+    "details_nodes": "Details & Nodes",
+    "apply_journey": "🗺️ Apply Journey",
+    "add_node": "+ Add Node",
+    "cancel": "Cancelar",
+    "insurance": "Seguros",
+    "claims": "Reclamações",
+    "strategy": "Estratégia"
   },
   "auth": {
     "login": "Entrar",

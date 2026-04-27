@@ -90,15 +90,13 @@ function AppRoutes() {
 
 function LangDirectionSync() {
   useEffect(() => {
-    const applyDir = (lang) => {
-      document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr'
-      document.documentElement.lang = lang
-    }
-    // Apply on mount
-    applyDir(i18n.language || localStorage.getItem('app_language') || 'he')
-    // Subscribe to language changes
-    i18n.on('languageChanged', applyDir)
-    return () => i18n.off('languageChanged', applyDir)
+    // Direction is ALWAYS RTL — the system layout is Hebrew/RTL regardless of content language
+    document.documentElement.dir = 'rtl'
+    document.documentElement.lang = i18n.language || localStorage.getItem('app_language') || 'he'
+    // Update lang attribute on language change (for accessibility/fonts) but NOT direction
+    const onLangChange = (lang) => { document.documentElement.lang = lang }
+    i18n.on('languageChanged', onLangChange)
+    return () => i18n.off('languageChanged', onLangChange)
   }, [])
   return null
 }
