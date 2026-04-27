@@ -439,6 +439,55 @@ HEBREW_NAMES: dict[str, str] = {
     "Sildenafil": "סילדנאפיל", "Viagra": "ויאגרה",
     "Cialis": "סיאליס", "Tadalafil": "טדלפיל",
     "Colchicine": "קולכיצין",
+    # שרירים
+    "Baclofen": "בקלופן", "Lioresal": "ליאורסל",
+    "Zanaflex": "זנאפלקס", "Tizanidine": "טיזנידין",
+    "Dantrium": "דנטריום", "Dantrolene": "דנטרולן",
+    "Robaxin": "רובקסין", "Methocarbamol": "מתוקרבמול",
+    "Cyclobenzaprine": "ציקלובנזפרין",
+    # שלפוחית
+    "Betamiga": "בטמיגה", "Mirabegron": "מירבגרון",
+    "Myrbetriq": "מירבטריק", "Vesicare": "וסיקר",
+    "Detrusitol": "דטרוסיטול", "Ditropan": "דיטרופן",
+    # נוירולוגיה נדירות
+    "Riluzole": "ריליוזול", "Rilutek": "ריליטק",
+    "Baclofen": "בקלופן",
+    # א.א.ג
+    "Betahistine": "בטהיסטין", "Serc": "סרק",
+    "Cinnarizine": "סינריזין", "Stugeron": "סטוגרון",
+    "Scopolamine": "סקופולמין", "Scopoderm": "סקופודרם",
+    "Promethazine": "פרומתזין", "Phenergan": "פנרגן",
+    "Dimenhydrinate": "דימנהידרינט", "Dramamine": "דרממין",
+    # קרדיולוגיה נוספות
+    "Sacubitril": "סקוביטריל",
+    "Labetalol": "לבטלול", "Trandate": "טרנדט",
+    "Minoxidil oral": "מינוקסידיל פומי",
+    "Minoxidil topical": "מינוקסידיל מקומי",
+    "Rogaine": "רוגיין",
+    # עור
+    "Tretinoin": "טרטינואין", "Retin-A": "רטין A",
+    "Adapalene": "אדפלן", "Differin": "דיפרין",
+    "Apremilast": "אפרמילסט", "Otezla": "אוטזלה",
+    "Calcipotriol": "קלציפוטריאול",
+    # עיניים נוספות
+    "Latanoprost": "לטנופרוסט", "Xalatan": "זלטן",
+    "Travoprost": "טרבופרוסט", "Bimatoprost": "בימטופרוסט",
+    "Brimonidine": "ברימונידין", "Alphagan": "אלפגן",
+    "Lifitegrast": "ליפיטגרסט", "Xiidra": "זיידרה",
+    "Faricimab": "פריצימב", "Vabysmo": "ובייסמו",
+    # המטולוגיה
+    "Tranexamic Acid": "חומצה טרנקסמית", "Cyklokapron": "ציקלוקפרון",
+    "Eltrombopag": "אלטרומבופג", "Revolade": "רוולייד",
+    "Romiplostim": "רומיפלוסטים", "Nplate": "אנפלייט",
+    "Deferasirox": "דפרסירוקס", "Exjade": "אקסג'ייד",
+    "Deferiprone": "דפריפרון", "Ferriprox": "פריפרוקס",
+    "Desmopressin": "דסמופרסין", "Minirin": "מינירין",
+    # הרדמה / כאב
+    "Ketamine": "קטמין", "Naloxone": "נלוקסון",
+    "Narcan": "נרקן", "Naltrexone": "נלטרקסון",
+    "Suboxone": "סובוקסון", "Subutex": "סובוטקס",
+    "Lidocaine": "לידוקאין", "Xylocaine": "זילוקאין",
+    "Bupivacaine": "בופיבקאין", "Marcain": "מרקאין",
 }
 
 DRUGS = [
