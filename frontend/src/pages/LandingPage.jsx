@@ -93,13 +93,13 @@ function LoginModal({ onClose, initialTab = 'login' }) {
       const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail })
       setResetToken(res.data.reset_token)
       setForgotStep(2)
-    } catch (err) { setError(err.response?.data?.detail || 'שגיאה') }
+    } catch (err) { setError(err.response?.data?.detail || t('common:error')) }
     finally { setLoading(false) }
   }
 
   const handleForgotStep2 = async (e) => {
     e.preventDefault(); setError('')
-    if (resetForm.new_password !== resetForm.confirm) { setError('הסיסמאות אינן תואמות'); return }
+    if (resetForm.new_password !== resetForm.confirm) { setError(t('auth:passwords_mismatch')); return }
     setLoading(true)
     try {
       await axios.post('/api/auth/reset-password', {
