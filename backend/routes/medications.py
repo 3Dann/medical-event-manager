@@ -28,15 +28,18 @@ def _word_prefix_match(text: str, prefix: str) -> bool:
 
 def _score(name: str, generic: str, hebrew: str, q: str) -> int:
     """
-    Higher score = more relevant. Sorting key (descending).
+    Relevance score — lower = more relevant.
     0  exact match on trade name
     1  trade name starts with query
     2  word in trade name starts with query
     3  generic name starts with query
     4  word in generic starts with query
-    5  Hebrew name contains query
+    5  Hebrew name starts with query
+    6  word in Hebrew name starts with query
+    7  Hebrew name contains query (not at boundary)
     """
-    n, g, h = name.lower(), (generic or "").lower(), (hebrew or "").lower()
+    n, g, h = name.lower(), (generic or "").lower(), (hebrew or "")
+    h_low = h.lower()
     if n == q:              return 0
     if n.startswith(q):     return 1
     for w in re.split(r'[\s\-\+/(,]', n):
@@ -44,7 +47,10 @@ def _score(name: str, generic: str, hebrew: str, q: str) -> int:
     if g.startswith(q):     return 3
     for w in re.split(r'[\s\-\+/(,]', g):
         if w and w.startswith(q): return 4
-    if q in h:              return 5
+    if h_low.startswith(q): return 5
+    for w in re.split(r'[\s\-]', h_low):
+        if w and w.startswith(q): return 6
+    if q in h_low:          return 7
     return 9
 
 
