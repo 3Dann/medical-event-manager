@@ -63,6 +63,7 @@ function AppRoutes() {
         <Route path="patients/:id/strategy" element={<PatientStrategy />} />
         <Route path="patients/:id/documents" element={<PatientDocuments />} />
         <Route path="patients/:id/medications" element={<PatientMedications />} />
+        <Route path="patients/:id/financial-map" element={<PatientFinancialMap />} />
         <Route path="doctors" element={<DoctorsDatabase />} />
         <Route path="responsiveness" element={<ResponsivenessPage />} />
         <Route path="feedback" element={<FeedbackInbox />} />
