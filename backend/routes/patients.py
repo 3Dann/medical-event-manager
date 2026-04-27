@@ -176,8 +176,7 @@ def patient_to_dict(p):
         "ec_phone_prefix": p.ec_phone_prefix,
         "ec_phone": p.ec_phone,
         "ec_relation": p.ec_relation,
-        # Medications & assessments
-        "medications": json.loads(p.medications) if p.medications else [],
+        # Functional assessments (medications moved to patient_medications table)
         "adl_score": p.adl_score,
         "iadl_score": p.iadl_score,
         "mmse_score": p.mmse_score,
