@@ -497,8 +497,8 @@ export default function LandingPage() {
 
       {/* ── How it works ── */}
       <section className="py-16 max-w-5xl mx-auto px-6">
-        <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">איך זה עובד</p>
-        <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{overrides.stepsTitle ?? 'שלושה שלבים פשוטים'}</h2>
+        <p className="text-center text-blue-600 font-semibold text-sm uppercase tracking-widest mb-2">{t('landing:how_it_works')}</p>
+        <h2 className="text-3xl font-bold text-slate-800 text-center mb-12">{ovOrT(overrides, 'stepsTitle', t('landing:three_steps'))}</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {STEPS.map((step) => (
             <div key={step.num} className="text-center">
