@@ -188,7 +188,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 ) : (
                   <p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>
                 )}
-                <p className="text-xs text-blue-500 mt-1">תוקף: 10 דקות</p>
+                <p className="text-xs text-blue-500 mt-1">{t('auth:validity_10min')}</p>
               </div>
             )}
             <form onSubmit={handle2FAVerify} className="space-y-4">
