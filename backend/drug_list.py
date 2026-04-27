@@ -719,8 +719,6 @@ DRUGS = [
     ("Dilantin", "Phenytoin", "כמוסות"),
     ("Oxcarbazepine", "Oxcarbazepine", "טבליות"),
     ("Trileptal", "Oxcarbazepine", "טבליות"),
-    ("Pregabalin", "Pregabalin", "כמוסות"),
-    ("Lyrica", "Pregabalin", "כמוסות"),
     ("Briviact", "Brivaracetam", "טבליות"),
     ("Vimpat", "Lacosamide", "טבליות"),
     ("Fycompa", "Perampanel", "טבליות"),
@@ -808,7 +806,6 @@ DRUGS = [
     ("Lorazepam", "Lorazepam", "טבליות"),
     ("Lorivan", "Lorazepam", "טבליות"),
     ("Buspirone", "Buspirone", "טבליות"),
-    ("Pregabalin", "Pregabalin", "כמוסות"),
     ("Stilnox", "Zolpidem", "טבליות"),
     ("Zolpidem", "Zolpidem", "טבליות"),
     ("Imovane", "Zopiclone", "טבליות"),
@@ -832,7 +829,6 @@ DRUGS = [
     ("Lithium", "Lithium Carbonate", "טבליות"),
     ("Camcolit", "Lithium Carbonate", "טבליות"),
     ("Depakote", "Valproate Semisodium", "טבליות"),
-    ("Lamictal", "Lamotrigine", "טבליות"),
 
     # ═══════════════════════════════════════════════════
     # ADHD
@@ -974,7 +970,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # ראומטולוגיה / מחלות אוטואימוניות
     # ═══════════════════════════════════════════════════
-    ("Methotrexate", "Methotrexate", "טבליות / זריקה"),
     ("Plaquenil", "Hydroxychloroquine", "טבליות"),
     ("Hydroxychloroquine", "Hydroxychloroquine", "טבליות"),
     ("Sulfasalazine", "Sulfasalazine", "טבליות"),
@@ -1084,9 +1079,7 @@ DRUGS = [
     ("Asacol", "Mesalazine", "טבליות"),
     ("Mesalazine", "Mesalazine", "טבליות"),
     ("Budenofalk", "Budesonide", "כמוסות"),
-    ("Remicade", "Infliximab", "עירוי"),
     ("Entyvio", "Vedolizumab", "עירוי"),
-    ("Stelara", "Ustekinumab", "עירוי"),
     ("Ursofalk", "Ursodeoxycholic Acid", "כמוסות"),
     ("Ursodiol", "Ursodeoxycholic Acid", "כמוסות"),
     ("Rifaximin", "Rifaximin", "טבליות"),
@@ -1122,11 +1115,8 @@ DRUGS = [
     ("Venofer", "Iron Sucrose", "עירוי"),
     ("Vitamin B12", "Cyanocobalamin", "טבליות / זריקה"),
     ("Folic Acid", "Folic Acid", "טבליות"),
-    ("Revlimid", "Lenalidomide", "כמוסות"),
     ("Thalidomide", "Thalidomide", "כמוסות"),
     ("Jakavi", "Ruxolitinib", "טבליות"),
-    ("Calquence", "Acalabrutinib", "כמוסות"),
-    ("Imbruvica", "Ibrutinib", "כמוסות"),
     ("G-CSF", "Filgrastim", "זריקה"),
     ("Neupogen", "Filgrastim", "זריקה"),
     ("Neulasta", "Pegfilgrastim", "זריקה"),
@@ -1138,7 +1128,6 @@ DRUGS = [
     ("Augmentin", "Amoxicillin + Clavulanate", "טבליות"),
     ("Amoxicillin + Clavulanate", "Amoxicillin + Clavulanate", "טבליות"),
     ("Azithromycin", "Azithromycin", "טבליות"),
-    ("Zithromax", "Azithromycin", "טבליות"),
     ("Klacid", "Clarithromycin", "טבליות"),
     ("Clarithromycin", "Clarithromycin", "טבליות"),
     ("Cipro", "Ciprofloxacin", "טבליות"),
@@ -1214,12 +1203,6 @@ DRUGS = [
     ("Hydrocortisone", "Hydrocortisone", "משחה / קרם"),
     ("Betamethasone", "Betamethasone", "משחה"),
     ("Clobetasol", "Clobetasol", "משחה"),
-    ("Dupixent", "Dupilumab", "זריקה"),
-    ("Skyrizi", "Risankizumab", "זריקה"),
-    ("Tremfya", "Guselkumab", "זריקה"),
-    ("Cosentyx", "Secukinumab", "זריקה"),
-    ("Taltz", "Ixekizumab", "זריקה"),
-    ("Humira", "Adalimumab", "זריקה"),
     ("Isotretinoin", "Isotretinoin", "כמוסות"),
     ("Roaccutane", "Isotretinoin", "כמוסות"),
 
@@ -1251,7 +1234,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # אנדוקרינולוגיה — שונות
     # ═══════════════════════════════════════════════════
-    ("Hydrocortisone", "Hydrocortisone", "טבליות / זריקה"),
     ("Dexamethasone", "Dexamethasone", "טבליות / זריקה"),
     ("Florinef", "Fludrocortisone", "טבליות"),
     ("Somatropin", "Somatropin (GH)", "זריקה"),
@@ -1293,23 +1275,17 @@ DRUGS = [
     ("Ajovy", "Fremanezumab", "זריקה"),
     ("Emgality", "Galcanezumab", "זריקה"),
     ("Vyepti", "Eptinezumab", "עירוי"),
-    ("Topamax", "Topiramate", "טבליות"),
     ("Propranolol", "Propranolol", "טבליות"),
-    ("Amitriptyline", "Amitriptyline", "טבליות"),
     ("Botox", "Botulinum Toxin A", "זריקה"),
 
     # ═══════════════════════════════════════════════════
     # ויטמינים / תוספים
     # ═══════════════════════════════════════════════════
-    ("Vitamin B12", "Cyanocobalamin", "טבליות / זריקה"),
-    ("Folic Acid", "Folic Acid", "טבליות"),
-    ("Vitamin D3", "Cholecalciferol", "טיפות / טבליות"),
     ("Vitamin C", "Ascorbic Acid", "טבליות"),
     ("Vitamin K", "Phytomenadione", "טבליות"),
     ("Magnesium", "Magnesium", "טבליות"),
     ("Potassium Chloride", "Potassium Chloride", "טבליות"),
     ("Slow-K", "Potassium Chloride", "טבליות"),
-    ("Iron Supplement", "Ferrous Sulfate", "טבליות"),
     ("Zinc", "Zinc", "טבליות"),
 
     # ═══════════════════════════════════════════════════
@@ -1322,7 +1298,6 @@ DRUGS = [
     ("Gonal-F", "Follitropin Alfa", "זריקה"),
     ("Pregnyl", "hCG", "זריקה"),
     ("Diphereline", "Triptorelin", "זריקה"),
-    ("Lupron", "Leuprolide", "זריקה"),
 
     # ═══════════════════════════════════════════════════
     # שרירים ועמוד שדרה — Muscle Relaxants / Spasticity
@@ -1341,7 +1316,6 @@ DRUGS = [
     ("Flexeril", "Cyclobenzaprine", "טבליות"),
     ("Carisoprodol", "Carisoprodol", "טבליות"),
     ("Soma", "Carisoprodol", "טבליות"),
-    ("Botox", "Botulinum Toxin A", "זריקה"),
     ("Dysport", "Botulinum Toxin A", "זריקה"),
     ("Xeomin", "Botulinum Toxin A", "זריקה"),
 
@@ -1349,14 +1323,10 @@ DRUGS = [
     # שלפוחית / שתן / גינקולוגיה — Urology / Gynaecology
     # ═══════════════════════════════════════════════════
     ("Betamiga", "Mirabegron", "טבליות"),
-    ("Myrbetriq", "Mirabegron", "טבליות"),
     ("Mirabegron", "Mirabegron", "טבליות"),
-    ("Vesicare", "Solifenacin", "טבליות"),
     ("Solifenacin", "Solifenacin", "טבליות"),
-    ("Detrusitol", "Tolterodine", "כמוסות"),
     ("Tolterodine", "Tolterodine", "כמוסות"),
     ("Enablex", "Darifenacin", "טבליות"),
-    ("Toviaz", "Fesoterodine", "טבליות"),
     ("Sanctura", "Trospium", "טבליות"),
     ("Ditropan", "Oxybutynin", "טבליות"),
     ("Oxybutynin", "Oxybutynin", "טבליות"),
@@ -1373,7 +1343,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # כאב עצבי / מיגרנה / כאב כרוני
     # ═══════════════════════════════════════════════════
-    ("Cymbalta", "Duloxetine", "כמוסות"),
     ("Savella", "Milnacipran", "טבליות"),
     ("Milnacipran", "Milnacipran", "טבליות"),
     ("Tapentadol", "Tapentadol", "טבליות"),
@@ -1385,7 +1354,6 @@ DRUGS = [
     ("Pethidine", "Pethidine", "זריקה"),
     ("Codeine", "Codeine", "טבליות"),
     ("Co-Codamol", "Codeine + Paracetamol", "טבליות"),
-    ("Zofran", "Ondansetron", "טבליות"),
     ("Maxolon", "Metoclopramide", "טבליות"),
     ("Ergotamine", "Ergotamine", "טבליות"),
     ("Cafergot", "Ergotamine + Caffeine", "טבליות"),
@@ -1427,7 +1395,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # נשימה / ריאות נוספות
     # ═══════════════════════════════════════════════════
-    ("Singulair", "Montelukast", "טבליות"),
     ("Zafirlukast", "Zafirlukast", "טבליות"),
     ("Accolate", "Zafirlukast", "טבליות"),
     ("Zileuton", "Zileuton", "טבליות"),
@@ -1493,9 +1460,7 @@ DRUGS = [
     ("Polymyxin B", "Polymyxin B", "עירוי"),
     ("Fosfomycin", "Fosfomycin", "אבקה"),
     ("Monurol", "Fosfomycin", "אבקה"),
-    ("Nitrofurantoin", "Nitrofurantoin", "כמוסות"),
     ("Trimethoprim", "Trimethoprim", "טבליות"),
-    ("Erythromycin", "Erythromycin", "טבליות"),
     ("Roxithromycin", "Roxithromycin", "טבליות"),
     ("Rulide", "Roxithromycin", "טבליות"),
     ("Spiramycin", "Spiramycin", "טבליות"),
@@ -1512,7 +1477,6 @@ DRUGS = [
     ("Catapres", "Clonidine", "טבליות / מדבקה"),
     ("Tenex", "Guanfacine", "טבליות"),
     ("Guanfacine", "Guanfacine", "טבליות"),
-    ("Memantine", "Memantine", "טבליות"),
     ("Namenda", "Memantine", "טבליות"),
     ("Riluzole", "Riluzole", "טבליות"),
     ("Rilutek", "Riluzole", "טבליות"),
@@ -1593,7 +1557,6 @@ DRUGS = [
     ("Brinzolamide", "Brinzolamide", "טיפות עיניים"),
     ("Azopt", "Brinzolamide", "טיפות עיניים"),
     ("Dorzolamide", "Dorzolamide", "טיפות עיניים"),
-    ("Trusopt", "Dorzolamide", "טיפות עיניים"),
     ("Netarsudil", "Netarsudil", "טיפות עיניים"),
     ("Rhopressa", "Netarsudil", "טיפות עיניים"),
     ("Latanoprostene", "Latanoprostene bunod", "טיפות עיניים"),
@@ -1620,7 +1583,6 @@ DRUGS = [
     ("Pilocarpine eye", "Pilocarpine", "טיפות עיניים"),
     ("Atropine eye", "Atropine", "טיפות עיניים"),
     ("Ranibizumab", "Ranibizumab", "זריקה תוך-עינית"),
-    ("Bevacizumab", "Bevacizumab", "זריקה תוך-עינית"),
     ("Faricimab", "Faricimab", "זריקה תוך-עינית"),
     ("Vabysmo", "Faricimab", "זריקה תוך-עינית"),
 
@@ -1648,7 +1610,6 @@ DRUGS = [
     ("Ferriprox", "Deferiprone", "טבליות"),
     ("Deferoxamine", "Deferoxamine", "זריקה"),
     ("Desferal", "Deferoxamine", "זריקה"),
-    ("Erythropoietin", "Epoetin Alfa", "זריקה"),
     ("Eprex", "Epoetin Alfa", "זריקה"),
     ("Neorecormon", "Epoetin Beta", "זריקה"),
     ("Retacrit", "Epoetin Zeta", "זריקה"),
@@ -1670,8 +1631,6 @@ DRUGS = [
     # אנדוקרינולוגיה / מטבוליזם
     # ═══════════════════════════════════════════════════
     ("Fludrocortisone", "Fludrocortisone", "טבליות"),
-    ("Florinef", "Fludrocortisone", "טבליות"),
-    ("Octreotide", "Octreotide", "זריקה"),
     ("Lanreotide", "Lanreotide", "זריקה"),
     ("Somatuline", "Lanreotide", "זריקה"),
     ("Pasireotide", "Pasireotide", "זריקה"),
@@ -1682,7 +1641,6 @@ DRUGS = [
     ("Parlodel", "Bromocriptine", "טבליות"),
     ("Pegvisomant", "Pegvisomant", "זריקה"),
     ("Somavert", "Pegvisomant", "זריקה"),
-    ("Somatropin", "Somatropin", "זריקה"),
     ("Norditropin", "Somatropin", "זריקה"),
     ("Genotropin", "Somatropin", "זריקה"),
     ("Humatrope", "Somatropin", "זריקה"),
@@ -1692,8 +1650,6 @@ DRUGS = [
     ("Isturisa", "Osilodrostat", "טבליות"),
     ("Mifepristone", "Mifepristone", "טבליות"),
     ("Korlym", "Mifepristone", "טבליות"),
-    ("Cinacalcet", "Cinacalcet", "טבליות"),
-    ("Mimpara", "Cinacalcet", "טבליות"),
     ("Etelcalcetide", "Etelcalcetide", "זריקה"),
     ("Parsabiv", "Etelcalcetide", "זריקה"),
     ("Burosumab", "Burosumab", "זריקה"),
@@ -1735,12 +1691,8 @@ DRUGS = [
     ("Ilaris", "Canakinumab", "זריקה"),
     ("Rilonacept", "Rilonacept", "זריקה"),
     ("Arcalyst", "Rilonacept", "זריקה"),
-    ("Secukinumab", "Secukinumab", "זריקה"),
-    ("Ixekizumab", "Ixekizumab", "זריקה"),
-    ("Bimekizumab", "Bimekizumab", "זריקה"),
     ("Brodalumab", "Brodalumab", "זריקה"),
     ("Siliq", "Brodalumab", "זריקה"),
-    ("Spesolimab", "Spesolimab", "עירוי"),
     ("Deucravacitinib", "Deucravacitinib", "טבליות"),
     ("Sotyktu", "Deucravacitinib", "טבליות"),
     ("Filgotinib", "Filgotinib", "טבליות"),
@@ -1753,7 +1705,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # ילדים ופגים — Paediatrics
     # ═══════════════════════════════════════════════════
-    ("Caffeine citrate", "Caffeine Citrate", "תמיסה"),
     ("Peyona", "Caffeine Citrate", "תמיסה"),
     ("Surfactant", "Poractant Alfa", "תוך-קנה"),
     ("Curosurf", "Poractant Alfa", "תוך-קנה"),
@@ -1819,7 +1770,6 @@ DRUGS = [
     ("Subcuvia", "Immunoglobulin SC", "תת-עורי"),
     ("Hyqvia", "Immunoglobulin SC", "תת-עורי"),
     ("Omalizumab", "Omalizumab", "זריקה"),
-    ("Canakinumab", "Canakinumab", "זריקה"),
     ("Rho(D) Immunoglobulin", "Anti-D", "זריקה"),
     ("WinRho", "Anti-D", "זריקה"),
     ("Tetanus Immunoglobulin", "Tetanus IG", "זריקה"),
@@ -1866,7 +1816,6 @@ DRUGS = [
     # ═══════════════════════════════════════════════════
     # כלי דם / לחץ דם נוסף
     # ═══════════════════════════════════════════════════
-    ("Hydralazine", "Hydralazine", "טבליות"),
     ("Nitroprusside", "Sodium Nitroprusside", "עירוי"),
     ("Nipride", "Sodium Nitroprusside", "עירוי"),
     ("Fenoldopam", "Fenoldopam", "עירוי"),

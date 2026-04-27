@@ -253,17 +253,12 @@ export function MedicationCard({ med, onChange, onRemove }) {
 
   const handleEnrichment = (data) => {
     setEnriching(false)
-    // Update dosage suggestions if openFDA has better data
     if (data.dosages?.length) setDosageSuggestions(data.dosages)
-    // Auto-fill indication if empty and openFDA has one
+    // Use openFDA indication only if our local map has nothing for this drug
     if (data.indication && !med.indication) {
-      // Map long English text to our Hebrew options or use as-is
-      const mapped = Object.entries(DRUG_INDICATION_MAP).find(([k]) =>
-        k.toLowerCase() === med.name?.toLowerCase()
-      )
-      if (!mapped) onChange(prev => ({ ...prev, indication: data.indication }))
+      const inLocalMap = med.name && DRUG_INDICATION_MAP[med.name]
+      if (!inLocalMap) onChange({ ...med, indication: data.indication })
     }
-    // Store interaction text for display
     if (data.interactions_text) setInteractionsText(data.interactions_text)
   }
 
