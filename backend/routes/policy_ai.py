@@ -142,9 +142,9 @@ async def analyze_insurance_pdf_ai(
             except Exception:
                 pass
 
-        existing_cov = db.query(models.InsuranceCoverage).filter(
-            models.InsuranceCoverage.source_id == src.id,
-            models.InsuranceCoverage.category == our_key,
+        existing_cov = db.query(models.Coverage).filter(
+            models.Coverage.insurance_source_id == src.id,
+            models.Coverage.category == our_key,
         ).first()
 
         if existing_cov:
@@ -152,8 +152,8 @@ async def analyze_insurance_pdf_ai(
             existing_cov.coverage_amount = amount_val
             existing_cov.notes = (amount_str + (" — " + notes if notes else "")).strip(" —")
         else:
-            db.add(models.InsuranceCoverage(
-                source_id=src.id,
+            db.add(models.Coverage(
+                insurance_source_id=src.id,
                 category=our_key,
                 is_covered=is_covered,
                 coverage_amount=amount_val,
