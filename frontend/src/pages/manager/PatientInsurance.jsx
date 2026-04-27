@@ -57,6 +57,8 @@ export default function PatientInsurance() {
   const [hmoResult, setHmoResult]           = useState(null)
   const [uploadingPrivate, setUploadingPrivate] = useState(false)
   const [privateUploadResult, setPrivateUploadResult] = useState(null)
+  const [analyzingAI, setAnalyzingAI] = useState(false)
+  const [aiResult, setAiResult] = useState(null)
   const [customCompany, setCustomCompany] = useState(false)
 
   const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
