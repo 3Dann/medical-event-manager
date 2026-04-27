@@ -116,6 +116,45 @@ export default function PatientDetail() {
     fetchAll()
   }
 
+  // ── Sub-items ──────────────────────────────────────────────────────────────
+  const addSubItem = async (nodeId, text) => {
+    if (!text.trim()) return
+    await axios.post(`/api/patients/${id}/nodes/${nodeId}/subitems`, {
+      text: text.trim(), sort_order: 99,
+    })
+    fetchAll()
+  }
+
+  const toggleSubItem = async (nodeId, itemId, isDone) => {
+    await axios.put(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`, { is_done: isDone })
+    setNodes(prev => prev.map(n => n.id === nodeId
+      ? { ...n, sub_items: n.sub_items.map(s => s.id === itemId ? { ...s, is_done: isDone } : s) }
+      : n))
+  }
+
+  const deleteSubItem = async (nodeId, itemId) => {
+    await axios.delete(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`)
+    fetchAll()
+  }
+
+  // ── Journey templates ──────────────────────────────────────────────────────
+  const openJourneyModal = async () => {
+    if (!journeyTemplates.length) {
+      const res = await axios.get(`/api/patients/${id}/journey-templates`)
+      setJourneyTemplates(res.data)
+    }
+    setShowJourneyModal(true)
+  }
+
+  const applyTemplate = async (key) => {
+    setApplyingTemplate(true)
+    try {
+      await axios.post(`/api/patients/${id}/journey-templates/${key}/apply`)
+      fetchAll()
+      setShowJourneyModal(false)
+    } finally { setApplyingTemplate(false) }
+  }
+
   const handleDeleteNode = async (nodeId) => {
     if (!window.confirm('למחוק צומת זה?')) return
     await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
