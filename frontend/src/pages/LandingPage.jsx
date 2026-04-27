@@ -269,7 +269,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
               <p className="text-xs text-blue-600 mb-1">{t('auth:reset_code_label')}</p>
               <p className="text-2xl font-bold text-blue-800 tracking-widest">{resetToken}</p>
-              <p className="text-xs text-blue-500 mt-1">תוקף: שעה אחת</p>
+              <p className="text-xs text-blue-500 mt-1">{t('auth:validity_1hr')}</p>
             </div>
             <div><label className="label">{t('auth:verify_code')}</label>
               <input className="input text-center tracking-widest uppercase" maxLength={6}
