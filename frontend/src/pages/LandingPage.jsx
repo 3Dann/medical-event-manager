@@ -105,9 +105,9 @@ function LoginModal({ onClose, initialTab = 'login' }) {
       await axios.post('/api/auth/reset-password', {
         email: forgotEmail, token: resetForm.token, new_password: resetForm.new_password,
       })
-      setSuccess('הסיסמה עודכנה — ניתן להתחבר')
+      setSuccess(t('auth:password_updated'))
       switchTab('login')
-    } catch (err) { setError(err.response?.data?.detail || 'שגיאה') }
+    } catch (err) { setError(err.response?.data?.detail || t('common:error')) }
     finally { setLoading(false) }
   }
 
