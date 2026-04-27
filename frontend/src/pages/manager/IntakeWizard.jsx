@@ -616,7 +616,6 @@ export default function IntakeWizard() {
         specialty: form.specialty || null,
         sub_specialty: form.sub_specialty || null,
         notes: form.notes || null,
-        medications: JSON.stringify(form.medications),
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
         mmse_answers: JSON.stringify(form.mmse_answers),
