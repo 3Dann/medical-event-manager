@@ -349,10 +349,10 @@ export default function PatientDetail() {
           <div className="flex gap-2">
             <button onClick={openJourneyModal}
               className="text-sm border border-violet-300 text-violet-700 hover:bg-violet-50 px-3 py-1.5 rounded-xl font-medium">
-              🗺️ החל מסע מחלה
+              {t('apply_journey')}
             </button>
             <button onClick={() => setShowAddForm(v => !v)} className="btn-primary text-sm py-1.5">
-              {showAddForm ? 'ביטול' : '+ הוסף צומת'}
+              {showAddForm ? t('cancel') : t('add_node')}
             </button>
           </div>
         </div>
