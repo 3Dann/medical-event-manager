@@ -123,6 +123,37 @@ def get_landing(db: Session = Depends(get_db)):
         return {}
 
 
+@router.post("/landing/translate")
+async def translate_landing(
+    request: Request,
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    """Translate Hebrew landing content to all 9 other languages in parallel using Claude Haiku."""
+    from fastapi import HTTPException
+    import anthropic
+    if current_user.email != "da.tzalik@gmail.com":
+        raise HTTPException(status_code=403, detail="גישה מורשית למפתח בלבד")
+
+    data = await request.json()
+    he_content = data.get("content", {})
+    translatable = _extract_translatable(he_content)
+    content_json = json.dumps(translatable, ensure_ascii=False, indent=2)
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY לא מוגדר בשרת")
+
+    client = anthropic.AsyncAnthropic(api_key=api_key)
+    tasks = [_translate_one(client, content_json, lang["name"], lang["code"], he_content) for lang in TARGET_LANGS]
+    results = await asyncio.gather(*tasks)
+
+    by_lang = {"he": he_content}
+    for lang_code, translated_content in results:
+        by_lang[lang_code] = translated_content
+
+    return {"by_lang": by_lang}
+
+
 @router.put("/landing")
 async def save_landing(
     request: Request,
