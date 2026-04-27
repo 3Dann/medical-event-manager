@@ -174,7 +174,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                   setEmailCodeReady(true)
                   if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('DEV: code shown here') }
                   else setEmailSentMsg(r.data.message || t('auth:email_code_sent', { email: r.data.email }))
-                } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
+                } catch(e) { setError(e.response?.data?.detail || t('common:error')) }
                 finally { setLoading(false) }
               }} disabled={loading} className="btn-primary w-full py-3">
                 {loading ? t('common:loading') : t('auth:send_code')}
