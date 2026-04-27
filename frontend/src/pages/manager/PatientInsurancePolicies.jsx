@@ -658,9 +658,9 @@ export default function PatientInsurancePolicies() {
       </div>
       {expanded === 'national' && <CoverageDetailPanel sources={sources} covKey="national" title="ביטוח לאומי" patient={patient} />}
       {expanded === 'kupah'    && <CoverageDetailPanel sources={sources} covKey="kupah"    title="קופת חולים" patient={patient} />}
-      {expanded === 'tech'        && <CoverageDetailPanel sources={sources} covKey="tech"     title="טכנולוגיות מתקדמות" refItems={TECH_ITEMS} patient={patient} />}
-      {expanded === 'medications' && <CoverageDetailPanel sources={sources} covKey="medications" title="תרופות שלא בסל" refItems={MED_ITEMS} patient={patient} />}
-      {expanded === 'diagnosis'   && <CoverageDetailPanel sources={sources} covKey="diagnosis"   title="אבחון רפואי מהיר" refItems={DIAG_ITEMS} patient={patient} />}
+      {expanded === 'tech'        && <CoverageDetailPanel sources={sources} covKey="advanced_tech" title="טכנולוגיות מתקדמות" refItems={TECH_ITEMS} patient={patient} />}
+      {expanded === 'medications' && <CoverageDetailPanel sources={sources} covKey="medications"  title="תרופות שלא בסל"    refItems={MED_ITEMS}  patient={patient} />}
+      {expanded === 'diagnosis'   && <CoverageDetailPanel sources={sources} covKey="diagnostics"  title="אבחון רפואי מהיר"  refItems={DIAG_ITEMS} patient={patient} />}
 
       {/* ── Policies section ── */}
       <div className="rounded-xl overflow-hidden mt-6" style={{ border: '1px solid #e2e8f0' }}>
