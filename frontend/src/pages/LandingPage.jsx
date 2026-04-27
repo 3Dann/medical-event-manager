@@ -267,7 +267,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         {!twoFAStep && tab === 'forgot' && forgotStep === 2 && (
           <form onSubmit={handleForgotStep2} className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-              <p className="text-xs text-blue-600 mb-1">קוד האיפוס שלך:</p>
+              <p className="text-xs text-blue-600 mb-1">{t('auth:reset_code_label')}</p>
               <p className="text-2xl font-bold text-blue-800 tracking-widest">{resetToken}</p>
               <p className="text-xs text-blue-500 mt-1">תוקף: שעה אחת</p>
             </div>
