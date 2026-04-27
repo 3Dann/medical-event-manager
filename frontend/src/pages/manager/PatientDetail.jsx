@@ -342,9 +342,15 @@ export default function PatientDetail() {
       <div className="card">
         <div className="flex justify-between items-center mb-6">
           <h2 className="font-semibold text-slate-800">מסע מטופל — צמתי החלטה</h2>
-          <button onClick={() => setShowAddForm(v => !v)} className="btn-primary text-sm py-1.5">
-            {showAddForm ? 'ביטול' : '+ הוסף צומת'}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={openJourneyModal}
+              className="text-sm border border-violet-300 text-violet-700 hover:bg-violet-50 px-3 py-1.5 rounded-xl font-medium">
+              🗺️ החל מסע מחלה
+            </button>
+            <button onClick={() => setShowAddForm(v => !v)} className="btn-primary text-sm py-1.5">
+              {showAddForm ? 'ביטול' : '+ הוסף צומת'}
+            </button>
+          </div>
         </div>
 
         {/* Add node form */}
