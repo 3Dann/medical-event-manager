@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LANGUAGES, RTL_LANGS } from '../i18n/index.js'
+import { LANGUAGES } from '../i18n/index.js'
 
 export default function LanguageSwitcher({ compact = false }) {
   const { i18n } = useTranslation()
