@@ -175,6 +175,7 @@ def run_migrations():
         ("project_feedback", "feedback_type", "VARCHAR DEFAULT 'general'"),
         ("project_feedback", "is_read",       "BOOLEAN DEFAULT 0"),
         ("project_feedback", "is_handled",    "BOOLEAN DEFAULT 0"),
+        # node sub-items — migration handled by create_all (new table)
         # openFDA enrichment columns
         ("drug_entries", "openfda_indication",    "TEXT"),
         ("drug_entries", "openfda_dosages",       "TEXT"),
