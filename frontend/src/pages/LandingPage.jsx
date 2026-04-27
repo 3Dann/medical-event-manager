@@ -394,25 +394,29 @@ export default function LandingPage() {
   const { t, i18n }        = useTranslation()
   const [showLogin, setShowLogin]   = useState(false)
   const [loginTab,  setLoginTab]    = useState('login')
-  const [overrides, setOverrides]   = useState(() => getLandingOverrides())
+  const [overrides, setOverrides]   = useState(() => getLandingOverrides(i18n.language))
+
+  // Reload overrides when language changes
+  useEffect(() => {
+    setOverrides(getLandingOverrides(i18n.language))
+  }, [i18n.language])
 
   // Fetch overrides from backend on load; cache in localStorage for next visit
   useEffect(() => {
     axios.get('/api/settings/landing').then(res => {
       const data = res.data
       if (data && Object.keys(data).length > 0) {
-        const merged = { ...LANDING_DEFAULTS, ...data }
-        localStorage.setItem('landing_overrides', JSON.stringify(merged))
-        setOverrides(merged)
+        localStorage.setItem('landing_overrides', JSON.stringify(data))
+        setOverrides(getLandingOverrides(i18n.language))
       }
     }).catch(() => { /* use localStorage fallback */ })
   }, [])
 
   useEffect(() => {
-    const handler = () => setOverrides(getLandingOverrides())
+    const handler = () => setOverrides(getLandingOverrides(i18n.language))
     window.addEventListener('landing_overrides_changed', handler)
     return () => window.removeEventListener('landing_overrides_changed', handler)
-  }, [])
+  }, [i18n.language])
 
   const FEATURES = FEATURE_META.map((m, i) => {
     const ov  = overrides.features?.[i]
