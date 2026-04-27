@@ -65,8 +65,11 @@ export default function PatientDetail() {
   const [editingInfo,  setEditingInfo]  = useState(false)
   const [editForm,     setEditForm]     = useState({})
   const [showAddForm,  setShowAddForm]  = useState(false)
-  const [editingNode,  setEditingNode]  = useState(null) // id of node being edited inline
+  const [editingNode,  setEditingNode]  = useState(null)
   const [editNodeData, setEditNodeData] = useState({})
+  const [showJourneyModal, setShowJourneyModal] = useState(false)
+  const [journeyTemplates, setJourneyTemplates] = useState([])
+  const [applyingTemplate, setApplyingTemplate] = useState(false)
   const [addForm, setAddForm] = useState({
     description: '', node_type: 'medical', status: 'future',
     planned_date: '', notes: '', stage_order: 15,
