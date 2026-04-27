@@ -266,5 +266,19 @@
     "select_city": "הקלד שם עיר...",
     "select_street": "הקלד שם רחוב...",
     "select_city_first": "בחר עיר תחילה"
+  },
+  "landing_extra": {
+    "hero_badge": "מערכת ניהול אירוע רפואי מקיפה",
+    "discover_features": "גלה את התכונות",
+    "how_it_works": "איך זה עובד",
+    "three_steps": "שלושה שלבים פשוטים",
+    "features_label": "תכונות המערכת",
+    "all_features": "כל מה שצריך לניהול אירוע רפואי",
+    "cta_title": "מוכן להתחיל?",
+    "cta_subtitle": "הצטרף למערכת וקבל שליטה מלאה על האירוע הרפואי",
+    "go_to_journey": "למסע שלי ←",
+    "go_to_dashboard": "ללוח הבקרה ←",
+    "login_hint_before": "להתחברות או הרשמה — השתמש בכפתור",
+    "login_hint_after": "בראש הדף"
   }
 }
