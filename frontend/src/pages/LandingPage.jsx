@@ -542,8 +542,8 @@ export default function LandingPage() {
       {/* ── CTA ── */}
       <section className="py-20 bg-gradient-to-bl from-blue-600 to-slate-800 text-center">
         <div className="max-w-2xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-white mb-4">{overrides.ctaTitle}</h2>
-          <p className="text-blue-200 mb-8 text-lg">{overrides.ctaSubtitle}</p>
+          <h2 className="text-3xl font-bold text-white mb-4">{ovOrT(overrides, 'ctaTitle', t('landing:cta_title'))}</h2>
+          <p className="text-blue-200 mb-8 text-lg">{ovOrT(overrides, 'ctaSubtitle', t('landing:cta_subtitle'))}</p>
           {user ? (
             <button onClick={toDashboard}
               className="bg-white text-blue-700 font-semibold px-10 py-4 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
