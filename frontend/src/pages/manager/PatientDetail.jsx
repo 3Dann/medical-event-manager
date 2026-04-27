@@ -474,6 +474,14 @@ export default function PatientDetail() {
                       </div>
                     </div>
 
+                    {/* ── Sub-items checklist ── */}
+                    <NodeChecklist
+                      node={node}
+                      onToggle={(itemId, done) => toggleSubItem(node.id, itemId, done)}
+                      onAdd={(text) => addSubItem(node.id, text)}
+                      onDelete={(itemId) => deleteSubItem(node.id, itemId)}
+                    />
+
                     {/* Inline edit panel */}
                     {isEditing && (
                       <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
