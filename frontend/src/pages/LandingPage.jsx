@@ -459,7 +459,7 @@ export default function LandingPage() {
         <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
           <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 text-sm px-4 py-1.5 rounded-full mb-6 border border-white/20">
             <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            {overrides.heroBadge}
+            {ovOrT(overrides, 'heroBadge', t('landing:hero_badge'))}
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
             {overrides.heroTitle ?? t('landing:hero_title')}
