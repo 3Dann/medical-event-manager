@@ -476,7 +476,7 @@ export default function LandingPage() {
             )}
             <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
               className="border border-white/30 text-white font-medium px-8 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-base">
-              גלה את התכונות
+              {t('landing:discover_features')}
             </button>
           </div>
 
