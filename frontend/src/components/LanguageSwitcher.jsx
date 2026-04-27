@@ -14,7 +14,7 @@ export default function LanguageSwitcher({ compact = false }) {
   function changeLang(code) {
     i18n.changeLanguage(code)
     localStorage.setItem('app_language', code)
-    document.documentElement.dir = RTL_LANGS.includes(code) ? 'rtl' : 'ltr'
+    // Direction stays RTL always — only lang attribute changes
     document.documentElement.lang = code
     setOpen(false)
   }
