@@ -84,7 +84,15 @@
     "enter_2fa": "Code aus der Authentifizierungs-App eingeben",
     "enter_email_code": "Code aus der E-Mail eingeben",
     "verifying": "Überprüfung...",
-    "hello": "Hallo"
+    "hello": "Hallo",
+    "two_fa_title": "Zwei-Faktor-Authentifizierung",
+    "validity_10min": "Gültig: 10 Minuten",
+    "reset_code_label": "Ihr Reset-Code:",
+    "validity_1hr": "Gültig: 1 Stunde",
+    "email_code_sent": "Code gesendet an E-Mail {{email}}",
+    "error_login": "Anmeldefehler",
+    "error_wrong_code": "Falscher Code",
+    "password_updated": "Passwort aktualisiert — Sie können sich jetzt anmelden"
   },
   "landing": {
     "hero_title": "Medizinisches Fallmanagement",
@@ -110,7 +118,19 @@
     "step2_title": "Versicherungen verwalten",
     "step2_desc": "Policen importieren und alle Deckungen verfolgen.",
     "step3_title": "Strategie",
-    "step3_desc": "Finanzempfehlungen erhalten und Ansprüche in der richtigen Reihenfolge einreichen."
+    "step3_desc": "Finanzempfehlungen erhalten und Ansprüche in der richtigen Reihenfolge einreichen.",
+    "hero_badge": "Umfassendes Fallmanagementsystem für medizinische Fälle",
+    "discover_features": "Funktionen entdecken",
+    "how_it_works": "So funktioniert es",
+    "three_steps": "Drei einfache Schritte",
+    "features_label": "Systemfunktionen",
+    "all_features": "Alles für die Verwaltung medizinischer Fälle",
+    "cta_title": "Bereit anzufangen?",
+    "cta_subtitle": "Treten Sie dem System bei und übernehmen Sie die volle Kontrolle",
+    "go_to_journey": "Meine Reise ←",
+    "go_to_dashboard": "Dashboard ←",
+    "login_hint_before": "Zum Anmelden oder Registrieren — verwenden Sie die Schaltfläche",
+    "login_hint_after": "oben auf der Seite"
   },
   "dashboard": {
     "title": "Dashboard",

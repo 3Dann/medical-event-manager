@@ -84,7 +84,15 @@
     "enter_2fa": "Digite o código do aplicativo de autenticação",
     "enter_email_code": "Digite o código do e-mail",
     "verifying": "Verificando...",
-    "hello": "Olá"
+    "hello": "Olá",
+    "two_fa_title": "Autenticação de dois fatores",
+    "validity_10min": "Válido: 10 minutos",
+    "reset_code_label": "Seu código de redefinição:",
+    "validity_1hr": "Válido: 1 hora",
+    "email_code_sent": "Código enviado para o email {{email}}",
+    "error_login": "Erro de login",
+    "error_wrong_code": "Código incorreto",
+    "password_updated": "Senha atualizada — pode fazer login"
   },
   "landing": {
     "hero_title": "Gestão de casos médicos",
@@ -110,7 +118,19 @@
     "step2_title": "Gerenciar seguros",
     "step2_desc": "Importe apólices e acompanhe todas as coberturas.",
     "step3_title": "Estratégia",
-    "step3_desc": "Obtenha recomendações financeiras e envie sinistros na ordem correta."
+    "step3_desc": "Obtenha recomendações financeiras e envie sinistros na ordem correta.",
+    "hero_badge": "Sistema abrangente de gestão de casos médicos",
+    "discover_features": "Descobrir funcionalidades",
+    "how_it_works": "Como funciona",
+    "three_steps": "Três etapas simples",
+    "features_label": "Funcionalidades do sistema",
+    "all_features": "Tudo o que você precisa para gerenciar um caso médico",
+    "cta_title": "Pronto para começar?",
+    "cta_subtitle": "Junte-se ao sistema e tenha controle total do caso médico",
+    "go_to_journey": "Minha jornada ←",
+    "go_to_dashboard": "Painel ←",
+    "login_hint_before": "Para entrar ou se registrar — use o botão",
+    "login_hint_after": "no topo da página"
   },
   "dashboard": {
     "title": "Painel",

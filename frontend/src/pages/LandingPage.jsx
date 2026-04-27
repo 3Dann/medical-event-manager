@@ -7,6 +7,13 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 import { getLandingOverrides, LANDING_DEFAULTS } from '../components/LandingEditor'
 
+// Returns translated value when override matches the Hebrew default (not customized by admin)
+function ovOrT(overrides, field, tVal) {
+  const val = overrides[field]
+  const def = LANDING_DEFAULTS[field]
+  return (val && val !== def) ? val : tVal
+}
+
 // ── Login Modal ───────────────────────────────────────────────────────────────
 function LoginModal({ onClose, initialTab = 'login' }) {
   const { login } = useAuth()

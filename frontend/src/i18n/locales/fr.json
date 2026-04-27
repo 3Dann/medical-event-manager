@@ -84,7 +84,15 @@
     "enter_2fa": "Entrez le code de l'application d'authentification",
     "enter_email_code": "Entrez le code de l'e-mail",
     "verifying": "Vérification...",
-    "hello": "Bonjour"
+    "hello": "Bonjour",
+    "two_fa_title": "Authentification à deux facteurs",
+    "validity_10min": "Valide: 10 minutes",
+    "reset_code_label": "Votre code de réinitialisation:",
+    "validity_1hr": "Valide: 1 heure",
+    "email_code_sent": "Code envoyé à l'email {{email}}",
+    "error_login": "Erreur de connexion",
+    "error_wrong_code": "Code incorrect",
+    "password_updated": "Mot de passe mis à jour — vous pouvez vous connecter"
   },
   "landing": {
     "hero_title": "Gestion de cas médicaux",
@@ -110,7 +118,19 @@
     "step2_title": "Gérer les assurances",
     "step2_desc": "Importez les polices et suivez toutes les couvertures.",
     "step3_title": "Stratégie",
-    "step3_desc": "Obtenez des recommandations financières et soumettez les réclamations dans le bon ordre."
+    "step3_desc": "Obtenez des recommandations financières et soumettez les réclamations dans le bon ordre.",
+    "hero_badge": "Système complet de gestion de cas médicaux",
+    "discover_features": "Découvrir les fonctionnalités",
+    "how_it_works": "Comment ça fonctionne",
+    "three_steps": "Trois étapes simples",
+    "features_label": "Fonctionnalités du système",
+    "all_features": "Tout ce dont vous avez besoin pour gérer un cas médical",
+    "cta_title": "Prêt à commencer?",
+    "cta_subtitle": "Rejoignez le système et prenez le contrôle total du cas médical",
+    "go_to_journey": "Mon parcours ←",
+    "go_to_dashboard": "Tableau de bord ←",
+    "login_hint_before": "Pour vous connecter ou vous inscrire — utilisez le bouton",
+    "login_hint_after": "en haut de la page"
   },
   "dashboard": {
     "title": "Tableau de bord",

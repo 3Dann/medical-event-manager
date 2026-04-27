@@ -84,7 +84,15 @@
     "enter_2fa": "ከማረጋገጫ መተግበሪያ ኮድ አስገባ",
     "enter_email_code": "ከኢሜይል ኮድ አስገባ",
     "verifying": "በማረጋገጥ ላይ...",
-    "hello": "ሰላም"
+    "hello": "ሰላም",
+    "two_fa_title": "ሁለት-ደረጃ ማረጋገጫ",
+    "validity_10min": "ጊዜ: 10 ደቂቃ",
+    "reset_code_label": "የዳግም ማስጀመሪያ ኮድዎ:",
+    "validity_1hr": "ጊዜ: 1 ሰዓት",
+    "email_code_sent": "ኮድ ወደ ኢሜይል {{email}} ተልኳል",
+    "error_login": "የመግቢያ ስህተት",
+    "error_wrong_code": "የተሳሳተ ኮድ",
+    "password_updated": "የይለፍ ቃሉ ተዘምኗል — መግባት ይቻላል"
   },
   "landing": {
     "hero_title": "የሕክምና ጉዳይ አስተዳደር",
@@ -110,7 +118,19 @@
     "step2_title": "ኢንሹራንስ ያስተዳድሩ",
     "step2_desc": "ፖሊሲዎችን ያምጡ እና ሁሉም ሽፋኖችን ይከታተሉ።",
     "step3_title": "ስትራቴጂ",
-    "step3_desc": "የፋይናንስ ምክሮችን ያግኙ እና ክፍያዎችን በትክክለኛ ቅደም ተከተል ያስገቡ።"
+    "step3_desc": "የፋይናንስ ምክሮችን ያግኙ እና ክፍያዎችን በትክክለኛ ቅደም ተከተል ያስገቡ።",
+    "hero_badge": "ሁሉን ያቀፈ የሕክምና ጉዳይ አስተዳደር ስርዓት",
+    "discover_features": "ባህሪያቶችን ያግኙ",
+    "how_it_works": "እንዴት ይሰራል",
+    "three_steps": "ሶስት ቀላል ደረጃዎች",
+    "features_label": "የስርዓቱ ባህሪያቶች",
+    "all_features": "ለሕክምና ጉዳይ አስተዳደር የሚያስፈልጉ ሁሉም ነገሮች",
+    "cta_title": "ለመጀመር ዝግጁ ነዎት?",
+    "cta_subtitle": "ወደ ስርዓቱ ይቀላቀሉ እና ሙሉ ቁጥጥር ያድርጉ",
+    "go_to_journey": "ጉዞዬ ←",
+    "go_to_dashboard": "ዳሽቦርድ ←",
+    "login_hint_before": "ለመግባት ወይም ለመመዝገብ — ቁልፉን ይጠቀሙ",
+    "login_hint_after": "ከገጹ አናት ላይ"
   },
   "dashboard": {
     "title": "ዳሽቦርድ",
