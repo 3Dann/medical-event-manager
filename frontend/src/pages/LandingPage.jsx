@@ -415,12 +415,13 @@ export default function LandingPage() {
   }, [])
 
   const FEATURES = FEATURE_META.map((m, i) => {
-    const ov = overrides.features?.[i]
+    const ov  = overrides.features?.[i]
+    const def = LANDING_DEFAULTS.features?.[i]
     return {
       ...m,
-      title:  ov?.title  ?? t(`landing:feat_${m.id}`),
-      desc:   ov?.desc   ?? t(`landing:feat_${m.id}_desc`),
-      points: ov?.points ?? [
+      title:  (ov?.title  && ov.title  !== def?.title)  ? ov.title  : t(`landing:feat_${m.id}`),
+      desc:   (ov?.desc   && ov.desc   !== def?.desc)   ? ov.desc   : t(`landing:feat_${m.id}_desc`),
+      points: (ov?.points && JSON.stringify(ov.points) !== JSON.stringify(def?.points)) ? ov.points : [
         t(`landing:feat_${m.id}_p1`),
         t(`landing:feat_${m.id}_p2`),
         t(`landing:feat_${m.id}_p3`),
@@ -429,11 +430,12 @@ export default function LandingPage() {
     }
   })
 
-  const STEPS = (overrides.steps ?? [
+  const isDefaultSteps = JSON.stringify(overrides.steps) === JSON.stringify(LANDING_DEFAULTS.steps)
+  const STEPS = isDefaultSteps ? [
     { num: '01', title: t('landing:step1_title'), desc: t('landing:step1_desc') },
     { num: '02', title: t('landing:step2_title'), desc: t('landing:step2_desc') },
     { num: '03', title: t('landing:step3_title'), desc: t('landing:step3_desc') },
-  ])
+  ] : overrides.steps
 
   // If navigated here from /login redirect, open modal immediately
   useEffect(() => {
