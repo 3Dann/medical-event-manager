@@ -1,0 +1,133 @@
+{
+  "metadata": {
+    "source": "kolzchut.org.il",
+    "retrieval_date": "2026-04-10",
+    "description": "נתוני עזר לניתוח פוליסות ביטוח — מבוסס על כל זכות"
+  },
+  "policy_types": {
+    "life": {
+      "hebrew": "ביטוח חיים",
+      "subtypes": ["ביטוח מנהלים", "ביטוח שאירים", "הסדר ריסק"],
+      "key_coverages": ["death_benefit"],
+      "payout_form": "קצבה חודשית או סכום חד פעמי",
+      "statute_of_limitations_years": 3,
+      "key_facts": [
+        "תגמולי מוות לא ניתנים לעיקול",
+        "חוב לפני 2008 — ניתן למשיכה כסכום חד פעמי",
+        "חוב לאחר 2008 — חובה לקצבה"
+      ],
+      "regulators": ["רשות שוק ההון *3002"],
+      "laws": ["חוק חוזה הביטוח תשמ\"א-1981", "חוק הירושה סעיף 147"]
+    },
+    "health": {
+      "hebrew": "ביטוח בריאות",
+      "subtypes": ["ביטוח בריאות ממלכתי", "שב\"ן", "ביטוח בריאות פרטי"],
+      "key_coverages": ["hospitalization", "surgery", "specialist", "medications"],
+      "pre_existing_exclusion": {
+        "under_65": "12 חודשים מקסימום",
+        "over_65": "6 חודשים מקסימום"
+      },
+      "probationary_period_days": 90,
+      "claim_types": ["שיפוי", "פיצוי", "מתן שירותים"],
+      "statute_of_limitations_years": 3,
+      "health_funds": ["כללית", "מכבי", "מאוחדת", "לאומית"],
+      "hotlines": { "health": "*5400", "national_insurance": "*6050" },
+      "laws": ["חוק ביטוח בריאות ממלכתי", "חוק חוזה הביטוח תשמ\"א-1981"]
+    },
+    "nursing": {
+      "hebrew": "ביטוח סיעוד",
+      "subtypes": ["גמלת סיעוד ביטוח לאומי", "ביטוח סיעודי פרטי", "ביטוח סיעוד קבוצתי מאוחד"],
+      "key_coverages": ["nursing_care"],
+      "market_status": "שוק סגור לפוליסות פרטיות חדשות מ-2019",
+      "adl_functions": ["קימה ושכיבה", "לבישה ופשיטה", "רחצה", "אכילה ושתייה", "שליטה בסוגרים", "ניידות"],
+      "eligibility_triggers": {
+        "standard": "אי יכולת לבצע 50% מ-3 לפחות מתוך 6 ADL",
+        "lenient": "אי יכולת לבצע 50% מ-2 לפחות (כולל סוגרים)",
+        "cognitive": "תשישות נפש — אישור רופא מומחה"
+      },
+      "waiting_periods": {
+        "private": "1 עד 36 חודשים",
+        "health_fund": "60 יום"
+      },
+      "benefit_duration": "36 עד 96 חודשים או לכל החיים",
+      "premium_waiver_during_benefit": true,
+      "statute_of_limitations_years": 3,
+      "hotline": "*9696",
+      "pre_existing_exclusion": {
+        "under_65": "12 חודשים",
+        "over_65": "6 חודשים"
+      }
+    },
+    "critical_illness": {
+      "hebrew": "ביטוח מחלות קשות",
+      "key_coverages": ["critical_illness_lumpsum"],
+      "payout_form": "סכום חד פעמי (פיצוי) — בלתי תלוי בהוצאות בפועל",
+      "trigger": "תאריך האבחנה — לא תאריך תחילת המחלה",
+      "common_conditions": ["סרטן", "התקף לב", "שבץ מוחי", "אי ספיקת כליות", "כשל לב"],
+      "probationary_period_days": 90,
+      "statute_of_limitations_years": 3,
+      "pension_fund_rule": "כיסוי מחלה קודמת לאחר 5 שנות ותק"
+    },
+    "disability": {
+      "hebrew": "אובדן כושר עבודה",
+      "key_coverages": ["disability_monthly", "loss_of_work_capacity"],
+      "eligibility": {
+        "min_capacity_loss_percent": 25,
+        "min_duration_days": 91,
+        "waiting_period_days": 90,
+        "retroactive_payment": true
+      },
+      "benefit_calculation": "% נכות × שיעור כיסוי (מקס 75%) × שכר מבוטח",
+      "max_benefit_percent": 75,
+      "pre_existing_rule": "5 שנות ותק בקרן לכיסוי מחלה קיימת",
+      "coverage_scope": {
+        "pension_fund": "כל עיסוק מתאים",
+        "managers_insurance": "עיסוק ספציפי בלבד"
+      },
+      "risk_arrangement": {
+        "description": "שמירת כיסוי עד 24 חודש ללא תשלום",
+        "activation_window_months": 5
+      },
+      "statute_of_limitations_years": 3,
+      "hotline": "*3002",
+      "laws": ["חוק הביטוח הלאומי", "חוק חוזה הביטוח תשמ\"א-1981"]
+    }
+  },
+  "insurers": {
+    "הראל": { "market_share": 0.191, "ticker": "HARL.TA" },
+    "הפניקס": { "market_share": 0.149, "ticker": "PHOE" },
+    "כלל ביטוח": { "market_share": 0.13, "ticker": "CLIS.TA" },
+    "מגדל": { "market_share": 0.089, "ticker": "MGDL" },
+    "מנורה מבטחים": { "market_share": 0.07, "ticker": "MMHD.TA" },
+    "איילון": {},
+    "הכשרה": {},
+    "AIG ישראל": {}
+  },
+  "regulators": {
+    "capital_markets_authority": {
+      "hebrew": "רשות שוק ההון, ביטוח וחיסכון",
+      "hotline": "*3002",
+      "pension_justice": "קו הצדק הפנסיוני"
+    },
+    "national_insurance": {
+      "hebrew": "המוסד לביטוח לאומי",
+      "hotline": "*6050"
+    },
+    "ministry_of_health": {
+      "hebrew": "משרד הבריאות",
+      "hotline": "*5400"
+    }
+  },
+  "key_concepts": {
+    "תקופת_אכשרה": "תקופה ממועד הצטרפות שבה לא ניתן לתבוע. בריאות פרטי: 60-90 יום. מחלות קשות: 90 יום. מחלה קיימת בפנסיה: 5 שנים.",
+    "תקופת_המתנה": "תקופה ממועד הארוע עד תחילת תשלום. נכות: 90 יום (משולם רטרואקטיבית). סיעוד: 60 יום עד 36 חודשים.",
+    "גילוי_נאות": "חובה לדווח על כל מצב רפואי ידוע בעת ההצטרפות. הסתרה עלולה לבטל את הפוליסה.",
+    "סייג_ספציפי": "אי כיסוי של מחלה קיימת ספציפית — יכול להיות לתקופה או לצמיתות.",
+    "סייג_כללי": "אי כיסוי זמני לכל המצטרפים החדשים. מוגבל לשנה (מתחת 65) או 6 חודשים (מעל 65).",
+    "תגמולי_ביטוח": {
+      "שיפוי": "החזר הוצאות בפועל",
+      "פיצוי": "תשלום קבוע ללא תלות בהוצאה",
+      "מתן_שירותים": "חברת הביטוח מסדירה את השירות"
+    }
+  }
+}
