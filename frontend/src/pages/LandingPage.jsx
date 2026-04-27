@@ -547,11 +547,11 @@ export default function LandingPage() {
           {user ? (
             <button onClick={toDashboard}
               className="bg-white text-blue-700 font-semibold px-10 py-4 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base">
-              {user.role === 'patient' ? 'למסע שלי ←' : 'ללוח הבקרה ←'}
+              {user.role === 'patient' ? t('landing:go_to_journey') : t('landing:go_to_dashboard')}
             </button>
           ) : (
             <p className="text-blue-300 text-sm">
-              להתחברות או הרשמה — השתמש בכפתור <span className="text-white font-medium">כניסה למערכת</span> בראש הדף
+              {t('landing:login_hint_before')} <span className="text-white font-medium">{t('landing:hero_cta')}</span> {t('landing:login_hint_after')}
             </p>
           )}
         </div>
