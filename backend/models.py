@@ -274,6 +274,20 @@ class Node(Base):
     stage_order = Column(Integer, nullable=True)  # 1-4 for journey stages
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patient = relationship("Patient", back_populates="nodes")
+    sub_items = relationship("NodeSubItem", back_populates="node",
+                             cascade="all, delete-orphan", order_by="NodeSubItem.sort_order")
+
+
+class NodeSubItem(Base):
+    __tablename__ = "node_sub_items"
+    id = Column(Integer, primary_key=True, index=True)
+    node_id = Column(Integer, ForeignKey("nodes.id"), nullable=False)
+    text = Column(String, nullable=False)
+    is_done = Column(Boolean, default=False)
+    sort_order = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    node = relationship("Node", back_populates="sub_items")
 
 
 class InsuranceSource(Base):
