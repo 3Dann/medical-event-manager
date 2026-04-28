@@ -186,6 +186,9 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Coverage Advisor** — מחשב כיסוי ביטוחי לכל שלב בזרימה
 - **Workflow Suggest** — מנוע המלצות שממפה condition_tags של מטופל לתבניות
 - **Railway deploy** — webhook GitHub שבור; להשתמש ב-`railway up --detach` ידנית עד reconnect ב-Dashboard
+- **DNS** — דומיין `ormed.co.il` מנוהל ב-Cloudflare (הועבר מ-LiveDNS ב-2026-04-28). לכניסה: dash.cloudflare.com
+- **מייל** — Resend API (לא SMTP). `email_utils.py` משתמש ב-`resend` Python library עם API key ב-`SMTP_PASS`. שולח מ-`noreply@ormed.co.il`. דומיין מאומת ב-Resend כולל DKIM, SPF, MX ו-DMARC.
+- **i18n** — כל תוכן דף הנחיתה מתורגם לפי שפה נבחרת. עורך דף הנחיתה תומך ב-10 שפות + כפתור "תרגם הכל מעברית" שמשתמש ב-Claude Haiku API. נתוני עורך שמורים ב-`{ by_lang: { he: {...}, en: {...}, ... } }`. כיוון תמיד RTL — רק תוכן משתנה לפי שפה.
 
 ---
 
