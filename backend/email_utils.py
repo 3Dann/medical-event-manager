@@ -1,39 +1,29 @@
-import smtplib
 import os
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import logging
 
 logger = logging.getLogger("email_utils")
 
-SMTP_HOST = os.getenv("SMTP_HOST", "")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
-EMAIL_FROM = os.getenv("EMAIL_FROM", SMTP_USER)
+RESEND_API_KEY = os.getenv("SMTP_PASS", "")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "noreply@ormed.co.il")
 
 
 def is_email_configured() -> bool:
-    return bool(SMTP_HOST and SMTP_USER and SMTP_PASS)
+    return bool(RESEND_API_KEY and RESEND_API_KEY.startswith("re_"))
 
 
 def send_email(to: str, subject: str, body_html: str) -> bool:
-    """Send an email. Returns True on success, False on failure."""
     if not is_email_configured():
-        logger.warning("SMTP not configured — email not sent")
+        logger.warning("Resend API key not configured — email not sent")
         return False
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"] = EMAIL_FROM
-        msg["To"] = to
-        msg.attach(MIMEText(body_html, "html", "utf-8"))
-
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=10) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASS)
-            server.sendmail(EMAIL_FROM, [to], msg.as_string())
+        import resend
+        resend.api_key = RESEND_API_KEY
+        resend.Emails.send({
+            "from": EMAIL_FROM,
+            "to": [to],
+            "subject": subject,
+            "html": body_html,
+        })
         logger.info(f"Email sent to {to}")
         return True
     except Exception as e:
