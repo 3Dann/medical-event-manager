@@ -114,6 +114,7 @@ const EMPTY_FORM = {
 }
 
 export default function DoctorsDatabase() {
+  const { user: currentUser } = ((() => { try { return require('../../context/AuthContext').useAuth() } catch { return { user: null } } })())
   const [doctors, setDoctors] = useState([])
   const [totalDoctors, setTotalDoctors] = useState(0)
   const [loading, setLoading] = useState(true)
