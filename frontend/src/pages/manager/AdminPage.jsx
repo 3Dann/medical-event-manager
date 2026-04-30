@@ -17,13 +17,23 @@ export default function AdminPage() {
   const [actionStatus, setActionStatus] = useState({})
 
   // Permissions state
-  const [tab, setTab] = useState('users') // 'users' | 'permissions'
+  const [tab, setTab] = useState('users') // 'users' | 'permissions' | 'activity'
   const [patients, setPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [permissions, setPermissions] = useState([])
   const [permsLoading, setPermsLoading] = useState(false)
   const [grantManagerId, setGrantManagerId] = useState('')
   const [permMsg, setPermMsg] = useState(null)
+
+  // Activity log state
+  const [activityLogs, setActivityLogs] = useState([])
+  const [activityTotal, setActivityTotal] = useState(0)
+  const [activityLoading, setActivityLoading] = useState(false)
+  const [activityPage, setActivityPage] = useState(1)
+  const [activityUserFilter, setActivityUserFilter] = useState('')
+  const [activityActionFilter, setActivityActionFilter] = useState('')
+  const [activityDateFrom, setActivityDateFrom] = useState('')
+  const [activityDateTo, setActivityDateTo] = useState('')
 
   useEffect(() => { fetchUsers() }, [])
 
