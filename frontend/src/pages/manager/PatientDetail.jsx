@@ -504,9 +504,21 @@ export default function PatientDetail() {
                               {node.node_type === 'medical' ? 'טיפולי' : 'פיננסי'}
                             </span>
                           )}
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${s.badge}`}>
+                          <button
+                            onClick={() => !isFixed && handleUpdateNode(node.id, { status: cycleStatus(node.status) })}
+                            title={isFixed ? undefined : 'לחץ לשינוי סטטוס'}
+                            className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${s.badge} ${!isFixed ? 'cursor-pointer hover:opacity-75 transition-opacity' : 'cursor-default'}`}
+                          >
                             {STATUS_LABELS[node.status]}
-                          </span>
+                          </button>
+                          {node.source_template_key && (() => {
+                            const tpl = journeyTemplates.find(t => t.key === node.source_template_key)
+                            return (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-600 font-medium">
+                                {tpl?.icon} {tpl?.label || node.source_template_key}
+                              </span>
+                            )
+                          })()}
                           {node.planned_date && (
                             <span className="text-[11px] text-slate-400">📅 {node.planned_date}</span>
                           )}
