@@ -399,7 +399,7 @@ async def import_from_excel(
     col_map = {}
     for field, aliases in field_aliases.items():
         for i, h in enumerate(headers_lc):
-            if any(alias.lower() in h or h in alias.lower() for alias in aliases):
+            if h and any(alias.lower() in h for alias in aliases):
                 col_map[field] = i
                 break
 
