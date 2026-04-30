@@ -493,9 +493,7 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
                 if norm in existing:
                     skipped_dup += 1; continue
 
-                title_val = str(get_cell(row, "title") or "").strip()
-                if title_val and not any(t in name for t in ['ד"ר', "דר ", "פרופ"]):
-                    name = f"{title_val} {name}"
+                title_val = str(get_cell(row, "title") or "").strip() or None
 
                 spec_raw   = str(get_cell(row, "specialty") or "").strip()
                 spec_parts = [s.strip() for s in spec_raw.split(",") if s.strip()]
