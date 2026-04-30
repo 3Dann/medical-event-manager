@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 
 const DEV_EMAIL = 'da.tzalik@gmail.com'
 
-const ROLE_LABELS = { manager: 'מנהל אירוע', patient: 'מטופל' }
 
 export default function AdminPage() {
   const { user: currentUser } = useAuth()
