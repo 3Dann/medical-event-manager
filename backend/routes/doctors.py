@@ -168,8 +168,8 @@ def export_doctors_excel(
     thin = Side(style="thin", color="CBD5E1")
     border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
-    headers = ["שם הרופא", "מומחיות", "תת-מומחיות", "טלפון", "מיקום", "קופות חולים", "חוות דעת", "הערות", "מקור"]
-    col_widths = [22, 18, 18, 18, 22, 24, 12, 28, 30]
+    headers = ["שם הרופא", "מומחיות", "תת-מומחיות", "טלפון", "טלפון 2", "וואטסאפ", "אימייל", "עיר", "מיקום", "מחיר פרטי", "קופות חולים", "חוות דעת", "הערות", "מקור"]
+    col_widths = [22, 18, 18, 16, 16, 16, 24, 14, 22, 12, 24, 12, 28, 30]
 
     for col_idx, (header, width) in enumerate(zip(headers, col_widths), start=1):
         cell = ws.cell(row=1, column=col_idx, value=header)
