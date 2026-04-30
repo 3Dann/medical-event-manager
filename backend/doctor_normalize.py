@@ -5,6 +5,25 @@ Called both on import (scraper) and in the DB cleanup script.
 """
 import re
 
+_PAREN_TABLE = str.maketrans('()', ')(')
+
+def fix_rtl_parens(text: str) -> str:
+    """
+    Hebrew text in Excel is stored in visual RTL order.
+    Parentheses in visual order are swapped relative to Unicode logical order:
+    the visual '(' is stored as ')' and vice-versa when typed on Hebrew keyboard.
+    Swapping them here ensures correct display in RTL HTML context,
+    where the browser BiDi algorithm will mirror them back to the correct glyphs.
+    Only applied to Hebrew-dominant text (≥40% Hebrew characters).
+    """
+    if not text:
+        return text
+    heb   = sum(1 for c in text if 'א' <= c <= 'ת')
+    alpha = sum(1 for c in text if c.isalpha())
+    if alpha == 0 or heb / alpha < 0.4:
+        return text
+    return text.translate(_PAREN_TABLE)
+
 # ── Specialty translation: English → Hebrew ───────────────────────────────
 SPECIALTY_EN_TO_HE = {
     "cardiology": "קרדיולוגיה",
