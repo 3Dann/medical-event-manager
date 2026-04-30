@@ -204,15 +204,10 @@ export default function DoctorsDatabase() {
   const openEdit = (doc) => {
     setEditingId(doc.id)
     setForm({
-      name: doc.name || '',
-      specialty: doc.specialty || '',
-      sub_specialty: doc.sub_specialty || '',
-      phone: doc.phone || '',
-      location: doc.location || '',
+      ...EMPTY_FORM,
+      ...doc,
+      extra_data: doc.extra_data || {},
       hmo_acceptance: doc.hmo_acceptance || [],
-      gives_expert_opinion: doc.gives_expert_opinion || false,
-      notes: doc.notes || '',
-      source_url: doc.source_url || '',
     })
     setShowForm(true)
   }
@@ -220,10 +215,17 @@ export default function DoctorsDatabase() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
+      const payload = {
+        ...form,
+        hmo_acceptance: form.hmo_acceptance || [],
+        extra_data: Object.keys(form.extra_data || {}).length
+          ? JSON.stringify(form.extra_data)
+          : null,
+      }
       if (editingId) {
-        await axios.put(`/api/doctors/${editingId}`, form)
+        await axios.put(`/api/doctors/${editingId}`, payload)
       } else {
-        await axios.post('/api/doctors', form)
+        await axios.post('/api/doctors', payload)
       }
       setShowForm(false)
       fetchDoctors()
