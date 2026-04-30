@@ -447,27 +447,51 @@ async def import_from_excel(
                 skipped_duplicate += 1
                 continue
 
-            hmo_raw = get_cell(row, "hmo_acceptance")
+            # ── שם: אם יש עמודת תואר נפרדת — מחברים לפני השם ─────────────
+            title_val = str(get_cell(row, "title") or "").strip()
+            if title_val and not any(t in name for t in ["ד\"ר", "דר ", "פרופ"]):
+                name = f"{title_val} {name}"
+
+            # ── התמחות: פיצול לפי פסיק → specialty + sub_specialty ──────────
+            specialty_raw = str(get_cell(row, "specialty") or "").strip()
+            specialty_parts = [s.strip() for s in specialty_raw.split(",") if s.strip()]
+            specialty_val    = specialty_parts[0] if specialty_parts else None
+            sub_spec_from_col = str(get_cell(row, "sub_specialty") or "").strip() or None
+            sub_spec_val     = sub_spec_from_col or (specialty_parts[1] if len(specialty_parts) > 1 else None)
+
+            # ── notes: שפות + מידע נוסף ─────────────────────────────────────
+            lang_val  = str(get_cell(row, "languages") or "").strip()
+            notes_val = str(get_cell(row, "notes")     or "").strip()
+            notes_combined = " | ".join(filter(None, [
+                f"שפות: {lang_val}" if lang_val else "",
+                notes_val,
+            ])) or None
+
+            hmo_raw   = get_cell(row, "hmo_acceptance")
             raw_price = get_cell(row, "private_price")
             try:
                 parsed_price = int(float(str(raw_price).replace(",", "").strip())) if raw_price else None
             except (ValueError, TypeError):
                 parsed_price = None
 
+            lic_raw = get_cell(row, "license_number")
+            license_val = str(lic_raw).strip() if lic_raw is not None else None
+
             rec = {
                 "name":                 name,
-                "specialty":            str(get_cell(row, "specialty")            or "").strip() or None,
-                "sub_specialty":        str(get_cell(row, "sub_specialty")        or "").strip() or None,
-                "phone":                str(get_cell(row, "phone")                or "").strip() or None,
-                "phone2":               str(get_cell(row, "phone2")               or "").strip() or None,
-                "whatsapp":             str(get_cell(row, "whatsapp")             or "").strip() or None,
-                "email":                str(get_cell(row, "email")                or "").strip() or None,
-                "city":                 str(get_cell(row, "city")                 or "").strip() or None,
-                "location":             str(get_cell(row, "location")             or "").strip() or None,
+                "specialty":            specialty_val,
+                "sub_specialty":        sub_spec_val,
+                "license_number":       license_val,
+                "phone":                str(get_cell(row, "phone")    or "").strip() or None,
+                "phone2":               str(get_cell(row, "phone2")   or "").strip() or None,
+                "whatsapp":             str(get_cell(row, "whatsapp") or "").strip() or None,
+                "email":                str(get_cell(row, "email")    or "").strip() or None,
+                "city":                 str(get_cell(row, "city")     or "").strip() or None,
+                "location":             str(get_cell(row, "location") or "").strip() or None,
                 "private_price":        parsed_price,
                 "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
                 "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
-                "notes":                str(get_cell(row, "notes")                or "").strip() or None,
+                "notes":                notes_combined,
                 "source_url":           "excel_import",
             }
             rec = normalize_record(rec)
