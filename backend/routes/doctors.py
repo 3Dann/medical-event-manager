@@ -433,12 +433,23 @@ async def import_from_excel(
                 continue
 
             hmo_raw = get_cell(row, "hmo_acceptance")
+            raw_price = get_cell(row, "private_price")
+            try:
+                parsed_price = int(float(str(raw_price).replace(",", "").strip())) if raw_price else None
+            except (ValueError, TypeError):
+                parsed_price = None
+
             rec = {
-                "name": name,
+                "name":                 name,
                 "specialty":            str(get_cell(row, "specialty")            or "").strip() or None,
                 "sub_specialty":        str(get_cell(row, "sub_specialty")        or "").strip() or None,
                 "phone":                str(get_cell(row, "phone")                or "").strip() or None,
+                "phone2":               str(get_cell(row, "phone2")               or "").strip() or None,
+                "whatsapp":             str(get_cell(row, "whatsapp")             or "").strip() or None,
+                "email":                str(get_cell(row, "email")                or "").strip() or None,
+                "city":                 str(get_cell(row, "city")                 or "").strip() or None,
                 "location":             str(get_cell(row, "location")             or "").strip() or None,
+                "private_price":        parsed_price,
                 "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
                 "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
                 "notes":                str(get_cell(row, "notes")                or "").strip() or None,
