@@ -99,6 +99,7 @@ const COLUMN_DEFS = [
 const DEFAULT_VISIBLE = ['title','name','license_number','specialty','sub_specialty','phone','city','location','hmo_acceptance','gives_expert_opinion']
 
 const EMPTY_FORM = {
+  title: '',
   name: '',
   specialty: '',
   sub_specialty: '',
