@@ -382,18 +382,21 @@ async def import_from_excel(
 
     field_aliases = {
         "name":                ["שם הרופא", "שם רופא", "שם", "name", "doctor", "full name"],
+        "title":               ["תואר", "title", "degree"],
         "specialty":           ["מומחיות", "specialty", "התמחות", "תחום"],
         "sub_specialty":       ["תת-מומחיות", "תת מומחיות", "תת-התמחות", "תת התמחות", "sub_specialty", "sub specialty"],
+        "license_number":      ["מספר רישיון", "רישיון", "license", "license_number", "מס רישיון"],
         "phone":               ["טלפון ראשי", "טלפון", "phone", "נייד", "mobile", "tel"],
-        "phone2":              ["טלפון 2", "טלפון נוסף", "טלפון שני", "מזכירה", "קליניקה", "phone2", "secretary"],
-        "whatsapp":            ["וואטסאפ", "whatsapp", "ווצאפ", "wapp"],
+        "phone2":              ["טלפון 2", "טלפון נוסף", "טלפון שני", "מזכירה", "phone2", "secretary"],
+        "whatsapp":            ["וואטסאפ", "whatsapp", "ווצאפ"],
         "email":               ["אימייל", "מייל", "email", "e-mail"],
         "city":                ["עיר", "city", "ישוב"],
         "location":            ["מיקום", "כתובת", "location", "היכן מקבל", "קליניקה", "address"],
-        "private_price":       ["מחיר פרטי", "תשלום", "עלות", "מחיר", "price", "private_price"],
-        "hmo_acceptance":      ["קופות חולים", "קופה", "hmo", "hmo_acceptance"],
+        "private_price":       ["מחיר פרטי", "תשלום", "עלות", "מחיר", "price"],
+        "hmo_acceptance":      ["קופות חולים", "קופה", "hmo", "חברת ביטוח", "ביטוח"],
+        "languages":           ["שפות", "languages", "שפה"],
         "gives_expert_opinion":["חוות דעת", "ועדות", "expert_opinion", "opinion"],
-        "notes":               ["הערות", "notes"],
+        "notes":               ["הערות", "notes", "מידע נוסף", "备注"],
     }
 
     col_map = {}
