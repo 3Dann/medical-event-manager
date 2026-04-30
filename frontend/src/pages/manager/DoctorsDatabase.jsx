@@ -838,7 +838,7 @@ export default function DoctorsDatabase() {
                 <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-3 py-3 text-center text-xs text-slate-400 font-mono">{idx + 1}</td>
                   {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
-                    <td key={c.key} className={`px-4 py-3 text-slate-600 text-sm ${c.key === 'name' ? 'font-medium text-slate-800' : ''}`}>
+                    <td key={c.key} dir="rtl" className={`px-4 py-3 text-slate-600 text-sm ${c.key === 'name' ? 'font-medium text-slate-800' : ''}`}>
                       {renderCell(doc, c.key)}
                     </td>
                   ))}
