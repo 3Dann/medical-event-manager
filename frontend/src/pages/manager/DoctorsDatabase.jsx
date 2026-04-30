@@ -218,6 +218,19 @@ export default function DoctorsDatabase() {
     }
   }
 
+  const handleUpdateInsurance = async (docId, newHmoList) => {
+    const doc = doctors.find(d => d.id === docId)
+    if (!doc) return
+    try {
+      await axios.put(`/api/doctors/${docId}`, {
+        ...doc,
+        hmo_acceptance: newHmoList,
+        extra_data: JSON.stringify(doc.extra_data || {}),
+      })
+      fetchDoctors()
+    } catch (e) { console.error(e) }
+  }
+
   const openEdit = (doc) => {
     setEditingId(doc.id)
     setForm({
