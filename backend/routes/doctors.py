@@ -488,6 +488,7 @@ async def import_from_excel(
         "skipped_duplicates": skipped_duplicate,
         "skipped_invalid":    skipped_invalid,
         "detected_columns":   list(col_map.keys()),
+        "skip_samples":       skip_samples,
         "errors":             row_errors[:5],
     }
 
