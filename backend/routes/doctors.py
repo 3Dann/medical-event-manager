@@ -538,7 +538,6 @@ async def get_import_status(
 @router.post("/import/excel")
 async def import_from_excel(
     file: UploadFile = File(...),
-    db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
     if openpyxl is None:
@@ -546,170 +545,27 @@ async def import_from_excel(
 
     try:
         content = await file.read()
-        wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+        # quick sanity-check before handing off to background
+        openpyxl.load_workbook(io.BytesIO(content), read_only=True).close()
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"לא ניתן לפתוח את הקובץ: {e}")
 
-    ws = wb.active
-    if not ws or ws.max_row < 2:
-        raise HTTPException(status_code=400, detail="הקובץ ריק — חסרת שורת נתונים")
-
-    # Keep original for display, lowercase for matching
-    raw_headers = [str(cell.value).strip() if cell.value is not None else "" for cell in ws[1]]
-    headers_lc  = [h.lower() for h in raw_headers]
-
-    field_aliases = {
-        "name":                ["שם הרופא", "שם רופא", "שם", "name", "doctor", "full name"],
-        "title":               ["תואר", "title", "degree"],
-        "specialty":           ["מומחיות", "specialty", "התמחות", "תחום"],
-        "sub_specialty":       ["תת-מומחיות", "תת מומחיות", "תת-התמחות", "תת התמחות", "sub_specialty", "sub specialty"],
-        "license_number":      ["מספר רישיון", "רישיון", "license", "license_number", "מס רישיון"],
-        "phone":               ["טלפון ראשי", "טלפון", "phone", "נייד", "mobile", "tel"],
-        "phone2":              ["טלפון 2", "טלפון נוסף", "טלפון שני", "מזכירה", "phone2", "secretary"],
-        "whatsapp":            ["וואטסאפ", "whatsapp", "ווצאפ"],
-        "email":               ["אימייל", "מייל", "email", "e-mail"],
-        "city":                ["עיר", "city", "ישוב"],
-        "location":            ["מיקום", "כתובת", "location", "היכן מקבל", "קליניקה", "address"],
-        "private_price":       ["מחיר פרטי", "תשלום", "עלות", "מחיר", "price"],
-        "hmo_acceptance":      ["קופות חולים", "קופה", "hmo", "חברת ביטוח", "ביטוח"],
-        "languages":           ["שפות", "languages", "שפה"],
-        "gives_expert_opinion":["חוות דעת", "ועדות", "expert_opinion", "opinion"],
-        "notes":               ["הערות", "notes", "מידע נוסף", "备注"],
+    _cleanup_old_jobs()
+    job_id = uuid.uuid4().hex[:10]
+    _import_jobs[job_id] = {
+        "status":     "running",
+        "imported":   0,
+        "skipped_duplicates": 0,
+        "skipped_invalid":    0,
+        "total":      0,
+        "message":    "מתחיל...",
+        "started_at": time.time(),
     }
 
-    col_map = {}
-    for field, aliases in field_aliases.items():
-        for i, h in enumerate(headers_lc):
-            if h and any(alias.lower() in h for alias in aliases):
-                col_map[field] = i
-                break
+    t = threading.Thread(target=_run_import_job, args=(content, job_id, _FIELD_ALIASES), daemon=True)
+    t.start()
 
-    if "name" not in col_map:
-        found = ", ".join(h for h in raw_headers if h) or "אין עמודות"
-        raise HTTPException(
-            status_code=400,
-            detail=f"לא זוהתה עמודת שם רופא. עמודות שנמצאו בקובץ: {found}"
-        )
-
-    def get_cell(row, field):
-        idx = col_map.get(field)
-        if idx is None or idx >= len(row):
-            return None
-        return row[idx]
-
-    # Pre-load existing names to detect duplicates
-    existing_names = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
-
-    imported = skipped_invalid = skipped_duplicate = 0
-    row_errors = []
-    skip_samples = []   # up to 5 examples of skipped rows + reason
-
-    def _add_skip_sample(name_raw, reason):
-        if len(skip_samples) < 5:
-            skip_samples.append({"name": str(name_raw)[:60], "reason": reason})
-
-    for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
-        if not any(v for v in row if v is not None):
-            continue
-        try:
-            raw_name = get_cell(row, "name")
-            name = str(raw_name).strip() if raw_name is not None else ""
-            if not name or name.lower() in ("none", "nan"):
-                _add_skip_sample(raw_name, "שם ריק")
-                skipped_invalid += 1
-                continue
-
-            norm = _normalize_name(name)
-            if norm in existing_names:
-                _add_skip_sample(name, "כבר קיים במאגר")
-                skipped_duplicate += 1
-                continue
-
-            # ── שם: אם יש עמודת תואר נפרדת — מחברים לפני השם ─────────────
-            title_val = str(get_cell(row, "title") or "").strip()
-            if title_val and not any(t in name for t in ["ד\"ר", "דר ", "פרופ"]):
-                name = f"{title_val} {name}"
-
-            # ── התמחות: פיצול לפי פסיק → specialty + sub_specialty ──────────
-            specialty_raw = str(get_cell(row, "specialty") or "").strip()
-            specialty_parts = [s.strip() for s in specialty_raw.split(",") if s.strip()]
-            specialty_val    = specialty_parts[0] if specialty_parts else None
-            sub_spec_from_col = str(get_cell(row, "sub_specialty") or "").strip() or None
-            sub_spec_val     = sub_spec_from_col or (specialty_parts[1] if len(specialty_parts) > 1 else None)
-
-            # ── notes: שפות + מידע נוסף ─────────────────────────────────────
-            lang_val  = str(get_cell(row, "languages") or "").strip()
-            notes_val = str(get_cell(row, "notes")     or "").strip()
-            notes_combined = " | ".join(filter(None, [
-                f"שפות: {lang_val}" if lang_val else "",
-                notes_val,
-            ])) or None
-
-            hmo_raw   = get_cell(row, "hmo_acceptance")
-            raw_price = get_cell(row, "private_price")
-            try:
-                parsed_price = int(float(str(raw_price).replace(",", "").strip())) if raw_price else None
-            except (ValueError, TypeError):
-                parsed_price = None
-
-            lic_raw = get_cell(row, "license_number")
-            license_val = str(lic_raw).strip() if lic_raw is not None else None
-
-            rec = {
-                "name":                 name,
-                "specialty":            specialty_val,
-                "sub_specialty":        sub_spec_val,
-                "license_number":       license_val,
-                "phone":                str(get_cell(row, "phone")    or "").strip() or None,
-                "phone2":               str(get_cell(row, "phone2")   or "").strip() or None,
-                "whatsapp":             str(get_cell(row, "whatsapp") or "").strip() or None,
-                "email":                str(get_cell(row, "email")    or "").strip() or None,
-                "city":                 str(get_cell(row, "city")     or "").strip() or None,
-                "location":             str(get_cell(row, "location") or "").strip() or None,
-                "private_price":        parsed_price,
-                "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
-                "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
-                "notes":                notes_combined,
-                "source_url":           "excel_import",
-            }
-            rec = normalize_record(rec)
-            if rec is None:
-                _add_skip_sample(name, "שם לא תקין (normalize)")
-                skipped_invalid += 1
-                continue
-
-            db.add(models.Doctor(**rec))
-            existing_names.add(norm)
-            imported += 1
-
-            # commit every 500 rows — keeps memory low and lets errors surface early
-            if imported % 500 == 0:
-                try:
-                    db.commit()
-                except Exception as e:
-                    db.rollback()
-                    raise HTTPException(status_code=500, detail=f"שגיאת DB בשורה {row_num}: {e}")
-
-        except HTTPException:
-            raise
-        except Exception as e:
-            row_errors.append(f"שורה {row_num}: {e}")
-            _add_skip_sample(f"שורה {row_num}", f"שגיאה: {e}")
-            skipped_invalid += 1
-
-    try:
-        db.commit()
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"שגיאת שמירה סופית: {e}")
-    return {
-        "imported":           imported,
-        "skipped_duplicates": skipped_duplicate,
-        "skipped_invalid":    skipped_invalid,
-        "detected_columns":   list(col_map.keys()),
-        "skip_samples":       skip_samples,
-        "errors":             row_errors[:5],
-    }
+    return {"job_id": job_id}
 
 
 @router.post("/import/pdf")
