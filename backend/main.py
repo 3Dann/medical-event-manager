@@ -92,6 +92,7 @@ def run_migrations():
         ("doctors", "city",          "VARCHAR"),
         ("doctors", "private_price",  "INTEGER"),
         ("doctors", "license_number", "VARCHAR"),
+        ("doctors", "extra_data",     "TEXT"),
         ("users", "is_admin", "BOOLEAN DEFAULT 0"),
         ("users", "preserve_data", "BOOLEAN DEFAULT 0"),
         ("users", "reset_token", "VARCHAR"),
