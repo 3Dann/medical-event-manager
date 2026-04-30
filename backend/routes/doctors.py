@@ -513,6 +513,7 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
                 lic_raw = get_cell(row, "license_number")
                 rec = {
                     "name":                 name,
+                    "title":                title_val,
                     "specialty":            spec_parts[0] if spec_parts else None,
                     "sub_specialty":        sub_col or (spec_parts[1] if len(spec_parts) > 1 else None),
                     "license_number":       str(lic_raw).strip() if lic_raw is not None else None,
