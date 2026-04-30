@@ -96,6 +96,7 @@ def run_migrations():
         ("users", "email_2fa_code", "VARCHAR"),
         ("users", "email_2fa_expires", "DATETIME"),
         ("nodes", "stage_order", "INTEGER"),
+        ("nodes", "source_template_key", "VARCHAR"),
         # Workflow engine v2 — medical awareness
         ("patients", "condition_tags", "TEXT"),
         ("patients", "medical_stage",  "VARCHAR"),
