@@ -380,6 +380,16 @@ def update_doctor(
     return doctor_to_dict(doctor)
 
 
+@router.delete("/all")
+def delete_all_doctors(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    deleted = db.query(models.Doctor).delete()
+    db.commit()
+    return {"deleted": deleted}
+
+
 @router.delete("/{doctor_id}")
 def delete_doctor(
     doctor_id: int,
