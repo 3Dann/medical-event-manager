@@ -764,7 +764,13 @@ export default function DoctorsDatabase() {
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="col-span-1 sm:col-span-2">
+                <div>
+                  <label className="label">תואר</label>
+                  <select className="input" value={form.title || ''} onChange={e => setForm({ ...form, title: e.target.value })}>
+                    {TITLE_OPTIONS.map(t => <option key={t} value={t}>{t || '— ללא תואר —'}</option>)}
+                  </select>
+                </div>
+                <div>
                   <label className="label">שם הרופא *</label>
                   <input
                     className="input"
