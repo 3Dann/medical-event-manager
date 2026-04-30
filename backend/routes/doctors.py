@@ -120,19 +120,31 @@ def doctor_to_dict(d: models.Doctor) -> dict:
             hmo = json.loads(d.hmo_acceptance)
         except Exception:
             hmo = []
+    extra = {}
+    if getattr(d, 'extra_data', None):
+        try:
+            extra = json.loads(d.extra_data)
+        except Exception:
+            extra = {}
     return {
-        "id": d.id,
-        "name": d.name,
-        "specialty": d.specialty,
-        "sub_specialty": d.sub_specialty,
-        "phone": d.phone,
-        "location": d.location,
-        "hmo_acceptance": hmo,
+        "id":                   d.id,
+        "name":                 d.name,
+        "specialty":            d.specialty,
+        "sub_specialty":        d.sub_specialty,
+        "license_number":       getattr(d, 'license_number', None),
+        "phone":                d.phone,
+        "phone2":               getattr(d, 'phone2', None),
+        "whatsapp":             getattr(d, 'whatsapp', None),
+        "email":                getattr(d, 'email', None),
+        "city":                 getattr(d, 'city', None),
+        "location":             d.location,
+        "private_price":        getattr(d, 'private_price', None),
+        "hmo_acceptance":       hmo,
         "gives_expert_opinion": d.gives_expert_opinion,
-        "notes": d.notes,
-        "source_url": d.source_url,
-        "created_at": str(d.created_at) if d.created_at else None,
-        "updated_at": str(d.updated_at) if d.updated_at else None,
+        "notes":                d.notes,
+        "extra_data":           extra,
+        "source_url":           d.source_url,
+        "created_at":           str(d.created_at) if d.created_at else None,
     }
 
 
