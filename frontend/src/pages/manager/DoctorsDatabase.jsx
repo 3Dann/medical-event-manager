@@ -76,7 +76,10 @@ const HMO_LABELS = {
 }
 const HMO_OPTIONS = Object.entries(HMO_LABELS)
 
+const TITLE_OPTIONS = ['', 'ד"ר', "פרופ'", 'ד"ר פרופ\'', 'רופא מומחה']
+
 const COLUMN_DEFS = [
+  { key: 'title',               label: 'תואר',                     type: 'text' },
   { key: 'name',                label: 'שם הרופא',    always: true, type: 'text' },
   { key: 'license_number',      label: 'מספר רישיון',              type: 'text' },
   { key: 'specialty',           label: 'מומחיות',                  type: 'text' },
@@ -88,12 +91,12 @@ const COLUMN_DEFS = [
   { key: 'city',                label: 'עיר',                      type: 'text' },
   { key: 'location',            label: 'מיקום קבלה',               type: 'text' },
   { key: 'private_price',       label: 'מחיר פרטי',                type: 'price' },
-  { key: 'hmo_acceptance',      label: 'קופות חולים',              type: 'hmo' },
+  { key: 'hmo_acceptance',      label: 'הסדרי ביטוח',              type: 'hmo' },
   { key: 'gives_expert_opinion',label: 'חוות דעת',                 type: 'bool' },
   { key: 'notes',               label: 'הערות',                    type: 'text' },
 ]
 
-const DEFAULT_VISIBLE = ['name','license_number','specialty','sub_specialty','phone','city','location','hmo_acceptance','gives_expert_opinion']
+const DEFAULT_VISIBLE = ['title','name','license_number','specialty','sub_specialty','phone','city','location','hmo_acceptance','gives_expert_opinion']
 
 const EMPTY_FORM = {
   name: '',
