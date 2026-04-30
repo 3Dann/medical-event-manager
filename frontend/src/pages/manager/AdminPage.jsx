@@ -54,14 +54,18 @@ export default function AdminPage() {
     if (tab === 'activity') fetchActivity(1)
   }, [tab])
 
-  const fetchActivity = async (page = activityPage) => {
+  const fetchActivity = async (page = activityPage, overrides = {}) => {
     setActivityLoading(true)
     try {
+      const uf  = 'user'   in overrides ? overrides.user   : activityUserFilter
+      const af  = 'action' in overrides ? overrides.action : activityActionFilter
+      const df  = 'from'   in overrides ? overrides.from   : activityDateFrom
+      const dt  = 'to'     in overrides ? overrides.to     : activityDateTo
       const params = { page, limit: 50 }
-      if (activityUserFilter) params.user_id = activityUserFilter
-      if (activityActionFilter) params.action_type = activityActionFilter
-      if (activityDateFrom) params.date_from = activityDateFrom
-      if (activityDateTo) params.date_to = activityDateTo + 'T23:59:59'
+      if (uf) params.user_id     = uf
+      if (af) params.action_type = af
+      if (df) params.date_from   = df
+      if (dt) params.date_to     = dt + 'T23:59:59'
       const res = await axios.get('/api/admin/activity', { params })
       setActivityLogs(res.data.items)
       setActivityTotal(res.data.total)
