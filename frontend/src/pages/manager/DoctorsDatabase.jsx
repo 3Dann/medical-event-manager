@@ -362,16 +362,23 @@ export default function DoctorsDatabase() {
 
   const allColDefs = [...COLUMN_DEFS, ...extraColDefs]
 
+  // All known insurance companies across loaded doctors
+  const allInsuranceOptions = [...new Set([
+    ...Object.keys(HMO_LABELS),
+    ...doctors.flatMap(d => d.hmo_acceptance || []),
+  ])].filter(Boolean)
+
   const renderCell = (doc, colKey) => {
-    if (colKey.startsWith('extra.')) {
-      const val = doc.extra_data?.[colKey.slice(6)]
-      return val || '—'
-    }
+    if (colKey.startsWith('extra.')) return doc.extra_data?.[colKey.slice(6)] || '—'
     switch (colKey) {
       case 'hmo_acceptance':
-        return doc.hmo_acceptance?.length > 0
-          ? doc.hmo_acceptance.map(h => HMO_LABELS[h] || h).join(', ')
-          : '—'
+        return (
+          <InsuranceCell
+            doc={doc}
+            allOptions={allInsuranceOptions}
+            onSave={handleUpdateInsurance}
+          />
+        )
       case 'gives_expert_opinion':
         return doc.gives_expert_opinion
           ? <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">כן</span>
