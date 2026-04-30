@@ -359,65 +359,107 @@ async def import_from_excel(
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
     if openpyxl is None:
-        raise HTTPException(status_code=500, detail="openpyxl not installed")
-    content = await file.read()
-    wb = openpyxl.load_workbook(io.BytesIO(content))
+        raise HTTPException(status_code=500, detail="openpyxl לא מותקן")
+
+    try:
+        content = await file.read()
+        wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"לא ניתן לפתוח את הקובץ: {e}")
+
     ws = wb.active
-    headers = [str(cell.value).strip().lower() if cell.value else "" for cell in ws[1]]
+    if not ws or ws.max_row < 2:
+        raise HTTPException(status_code=400, detail="הקובץ ריק — חסרת שורת נתונים")
+
+    # Keep original for display, lowercase for matching
+    raw_headers = [str(cell.value).strip() if cell.value is not None else "" for cell in ws[1]]
+    headers_lc  = [h.lower() for h in raw_headers]
+
+    field_aliases = {
+        "name":                ["שם הרופא", "שם רופא", "שם", "name", "doctor", "full name"],
+        "specialty":           ["מומחיות", "specialty", "התמחות", "תחום"],
+        "sub_specialty":       ["תת-מומחיות", "תת מומחיות", "תת-התמחות", "תת התמחות", "sub_specialty", "sub specialty"],
+        "phone":               ["טלפון", "phone", "נייד", "mobile", "tel"],
+        "location":            ["מיקום", "כתובת", "location", "היכן מקבל", "עיר", "קליניקה"],
+        "hmo_acceptance":      ["קופות חולים", "קופה", "hmo", "hmo_acceptance"],
+        "gives_expert_opinion":["חוות דעת", "ועדות", "expert_opinion", "opinion"],
+        "notes":               ["הערות", "notes"],
+    }
 
     col_map = {}
-    field_aliases = {
-        "name": ["שם", "שם רופא", "name", "doctor"],
-        "specialty": ["מומחיות", "specialty", "התמחות"],
-        "sub_specialty": ["תת התמחות", "תת-התמחות", "sub_specialty", "sub specialty"],
-        "phone": ["טלפון", "phone", "נייד", "mobile"],
-        "location": ["מיקום", "כתובת", "location", "היכן מקבל", "קליניקה"],
-        "hmo_acceptance": ["קופות חולים", "קופה", "hmo", "hmo_acceptance"],
-        "gives_expert_opinion": ["חוות דעת", "ועדות", "expert_opinion", "opinion", "gives_expert_opinion"],
-        "notes": ["הערות", "notes", "备注"],
-    }
     for field, aliases in field_aliases.items():
-        for i, h in enumerate(headers):
-            if any(alias in h for alias in aliases):
+        for i, h in enumerate(headers_lc):
+            if any(alias.lower() in h or h in alias.lower() for alias in aliases):
                 col_map[field] = i
                 break
 
-    imported = 0
-    skipped = 0
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if not any(row):
-            continue
-        name = str(row[col_map["name"]]).strip() if "name" in col_map and row[col_map["name"]] else None
-        if not name or name.lower() == "none":
-            skipped += 1
-            continue
+    if "name" not in col_map:
+        found = ", ".join(h for h in raw_headers if h) or "אין עמודות"
+        raise HTTPException(
+            status_code=400,
+            detail=f"לא זוהתה עמודת שם רופא. עמודות שנמצאו בקובץ: {found}"
+        )
 
-        def get_col(field):
-            idx = col_map.get(field)
-            return row[idx] if idx is not None and idx < len(row) else None
+    def get_cell(row, field):
+        idx = col_map.get(field)
+        if idx is None or idx >= len(row):
+            return None
+        return row[idx]
 
-        hmo_raw = get_col("hmo_acceptance")
-        hmo_list = _parse_hmo_string(hmo_raw) if hmo_raw else []
+    # Pre-load existing names to detect duplicates
+    existing_names = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all()}
 
-        rec = {
-            "name": name,
-            "specialty": str(get_col("specialty") or "").strip() or None,
-            "sub_specialty": str(get_col("sub_specialty") or "").strip() or None,
-            "phone": str(get_col("phone") or "").strip() or None,
-            "location": str(get_col("location") or "").strip() or None,
-            "hmo_acceptance": json.dumps(hmo_list, ensure_ascii=False),
-            "gives_expert_opinion": _bool_from_value(get_col("gives_expert_opinion")),
-            "notes": str(get_col("notes") or "").strip() or None,
-        }
-        rec = normalize_record(rec)
-        if rec is None:
-            skipped += 1
+    imported = skipped_invalid = skipped_duplicate = 0
+    row_errors = []
+
+    for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+        if not any(v for v in row if v is not None):
             continue
-        db.add(models.Doctor(**rec))
-        imported += 1
+        try:
+            raw_name = get_cell(row, "name")
+            name = str(raw_name).strip() if raw_name is not None else ""
+            if not name or name.lower() in ("none", "nan"):
+                skipped_invalid += 1
+                continue
+
+            norm = _normalize_name(name)
+            if norm in existing_names:
+                skipped_duplicate += 1
+                continue
+
+            hmo_raw = get_cell(row, "hmo_acceptance")
+            rec = {
+                "name": name,
+                "specialty":            str(get_cell(row, "specialty")            or "").strip() or None,
+                "sub_specialty":        str(get_cell(row, "sub_specialty")        or "").strip() or None,
+                "phone":                str(get_cell(row, "phone")                or "").strip() or None,
+                "location":             str(get_cell(row, "location")             or "").strip() or None,
+                "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
+                "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
+                "notes":                str(get_cell(row, "notes")                or "").strip() or None,
+                "source_url":           "excel_import",
+            }
+            rec = normalize_record(rec)
+            if rec is None:
+                skipped_invalid += 1
+                continue
+
+            db.add(models.Doctor(**rec))
+            existing_names.add(norm)
+            imported += 1
+
+        except Exception as e:
+            row_errors.append(f"שורה {row_num}: {e}")
+            skipped_invalid += 1
 
     db.commit()
-    return {"imported": imported, "skipped": skipped}
+    return {
+        "imported":           imported,
+        "skipped_duplicates": skipped_duplicate,
+        "skipped_invalid":    skipped_invalid,
+        "detected_columns":   list(col_map.keys()),
+        "errors":             row_errors[:5],
+    }
 
 
 @router.post("/import/pdf")
