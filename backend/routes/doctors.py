@@ -111,6 +111,7 @@ class DoctorCreate(BaseModel):
 
 class DoctorUpdate(BaseModel):
     name: Optional[str] = None
+    title: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     license_number: Optional[str] = None
