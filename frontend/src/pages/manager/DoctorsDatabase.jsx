@@ -867,21 +867,25 @@ export default function DoctorsDatabase() {
                   />
                 </div>
 
-                {/* HMO checkboxes */}
+                {/* Insurance agreements — multi-select + add custom */}
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="label">קופות חולים מקבל</label>
-                  <div className="flex flex-wrap gap-3 mt-1">
-                    {HMO_OPTIONS.map(([key, label]) => (
-                      <label key={key} className="flex items-center gap-2 cursor-pointer">
+                  <label className="label">הסדרי ביטוח</label>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {[...new Set([...Object.keys(HMO_LABELS), ...(form.hmo_acceptance || [])])].map(key => (
+                      <label key={key} className="flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-100 transition-colors">
                         <input
                           type="checkbox"
-                          checked={form.hmo_acceptance.includes(key)}
+                          checked={(form.hmo_acceptance || []).includes(key)}
                           onChange={() => toggleHmo(key)}
-                          className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                          className="w-3.5 h-3.5 rounded accent-blue-600"
                         />
-                        <span className="text-sm text-slate-700">{label}</span>
+                        <span className="text-sm text-slate-700">{HMO_LABELS[key] || key}</span>
                       </label>
                     ))}
+                    <InsuranceAddInput
+                      current={form.hmo_acceptance || []}
+                      onAdd={company => setForm(f => ({ ...f, hmo_acceptance: [...(f.hmo_acceptance || []), company] }))}
+                    />
                   </div>
                 </div>
 
