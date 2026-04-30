@@ -73,6 +73,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from audit_middleware import AuditMiddleware
+app.add_middleware(AuditMiddleware)
+
 # Create tables
 models.Base.metadata.create_all(bind=engine)
 
