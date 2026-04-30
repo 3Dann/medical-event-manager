@@ -409,7 +409,7 @@ export default function AdminPage() {
           onClear={() => {
             setActivityUserFilter(''); setActivityActionFilter('')
             setActivityDateFrom(''); setActivityDateTo('')
-            setTimeout(() => fetchActivity(1), 0)
+            fetchActivity(1, { user: '', action: '', from: '', to: '' })
           }}
           onPage={p => fetchActivity(p)}
         />
