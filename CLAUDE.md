@@ -93,6 +93,7 @@ medical-event-manager/
 - **רופאים:** ~370 רשומות, חיפוש/סינון, ייצוא Excel
 - **ציוני רספונסיביות:** דירוג חברות ביטוח
 - **Flow Engine:** templates, instances, steps, advance/skip/pause/cancel/notes, coverage per step, audit log, suggestions
+- **Audit Log:** `UserActivityLog` + middleware שמיירט 17 פעולות (login, view/edit/delete patient, documents, claims, admin) + `GET /api/admin/activity` + טאב "לוג פעילות" ב-AdminPage
 - **מערכת תרופות** (חדש):
   - `DrugEntry` table — 1,162 תרופות, seed מ-drug_list.py, עדכון שבועי מ-openFDA
   - `PatientMedication` table — תרופות לפי מטופל עם מינון, תדירות, התוויה, תאריכים
