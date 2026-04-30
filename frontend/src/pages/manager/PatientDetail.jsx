@@ -373,7 +373,7 @@ export default function PatientDetail() {
 
       {/* ═══ Unified timeline ═══════════════════════════════════════════════ */}
       <div className="card">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="font-semibold text-slate-800">מסע מטופל — צמתי החלטה</h2>
           <div className="flex gap-2">
             <button onClick={openJourneyModal}
@@ -385,6 +385,38 @@ export default function PatientDetail() {
             </button>
           </div>
         </div>
+
+        {/* Applied templates bar */}
+        {appliedTemplateKeys.size > 0 && (
+          <div className="mb-4 p-3 bg-violet-50 rounded-xl border border-violet-100">
+            <p className="text-xs font-medium text-violet-600 mb-2">מסעות מוחלים</p>
+            <div className="flex flex-wrap gap-2">
+              {[...appliedTemplateKeys].map(key => {
+                const tpl = journeyTemplates.find(t => t.key === key)
+                return (
+                  <div key={key} className="flex items-center gap-1.5 bg-white border border-violet-200 rounded-lg px-2.5 py-1.5">
+                    <span className="text-sm">{tpl?.icon || '🗺️'}</span>
+                    <span className="text-xs font-medium text-violet-800">{tpl?.label || key}</span>
+                    <button onClick={() => removeTemplate(key)} className="text-violet-300 hover:text-red-500 text-xs pr-1 transition-colors" title="הסר מסע">✕</button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Progress bar */}
+        {customNodes.length > 0 && (
+          <div className="flex items-center gap-3 mb-5">
+            <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{ width: `${(completedCount / customNodes.length) * 100}%` }} />
+            </div>
+            <span className="text-xs text-slate-400 flex-shrink-0">
+              {completedCount}/{customNodes.length} הושלמו{activeCount > 0 ? ` · ${activeCount} פעילים` : ''}
+            </span>
+          </div>
+        )}
+
 
         {/* Add node form */}
         {showAddForm && (
