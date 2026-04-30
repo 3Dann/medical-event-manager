@@ -148,6 +148,25 @@ def doctor_to_dict(d: models.Doctor) -> dict:
     }
 
 
+@router.get("/schema")
+def get_doctor_schema(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    fixed = ["name","license_number","specialty","sub_specialty","phone","phone2",
+             "whatsapp","email","city","location","private_price",
+             "hmo_acceptance","gives_expert_opinion","notes"]
+    extra_keys: set = set()
+    for row in db.query(models.Doctor.extra_data).filter(
+        models.Doctor.extra_data.isnot(None)
+    ).limit(300).all():
+        try:
+            extra_keys.update(json.loads(row.extra_data).keys())
+        except Exception:
+            pass
+    return {"fixed": fixed, "extra": sorted(extra_keys)}
+
+
 @router.get("/filter-options")
 def get_filter_options(
     db: Session = Depends(get_db),
