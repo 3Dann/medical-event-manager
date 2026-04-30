@@ -384,17 +384,48 @@ export default function DoctorsDatabase() {
         <div className="card mb-4 max-w-lg">
           <p className="text-sm font-medium text-slate-700 mb-2">העלה קובץ Excel</p>
           <p className="text-xs text-slate-500 mb-3">
-            עמודות נתמכות: שם, מומחיות, תת-התמחות, טלפון, מיקום, קופות חולים, חוות דעת, הערות
+            עמודות: שם, מומחיות, תת-התמחות, מספר רישיון, טלפון, מיקום, קופות חולים, שפות, הערות ועוד
           </p>
           <input
             type="file"
             accept=".xlsx,.xls"
             onChange={e => handleFileImport(e, 'excel')}
             disabled={importing}
-            className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
           />
-          {importing && <p className="text-sm text-slate-500 mt-2">מייבא...</p>}
-          {importStatus && (
+
+          {/* Live progress */}
+          {importProgress && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-blue-800">
+                  {importProgress.status === 'running' ? '⏳ מייבא...' : '✓ הסתיים'}
+                </span>
+                <span className="text-sm text-blue-700 font-mono">
+                  {(importProgress.imported ?? 0).toLocaleString()}
+                  {importProgress.total > 0 && ` / ${importProgress.total.toLocaleString()}`}
+                </span>
+              </div>
+              {importProgress.total > 0 && (
+                <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, ((importProgress.imported ?? 0) / importProgress.total) * 100)}%` }}
+                  />
+                </div>
+              )}
+              {importProgress.total === 0 && (
+                <div className="w-full bg-blue-200 rounded-full h-2 overflow-hidden">
+                  <div className="bg-blue-400 h-2 rounded-full animate-pulse w-1/3" />
+                </div>
+              )}
+              {importProgress.skipped_duplicates > 0 && (
+                <p className="text-xs text-blue-600 mt-1">{importProgress.skipped_duplicates.toLocaleString()} כפילויות דולגו</p>
+              )}
+            </div>
+          )}
+
+          {importStatus && !importProgress && (
             <div className={`mt-3 p-3 rounded-lg text-sm ${importStatus.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
               {importStatus.success ? `✅ ${importStatus.message}` : `❌ ${importStatus.message}`}
               {importStatus.detail && importStatus.detail.split('\n').map((line, i) => (
