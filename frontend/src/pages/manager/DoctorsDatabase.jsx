@@ -573,7 +573,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">טלפון</label>
+                  <label className="label">טלפון ראשי</label>
                   <input
                     className="input"
                     placeholder="03-1234567"
@@ -583,12 +583,63 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">מיקום קבלה</label>
+                  <label className="label">טלפון 2 (מזכירה / קליניקה)</label>
                   <input
                     className="input"
-                    placeholder="שם קליניקה / בית חולים / עיר"
+                    placeholder="03-7654321"
+                    value={form.phone2 || ''}
+                    onChange={e => setForm({ ...form, phone2: e.target.value })}
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="label">וואטסאפ</label>
+                  <input
+                    className="input"
+                    placeholder="05X-XXXXXXX"
+                    value={form.whatsapp || ''}
+                    onChange={e => setForm({ ...form, whatsapp: e.target.value })}
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="label">אימייל</label>
+                  <input
+                    type="email"
+                    className="input"
+                    placeholder="doctor@clinic.co.il"
+                    value={form.email || ''}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <label className="label">עיר</label>
+                  <input
+                    className="input"
+                    placeholder="תל אביב"
+                    value={form.city || ''}
+                    onChange={e => setForm({ ...form, city: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="label">מיקום קבלה (קליניקה / בית חולים)</label>
+                  <input
+                    className="input"
+                    placeholder="שם קליניקה / כתובת"
                     value={form.location}
                     onChange={e => setForm({ ...form, location: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="label">מחיר ביקור פרטי (₪)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    placeholder="500"
+                    value={form.private_price || ''}
+                    onChange={e => setForm({ ...form, private_price: e.target.value ? parseInt(e.target.value) : null })}
+                    dir="ltr"
                   />
                 </div>
 
