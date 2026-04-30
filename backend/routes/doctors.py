@@ -409,6 +409,42 @@ def delete_doctor(
     return {"message": "Doctor deleted"}
 
 
+def _clean_cell(value) -> str:
+    """
+    Cleans a cell value from Excel:
+    - Strips leading/trailing whitespace
+    - Removes invisible BiDi control characters (LRE, RLE, PDF, LRM, RLM, etc.)
+    - Normalises multiple spaces
+    Returns plain Unicode string safe for RTL HTML rendering.
+    """
+    if value is None:
+        return ""
+    text = str(value).strip()
+    # Remove Unicode BiDi control characters and zero-width chars
+    BIDI_CONTROLS = {
+        '​',  # Zero-width space
+        '‌',  # Zero-width non-joiner
+        '‍',  # Zero-width joiner
+        '‎',  # Left-to-right mark
+        '‏',  # Right-to-left mark
+        '‪',  # Left-to-right embedding
+        '‫',  # Right-to-left embedding
+        '‬',  # Pop directional formatting
+        '‭',  # Left-to-right override
+        '‮',  # Right-to-left override
+        '⁦',  # Left-to-right isolate
+        '⁧',  # Right-to-left isolate
+        '⁨',  # First strong isolate
+        '⁩',  # Pop directional isolate
+        '﻿',  # BOM / zero-width no-break space
+    }
+    text = ''.join(c for c in text if c not in BIDI_CONTROLS)
+    # Collapse multiple spaces
+    import re as _re
+    text = _re.sub(r' {2,}', ' ', text).strip()
+    return text
+
+
 def _parse_hmo_string(value: str) -> List[str]:
     """Parse a free-text HMO string into a list of known HMO keys."""
     result = []
