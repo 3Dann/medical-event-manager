@@ -587,12 +587,19 @@ def apply_journey_template(patient_id: int, template_key: str,
     from data.journey_templates import JOURNEY_TEMPLATES
     tpl = next((t for t in JOURNEY_TEMPLATES if t["key"] == template_key), None)
     if not tpl:
-        raise HTTPException(status_code=404, detail="Template not found")
+        raise HTTPException(status_code=404, detail="תבנית לא נמצאה")
 
     auth_utils.get_patient_with_access(patient_id, current_user, db)
 
+    existing = db.query(models.Node).filter(
+        models.Node.patient_id == patient_id,
+        models.Node.source_template_key == template_key,
+    ).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="מסע זה כבר מוחל על מטופל זה")
+
     created = []
-    for i, node_def in enumerate(tpl["nodes"]):
+    for j, node_def in enumerate(tpl["nodes"]):
         node = models.Node(
             patient_id=patient_id,
             node_type=node_def.get("node_type", "medical"),
@@ -601,11 +608,25 @@ def apply_journey_template(patient_id: int, template_key: str,
             status="future",
             notes=node_def.get("notes"),
             stage_order=node_def.get("stage_order"),
+            source_template_key=template_key,
         )
         db.add(node); db.flush()
-        for j, sub_text in enumerate(node_def.get("sub_items", [])):
-            db.add(models.NodeSubItem(node_id=node.id, text=sub_text, sort_order=j))
+        for k, sub_text in enumerate(node_def.get("sub_items", [])):
+            db.add(models.NodeSubItem(node_id=node.id, text=sub_text, sort_order=k))
         created.append(node_to_dict(node))
 
     db.commit()
     return {"created": len(created), "nodes": created}
+
+
+@router.delete("/{patient_id}/journey-templates/{template_key}")
+def remove_journey_template(patient_id: int, template_key: str,
+                             db: Session = Depends(get_db),
+                             current_user=Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
+    deleted = db.query(models.Node).filter(
+        models.Node.patient_id == patient_id,
+        models.Node.source_template_key == template_key,
+    ).delete(synchronize_session=False)
+    db.commit()
+    return {"deleted": deleted}
