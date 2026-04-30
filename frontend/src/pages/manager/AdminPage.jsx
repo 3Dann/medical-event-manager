@@ -417,6 +417,123 @@ export default function AdminPage() {
   )
 }
 
+const ACTION_LABELS = {
+  login:             'התחברות',
+  logout:            'התנתקות',
+  view_patient:      'צפייה בתיק',
+  create_patient:    'יצירת תיק',
+  edit_patient:      'עדכון תיק',
+  delete_patient:    'מחיקת תיק',
+  download_document: 'הורדת מסמך',
+  upload_document:   'העלאת מסמך',
+  delete_document:   'מחיקת מסמך',
+  create_claim:      'יצירת תביעה',
+  edit_claim:        'עדכון תביעה',
+  delete_claim:      'מחיקת תביעה',
+  add_insurance:     'הוספת ביטוח',
+  admin_change_role: 'שינוי הרשאות',
+  admin_reset_user:  'איפוס סיסמה',
+  admin_delete_data: 'מחיקת נתונים',
+  view_activity_log: 'צפייה בלוג',
+}
+
+const RESOURCE_LABELS = {
+  patient:   'מטופל',
+  document:  'מסמך',
+  claim:     'תביעה',
+  insurance: 'ביטוח',
+  user:      'משתמש',
+}
+
+function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actionFilter, dateFrom, dateTo,
+  onUserFilter, onActionFilter, onDateFrom, onDateTo, onSearch, onClear, onPage }) {
+
+  const totalPages = Math.ceil(total / 50)
+
+  const statusBadge = (code) => {
+    if (!code) return null
+    const cls = code < 300 ? 'bg-green-100 text-green-700' : code < 500 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+    return <span className={`text-xs px-1.5 py-0.5 rounded font-mono ${cls}`}>{code}</span>
+  }
+
+  return (
+    <div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 mb-4 items-end">
+        <div>
+          <label className="block text-xs text-slate-500 mb-1">משתמש</label>
+          <select className="input text-sm py-1.5 w-44" value={userFilter} onChange={e => onUserFilter(e.target.value)}>
+            <option value="">כולם</option>
+            {users.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-slate-500 mb-1">פעולה</label>
+          <select className="input text-sm py-1.5 w-48" value={actionFilter} onChange={e => onActionFilter(e.target.value)}>
+            <option value="">כל הפעולות</option>
+            {Object.entries(ACTION_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-slate-500 mb-1">מתאריך</label>
+          <input type="date" className="input text-sm py-1.5" value={dateFrom} onChange={e => onDateFrom(e.target.value)} />
+        </div>
+        <div>
+          <label className="block text-xs text-slate-500 mb-1">עד תאריך</label>
+          <input type="date" className="input text-sm py-1.5" value={dateTo} onChange={e => onDateTo(e.target.value)} />
+        </div>
+        <button onClick={onSearch} className="btn-primary text-sm px-4 py-1.5">חפש</button>
+        <button onClick={onClear} className="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100">נקה</button>
+      </div>
+
+      <p className="text-xs text-slate-400 mb-3">{total.toLocaleString()} רשומות</p>
+
+      {loading ? (
+        <div className="text-center py-12 text-slate-400 text-sm">טוען...</div>
+      ) : logs.length === 0 ? (
+        <div className="text-center py-12 text-slate-400 text-sm">אין רשומות</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <div className="space-y-1.5">
+            {logs.map(log => (
+              <div key={log.id} className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl px-4 py-2.5 text-sm flex-wrap">
+                <span className="text-slate-400 text-xs font-mono w-36 flex-shrink-0">
+                  {log.created_at ? new Date(log.created_at).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
+                </span>
+                <span className="font-medium text-slate-800 w-32 flex-shrink-0 truncate">{log.user_name || <span className="text-slate-400">אנונימי</span>}</span>
+                <span className="text-slate-700 flex-1 min-w-28">{ACTION_LABELS[log.action_type] || log.action_type}</span>
+                {log.resource_type && (
+                  <span className="text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded">
+                    {RESOURCE_LABELS[log.resource_type] || log.resource_type}
+                    {log.resource_id ? ` #${log.resource_id}` : ''}
+                  </span>
+                )}
+                <span className="text-xs text-slate-400 font-mono w-28 flex-shrink-0">{log.ip_address || '—'}</span>
+                {statusBadge(log.status_code)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center gap-2 mt-4 justify-center">
+          <button disabled={page === 1} onClick={() => onPage(page - 1)}
+            className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
+            הקודם
+          </button>
+          <span className="text-sm text-slate-500">עמוד {page} מתוך {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => onPage(page + 1)}
+            className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
+            הבא
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DrugDatabasePanel() {
   const [status, setStatus] = useState(null)
   const [updating, setUpdating] = useState(false)
