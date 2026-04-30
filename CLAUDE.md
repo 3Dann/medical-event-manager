@@ -125,6 +125,34 @@ medical-event-manager/
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
 - [ ] **מערכת בקרת משתמשים (User Activity & Permissions)** — ראה פירוט למטה
 
+### פירוט: מערכת בקרת משתמשים
+
+**מטרה:** מעקב אחרי כל פעולה של כל משתמש, וניהול הרשאות הורדת נתונים.
+
+**רכיב 1 — Audit Log (לוג ביקורת):**
+- טבלת `UserActivityLog` — user_id, action_type, resource_type, resource_id, ip_address, user_agent, timestamp, metadata (JSON)
+- כיסוי אירועים: התחברות/יציאה, צפייה במטופל, עריכה, יצירה, מחיקה, הורדת מסמך, ייצוא נתונים, הרצת workflow, שינוי הרשאות
+- middleware ב-FastAPI שמתעד אוטומטית כל request (ניתן לסנן לפי route)
+
+**רכיב 2 — Session Management:**
+- טבלת `ActiveSession` — token_jti, user_id, login_at, last_seen, ip_address, user_agent, is_active
+- API: רשימת sessions פעילים, ביטול session מרחוק (logout כפוי), timeout אוטומטי לאחר חוסר פעילות
+- Admin view: מי מחובר כרגע, מאיפה, כמה זמן
+
+**רכיב 3 — הרשאות הורדה (Download Permissions):**
+- הרחבת מודל ה-User הקיים: שדה `permissions` (JSON או טבלת `UserPermission`)
+- הרשאות גרנולריות: `export_patient_pdf`, `export_claims_excel`, `export_doctors`, `download_documents`, `view_financials`
+- enforcement בכל endpoint של הורדה — בדיקת הרשאה לפני שליחת קובץ
+
+**רכיב 4 — Admin Dashboard (בקרה):**
+- טאב "פעילות" ב-AdminPage הקיים: טבלת activity log עם פילטרים (לפי משתמש, תאריך, סוג פעולה)
+- תצוגת "משתמשים מחוברים עכשיו"
+- ייצוא לוג לאדמין בלבד
+
+**טכנולוגיה:** FastAPI middleware + SQLAlchemy + JWT blacklist לביטול sessions
+
+---
+
 ### עדיפות גבוהה
 - [ ] **WorkflowsPage** — ניהול תבניות (עריכה/יצירה), רשימת כל ה-instances בארגון, סינון/חיפוש
 - [ ] **מערכת התראות** — notification bell, דדליינים, חידוש ביטוחים
