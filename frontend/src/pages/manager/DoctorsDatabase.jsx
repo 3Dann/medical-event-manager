@@ -163,6 +163,12 @@ export default function DoctorsDatabase() {
 
   useEffect(() => { fetchFilterOptions() }, [])
   useEffect(() => { fetchDoctors() }, [search, filterHmo, filterSpecialty, filterSubSpecialty, filterLocation, filterExpert])
+  useEffect(() => { localStorage.setItem('doctor_table_cols', JSON.stringify(visibleCols)) }, [visibleCols])
+  useEffect(() => {
+    axios.get('/api/doctors/schema').then(res => {
+      setExtraColDefs(res.data.extra.map(k => ({ key: `extra.${k}`, label: k, type: 'text', isExtra: true })))
+    }).catch(() => {})
+  }, [])
 
   const fetchFilterOptions = async () => {
     try { const res = await axios.get('/api/doctors/filter-options'); setFilterOptions(res.data) }
