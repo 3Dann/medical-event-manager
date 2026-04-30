@@ -385,6 +385,32 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* ── Activity Log tab ── */}
+      {tab === 'activity' && (
+        <ActivityLogPanel
+          logs={activityLogs}
+          total={activityTotal}
+          loading={activityLoading}
+          page={activityPage}
+          users={users}
+          userFilter={activityUserFilter}
+          actionFilter={activityActionFilter}
+          dateFrom={activityDateFrom}
+          dateTo={activityDateTo}
+          onUserFilter={v => setActivityUserFilter(v)}
+          onActionFilter={v => setActivityActionFilter(v)}
+          onDateFrom={v => setActivityDateFrom(v)}
+          onDateTo={v => setActivityDateTo(v)}
+          onSearch={() => fetchActivity(1)}
+          onClear={() => {
+            setActivityUserFilter(''); setActivityActionFilter('')
+            setActivityDateFrom(''); setActivityDateTo('')
+            setTimeout(() => fetchActivity(1), 0)
+          }}
+          onPage={p => fetchActivity(p)}
+        />
+      )}
+
       {/* ── Drug Database Panel ─────────────────────────────────────── */}
       <DrugDatabasePanel />
     </div>
