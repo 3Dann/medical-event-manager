@@ -210,7 +210,7 @@ def normalize_record(record: dict) -> dict | None:
     if not name or len(name) < 3:
         return None
 
-    record["name"] = name
+    record["name"] = fix_rtl_parens(name)
 
     # Fill specialty if missing and we extracted one
     if extracted_spec and not record.get("specialty"):
