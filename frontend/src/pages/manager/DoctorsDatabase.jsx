@@ -724,6 +724,7 @@ export default function DoctorsDatabase() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-blue-600 text-white">
+                <th className="px-3 py-3 text-center text-xs font-semibold w-10">#</th>
                 {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
                   <th key={c.key} className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
                     {c.label}
@@ -733,8 +734,9 @@ export default function DoctorsDatabase() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {doctors.map(doc => (
+              {doctors.map((doc, idx) => (
                 <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-3 py-3 text-center text-xs text-slate-400 font-mono">{idx + 1}</td>
                   {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
                     <td key={c.key} className={`px-4 py-3 text-slate-600 text-sm ${c.key === 'name' ? 'font-medium text-slate-800' : ''}`}>
                       {renderCell(doc, c.key)}
