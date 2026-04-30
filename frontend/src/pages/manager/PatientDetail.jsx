@@ -209,6 +209,11 @@ export default function PatientDetail() {
   if (!patient) return <div className="p-8 text-slate-500">טוען...</div>
 
   const sorted = sortNodes(nodes)
+  const appliedTemplateKeys = new Set(nodes.filter(n => n.source_template_key).map(n => n.source_template_key))
+  const patientConditionTags = editForm.condition_tags || []
+  const customNodes = sorted.filter(n => n.node_type !== 'stage')
+  const completedCount = customNodes.filter(n => n.status === 'completed').length
+  const activeCount = customNodes.filter(n => n.status === 'active').length
 
   return (
     <div dir="rtl">
