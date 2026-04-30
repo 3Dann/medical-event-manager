@@ -337,6 +337,7 @@ def create_doctor(
 ):
     rec = {
         "name":                 data.name,
+        "title":                data.title,
         "specialty":            data.specialty,
         "sub_specialty":        data.sub_specialty,
         "license_number":       data.license_number,
