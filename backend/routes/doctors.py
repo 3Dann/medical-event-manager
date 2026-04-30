@@ -421,6 +421,11 @@ async def import_from_excel(
 
     imported = skipped_invalid = skipped_duplicate = 0
     row_errors = []
+    skip_samples = []   # up to 5 examples of skipped rows + reason
+
+    def _add_skip_sample(name_raw, reason):
+        if len(skip_samples) < 5:
+            skip_samples.append({"name": str(name_raw)[:60], "reason": reason})
 
     for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
         if not any(v for v in row if v is not None):
@@ -429,11 +434,13 @@ async def import_from_excel(
             raw_name = get_cell(row, "name")
             name = str(raw_name).strip() if raw_name is not None else ""
             if not name or name.lower() in ("none", "nan"):
+                _add_skip_sample(raw_name, "שם ריק")
                 skipped_invalid += 1
                 continue
 
             norm = _normalize_name(name)
             if norm in existing_names:
+                _add_skip_sample(name, "כבר קיים במאגר")
                 skipped_duplicate += 1
                 continue
 
@@ -462,6 +469,7 @@ async def import_from_excel(
             }
             rec = normalize_record(rec)
             if rec is None:
+                _add_skip_sample(name, "שם לא תקין (normalize)")
                 skipped_invalid += 1
                 continue
 
@@ -471,6 +479,7 @@ async def import_from_excel(
 
         except Exception as e:
             row_errors.append(f"שורה {row_num}: {e}")
+            _add_skip_sample(f"שורה {row_num}", f"שגיאה: {e}")
             skipped_invalid += 1
 
     db.commit()
