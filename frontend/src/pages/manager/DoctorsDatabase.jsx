@@ -330,6 +330,48 @@ export default function DoctorsDatabase() {
     }
   }
 
+  const allColDefs = [...COLUMN_DEFS, ...extraColDefs]
+
+  const renderCell = (doc, colKey) => {
+    if (colKey.startsWith('extra.')) {
+      const val = doc.extra_data?.[colKey.slice(6)]
+      return val || '—'
+    }
+    switch (colKey) {
+      case 'hmo_acceptance':
+        return doc.hmo_acceptance?.length > 0
+          ? doc.hmo_acceptance.map(h => HMO_LABELS[h] || h).join(', ')
+          : '—'
+      case 'gives_expert_opinion':
+        return doc.gives_expert_opinion
+          ? <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">כן</span>
+          : <span className="text-slate-300 text-xs">לא</span>
+      case 'private_price':
+        return doc.private_price ? `₪${doc.private_price.toLocaleString()}` : '—'
+      case 'phone': case 'phone2': case 'whatsapp':
+        return doc[colKey] ? <span dir="ltr">{doc[colKey]}</span> : '—'
+      default:
+        return doc[colKey] || '—'
+    }
+  }
+
+  const toggleCol = (key) => {
+    setVisibleCols(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    )
+  }
+
+  const addCustomCol = () => {
+    const name = newColName.trim()
+    if (!name) return
+    const key = `extra.${name}`
+    if (!extraColDefs.find(c => c.key === key)) {
+      setExtraColDefs(prev => [...prev, { key, label: name, type: 'text', isExtra: true }])
+    }
+    if (!visibleCols.includes(key)) setVisibleCols(prev => [...prev, key])
+    setNewColName('')
+  }
+
   return (
     <div className="p-4 md:p-8" dir="rtl">
       {/* Header */}
