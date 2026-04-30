@@ -521,8 +521,12 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
             if not any(v for v in row if v is not None):
                 continue
             try:
+                def gc(field):
+                    """get_cell + clean BiDi artifacts"""
+                    return _clean_cell(get_cell(row, field))
+
                 raw_name = get_cell(row, "name")
-                name = str(raw_name).strip() if raw_name is not None else ""
+                name = _clean_cell(raw_name)
                 if not name or name.lower() in ("none", "nan"):
                     _skip(raw_name, "שם ריק"); skipped_inv += 1; continue
 
@@ -530,13 +534,12 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
                 if norm in existing:
                     skipped_dup += 1; continue
 
-                title_val = str(get_cell(row, "title") or "").strip() or None
-
-                spec_raw   = str(get_cell(row, "specialty") or "").strip()
+                title_val  = gc("title") or None
+                spec_raw   = gc("specialty")
                 spec_parts = [s.strip() for s in spec_raw.split(",") if s.strip()]
-                sub_col    = str(get_cell(row, "sub_specialty") or "").strip() or None
-                lang_val   = str(get_cell(row, "languages") or "").strip()
-                notes_val  = str(get_cell(row, "notes") or "").strip()
+                sub_col    = gc("sub_specialty") or None
+                lang_val   = gc("languages")
+                notes_val  = gc("notes")
                 notes_comb = " | ".join(filter(None, [
                     f"שפות: {lang_val}" if lang_val else "", notes_val])) or None
 
@@ -547,19 +550,19 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
                 except (ValueError, TypeError):
                     parsed_price = None
 
-                lic_raw = get_cell(row, "license_number")
+                lic_raw = gc("license_number") or None
                 rec = {
                     "name":                 name,
                     "title":                title_val,
                     "specialty":            spec_parts[0] if spec_parts else None,
                     "sub_specialty":        sub_col or (spec_parts[1] if len(spec_parts) > 1 else None),
-                    "license_number":       str(lic_raw).strip() if lic_raw is not None else None,
-                    "phone":                str(get_cell(row, "phone")    or "").strip() or None,
-                    "phone2":               str(get_cell(row, "phone2")   or "").strip() or None,
-                    "whatsapp":             str(get_cell(row, "whatsapp") or "").strip() or None,
-                    "email":                str(get_cell(row, "email")    or "").strip() or None,
-                    "city":                 str(get_cell(row, "city")     or "").strip() or None,
-                    "location":             str(get_cell(row, "location") or "").strip() or None,
+                    "license_number":       lic_raw,
+                    "phone":                gc("phone")    or None,
+                    "phone2":               gc("phone2")   or None,
+                    "whatsapp":             gc("whatsapp") or None,
+                    "email":                gc("email")    or None,
+                    "city":                 gc("city")     or None,
+                    "location":             gc("location") or None,
                     "private_price":        parsed_price,
                     "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
                     "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
