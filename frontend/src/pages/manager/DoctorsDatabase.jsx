@@ -75,10 +75,30 @@ const HMO_LABELS = {
 }
 const HMO_OPTIONS = Object.entries(HMO_LABELS)
 
+const COLUMN_DEFS = [
+  { key: 'name',                label: 'שם הרופא',    always: true, type: 'text' },
+  { key: 'license_number',      label: 'מספר רישיון',              type: 'text' },
+  { key: 'specialty',           label: 'מומחיות',                  type: 'text' },
+  { key: 'sub_specialty',       label: 'תת-מומחיות',               type: 'text' },
+  { key: 'phone',               label: 'טלפון',                    type: 'phone' },
+  { key: 'phone2',              label: 'טלפון 2',                  type: 'phone' },
+  { key: 'whatsapp',            label: 'וואטסאפ',                  type: 'phone' },
+  { key: 'email',               label: 'אימייל',                   type: 'email' },
+  { key: 'city',                label: 'עיר',                      type: 'text' },
+  { key: 'location',            label: 'מיקום קבלה',               type: 'text' },
+  { key: 'private_price',       label: 'מחיר פרטי',                type: 'price' },
+  { key: 'hmo_acceptance',      label: 'קופות חולים',              type: 'hmo' },
+  { key: 'gives_expert_opinion',label: 'חוות דעת',                 type: 'bool' },
+  { key: 'notes',               label: 'הערות',                    type: 'text' },
+]
+
+const DEFAULT_VISIBLE = ['name','license_number','specialty','sub_specialty','phone','city','location','hmo_acceptance','gives_expert_opinion']
+
 const EMPTY_FORM = {
   name: '',
   specialty: '',
   sub_specialty: '',
+  license_number: '',
   phone: '',
   phone2: '',
   whatsapp: '',
@@ -89,6 +109,7 @@ const EMPTY_FORM = {
   hmo_acceptance: [],
   gives_expert_opinion: false,
   notes: '',
+  extra_data: {},
   source_url: '',
 }
 
