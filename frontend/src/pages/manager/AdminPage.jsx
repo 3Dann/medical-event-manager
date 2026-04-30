@@ -422,7 +422,6 @@ export default function AdminPage() {
 
 const ACTION_LABELS = {
   login:             'התחברות',
-  logout:            'התנתקות',
   view_patient:      'צפייה בתיק',
   create_patient:    'יצירת תיק',
   edit_patient:      'עדכון תיק',
