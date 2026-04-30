@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
+import { useAuth } from '../../context/AuthContext'
 
 function FilterButton({ label, value, options, onChange, valueLabel }) {
   const [open, setOpen] = useState(false)
