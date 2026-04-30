@@ -418,6 +418,15 @@ export default function DoctorsDatabase() {
             </svg>
             הוספת רופא
           </button>
+          {currentUser?.is_admin && totalDoctors > 0 && (
+            <button
+              onClick={handleDeleteAll}
+              className="px-3 py-2 text-sm rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+              title="נקה את כל המאגר"
+            >
+              🗑️ נקה מאגר
+            </button>
+          )}
         </div>
       </div>
 
