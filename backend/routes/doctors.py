@@ -144,6 +144,7 @@ def doctor_to_dict(d: models.Doctor) -> dict:
             extra = {}
     return {
         "id":                   d.id,
+        "title":                getattr(d, 'title', None),
         "name":                 d.name,
         "specialty":            d.specialty,
         "sub_specialty":        d.sub_specialty,
