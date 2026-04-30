@@ -666,3 +666,19 @@ class SiteSetting(Base):
     key        = Column(String, unique=True, nullable=False, index=True)
     value      = Column(Text, nullable=True)   # JSON or plain string
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class UserActivityLog(Base):
+    """Audit log — one row per meaningful user action."""
+    __tablename__ = "user_activity_logs"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, nullable=True, index=True)
+    user_name     = Column(String, nullable=True)     # denormalized — survives user deletion
+    action_type   = Column(String, nullable=False, index=True)
+    resource_type = Column(String, nullable=True)     # patient / document / claim / ...
+    resource_id   = Column(String, nullable=True)
+    ip_address    = Column(String, nullable=True)
+    user_agent    = Column(String, nullable=True)
+    status_code   = Column(Integer, nullable=True)
+    created_at    = Column(DateTime(timezone=True), server_default=func.now(), index=True)
