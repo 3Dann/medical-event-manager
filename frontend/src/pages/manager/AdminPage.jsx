@@ -51,7 +51,24 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (tab === 'permissions') fetchPatients()
+    if (tab === 'activity') fetchActivity(1)
   }, [tab])
+
+  const fetchActivity = async (page = activityPage) => {
+    setActivityLoading(true)
+    try {
+      const params = { page, limit: 50 }
+      if (activityUserFilter) params.user_id = activityUserFilter
+      if (activityActionFilter) params.action_type = activityActionFilter
+      if (activityDateFrom) params.date_from = activityDateFrom
+      if (activityDateTo) params.date_to = activityDateTo + 'T23:59:59'
+      const res = await axios.get('/api/admin/activity', { params })
+      setActivityLogs(res.data.items)
+      setActivityTotal(res.data.total)
+      setActivityPage(page)
+    } catch (e) { console.error(e) }
+    finally { setActivityLoading(false) }
+  }
 
   const fetchPermissions = async (patientId) => {
     setPermsLoading(true)
