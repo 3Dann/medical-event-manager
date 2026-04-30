@@ -409,6 +409,9 @@ def delete_doctor(
     return {"message": "Doctor deleted"}
 
 
+from doctor_normalize import fix_rtl_parens as _fix_rtl_parens
+
+
 def _clean_cell(value) -> str:
     """
     Cleans a cell value from Excel:
