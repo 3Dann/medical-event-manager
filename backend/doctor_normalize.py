@@ -120,8 +120,8 @@ def is_garbage(name: str) -> bool:
         if re.search(pat, lower, re.IGNORECASE):
             return True
     # More than 6 Hebrew words → likely review text, not a name
-    hebrew_words = re.findall(r'[\u05d0-\u05ea]+', name)
-    if len(hebrew_words) > 6:
+    hebrew_words = re.findall(r'[\u05d0-\u05ea]{2,}', name)
+    if len(hebrew_words) > 7:
         return True
     return False
 
