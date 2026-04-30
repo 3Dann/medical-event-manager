@@ -501,17 +501,29 @@ async def import_from_excel(
                 continue
 
             db.add(models.Doctor(**rec))
-            db.flush()
             existing_names.add(norm)
             imported += 1
 
+            # commit every 500 rows — keeps memory low and lets errors surface early
+            if imported % 500 == 0:
+                try:
+                    db.commit()
+                except Exception as e:
+                    db.rollback()
+                    raise HTTPException(status_code=500, detail=f"שגיאת DB בשורה {row_num}: {e}")
+
+        except HTTPException:
+            raise
         except Exception as e:
-            db.rollback()
             row_errors.append(f"שורה {row_num}: {e}")
             _add_skip_sample(f"שורה {row_num}", f"שגיאה: {e}")
             skipped_invalid += 1
 
-    db.commit()
+    try:
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"שגיאת שמירה סופית: {e}")
     return {
         "imported":           imported,
         "skipped_duplicates": skipped_duplicate,
