@@ -144,21 +144,43 @@ export default function PatientDetail() {
   }
 
   // ── Journey templates ──────────────────────────────────────────────────────
-  const openJourneyModal = async () => {
-    if (!journeyTemplates.length) {
-      const res = await axios.get(`/api/patients/${id}/journey-templates`)
-      setJourneyTemplates(res.data)
-    }
+  const openJourneyModal = () => {
     setShowJourneyModal(true)
   }
 
   const applyTemplate = async (key) => {
-    setApplyingTemplate(true)
+    setApplyingTemplate(key)
     try {
       await axios.post(`/api/patients/${id}/journey-templates/${key}/apply`)
-      fetchAll()
+      await fetchAll()
       setShowJourneyModal(false)
-    } finally { setApplyingTemplate(false) }
+      setSelectedTplPreview(null)
+    } catch (e) {
+      if (e.response?.status === 409) {
+        alert('מסע זה כבר מוחל על מטופל זה')
+      }
+    } finally { setApplyingTemplate(null) }
+  }
+
+  const removeTemplate = async (key) => {
+    if (!window.confirm('להסיר את כל הצמתים של מסע זה מציר הזמן?')) return
+    await axios.delete(`/api/patients/${id}/journey-templates/${key}`)
+    await fetchAll()
+    setSelectedTplPreview(prev => prev?.key === key ? null : prev)
+  }
+
+  const cycleStatus = (current) => {
+    const seq = ['future', 'active', 'completed']
+    return seq[(seq.indexOf(current) + 1) % seq.length]
+  }
+
+  const groupByCategory = (templates) => {
+    const groups = {}
+    for (const t of templates) {
+      if (!groups[t.category]) groups[t.category] = []
+      groups[t.category].push(t)
+    }
+    return groups
   }
 
   const handleDeleteNode = async (nodeId) => {
