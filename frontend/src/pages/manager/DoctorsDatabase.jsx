@@ -821,7 +821,7 @@ export default function DoctorsDatabase() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" dir="rtl">
             <thead>
               <tr className="bg-blue-600 text-white">
                 <th className="px-3 py-3 text-center text-xs font-semibold w-10">#</th>
