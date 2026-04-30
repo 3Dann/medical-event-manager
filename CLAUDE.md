@@ -134,19 +134,24 @@ medical-event-manager/
 - כיסוי אירועים: התחברות/יציאה, צפייה במטופל, עריכה, יצירה, מחיקה, הורדת מסמך, ייצוא נתונים, הרצת workflow, שינוי הרשאות
 - middleware ב-FastAPI שמתעד אוטומטית כל request (ניתן לסנן לפי route)
 
-**רכיב 2 — Session Management:**
+**רכיב 1 — Audit Log ✅ בוצע (2026-04-30):**
+- `UserActivityLog` table ב-`models.py`
+- `audit_middleware.py` — Starlette middleware שמיירט אוטומטית 17 סוגי פעולות
+- `routes/audit.py` — `GET /api/admin/activity` עם פילטרים (user/action/date)
+- טאב "לוג פעילות" ב-AdminPage — פילטרים, pagination, badge סטטוס HTTP
+
+**רכיב 2 — Session Management (ממתין):**
 - טבלת `ActiveSession` — token_jti, user_id, login_at, last_seen, ip_address, user_agent, is_active
 - API: רשימת sessions פעילים, ביטול session מרחוק (logout כפוי), timeout אוטומטי לאחר חוסר פעילות
 - Admin view: מי מחובר כרגע, מאיפה, כמה זמן
 
-**רכיב 3 — הרשאות הורדה (Download Permissions):**
+**רכיב 3 — הרשאות הורדה (ממתין):**
 - הרחבת מודל ה-User הקיים: שדה `permissions` (JSON או טבלת `UserPermission`)
 - הרשאות גרנולריות: `export_patient_pdf`, `export_claims_excel`, `export_doctors`, `download_documents`, `view_financials`
 - enforcement בכל endpoint של הורדה — בדיקת הרשאה לפני שליחת קובץ
 
-**רכיב 4 — Admin Dashboard (בקרה):**
-- טאב "פעילות" ב-AdminPage הקיים: טבלת activity log עם פילטרים (לפי משתמש, תאריך, סוג פעולה)
-- תצוגת "משתמשים מחוברים עכשיו"
+**רכיב 4 — Admin Dashboard (בקרה) — ממתין:**
+- תצוגת "משתמשים מחוברים עכשיו" (תלוי ב-Session Management)
 - ייצוא לוג לאדמין בלבד
 
 **טכנולוגיה:** FastAPI middleware + SQLAlchemy + JWT blacklist לביטול sessions
