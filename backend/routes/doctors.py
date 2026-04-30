@@ -445,6 +445,8 @@ def _clean_cell(value) -> str:
     # Collapse multiple spaces
     import re as _re
     text = _re.sub(r' {2,}', ' ', text).strip()
+    # Fix RTL parentheses for Hebrew text
+    text = _fix_rtl_parens(text)
     return text
 
 
