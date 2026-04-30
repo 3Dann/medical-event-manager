@@ -531,15 +531,6 @@ export default function PatientDetail() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <select
-                          value={node.status}
-                          onChange={e => handleUpdateNode(node.id, { status: e.target.value })}
-                          className="text-[10px] border border-slate-200 rounded px-1.5 py-0.5 bg-white"
-                        >
-                          <option value="future">עתידי</option>
-                          <option value="active">פעיל</option>
-                          <option value="completed">הושלם</option>
-                        </select>
                         <button
                           onClick={() => isEditing ? setEditingNode(null) : startEditNode(node)}
                           className="text-xs text-blue-400 hover:text-blue-600 px-1"
