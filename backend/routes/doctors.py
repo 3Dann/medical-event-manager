@@ -475,6 +475,11 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
                     "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
                     "notes":                notes_comb,
                     "source_url":           "excel_import",
+                    "extra_data":           json.dumps(
+                        {col: str(row[idx] or "").strip()
+                         for col, idx in unmapped_cols.items()
+                         if idx < len(row) and row[idx] is not None and str(row[idx]).strip()},
+                        ensure_ascii=False) or None,
                 }
                 rec = normalize_record(rec)
                 if rec is None:
