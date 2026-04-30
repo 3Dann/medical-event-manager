@@ -83,12 +83,12 @@ export default function PatientDetail() {
   useEffect(() => { fetchAll() }, [id])
 
   const fetchAll = async () => {
-    const [p, n] = await Promise.all([
+    const [p, n, tpls] = await Promise.all([
       axios.get(`/api/patients/${id}`),
       axios.get(`/api/patients/${id}/nodes`),
+      axios.get(`/api/patients/${id}/journey-templates`),
     ])
     setPatient(p.data)
-    // Parse condition_tags from JSON string if needed
     const patientData = {
       ...p.data,
       condition_tags: typeof p.data.condition_tags === 'string'
@@ -97,6 +97,7 @@ export default function PatientDetail() {
     }
     setEditForm(patientData)
     setNodes(n.data)
+    setJourneyTemplates(tpls.data)
     if (p.data.hmo_name) {
       const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`)
       setHmoPlans(plans.data)
