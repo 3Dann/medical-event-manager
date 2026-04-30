@@ -2,6 +2,106 @@ import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 
+// ── InsuranceCell — inline multi-select in table cell ─────────────────────────
+function InsuranceCell({ doc, allOptions, onSave }) {
+  const [open, setOpen] = React.useState(false)
+  const [selected, setSelected] = React.useState(doc.hmo_acceptance || [])
+  const [newCompany, setNewCompany] = React.useState('')
+  const ref = React.useRef(null)
+
+  React.useEffect(() => { setSelected(doc.hmo_acceptance || []) }, [doc.hmo_acceptance])
+
+  React.useEffect(() => {
+    if (!open) return
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) handleSave() }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open, selected])
+
+  const toggle = c => setSelected(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])
+
+  const addNew = () => {
+    const t = newCompany.trim()
+    if (!t || selected.includes(t)) return
+    setSelected(prev => [...prev, t])
+    setNewCompany('')
+  }
+
+  const handleSave = async () => {
+    setOpen(false)
+    await onSave(doc.id, selected)
+  }
+
+  const knownOptions = [...new Set([...Object.keys(HMO_LABELS), ...allOptions])]
+
+  return (
+    <div ref={ref} className="relative">
+      <div
+        className="flex flex-wrap gap-1 cursor-pointer min-h-6"
+        onClick={() => setOpen(v => !v)}
+      >
+        {selected.length > 0
+          ? selected.map(c => (
+              <span key={c} className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
+                {HMO_LABELS[c] || c}
+              </span>
+            ))
+          : <span className="text-slate-300 text-xs">+ הוסף</span>
+        }
+      </div>
+      {open && (
+        <div className="absolute top-full right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-3 min-w-56" dir="rtl">
+          <div className="space-y-1 mb-2 max-h-48 overflow-y-auto">
+            {knownOptions.map(c => (
+              <label key={c} className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg">
+                <input type="checkbox" checked={selected.includes(c)} onChange={() => toggle(c)}
+                  className="w-3.5 h-3.5 accent-blue-600" />
+                <span className="text-sm text-slate-700">{HMO_LABELS[c] || c}</span>
+              </label>
+            ))}
+          </div>
+          <div className="flex gap-1 border-t border-slate-100 pt-2">
+            <input
+              className="input text-xs py-1.5 flex-1"
+              placeholder="חברת ביטוח חדשה..."
+              value={newCompany}
+              onChange={e => setNewCompany(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addNew()}
+            />
+            <button onClick={addNew} className="text-xs bg-blue-50 text-blue-700 px-2.5 rounded-lg hover:bg-blue-100">+</button>
+          </div>
+          <button onClick={handleSave} className="btn-primary text-xs py-1.5 w-full mt-2">שמור</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── InsuranceAddInput — add custom company in edit form ────────────────────────
+function InsuranceAddInput({ current, onAdd }) {
+  const [val, setVal] = React.useState('')
+  const add = () => {
+    const t = val.trim()
+    if (!t || current.includes(t)) return
+    onAdd(t); setVal('')
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        className="input text-sm py-1.5 w-36"
+        placeholder="הוסף חברה..."
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), add())}
+      />
+      <button type="button" onClick={add}
+        className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1.5 rounded-lg hover:bg-blue-100 border border-blue-200">
+        + הוסף
+      </button>
+    </div>
+  )
+}
+
 function FilterButton({ label, value, options, onChange, valueLabel }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
