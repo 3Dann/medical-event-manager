@@ -419,7 +419,12 @@ class Doctor(Base):
     specialty = Column(String, nullable=True)
     sub_specialty = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    phone2 = Column(String, nullable=True)       # מזכירה / קליניקה
+    whatsapp = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    city = Column(String, nullable=True)
     location = Column(String, nullable=True)
+    private_price = Column(Integer, nullable=True)  # מחיר ביקור פרטי בש"ח
     hmo_acceptance = Column(Text, nullable=True)
     gives_expert_opinion = Column(Boolean, default=False)
     notes = Column(Text, nullable=True)
