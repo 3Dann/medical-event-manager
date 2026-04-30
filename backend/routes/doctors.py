@@ -91,6 +91,7 @@ PREDEFINED_ISRAELI_SOURCES = [
 
 class DoctorCreate(BaseModel):
     name: str
+    title: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     license_number: Optional[str] = None
