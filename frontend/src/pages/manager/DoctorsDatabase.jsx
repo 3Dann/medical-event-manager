@@ -112,6 +112,7 @@ export default function DoctorsDatabase() {
   const [importUrl, setImportUrl] = useState('')
   const [importStatus, setImportStatus] = useState(null)
   const [importing, setImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState(null) // live progress from polling
   const [exporting, setExporting] = useState(false)
 
   const handleExportExcel = async () => {
