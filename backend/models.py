@@ -272,6 +272,7 @@ class Node(Base):
     status = Column(String, default=NodeStatus.future)
     notes = Column(Text, nullable=True)
     stage_order = Column(Integer, nullable=True)  # 1-4 for journey stages
+    source_template_key = Column(String, nullable=True)  # set when node is created from a journey template
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patient = relationship("Patient", back_populates="nodes")
     sub_items = relationship("NodeSubItem", back_populates="node",
