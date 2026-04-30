@@ -231,9 +231,13 @@ export default function DoctorsDatabase() {
       if (d.skipped_duplicates) parts.push(`${d.skipped_duplicates} כפילויות`)
       if (d.skipped_invalid)    parts.push(`${d.skipped_invalid} לא תקינים`)
       if (d.skipped && !d.skipped_invalid) parts.push(`${d.skipped} דולגו`)
-      const colsNote = d.detected_columns?.length ? `עמודות: ${d.detected_columns.join(', ')}` : ''
-      const errNote  = d.errors?.length ? `שגיאות: ${d.errors[0]}` : ''
-      setImportStatus({ success: true, message: parts.join(' · '), detail: [colsNote, errNote].filter(Boolean).join(' | ') })
+      const colsNote    = d.detected_columns?.length ? `עמודות שזוהו: ${d.detected_columns.join(', ')}` : ''
+      const samplesNote = d.skip_samples?.length
+        ? 'דוגמאות לדילוג: ' + d.skip_samples.map(s => `"${s.name}" (${s.reason})`).join('; ')
+        : ''
+      const errNote = d.errors?.length ? `שגיאות: ${d.errors[0]}` : ''
+      const detail = [colsNote, samplesNote, errNote].filter(Boolean).join('\n')
+      setImportStatus({ success: imported > 0, message: parts.join(' · '), detail })
       fetchDoctors()
     } catch (err) {
       setImportStatus({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
