@@ -333,15 +333,22 @@ def create_doctor(
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
     rec = {
-        "name": data.name,
-        "specialty": data.specialty,
-        "sub_specialty": data.sub_specialty,
-        "phone": data.phone,
-        "location": data.location,
-        "hmo_acceptance": json.dumps(data.hmo_acceptance or [], ensure_ascii=False),
+        "name":                 data.name,
+        "specialty":            data.specialty,
+        "sub_specialty":        data.sub_specialty,
+        "license_number":       data.license_number,
+        "phone":                data.phone,
+        "phone2":               data.phone2,
+        "whatsapp":             data.whatsapp,
+        "email":                data.email,
+        "city":                 data.city,
+        "location":             data.location,
+        "private_price":        data.private_price,
+        "hmo_acceptance":       json.dumps(data.hmo_acceptance or [], ensure_ascii=False),
         "gives_expert_opinion": data.gives_expert_opinion,
-        "notes": data.notes,
-        "source_url": data.source_url,
+        "notes":                data.notes,
+        "extra_data":           data.extra_data,
+        "source_url":           data.source_url,
     }
     rec = normalize_record(rec)
     if rec is None:
