@@ -93,11 +93,18 @@ class DoctorCreate(BaseModel):
     name: str
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
+    license_number: Optional[str] = None
     phone: Optional[str] = None
+    phone2: Optional[str] = None
+    whatsapp: Optional[str] = None
+    email: Optional[str] = None
+    city: Optional[str] = None
     location: Optional[str] = None
+    private_price: Optional[int] = None
     hmo_acceptance: Optional[List[str]] = None
     gives_expert_opinion: bool = False
     notes: Optional[str] = None
+    extra_data: Optional[str] = None   # JSON string
     source_url: Optional[str] = None
 
 
@@ -105,11 +112,18 @@ class DoctorUpdate(BaseModel):
     name: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
+    license_number: Optional[str] = None
     phone: Optional[str] = None
+    phone2: Optional[str] = None
+    whatsapp: Optional[str] = None
+    email: Optional[str] = None
+    city: Optional[str] = None
     location: Optional[str] = None
+    private_price: Optional[int] = None
     hmo_acceptance: Optional[List[str]] = None
     gives_expert_opinion: Optional[bool] = None
     notes: Optional[str] = None
+    extra_data: Optional[str] = None   # JSON string
     source_url: Optional[str] = None
 
 
