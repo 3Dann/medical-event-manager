@@ -367,7 +367,9 @@ export default function DoctorsDatabase() {
           {importStatus && (
             <div className={`mt-3 p-3 rounded-lg text-sm ${importStatus.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
               {importStatus.success ? `✅ ${importStatus.message}` : `❌ ${importStatus.message}`}
-              {importStatus.detail && <p className="text-xs mt-1 opacity-70">{importStatus.detail}</p>}
+              {importStatus.detail && importStatus.detail.split('\n').map((line, i) => (
+                <p key={i} className="text-xs mt-0.5 opacity-75">{line}</p>
+              ))}
             </div>
           )}
         </div>
@@ -388,7 +390,9 @@ export default function DoctorsDatabase() {
           {importStatus && (
             <div className={`mt-3 p-3 rounded-lg text-sm ${importStatus.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
               {importStatus.success ? `✅ ${importStatus.message}` : `❌ ${importStatus.message}`}
-              {importStatus.detail && <p className="text-xs mt-1 opacity-70">{importStatus.detail}</p>}
+              {importStatus.detail && importStatus.detail.split('\n').map((line, i) => (
+                <p key={i} className="text-xs mt-0.5 opacity-75">{line}</p>
+              ))}
             </div>
           )}
         </div>
@@ -413,7 +417,9 @@ export default function DoctorsDatabase() {
           {importStatus && (
             <div className={`mt-3 p-3 rounded-lg text-sm ${importStatus.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
               {importStatus.success ? `✅ ${importStatus.message}` : `❌ ${importStatus.message}`}
-              {importStatus.detail && <p className="text-xs mt-1 opacity-70">{importStatus.detail}</p>}
+              {importStatus.detail && importStatus.detail.split('\n').map((line, i) => (
+                <p key={i} className="text-xs mt-0.5 opacity-75">{line}</p>
+              ))}
             </div>
           )}
         </div>
