@@ -409,6 +409,10 @@ def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
 
         job["detected_columns"] = list(col_map.keys())
 
+        mapped_indices = set(col_map.values())
+        unmapped_cols = {raw_headers[i]: i for i, h in enumerate(raw_headers)
+                         if h and i not in mapped_indices}
+
         def get_cell(row, field):
             idx = col_map.get(field)
             return row[idx] if idx is not None and idx < len(row) else None
