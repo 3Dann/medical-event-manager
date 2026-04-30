@@ -865,6 +865,24 @@ export default function DoctorsDatabase() {
                 </div>
               </div>
 
+              {extraColDefs.length > 0 && (
+                <div className="border-t border-slate-100 pt-4 mt-2">
+                  <p className="text-xs font-semibold text-slate-500 mb-3">שדות מותאמים</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {extraColDefs.map(col => (
+                      <div key={col.key}>
+                        <label className="label">{col.label}</label>
+                        <input
+                          className="input"
+                          value={form.extra_data?.[col.label] || ''}
+                          onChange={e => setForm({ ...form, extra_data: { ...(form.extra_data || {}), [col.label]: e.target.value } })}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 justify-end pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
                 <button type="submit" className="btn-primary">
