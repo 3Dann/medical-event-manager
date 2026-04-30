@@ -198,6 +198,7 @@ def node_to_dict(n):
         "status": n.status,
         "notes": n.notes,
         "stage_order": n.stage_order,
+        "source_template_key": n.source_template_key,
         "created_at": str(n.created_at) if n.created_at else None,
         "sub_items": [
             {"id": s.id, "text": s.text, "is_done": s.is_done, "sort_order": s.sort_order}
