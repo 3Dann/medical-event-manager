@@ -478,6 +478,7 @@ app.include_router(webauthn_routes.router)
 app.include_router(specialties.router)
 app.include_router(medications_routes.router)
 app.include_router(policy_ai_routes.router)
+app.include_router(audit_routes.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
