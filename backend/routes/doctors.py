@@ -501,10 +501,12 @@ async def import_from_excel(
                 continue
 
             db.add(models.Doctor(**rec))
+            db.flush()
             existing_names.add(norm)
             imported += 1
 
         except Exception as e:
+            db.rollback()
             row_errors.append(f"שורה {row_num}: {e}")
             _add_skip_sample(f"שורה {row_num}", f"שגיאה: {e}")
             skipped_invalid += 1
