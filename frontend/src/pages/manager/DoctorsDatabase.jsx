@@ -134,6 +134,13 @@ export default function DoctorsDatabase() {
   const [importStatus, setImportStatus] = useState(null)
   const [importing, setImporting] = useState(false)
   const [importProgress, setImportProgress] = useState(null) // live progress from polling
+  const [visibleCols, setVisibleCols] = useState(() => {
+    try { const s = localStorage.getItem('doctor_table_cols'); return s ? JSON.parse(s) : DEFAULT_VISIBLE }
+    catch { return DEFAULT_VISIBLE }
+  })
+  const [showColPicker, setShowColPicker] = useState(false)
+  const [extraColDefs, setExtraColDefs] = useState([])
+  const [newColName, setNewColName] = useState('')
   const [exporting, setExporting] = useState(false)
 
   const handleExportExcel = async () => {
