@@ -219,11 +219,15 @@ export default function DoctorsDatabase() {
     const formData = new FormData()
     formData.append('file', file)
     try {
-      const res = await axios.post(`/api/doctors/import/${type}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      setImportStatus({ success: true, message: `יובאו ${res.data.imported} רופאים בהצלחה` })
-      fetchDoctors()
+      const res = await axios.post(`/api/doctors/import/${type}`, formData)
+      const d = res.data
+      const parts = [`יובאו ${d.imported} רופאים`]
+      if (d.skipped_duplicates) parts.push(`${d.skipped_duplicates} כפילויות`)
+      if (d.skipped_invalid)    parts.push(`${d.skipped_invalid} לא תקינים`)
+      const colsNote = d.detected_columns?.length ? `עמודות: ${d.detected_columns.join(', ')}` : ''
+      const errNote  = d.errors?.length ? `שגיאות: ${d.errors[0]}` : ''
+      setImportStatus({ success: true, message: parts.join(' · '), detail: [colsNote, errNote].filter(Boolean).join(' | ') })
+      if (d.imported > 0) fetchDoctors()
     } catch (err) {
       setImportStatus({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally {
