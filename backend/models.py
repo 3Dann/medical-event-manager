@@ -426,6 +426,7 @@ class Doctor(Base):
     location = Column(String, nullable=True)
     private_price = Column(Integer, nullable=True)  # מחיר ביקור פרטי בש"ח
     license_number = Column(String, nullable=True)   # מספר רישיון משרד הבריאות
+    title          = Column(String, nullable=True)   # ד"ר / פרופ' / ד"ר פרופ'
     hmo_acceptance = Column(Text, nullable=True)
     gives_expert_opinion = Column(Boolean, default=False)
     notes = Column(Text, nullable=True)
