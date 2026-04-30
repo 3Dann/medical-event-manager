@@ -203,6 +203,17 @@ export default function DoctorsDatabase() {
     setShowForm(true)
   }
 
+  const handleDeleteAll = async () => {
+    if (!window.confirm(`למחוק את כל ${totalDoctors.toLocaleString()} הרופאים מהמאגר?`)) return
+    try {
+      const res = await axios.delete('/api/doctors/all')
+      fetchDoctors()
+      alert(`נמחקו ${res.data.deleted.toLocaleString()} רופאים`)
+    } catch (e) {
+      alert(e.response?.data?.detail || 'שגיאה במחיקה')
+    }
+  }
+
   const openEdit = (doc) => {
     setEditingId(doc.id)
     setForm({
