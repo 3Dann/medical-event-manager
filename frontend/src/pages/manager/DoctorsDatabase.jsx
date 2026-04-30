@@ -678,56 +678,26 @@ export default function DoctorsDatabase() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-blue-600 text-white">
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">שם הרופא</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">מומחיות</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">תת-התמחות</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">טלפון</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">מיקום קבלה</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">קופות חולים</th>
-                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider">חוות דעת</th>
+                {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
+                  <th key={c.key} className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
+                    {c.label}
+                  </th>
+                ))}
                 <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">פעולות</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {doctors.map(doc => (
                 <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 font-medium text-slate-800">{doc.name}</td>
-                  <td className="px-4 py-3 text-slate-600">{doc.specialty || '—'}</td>
-                  <td className="px-4 py-3 text-slate-600">{doc.sub_specialty || '—'}</td>
-                  <td className="px-4 py-3 text-slate-600 dir-ltr" dir="ltr">{doc.phone || '—'}</td>
-                  <td className="px-4 py-3 text-slate-600">{doc.location || '—'}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1">
-                      {doc.hmo_acceptance && doc.hmo_acceptance.length > 0
-                        ? doc.hmo_acceptance.map(h => (
-                            <span key={h} className="inline-block bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">
-                              {HMO_LABELS[h] || h}
-                            </span>
-                          ))
-                        : <span className="text-slate-400">—</span>
-                      }
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {doc.gives_expert_opinion
-                      ? <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">כן</span>
-                      : <span className="text-slate-300">לא</span>
-                    }
-                  </td>
+                  {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
+                    <td key={c.key} className={`px-4 py-3 text-slate-600 text-sm ${c.key === 'name' ? 'font-medium text-slate-800' : ''}`}>
+                      {renderCell(doc, c.key)}
+                    </td>
+                  ))}
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => openEdit(doc)}
-                        className="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200"
-                      >
-                        עריכה
-                      </button>
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-100"
-                      >
-                        מחק
-                      </button>
+                      <button onClick={() => openEdit(doc)} className="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">עריכה</button>
+                      <button onClick={() => handleDelete(doc.id)} className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-100">מחק</button>
                     </div>
                   </td>
                 </tr>
