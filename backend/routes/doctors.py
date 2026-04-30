@@ -2,8 +2,20 @@ import json
 import io
 import logging
 import concurrent.futures
+import threading
+import uuid
+import time
 
 logger = logging.getLogger("doctors")
+
+# ── In-memory import job registry ─────────────────────────────────────────────
+_import_jobs: dict = {}   # job_id → progress dict
+
+def _cleanup_old_jobs():
+    cutoff = time.time() - 3600  # keep 1 hour
+    for jid in list(_import_jobs):
+        if _import_jobs[jid].get("started_at", 0) < cutoff:
+            del _import_jobs[jid]
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
