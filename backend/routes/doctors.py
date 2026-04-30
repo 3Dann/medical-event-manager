@@ -5,6 +5,7 @@ import concurrent.futures
 import threading
 import uuid
 import time
+import unicodedata
 
 logger = logging.getLogger("doctors")
 
