@@ -311,13 +311,23 @@ export default function DoctorsDatabase() {
   }
 
   const handleDeleteAll = async () => {
-    if (!window.confirm(`למחוק את כל ${totalDoctors.toLocaleString()} הרופאים מהמאגר?`)) return
+    if (!window.confirm(`למחוק את כל ${totalDoctors.toLocaleString()} הרופאים מהמאגר? פעולה זו בלתי הפיכה.`)) return
     try {
       const res = await axios.delete('/api/doctors/all')
-      fetchDoctors()
-      alert(`נמחקו ${res.data.deleted.toLocaleString()} רופאים`)
+      setCurrentPage(1)
+      fetchDoctors(1)
+      alert(`נמחקו ${(res.data.deleted ?? 0).toLocaleString()} רופאים`)
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה במחיקה')
+      const status  = e.response?.status
+      const detail  = e.response?.data?.detail
+      const message = detail
+        ? `שגיאה ${status}: ${detail}`
+        : status === 403
+          ? 'אין הרשאה למחוק — נדרשת התחברות מחדש'
+          : status === 404
+            ? 'נתיב מחיקה לא נמצא — הפעל מחדש את השרת'
+            : `שגיאה ${status ?? 'רשת'} — נסה שוב לאחר הפעלת השרת מחדש`
+      alert(message)
     }
   }
 
