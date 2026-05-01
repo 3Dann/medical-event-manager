@@ -858,6 +858,34 @@ export default function DoctorsDatabase() {
         </div>
       )}
 
+      {/* Pagination */}
+      {totalDoctors > PAGE_SIZE && (
+        <div className="flex items-center justify-between mt-4 px-1" dir="rtl">
+          <span className="text-sm text-slate-500">
+            מציג {((currentPage - 1) * PAGE_SIZE + 1).toLocaleString()}–{Math.min(currentPage * PAGE_SIZE, totalDoctors).toLocaleString()} מתוך {totalDoctors.toLocaleString()} רופאים
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              הקודם
+            </button>
+            <span className="text-sm text-slate-600 font-medium px-2">
+              עמוד {currentPage} / {Math.ceil(totalDoctors / PAGE_SIZE)}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(Math.ceil(totalDoctors / PAGE_SIZE), p + 1))}
+              disabled={currentPage >= Math.ceil(totalDoctors / PAGE_SIZE)}
+              className="px-3 py-1.5 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              הבא
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Add/Edit modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
