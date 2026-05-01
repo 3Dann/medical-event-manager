@@ -786,12 +786,25 @@ export default function DoctorsDatabase() {
 
       {/* Search & Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-2">
-        <input
-          className="input w-56 text-sm"
-          placeholder="חיפוש חופשי..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
+        <div className="relative flex items-center">
+          <input
+            className="input w-64 text-sm pl-9"
+            placeholder="חיפוש לפי שם, התמחות, מספר רישיון..."
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && submitSearch()}
+            dir="auto"
+          />
+          <button
+            onClick={submitSearch}
+            className="absolute left-2 text-slate-400 hover:text-blue-600 transition-colors"
+            title="חפש"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+            </svg>
+          </button>
+        </div>
         <FilterButton
           label="התמחות"
           value={filterSpecialty}
