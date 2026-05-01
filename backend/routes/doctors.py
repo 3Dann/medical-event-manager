@@ -302,7 +302,7 @@ def list_doctors(
     hmo: Optional[str] = None,
     location: Optional[str] = None,
     expert_opinion: Optional[bool] = None,
-    limit: int = Query(default=200, ge=1, le=1000),
+    limit: int = Query(default=500, ge=1, le=1000),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
