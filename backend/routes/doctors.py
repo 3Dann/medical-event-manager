@@ -313,7 +313,9 @@ def list_doctors(
             models.Doctor.name.ilike(f"%{search}%") |
             models.Doctor.specialty.ilike(f"%{search}%") |
             models.Doctor.sub_specialty.ilike(f"%{search}%") |
-            models.Doctor.location.ilike(f"%{search}%")
+            models.Doctor.location.ilike(f"%{search}%") |
+            models.Doctor.city.ilike(f"%{search}%") |
+            models.Doctor.license_number.ilike(f"%{search}%")
         )
     if specialty:
         q = q.filter(models.Doctor.specialty.ilike(f"%{specialty}%"))
