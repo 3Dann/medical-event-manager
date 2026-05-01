@@ -807,7 +807,9 @@ export default function DoctorsDatabase() {
             onChange={e => setSearchInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submitSearch()}
             dir="rtl"
-            autoComplete="off"
+            autoComplete="new-password"
+            name="doctor-search-field"
+            type="search"
             autoCorrect="off"
             autoCapitalize="off"
             spellCheck="false"
