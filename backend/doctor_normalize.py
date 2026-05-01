@@ -5,14 +5,17 @@ Called both on import (scraper) and in the DB cleanup script.
 """
 import re
 
+_LRM = '‎'  # Left-to-Right Mark — prevents BiDi mirroring of the surrounding char
+
 def fix_rtl_parens(text: str) -> str:
     """
-    Normalises parentheses in Hebrew-dominant text.
-    Excel files sometimes store parenthetical groups in 'visual RTL order'
-    as )text( instead of the Unicode logical order (text).
-    This function detects reversed )text( patterns and converts them to (text)
-    so they render correctly in RTL HTML via the browser BiDi algorithm.
-    Leaves already-correct (text) patterns untouched.
+    Normalises parentheses in Hebrew-dominant text so they display correctly
+    in any browser, regardless of RTL/LTR context or BiDi mirroring support.
+
+    Two steps:
+    1. Convert reversed )text( → (text) (from Hebrew visual-order input)
+    2. Wrap every ( and ) with U+200E (LRM) to pin them as LTR characters,
+       preventing the browser from mirroring them in RTL context.
     """
     if not text:
         return text
@@ -20,7 +23,11 @@ def fix_rtl_parens(text: str) -> str:
     alpha = sum(1 for c in text if c.isalpha())
     if alpha == 0 or heb / alpha < 0.4:
         return text
-    return re.sub(r'\)([^)(\n]{1,60})\(', r'(\1)', text)
+    # Step 1: fix reversed )text( → (text)
+    text = re.sub(r'\)([^)(\n]{1,60})\(', r'(\1)', text)
+    # Step 2: pin parens with LRM so they never get BiDi-mirrored
+    text = text.replace('(', _LRM + '(' + _LRM).replace(')', _LRM + ')' + _LRM)
+    return text
 
 # ── Specialty translation: English → Hebrew ───────────────────────────────
 SPECIALTY_EN_TO_HE = {
