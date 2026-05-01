@@ -222,6 +222,8 @@ export default function DoctorsDatabase() {
   const { user: currentUser } = useAuth()
   const [doctors, setDoctors] = useState([])
   const [totalDoctors, setTotalDoctors] = useState(0)
+  const PAGE_SIZE = 500
+  const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterHmo, setFilterHmo] = useState('')
