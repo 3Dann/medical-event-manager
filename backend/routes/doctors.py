@@ -388,7 +388,7 @@ def update_doctor(
 @router.delete("/all")
 def delete_all_doctors(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_admin),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     deleted = db.query(models.Doctor).delete()
     db.commit()
