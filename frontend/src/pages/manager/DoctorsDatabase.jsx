@@ -271,11 +271,23 @@ export default function DoctorsDatabase() {
 
 
   useEffect(() => { fetchFilterOptions() }, [])
-  useEffect(() => { setCurrentPage(1) }, [search, filterHmo, filterSpecialty, filterSubSpecialty, filterLocation, filterExpert])
+
+  // פילטרים שמשתנים מיד (dropdown) — טען מחדש מעמוד 1
+  useEffect(() => {
+    setCurrentPage(1)
+    fetchDoctors(1)
+  }, [filterHmo, filterSpecialty, filterSubSpecialty, filterLocation, filterExpert])
+
+  // מעבר עמוד ידני
+  const goToPage = (page) => {
+    setCurrentPage(page)
+    fetchDoctors(page)
+  }
 
   const submitSearch = () => {
     setSearch(searchInput)
     setCurrentPage(1)
+    fetchDoctors(1, searchInput)
   }
 
   const clearSearch = () => {
@@ -286,7 +298,6 @@ export default function DoctorsDatabase() {
     setFilterHmo('')
     setFilterExpert('')
   }
-  useEffect(() => { fetchDoctors(currentPage) }, [currentPage])
   useEffect(() => { localStorage.setItem('doctor_table_cols', JSON.stringify(visibleCols)) }, [visibleCols])
   useEffect(() => {
     axios.get('/api/doctors/schema').then(res => {
