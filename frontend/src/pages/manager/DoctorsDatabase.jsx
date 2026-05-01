@@ -415,6 +415,7 @@ export default function DoctorsDatabase() {
           setImportStatus({ success: (d.imported ?? 0) > 0, message: parts.join(' · '), detail: samplesNote })
           setImportProgress(null)
           fetchDoctors()
+          fetchFilterOptions()
         } else {
           setImportStatus({ success: false, message: d.message || 'שגיאה בייבוא' })
           setImportProgress(null)
