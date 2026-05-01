@@ -837,7 +837,7 @@ export default function DoctorsDatabase() {
         />
         {(search || filterSpecialty || filterSubSpecialty || filterHmo || filterExpert) && (
           <button
-            onClick={() => { setSearch(''); setFilterSpecialty(''); setFilterSubSpecialty(''); setFilterHmo(''); setFilterExpert('') }}
+            onClick={clearSearch}
             style={{ boxShadow: '0 3px 0 #ef4444, 0 4px 8px rgba(239,68,68,0.2)', transition: 'all 0.12s ease' }}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 text-red-500 border border-red-200 hover:bg-red-100 active:translate-y-0.5"
           >
