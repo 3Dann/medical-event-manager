@@ -800,17 +800,18 @@ export default function DoctorsDatabase() {
       <div className="flex flex-wrap items-center gap-3 mb-2">
         <div className="relative flex items-center">
           <input
-            className="input w-64 text-sm pl-9"
+            className="input text-sm pr-9"
+            style={{ width: '280px' }}
             placeholder="חיפוש לפי שם, התמחות, מספר רישיון..."
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submitSearch()}
-            dir="auto"
+            dir="rtl"
           />
           <button
             onClick={submitSearch}
-            className="absolute left-2 text-slate-400 hover:text-blue-600 transition-colors"
-            title="חפש"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+            title="חפש (Enter)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
