@@ -845,8 +845,11 @@ export default function DoctorsDatabase() {
           </button>
         )}
       </div>
+      {searchInput && searchInput !== search && (
+        <p className="text-xs text-amber-500 mb-1">לחץ Enter או 🔍 לחיפוש</p>
+      )}
       {(filterSpecialty || filterSubSpecialty || filterHmo || filterExpert || search) && (
-        <p className="text-xs text-slate-400 mb-4">{doctors.length} תוצאות</p>
+        <p className="text-xs text-slate-400 mb-3">{totalDoctors.toLocaleString()} תוצאות</p>
       )}
 
       {/* Table */}
