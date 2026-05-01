@@ -931,7 +931,7 @@ export default function DoctorsDatabase() {
               עמוד {currentPage} / {Math.ceil(totalDoctors / PAGE_SIZE)}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(Math.ceil(totalDoctors / PAGE_SIZE), p + 1))}
+              onClick={() => goToPage(Math.min(Math.ceil(totalDoctors / PAGE_SIZE), currentPage + 1))}
               disabled={currentPage >= Math.ceil(totalDoctors / PAGE_SIZE)}
               className="px-3 py-1.5 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
