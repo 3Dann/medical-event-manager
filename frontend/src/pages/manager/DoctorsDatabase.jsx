@@ -272,6 +272,20 @@ export default function DoctorsDatabase() {
 
   useEffect(() => { fetchFilterOptions() }, [])
   useEffect(() => { setCurrentPage(1) }, [search, filterHmo, filterSpecialty, filterSubSpecialty, filterLocation, filterExpert])
+
+  const submitSearch = () => {
+    setSearch(searchInput)
+    setCurrentPage(1)
+  }
+
+  const clearSearch = () => {
+    setSearchInput('')
+    setSearch('')
+    setFilterSpecialty('')
+    setFilterSubSpecialty('')
+    setFilterHmo('')
+    setFilterExpert('')
+  }
   useEffect(() => { fetchDoctors(currentPage) }, [currentPage])
   useEffect(() => { localStorage.setItem('doctor_table_cols', JSON.stringify(visibleCols)) }, [visibleCols])
   useEffect(() => {
