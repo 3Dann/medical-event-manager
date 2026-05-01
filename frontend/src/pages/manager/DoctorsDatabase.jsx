@@ -316,6 +316,7 @@ export default function DoctorsDatabase() {
       const res = await axios.delete('/api/doctors/all')
       setCurrentPage(1)
       fetchDoctors(1)
+      fetchFilterOptions()
       alert(`נמחקו ${(res.data.deleted ?? 0).toLocaleString()} רופאים`)
     } catch (e) {
       const status  = e.response?.status
