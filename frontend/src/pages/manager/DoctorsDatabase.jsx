@@ -310,11 +310,12 @@ export default function DoctorsDatabase() {
     catch (e) { console.error(e) }
   }
 
-  const fetchDoctors = async (page = currentPage) => {
+  const fetchDoctors = async (page = currentPage, searchOverride = null) => {
     setLoading(true)
     try {
+      const activeSearch = searchOverride !== null ? searchOverride : search
       const params = { limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
-      if (search)        params.search         = search
+      if (activeSearch)  params.search         = activeSearch
       if (filterHmo)     params.hmo            = filterHmo
       if (filterSpecialty)    params.specialty      = filterSpecialty
       if (filterSubSpecialty) params.sub_specialty  = filterSubSpecialty
