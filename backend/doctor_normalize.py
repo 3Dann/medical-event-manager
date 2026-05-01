@@ -5,16 +5,14 @@ Called both on import (scraper) and in the DB cleanup script.
 """
 import re
 
-_PAREN_TABLE = str.maketrans('()', ')(')
-
 def fix_rtl_parens(text: str) -> str:
     """
-    Hebrew text in Excel is stored in visual RTL order.
-    Parentheses in visual order are swapped relative to Unicode logical order:
-    the visual '(' is stored as ')' and vice-versa when typed on Hebrew keyboard.
-    Swapping them here ensures correct display in RTL HTML context,
-    where the browser BiDi algorithm will mirror them back to the correct glyphs.
-    Only applied to Hebrew-dominant text (≥40% Hebrew characters).
+    Normalises parentheses in Hebrew-dominant text.
+    Excel files sometimes store parenthetical groups in 'visual RTL order'
+    as )text( instead of the Unicode logical order (text).
+    This function detects reversed )text( patterns and converts them to (text)
+    so they render correctly in RTL HTML via the browser BiDi algorithm.
+    Leaves already-correct (text) patterns untouched.
     """
     if not text:
         return text
@@ -22,7 +20,7 @@ def fix_rtl_parens(text: str) -> str:
     alpha = sum(1 for c in text if c.isalpha())
     if alpha == 0 or heb / alpha < 0.4:
         return text
-    return text.translate(_PAREN_TABLE)
+    return re.sub(r'\)([^)(\n]{1,60})\(', r'(\1)', text)
 
 # ── Specialty translation: English → Hebrew ───────────────────────────────
 SPECIALTY_EN_TO_HE = {
