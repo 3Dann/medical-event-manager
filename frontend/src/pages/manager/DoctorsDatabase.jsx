@@ -225,7 +225,8 @@ export default function DoctorsDatabase() {
   const PAGE_SIZE = 500
   const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('') // מה מוקלד
+  const [search, setSearch] = useState('')           // מה נחפש (רק אחרי Enter/כפתור)
   const [filterHmo, setFilterHmo] = useState('')
   const [filterSpecialty, setFilterSpecialty] = useState('')
   const [filterSubSpecialty, setFilterSubSpecialty] = useState('')
