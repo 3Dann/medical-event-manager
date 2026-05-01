@@ -284,15 +284,15 @@ export default function DoctorsDatabase() {
     catch (e) { console.error(e) }
   }
 
-  const fetchDoctors = async () => {
+  const fetchDoctors = async (page = currentPage) => {
     setLoading(true)
     try {
-      const params = {}
-      if (search) params.search = search
-      if (filterHmo) params.hmo = filterHmo
-      if (filterSpecialty) params.specialty = filterSpecialty
-      if (filterSubSpecialty) params.sub_specialty = filterSubSpecialty
-      if (filterLocation) params.location = filterLocation
+      const params = { limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE }
+      if (search)        params.search         = search
+      if (filterHmo)     params.hmo            = filterHmo
+      if (filterSpecialty)    params.specialty      = filterSpecialty
+      if (filterSubSpecialty) params.sub_specialty  = filterSubSpecialty
+      if (filterLocation)     params.location       = filterLocation
       if (filterExpert !== '') params.expert_opinion = filterExpert === 'yes'
       const res = await axios.get('/api/doctors', { params })
       setDoctors(res.data.items ?? res.data)
