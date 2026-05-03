@@ -469,12 +469,12 @@ export default function DoctorsDatabase() {
   return (
     <div className="p-4 md:p-8" dir="rtl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-800">מאגר רופאים מומחים</h1>
           <p className="text-slate-500 mt-1">{totalDoctors} רופאים במאגר</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportExcel}
             disabled={exporting}
