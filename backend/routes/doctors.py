@@ -1,20 +1,33 @@
 import json
 import io
 import logging
+import threading
+import uuid
+import time
+import unicodedata
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, List
-from database import get_db
+from database import get_db, SessionLocal
 import models
 import auth as auth_utils
-from doctor_normalize import normalize_record
+from doctor_normalize import normalize_record, fix_rtl_parens as _fix_rtl_parens
 
 try:
     import openpyxl
 except ImportError:
     openpyxl = None
+
+# ── In-memory Excel import job registry ───────────────────────────────────────
+_import_jobs: dict = {}
+
+def _cleanup_old_jobs():
+    cutoff = time.time() - 3600
+    for jid in list(_import_jobs):
+        if _import_jobs[jid].get("started_at", 0) < cutoff:
+            del _import_jobs[jid]
 
 logger = logging.getLogger("doctors")
 
