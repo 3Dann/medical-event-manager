@@ -355,3 +355,260 @@ def delete_doctor(
     db.delete(doctor)
     db.commit()
     return {"message": "Doctor deleted"}
+
+
+# ── Excel Import ───────────────────────────────────────────────────────────────
+
+def _normalize_name(name: str) -> str:
+    if not name:
+        return ""
+    import re
+    n = unicodedata.normalize("NFC", name.strip().lower())
+    return re.sub(r"\s+", " ", n)
+
+
+def _clean_cell(value) -> str:
+    if value is None:
+        return ""
+    text = str(value).strip()
+    BIDI_CONTROLS = {
+        '​', '‌', '‍', '‎', '‏',
+        '‪', '‫', '‬', '‭', '‮',
+        '⁦', '⁧', '⁨', '⁩', '﻿',
+    }
+    text = ''.join(c for c in text if c not in BIDI_CONTROLS)
+    import re
+    text = re.sub(r' {2,}', ' ', text).strip()
+    text = _fix_rtl_parens(text)
+    return text
+
+
+def _parse_hmo_string(value: str) -> List[str]:
+    result = []
+    val = str(value).lower()
+    hmo_map = {
+        "clalit":   ["כללית", "clalit"],
+        "maccabi":  ["מכבי", "maccabi"],
+        "meuhedet": ["מאוחדת", "meuhedet"],
+        "leumit":   ["לאומית", "leumit"],
+    }
+    for key, aliases in hmo_map.items():
+        if any(alias in val for alias in aliases):
+            result.append(key)
+    if not result and ("כן" in val or "yes" in val or "all" in val or "כל" in val):
+        result = ["clalit", "maccabi", "meuhedet", "leumit"]
+    return result
+
+
+def _bool_from_value(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    val = str(value).strip().lower()
+    return val in ["כן", "yes", "true", "1", "נכון"]
+
+
+_FIELD_ALIASES = {
+    "name":                ["שם הרופא", "שם רופא", "שם", "name", "doctor", "full name"],
+    "title":               ["תואר", "title", "degree"],
+    "specialty":           ["מומחיות", "specialty", "התמחות", "תחום"],
+    "sub_specialty":       ["תת-מומחיות", "תת מומחיות", "תת-התמחות", "תת התמחות", "sub_specialty"],
+    "license_number":      ["מספר רישיון", "רישיון", "license", "מס רישיון"],
+    "phone":               ["טלפון ראשי", "טלפון", "phone", "נייד", "mobile", "tel"],
+    "phone2":              ["טלפון 2", "טלפון נוסף", "טלפון שני", "מזכירה", "phone2"],
+    "whatsapp":            ["וואטסאפ", "whatsapp", "ווצאפ"],
+    "email":               ["אימייל", "מייל", "email", "e-mail"],
+    "city":                ["עיר", "city", "ישוב"],
+    "location":            ["מיקום", "כתובת", "location", "היכן מקבל", "קליניקה", "address"],
+    "private_price":       ["מחיר פרטי", "תשלום", "עלות", "מחיר", "price"],
+    "hmo_acceptance":      ["קופות חולים", "קופה", "hmo", "חברת ביטוח", "ביטוח"],
+    "languages":           ["שפות", "languages", "שפה"],
+    "gives_expert_opinion":["חוות דעת", "ועדות", "expert_opinion", "opinion"],
+    "notes":               ["הערות", "notes", "מידע נוסף"],
+}
+
+
+def _run_import_job(content: bytes, job_id: str, field_aliases: dict):
+    job = _import_jobs[job_id]
+    db = SessionLocal()
+    try:
+        wb = openpyxl.load_workbook(io.BytesIO(content), data_only=True)
+        ws = wb.active
+        total = max(ws.max_row - 1, 0)
+        job["total"] = total
+
+        raw_headers = [str(c.value).strip() if c.value is not None else "" for c in ws[1]]
+        headers_lc  = [h.lower() for h in raw_headers]
+
+        col_map = {}
+        for field, aliases in field_aliases.items():
+            for i, h in enumerate(headers_lc):
+                if h and any(alias.lower() in h for alias in aliases):
+                    col_map[field] = i
+                    break
+
+        if "name" not in col_map:
+            found = ", ".join(h for h in raw_headers if h) or "אין"
+            job["status"]  = "error"
+            job["message"] = f"לא זוהתה עמודת שם. עמודות: {found}"
+            return
+
+        job["detected_columns"] = list(col_map.keys())
+        mapped_indices = set(col_map.values())
+        unmapped_cols = {raw_headers[i]: i for i, h in enumerate(raw_headers)
+                         if h and i not in mapped_indices}
+
+        def get_cell(row, field):
+            idx = col_map.get(field)
+            return row[idx] if idx is not None and idx < len(row) else None
+
+        existing = {_normalize_name(d.name) for d in db.query(models.Doctor.name).all() if d.name}
+        imported = skipped_dup = skipped_inv = 0
+        skip_samples, row_errors = [], []
+
+        def _skip(raw, reason):
+            if len(skip_samples) < 5:
+                skip_samples.append({"name": str(raw)[:60], "reason": reason})
+
+        for row_num, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
+            if not any(v for v in row if v is not None):
+                continue
+            try:
+                def gc(field):
+                    return _clean_cell(get_cell(row, field))
+
+                raw_name = get_cell(row, "name")
+                name = _clean_cell(raw_name)
+                if not name or name.lower() in ("none", "nan"):
+                    _skip(raw_name, "שם ריק"); skipped_inv += 1; continue
+
+                norm = _normalize_name(name)
+                if norm in existing:
+                    skipped_dup += 1; continue
+
+                title_val  = gc("title") or None
+                spec_raw   = gc("specialty")
+                spec_parts = [s.strip() for s in spec_raw.split(",") if s.strip()]
+                sub_col    = gc("sub_specialty") or None
+                lang_val   = gc("languages")
+                notes_val  = gc("notes")
+                notes_comb = " | ".join(filter(None, [
+                    f"שפות: {lang_val}" if lang_val else "", notes_val])) or None
+
+                hmo_raw   = get_cell(row, "hmo_acceptance")
+                raw_price = get_cell(row, "private_price")
+                try:
+                    parsed_price = int(float(str(raw_price).replace(",","").strip())) if raw_price else None
+                except (ValueError, TypeError):
+                    parsed_price = None
+
+                lic_raw = gc("license_number") or None
+                rec = {
+                    "name":                 name,
+                    "title":                title_val,
+                    "specialty":            spec_parts[0] if spec_parts else None,
+                    "sub_specialty":        sub_col or (spec_parts[1] if len(spec_parts) > 1 else None),
+                    "license_number":       lic_raw,
+                    "phone":                gc("phone")    or None,
+                    "phone2":               gc("phone2")   or None,
+                    "whatsapp":             gc("whatsapp") or None,
+                    "email":                gc("email")    or None,
+                    "city":                 gc("city")     or None,
+                    "location":             gc("location") or None,
+                    "private_price":        parsed_price,
+                    "hmo_acceptance":       json.dumps(_parse_hmo_string(hmo_raw) if hmo_raw else [], ensure_ascii=False),
+                    "gives_expert_opinion": _bool_from_value(get_cell(row, "gives_expert_opinion")),
+                    "notes":                notes_comb,
+                    "source_url":           "excel_import",
+                    "extra_data":           json.dumps(
+                        {col: str(row[idx] or "").strip()
+                         for col, idx in unmapped_cols.items()
+                         if idx < len(row) and row[idx] is not None and str(row[idx]).strip()},
+                        ensure_ascii=False) or None,
+                }
+                rec = normalize_record(rec)
+                if rec is None:
+                    _skip(name, "שם לא תקין"); skipped_inv += 1; continue
+
+                db.add(models.Doctor(**rec))
+                existing.add(norm)
+                imported += 1
+
+                if imported % 500 == 0:
+                    db.commit()
+                    job["imported"] = imported
+                    job["skipped_duplicates"] = skipped_dup
+                    job["skipped_invalid"] = skipped_inv
+
+            except Exception as e:
+                row_errors.append(f"שורה {row_num}: {e}")
+                _skip(f"שורה {row_num}", f"שגיאה: {e}")
+                skipped_inv += 1
+
+        try:
+            db.commit()
+        except Exception as e:
+            db.rollback()
+            job["status"]  = "error"
+            job["message"] = f"שגיאת שמירה: {e}"
+            return
+
+        job.update({
+            "status":             "done",
+            "imported":           imported,
+            "skipped_duplicates": skipped_dup,
+            "skipped_invalid":    skipped_inv,
+            "skip_samples":       skip_samples,
+            "errors":             row_errors[:5],
+            "message":            f"הסתיים — יובאו {imported:,} רופאים",
+        })
+
+    except Exception as e:
+        job["status"]  = "error"
+        job["message"] = str(e)
+    finally:
+        db.close()
+
+
+@router.get("/import/status/{job_id}")
+async def get_import_status(
+    job_id: str,
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    job = _import_jobs.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return job
+
+
+@router.post("/import/excel")
+async def import_from_excel(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    if openpyxl is None:
+        raise HTTPException(status_code=500, detail="openpyxl לא מותקן")
+
+    try:
+        content = await file.read()
+        openpyxl.load_workbook(io.BytesIO(content), read_only=True).close()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"לא ניתן לפתוח את הקובץ: {e}")
+
+    _cleanup_old_jobs()
+    job_id = uuid.uuid4().hex[:10]
+    _import_jobs[job_id] = {
+        "status":             "running",
+        "imported":           0,
+        "skipped_duplicates": 0,
+        "skipped_invalid":    0,
+        "total":              0,
+        "message":            "מתחיל...",
+        "started_at":         time.time(),
+    }
+
+    t = threading.Thread(target=_run_import_job, args=(content, job_id, _FIELD_ALIASES), daemon=True)
+    t.start()
+
+    return {"job_id": job_id}
