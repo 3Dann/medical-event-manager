@@ -457,31 +457,6 @@ def seed_condition_tags():
 seed_condition_tags()
 
 
-def seed_medical_specialties():
-    """
-    Seed from builtin list only (fast, no network).
-    External scraping runs once in background after startup.
-    """
-    flag = "/data/.specialties_seed_v1" if os.path.isdir("/data") else "./.specialties_seed_v1"
-    if os.path.exists(flag):
-        return
-    try:
-        from specialty_scraper import seed_from_builtin
-        db = SessionLocal()
-        try:
-            count = db.query(models.MedicalSpecialty).count()
-            if count == 0:
-                result = seed_from_builtin(db)
-                logger.info("Medical specialties seeded from builtin: %s", result)
-            open(flag, "w").close()
-        finally:
-            db.close()
-    except Exception as e:
-        logger.error("seed_medical_specialties error: %s", e)
-
-
-seed_medical_specialties()
-
 
 def seed_journey_workflows():
     """
