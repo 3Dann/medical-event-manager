@@ -421,6 +421,56 @@ export default function DoctorsDatabase() {
     }))
   }
 
+  const pollImportStatus = async (jobId) => {
+    try {
+      const res = await axios.get(`/api/doctors/import/status/${jobId}`)
+      const d = res.data
+      setImportProgress(d)
+      if (d.status === 'running') {
+        setTimeout(() => pollImportStatus(jobId), 800)
+      } else {
+        setImporting(false)
+        if (d.status === 'done') {
+          const parts = [`יובאו ${(d.imported ?? 0).toLocaleString()} רופאים`]
+          if (d.skipped_duplicates) parts.push(`${d.skipped_duplicates.toLocaleString()} כפילויות`)
+          if (d.skipped_invalid)    parts.push(`${d.skipped_invalid.toLocaleString()} לא תקינים`)
+          const samplesNote = d.skip_samples?.length
+            ? 'דוגמאות לדילוג: ' + d.skip_samples.map(s => `"${s.name}" (${s.reason})`).join('; ')
+            : ''
+          setImportStatus({ success: (d.imported ?? 0) > 0, message: parts.join(' · '), detail: samplesNote })
+          setImportProgress(null)
+          fetchDoctors(); fetchFilterOptions()
+        } else {
+          setImportStatus({ success: false, message: d.message || 'שגיאה בייבוא' })
+          setImportProgress(null)
+        }
+      }
+    } catch {
+      setImporting(false); setImportProgress(null)
+      setImportStatus({ success: false, message: 'שגיאת חיבור לשרת' })
+    }
+  }
+
+  const handleExcelImport = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setImporting(true); setImportStatus(null); setImportProgress(null)
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const res = await axios.post('/api/doctors/import/excel', formData)
+      if (res.data?.job_id) {
+        setImportProgress({ status: 'running', imported: 0, total: 0, message: 'מעלה קובץ...' })
+        setTimeout(() => pollImportStatus(res.data.job_id), 500)
+      }
+    } catch (err) {
+      setImportStatus({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
+      setImporting(false)
+    } finally {
+      e.target.value = ''
+    }
+  }
+
   const allColDefs = [...COLUMN_DEFS, ...extraColDefs]
 
   // All known insurance companies across loaded doctors
