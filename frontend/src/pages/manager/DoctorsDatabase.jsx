@@ -236,6 +236,10 @@ export default function DoctorsDatabase() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [importOpen, setImportOpen] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importStatus, setImportStatus] = useState(null)
+  const [importProgress, setImportProgress] = useState(null)
   const [visibleCols, setVisibleCols] = useState(() => {
     try { const s = localStorage.getItem('doctor_table_cols'); return s ? JSON.parse(s) : DEFAULT_VISIBLE }
     catch { return DEFAULT_VISIBLE }
