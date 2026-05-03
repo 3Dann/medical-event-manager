@@ -189,7 +189,7 @@ export default function ManagerLayout() {
   )
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="flex h-screen w-full max-w-full bg-slate-50 overflow-hidden">
 
       {/* ── Desktop/iPad sidebar (md+) ── */}
       <div className="hidden md:flex flex-shrink-0">
