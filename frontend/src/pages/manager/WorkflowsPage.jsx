@@ -477,6 +477,7 @@ export default function WorkflowsPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
