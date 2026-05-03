@@ -440,6 +440,7 @@ export default function WorkflowsPage() {
           {instances.length === 0 ? (
             <div className="text-center py-16 text-slate-400">אין הרצות פעילות</div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full text-sm" dir="rtl">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-right">
