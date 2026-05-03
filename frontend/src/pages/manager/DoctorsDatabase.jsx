@@ -236,13 +236,6 @@ export default function DoctorsDatabase() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
-  const [importMode, setImportMode] = useState(null) // 'excel' | 'pdf' | 'url'
-  const [broadSearching, setBroadSearching] = useState(false)
-  const [broadResult, setBroadResult] = useState(null)
-  const [importUrl, setImportUrl] = useState('')
-  const [importStatus, setImportStatus] = useState(null)
-  const [importing, setImporting] = useState(false)
-  const [importProgress, setImportProgress] = useState(null) // live progress from polling
   const [visibleCols, setVisibleCols] = useState(() => {
     try { const s = localStorage.getItem('doctor_table_cols'); return s ? JSON.parse(s) : DEFAULT_VISIBLE }
     catch { return DEFAULT_VISIBLE }
