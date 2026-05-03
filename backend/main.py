@@ -37,16 +37,7 @@ def _weekly_drug_update():
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
     from apscheduler.schedulers.background import BackgroundScheduler
-    from scraper import run_all_sources
     scheduler = BackgroundScheduler(daemon=True)
-    scheduler.add_job(
-        run_all_sources,
-        trigger="interval",
-        hours=24,
-        args=[SessionLocal],
-        id="auto_scrape",
-        replace_existing=True,
-    )
     scheduler.add_job(
         _weekly_drug_update,
         trigger="interval",
@@ -56,7 +47,7 @@ async def lifespan(app: FastAPI):
     )
     scheduler.start()
     app.state.scheduler = scheduler
-    logger.info("Background scraper scheduler started (every 24h)")
+    logger.info("Scheduler started")
     _seed_drugs_on_startup()
     yield
     # ── Shutdown ─────────────────────────────────────────────────────────
