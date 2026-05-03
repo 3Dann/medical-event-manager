@@ -211,31 +211,6 @@ def seed_responsiveness():
 
 seed_responsiveness()
 
-# Seed predefined Israeli scraping sources
-def seed_israeli_sources():
-    from routes.doctors import PREDEFINED_ISRAELI_SOURCES
-    db = SessionLocal()
-    try:
-        valid_urls = {s["url"] for s in PREDEFINED_ISRAELI_SOURCES}
-        # Remove outdated sources that are no longer in the predefined list
-        all_sources = db.query(models.ScrapingSource).all()
-        for src in all_sources:
-            if src.url not in valid_urls:
-                logger.info(f"Removing stale source: {src.name}")
-                db.delete(src)
-        db.flush()
-        # Add new sources
-        for src in PREDEFINED_ISRAELI_SOURCES:
-            exists = db.query(models.ScrapingSource).filter(models.ScrapingSource.url == src["url"]).first()
-            if not exists:
-                db.add(models.ScrapingSource(name=src["name"], url=src["url"], interval_hours=24))
-                logger.info(f"Added Israeli source: {src['name']}")
-        db.commit()
-    finally:
-        db.close()
-
-seed_israeli_sources()
-
 
 JOURNEY_STAGES = [
     {"description": "גילוי ואבחון",   "stage_order": 10},
