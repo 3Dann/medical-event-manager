@@ -185,6 +185,10 @@ def run_migrations():
         ("drug_entries", "openfda_interactions",  "TEXT"),
         ("drug_entries", "openfda_fetched_at",    "DATETIME"),
         ("patient_medications", "indication",     "VARCHAR"),
+        # Journey template enrichment
+        ("nodes", "overlay_global",      "BOOLEAN DEFAULT 0"),
+        ("nodes", "estimated_cost",      "FLOAT"),
+        ("nodes", "coverage_categories", "TEXT"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
