@@ -340,10 +340,11 @@ export default function PatientStrategy() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-slate-200">
         {[
-          ['workflows', '⚡ זרימות מנוע'],
-          ['strategy',  'המלצות תביעות'],
-          ['matrix',    'מטריצת כיסויים'],
-          ['insights',  '🧠 תובנות'],
+          ['workflows',     '⚡ זרימות מנוע'],
+          ['financial_map', '💰 מפה פיננסית'],
+          ['strategy',      'המלצות תביעות'],
+          ['matrix',        'מטריצת כיסויים'],
+          ['insights',      '🧠 תובנות'],
         ].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
