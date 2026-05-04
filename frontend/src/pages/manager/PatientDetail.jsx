@@ -216,27 +216,7 @@ export default function PatientDetail() {
   const activeCount = customNodes.filter(n => n.status === 'active').length
 
   return (
-    <div dir="rtl">
     <div className="p-4 md:p-6">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">{patient.full_name}</h1>
-        <p className="text-slate-500 text-sm">{patient.id_number ? `ת.ז.: ${patient.id_number}` : 'ללא ת.ז.'}</p>
-      </div>
-
-      {/* Tabs — sticky */}
-      <div className="sticky top-[49px] z-10 -mx-4 md:-mx-6 px-4 md:px-6 bg-slate-50 border-b border-slate-200 mb-6">
-        <div className="flex gap-1 overflow-x-auto">
-          {tabs.map(tab => (
-            <NavLink key={tab.to} to={`/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`} end={tab.end}
-              className={({ isActive }) =>
-                `px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors
-                 ${isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}>
-              {tab.label}
-            </NavLink>
-          ))}
-        </div>
-      </div>
 
       {/* Patient info + quick nav */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
