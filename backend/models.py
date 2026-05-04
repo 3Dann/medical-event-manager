@@ -193,7 +193,8 @@ class Patient(Base):
     claims = relationship("Claim", back_populates="patient", cascade="all, delete-orphan")
     entitlements = relationship("Entitlement", back_populates="patient", cascade="all, delete-orphan")
     documents = relationship("PatientDocument", back_populates="patient", cascade="all, delete-orphan")
-    patient_medications = relationship("PatientMedication", back_populates="patient", cascade="all, delete-orphan")
+    patient_medications  = relationship("PatientMedication", back_populates="patient", cascade="all, delete-orphan")
+    fund_applications    = relationship("PatientFundApplication", back_populates="patient", cascade="all, delete-orphan")
 
 
 
