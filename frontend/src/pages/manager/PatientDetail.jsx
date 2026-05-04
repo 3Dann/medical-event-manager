@@ -204,6 +204,7 @@ export default function PatientDetail() {
   const activeCount = customNodes.filter(n => n.status === 'active').length
 
   return (
+    <>
     <div className="p-4 md:p-6">
 
       {/* Patient info + quick nav */}
