@@ -59,13 +59,15 @@ function AppRoutes() {
       {/* Manager routes */}
       <Route path="/manager" element={<ProtectedRoute role="manager"><ManagerLayout /></ProtectedRoute>}>
         <Route index element={<ManagerDashboard />} />
-        <Route path="patients/:id" element={<PatientDetail />} />
-        <Route path="patients/:id/insurance" element={<PatientInsurancePolicies />} />
-        <Route path="patients/:id/claims" element={<PatientClaims />} />
-        <Route path="patients/:id/strategy" element={<PatientStrategy />} />
-        <Route path="patients/:id/documents" element={<PatientDocuments />} />
-        <Route path="patients/:id/medications" element={<PatientMedications />} />
-        <Route path="patients/:id/financial-map" element={<PatientFinancialMap />} />
+        <Route path="patients/:id" element={<PatientLayout />}>
+          <Route index element={<PatientDetail />} />
+          <Route path="insurance"     element={<PatientInsurancePolicies />} />
+          <Route path="claims"        element={<PatientClaims />} />
+          <Route path="strategy"      element={<PatientStrategy />} />
+          <Route path="documents"     element={<PatientDocuments />} />
+          <Route path="medications"   element={<PatientMedications />} />
+          <Route path="financial-map" element={<PatientFinancialMap />} />
+        </Route>
         <Route path="doctors" element={<DoctorsDatabase />} />
         <Route path="responsiveness" element={<ResponsivenessPage />} />
         <Route path="feedback" element={<FeedbackInbox />} />
