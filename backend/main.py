@@ -466,6 +466,41 @@ def seed_condition_tags():
 seed_condition_tags()
 
 
+def seed_financial_funds():
+    """Idempotent: load Israeli financial funds if table is empty."""
+    import json as _json
+    from data.financial_funds_seed import FINANCIAL_FUNDS
+    db = SessionLocal()
+    try:
+        if db.query(models.FinancialFund).count() > 0:
+            return
+        for f in FINANCIAL_FUNDS:
+            conds = f.get("eligible_conditions")
+            db.add(models.FinancialFund(
+                name=f["name"],
+                fund_type=f["fund_type"],
+                organization=f.get("organization"),
+                description=f.get("description"),
+                max_amount=f.get("max_amount"),
+                eligible_conditions=_json.dumps(conds) if conds is not None else None,
+                eligible_ages_min=f.get("eligible_ages_min"),
+                eligible_ages_max=f.get("eligible_ages_max"),
+                application_url=f.get("application_url"),
+                contact_phone=f.get("contact_phone"),
+                notes=f.get("notes"),
+                is_active=True,
+            ))
+        db.commit()
+        logger.info(f"Financial funds seeded: {len(FINANCIAL_FUNDS)} funds")
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Financial funds seed error: {e}")
+    finally:
+        db.close()
+
+seed_financial_funds()
+
+
 
 def seed_journey_workflows():
     """
