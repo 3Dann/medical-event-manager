@@ -189,6 +189,10 @@ def run_migrations():
         ("nodes", "overlay_global",      "BOOLEAN DEFAULT 0"),
         ("nodes", "estimated_cost",      "FLOAT"),
         ("nodes", "coverage_categories", "TEXT"),
+        # Financial map — fund applications
+        ("patient_fund_applications", "applied_at",   "DATETIME"),
+        ("patient_fund_applications", "resolved_at",  "DATETIME"),
+        ("patient_fund_applications", "updated_at",   "DATETIME"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
