@@ -669,6 +669,49 @@ class SiteSetting(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
+class FinancialFund(Base):
+    """Global registry of aid funds, social entitlements, loans and tax benefits."""
+    __tablename__ = "financial_funds"
+
+    id                  = Column(Integer, primary_key=True, index=True)
+    name                = Column(String, nullable=False)
+    fund_type           = Column(String, nullable=False)   # aid_fund | social_entitlement | special_loan | tax_benefit
+    organization        = Column(String, nullable=True)
+    description         = Column(Text, nullable=True)
+    max_amount          = Column(Float, nullable=True)
+    eligible_conditions = Column(Text, nullable=True)      # JSON list of condition_tags
+    eligible_ages_min   = Column(Integer, nullable=True)
+    eligible_ages_max   = Column(Integer, nullable=True)
+    application_url     = Column(String, nullable=True)
+    contact_phone       = Column(String, nullable=True)
+    notes               = Column(Text, nullable=True)
+    is_active           = Column(Boolean, default=True)
+    created_at          = Column(DateTime(timezone=True), server_default=func.now())
+
+    applications = relationship("PatientFundApplication", back_populates="fund")
+
+
+class PatientFundApplication(Base):
+    """A financial fund or custom source assigned to a specific patient."""
+    __tablename__ = "patient_fund_applications"
+
+    id              = Column(Integer, primary_key=True, index=True)
+    patient_id      = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    fund_id         = Column(Integer, ForeignKey("financial_funds.id"), nullable=True)
+    custom_name     = Column(String, nullable=True)        # free-text if not from registry
+    status          = Column(String, default="considering") # considering|applied|approved|rejected
+    expected_amount = Column(Float, nullable=True)
+    approved_amount = Column(Float, nullable=True)
+    notes           = Column(Text, nullable=True)
+    applied_at      = Column(DateTime(timezone=True), nullable=True)
+    resolved_at     = Column(DateTime(timezone=True), nullable=True)
+    created_at      = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at      = Column(DateTime(timezone=True), onupdate=func.now())
+
+    patient = relationship("Patient", back_populates="fund_applications")
+    fund    = relationship("FinancialFund", back_populates="applications")
+
+
 class UserActivityLog(Base):
     """Audit log — one row per meaningful user action."""
     __tablename__ = "user_activity_logs"
