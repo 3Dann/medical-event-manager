@@ -710,7 +710,7 @@ export default function PatientDetail() {
   )
 }
 
-// ── NodeChecklist component ────────────────────────────────────────────────────
+// ── NodeChecklist ──────────────────────────────────────────────────────────────
 function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
   const [newText, setNewText] = useState('')
   const [showAdd, setShowAdd] = useState(false)
