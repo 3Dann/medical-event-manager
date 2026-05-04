@@ -18,6 +18,7 @@ import LandingPage from './pages/LandingPage'
 // Manager pages
 import ManagerLayout from './pages/manager/ManagerLayout'
 import ManagerDashboard from './pages/manager/ManagerDashboard'
+import PatientLayout from './pages/manager/PatientLayout'
 import PatientDetail from './pages/manager/PatientDetail'
 import PatientClaims from './pages/manager/PatientClaims'
 import PatientStrategy from './pages/manager/PatientStrategy'
