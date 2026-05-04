@@ -225,7 +225,7 @@ export default function PatientDetail() {
       </div>
 
       {/* Tabs — sticky */}
-      <div className="sticky top-0 z-20 -mx-4 md:-mx-6 px-4 md:px-6 bg-slate-50 border-b border-slate-200 mb-6">
+      <div className="sticky top-[49px] z-10 -mx-4 md:-mx-6 px-4 md:px-6 bg-slate-50 border-b border-slate-200 mb-6">
         <div className="flex gap-1 overflow-x-auto">
           {tabs.map(tab => (
             <NavLink key={tab.to} to={`/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`} end={tab.end}
