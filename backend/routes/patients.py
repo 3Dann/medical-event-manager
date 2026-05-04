@@ -598,8 +598,10 @@ def apply_journey_template(patient_id: int, template_key: str,
     if existing:
         raise HTTPException(status_code=409, detail="מסע זה כבר מוחל על מטופל זה")
 
+    import json as _json
     created = []
     for j, node_def in enumerate(tpl["nodes"]):
+        cats = node_def.get("coverage_categories")
         node = models.Node(
             patient_id=patient_id,
             node_type=node_def.get("node_type", "medical"),
@@ -609,6 +611,9 @@ def apply_journey_template(patient_id: int, template_key: str,
             notes=node_def.get("notes"),
             stage_order=node_def.get("stage_order"),
             source_template_key=template_key,
+            overlay_global=node_def.get("overlay_global", False),
+            estimated_cost=node_def.get("estimated_cost"),
+            coverage_categories=_json.dumps(cats) if cats else None,
         )
         db.add(node); db.flush()
         for k, sub_text in enumerate(node_def.get("sub_items", [])):
