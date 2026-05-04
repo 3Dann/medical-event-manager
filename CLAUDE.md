@@ -120,7 +120,7 @@ medical-event-manager/
 
 ### עדיפות עליונה (סדר עדכני — 2026-04-30)
 - [x] **מסעות לפי אינדיקציה** — 12 מחלות קיימות ב-journey_templates.py. בוצע (2026-04-30): מניעת כפילות (409), endpoint הסרה, source_template_key בNode, מודל שני-פאנלים עם preview, הצעה אוטומטית לפי condition_tags, מסעות מוחלים + הסרה, progress bar, סטטוס לחיץ במקום select
-- [ ] **מפה פיננסית ומימון המסע** — הרחבת המפה הפיננסית הקיימת: תחזית עלויות, מימון חוץ-ביטוחי, קרנות סיוע, הלוואות מיוחדות, זכאויות סוציאליות
+- [x] **מפה פיננסית ומימון המסע** — בוצע (2026-05-04): FinancialFund + PatientFundApplication models, 15 קרנות ישראליות seed, routes/financial_map.py (9 endpoints), FinancialMapTab.jsx (summary bar, progress bar, פירוט לפי שלב, CRUD קרנות, קרנות מומלצות, action items). טאב "💰 מפה פיננסית" ב-PatientStrategy במקום השני. journey_templates.py הועשר ל-13 תבניות עם trigger/roi/estimated_cost/coverage_categories/overlay_global לכל צומת. Node מקבל overlay_global, estimated_cost, coverage_categories.
 - [ ] **פורטל מטופל** — כניסה עצמאית, ציר זמן read-only, מסמכים, סטטוס תביעות, שליחת בקשות
 - [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
