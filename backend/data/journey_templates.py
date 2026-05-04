@@ -1,10 +1,23 @@
 """
-תבניות מסע מטופל לפי אינדיקציה — 12 מחלות/מצבים שכיחים.
-כל תבנית מכילה רשימת צמתים עם תת-סעיפים.
+תבניות מסע מטופל לפי אינדיקציה — 13 מחלות/מצבים שכיחים.
+
+כל תבנית מכילה רשימת צמתים (nodes) עם השדות הבאים:
+  description         — שם הצומת (חובה)
+  node_type           — medical / financial / administrative
+  stage_order         — מיקום בציר הזמן
+  trigger             — מה מפעיל את הצומת
+  roi                 — ערך / חיסכון עיקרי
+  estimated_cost      — עלות משוערת בש"ח (None = לא ידועה)
+  coverage_categories — קטגוריות ביטוח רלוונטיות
+  duration_days       — משך השלב בימים
+  overlay_global      — True = צומת "זמין תמיד" (חוות דעת שנייה)
+  notes               — הערות
+  sub_items           — רשימת פעולות / משימות
 """
 
 JOURNEY_TEMPLATES = [
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "breast_cancer",
         "label": "סרטן שד",
@@ -15,7 +28,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון ובדיקות ראשוניות",
                 "node_type": "medical",
                 "stage_order": 12,
-                "notes": "שלב האבחון הראשוני",
+                "trigger": "גילוי גוש / ממצא חריג בממוגרפיה / תחושת שינוי בשד",
+                "roi": "קיצור זמן אבחון, מניעת כפילות בדיקות",
+                "estimated_cost": 3500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "ממוגרפיה / אולטרסאונד שד",
                     "ביופסיה (core needle / VAB)",
@@ -26,9 +44,32 @@ JOURNEY_TEMPLATES = [
                 ],
             },
             {
+                "description": "חוות דעת שנייה",
+                "node_type": "medical",
+                "stage_order": 13,
+                "trigger": "לפני כל החלטה טיפולית משמעותית",
+                "roi": "בדיקת כיסוי ביטוח פרטי — לרוב מכוסה",
+                "estimated_cost": 2000,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": True,
+                "notes": "צומת גלובלי — זמין בכל שלב",
+                "sub_items": [
+                    "בדיקת כיסוי ביטוחי לחוות דעת מומחה",
+                    "הפניה לאונקולוג בכיר / מרכז מצוינות",
+                    "העברת תיק רפואי מלא",
+                ],
+            },
+            {
                 "description": "ועדה רב-תחומית (MDT)",
                 "node_type": "medical",
                 "stage_order": 14,
+                "trigger": "קבלת תוצאות ביופסיה חיובית",
+                "roi": "קבלת פרוטוקול טיפול אופטימלי, מניעת טיפול לא מתאים",
+                "estimated_cost": 1500,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": False,
                 "sub_items": [
                     "הכנת תיק רפואי לוועדה",
                     "ועדת MDT — אונקולוגיה, כירורגיה, קרינה",
@@ -40,6 +81,12 @@ JOURNEY_TEMPLATES = [
                 "description": "ניתוח",
                 "node_type": "medical",
                 "stage_order": 22,
+                "trigger": "אישור ועדת MDT על תוכנית ניתוחית",
+                "roi": "אישור ביטוח מוקדם חוסך עיכובים, בחירת מנתח בהסדר",
+                "estimated_cost": 25000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 7,
+                "overlay_global": False,
                 "sub_items": [
                     "בחירת סוג ניתוח — כריתה / כריתה חלקית",
                     "אישור ביטוח לניתוח",
@@ -53,6 +100,12 @@ JOURNEY_TEMPLATES = [
                 "description": "כימותרפיה",
                 "node_type": "medical",
                 "stage_order": 28,
+                "trigger": "תוצאות פתולוגיה + staging סופי",
+                "roi": "מניעת עיכובים בהתחלת טיפול, ניהול תופעות לוואי",
+                "estimated_cost": 50000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 180,
+                "overlay_global": False,
                 "sub_items": [
                     "פגישת ייעוץ לפני כימו — הסברים ותופעות לוואי",
                     "פתיחת PORT-A-CATH (אם נדרש)",
@@ -66,6 +119,12 @@ JOURNEY_TEMPLATES = [
                 "description": "קרינה",
                 "node_type": "medical",
                 "stage_order": 32,
+                "trigger": "סיום כימותרפיה (אם מצוין לפי פרוטוקול)",
+                "roi": "תיאום מוקדם עם מרכז קרינה מונע עיכובים",
+                "estimated_cost": 25000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 42,
+                "overlay_global": False,
                 "sub_items": [
                     "סימולציה ותכנון קרינה",
                     "אישור ביטוח לקרינה",
@@ -78,6 +137,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הורמונותרפיה / ממוקד",
                 "node_type": "medical",
                 "stage_order": 36,
+                "trigger": "סיום טיפולים אקוטיים (כימו/קרינה)",
+                "roi": "אישור ביטוחי מוקדם ל-CDK4/6 inhibitor חוסך שבועות",
+                "estimated_cost": 12000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "טמוקסיפן / מעכב ארומטז — התחלה",
                     "Herceptin (אם HER2+)",
@@ -89,6 +154,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב ושיקום",
                 "node_type": "medical",
                 "stage_order": 46,
+                "trigger": "סיום פרוטוקול טיפול",
+                "roi": "זיהוי הישנות מוקדמת, שיפור איכות חיים",
+                "estimated_cost": 3000,
+                "coverage_categories": ["diagnostics", "rehabilitation"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "ממוגרפיה שנתית",
                     "פגישת מעקב אונקולוגי כל 3-6 חודשים",
@@ -99,7 +170,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "colorectal_cancer",
         "label": "סרטן מעי גס ורקטום",
@@ -110,6 +182,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון ובדיקות",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "דימום רקטלי / שינוי בהרגלי מעיים / ממצא בקולונוסקופיה סקר",
+                "roi": "staging מוקדם מגדיל סיכויי ריפוי, מונע כפילות בדיקות",
+                "estimated_cost": 4000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "קולונוסקופיה + ביופסיה",
                     "CT בטן ואגן עם חומר ניגוד",
@@ -120,9 +198,32 @@ JOURNEY_TEMPLATES = [
                 ],
             },
             {
+                "description": "חוות דעת שנייה",
+                "node_type": "medical",
+                "stage_order": 13,
+                "trigger": "לפני החלטה על גישה ניתוחית / פרוטוקול כימו",
+                "roi": "בדיקת כיסוי ביטוח פרטי",
+                "estimated_cost": 2000,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": True,
+                "notes": "צומת גלובלי — זמין בכל שלב",
+                "sub_items": [
+                    "בדיקת כיסוי ביטוחי",
+                    "הפניה למרכז אונקולוגי מוביל",
+                    "העברת תיק + פתולוגיה",
+                ],
+            },
+            {
                 "description": "ניתוח",
                 "node_type": "medical",
                 "stage_order": 22,
+                "trigger": "staging מוחלט + אישור MDT",
+                "roi": "בחירת מנתח מנוסה בסרטן מעי — משפיע על תוצאות",
+                "estimated_cost": 30000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 10,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח לניתוח",
                     "הכנה לניתוח — ניקוי מעי",
@@ -135,6 +236,12 @@ JOURNEY_TEMPLATES = [
                 "description": "כימותרפיה + ביולוגי",
                 "node_type": "medical",
                 "stage_order": 28,
+                "trigger": "פתולוגיה + staging פוסט-ניתוחי (stage III/IV)",
+                "roi": "אישור ביטוחי לביולוגי (בוציזומב) לפני תחילת טיפול",
+                "estimated_cost": 60000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 180,
+                "overlay_global": False,
                 "sub_items": [
                     "FOLFOX / FOLFIRI — פרוטוקול",
                     "בקשת כיסוי ביטוחי לבוציזומב / סטוזומב",
@@ -146,6 +253,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב",
                 "node_type": "medical",
                 "stage_order": 46,
+                "trigger": "סיום פרוטוקול טיפול",
+                "roi": "זיהוי הישנות מוקדמת, מעקב דרך שב\"ן חוסך בתביעות",
+                "estimated_cost": 4000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "CEA כל 3 חודשים ב-2 שנים הראשונות",
                     "CT כל 6 חודשים",
@@ -154,7 +267,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "hip_replacement",
         "label": "החלפת מפרק ירך",
@@ -165,6 +279,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הערכה ואבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאב ירך כרוני המגביל תפקוד ואיכות חיים",
+                "roi": "הכנת תיק מלא מראש מקצר זמן המתנה לניתוח",
+                "estimated_cost": 2500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "צילום רנטגן ירך + אגן",
                     "ייעוץ אורתופד — קביעת אינדיקציה",
@@ -177,6 +297,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הכנה לניתוח",
                 "node_type": "medical",
                 "stage_order": 18,
+                "trigger": "החלטה על ניתוח עם האורתופד",
+                "roi": "אישור ביטוח מוקדם מונע עיכוב ביום הניתוח",
+                "estimated_cost": 2000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח — ניתוח ואשפוז",
                     "בדיקות קדם-ניתוחיות — דם, ECG, ריאות",
@@ -189,6 +315,12 @@ JOURNEY_TEMPLATES = [
                 "description": "ניתוח + אשפוז",
                 "node_type": "medical",
                 "stage_order": 28,
+                "trigger": "כל האישורים התקבלו",
+                "roi": "בחירת שתל בהסדר ביטוחי חוסכת אלפי שקלים",
+                "estimated_cost": 35000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 5,
+                "overlay_global": False,
                 "sub_items": [
                     "ניתוח החלפת מפרק",
                     "פיזיותרפיה ביום 1 לאחר הניתוח",
@@ -200,6 +332,12 @@ JOURNEY_TEMPLATES = [
                 "description": "שיקום",
                 "node_type": "medical",
                 "stage_order": 36,
+                "trigger": "שחרור מבית חולים",
+                "roi": "אישור ביטוח לשיקום אשפוזי לפני השחרור חוסך ימים",
+                "estimated_cost": 15000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח לשיקום",
                     "שיקום אשפוזי / אמבולטורי",
@@ -211,7 +349,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "knee_replacement",
         "label": "החלפת מפרק ברך",
@@ -222,6 +361,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הערכה ואבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאב ברך כרוני / ירידה תפקודית משמעותית",
+                "roi": "תיעוד כישלון טיפול שמרני נדרש לאישור ביטוח",
+                "estimated_cost": 2000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "צילום רנטגן ברך + עמידה",
                     "MRI ברך (אם מצוין)",
@@ -230,9 +375,15 @@ JOURNEY_TEMPLATES = [
                 ],
             },
             {
-                "description": "הכנה + ניתוח + שיקום",
+                "description": "הכנה, ניתוח ושיקום",
                 "node_type": "medical",
                 "stage_order": 25,
+                "trigger": "החלטה על ניתוח עם האורתופד",
+                "roi": "תיאום אישורים מלא מראש מונע ביטול ניתוח",
+                "estimated_cost": 40000,
+                "coverage_categories": ["surgery", "hospitalization", "rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח",
                     "בדיקות קדם-ניתוחיות",
@@ -243,7 +394,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "cardiac_catheterization",
         "label": "קרדיולוגיה — צנתור / מסתם",
@@ -254,6 +406,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון קרדיולוגי",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאבים בחזה / קוצר נשימה / ממצא ECG חריג",
+                "roi": "אבחון מדויק מונע צנתור מיותר",
+                "estimated_cost": 3500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "ECG + אקו לב",
                     "בדיקת מאמץ / SPECT",
@@ -266,6 +424,12 @@ JOURNEY_TEMPLATES = [
                 "description": "טיפול — צנתור / ניתוח",
                 "node_type": "medical",
                 "stage_order": 22,
+                "trigger": "ממצאי אבחון + החלטת קרדיולוג/קרדיוכירורג",
+                "roi": "אישור ביטוח ל-TAVR / סטנט לפני הליך חוסך עיכובים",
+                "estimated_cost": 45000,
+                "coverage_categories": ["surgery", "hospitalization", "advanced_tech"],
+                "duration_days": 5,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח לצנתור / ניתוח לב",
                     "השתלת סטנט (PCI) / ניתוח מעקפים (CABG)",
@@ -278,6 +442,12 @@ JOURNEY_TEMPLATES = [
                 "description": "שיקום לב",
                 "node_type": "medical",
                 "stage_order": 36,
+                "trigger": "שחרור מ-CCU / בית חולים",
+                "roi": "שיקום לב מפחית אשפוזים חוזרים ב-30%",
+                "estimated_cost": 8000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח לשיקום לב",
                     "תוכנית שיקום לב — 3 חודשים",
@@ -288,7 +458,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "stroke",
         "label": "שבץ מוחי (CVA)",
@@ -299,6 +470,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון חירום",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "תסמיני שבץ חריפים (FAST) — חירום רפואי",
+                "roi": "חלון הזמן ל-tPA הוא 4.5 שעות — כל דקה קריטית",
+                "estimated_cost": 2000,
+                "coverage_categories": ["diagnostics", "hospitalization"],
+                "duration_days": 2,
+                "overlay_global": False,
                 "sub_items": [
                     "CT מוח ו/או MRI דיפוזיה",
                     "ייעוץ נוירולוג / רופא שבץ",
@@ -311,6 +488,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אשפוז + טיפול חריף",
                 "node_type": "medical",
                 "stage_order": 18,
+                "trigger": "אישור אבחנה",
+                "roi": "אשפוז ביחידת שבץ מוריד תמותה ונכות",
+                "estimated_cost": 30000,
+                "coverage_categories": ["hospitalization", "advanced_tech"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "tPA / Thrombectomy (אם בחלון זמן)",
                     "אשפוז ביחידת שבץ",
@@ -322,6 +505,12 @@ JOURNEY_TEMPLATES = [
                 "description": "שיקום",
                 "node_type": "medical",
                 "stage_order": 32,
+                "trigger": "יציבות קלינית + שחרור מיחידת שבץ",
+                "roi": "אישור ביטוח לשיקום אשפוזי לפני השחרור חוסך ימי המתנה",
+                "estimated_cost": 40000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח לשיקום נוירולוגי",
                     "שיקום אשפוזי — 3-6 שבועות",
@@ -335,6 +524,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מניעה שניונית",
                 "node_type": "medical",
                 "stage_order": 44,
+                "trigger": "שחרור משיקום",
+                "roi": "ציות לטיפול מונע שבץ חוזר מוריד סיכון ב-80%",
+                "estimated_cost": 5000,
+                "coverage_categories": ["diagnostics", "rehabilitation"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "נוגד קרישה (Eliquis/Xarelto אם פרפור פרוזדורים)",
                     "שליטה בגורמי סיכון — ל\"ד, סוכרת, שומנים",
@@ -344,7 +539,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "spine_surgery",
         "label": "ניתוח עמוד שדרה",
@@ -355,6 +551,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאב גב / כאב רגליים (רדיקולופתיה) / חולשה נוירולוגית",
+                "roi": "MRI מדויק מונע ניתוח לא נחוץ",
+                "estimated_cost": 3000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "MRI עמוד שדרה",
                     "CT עמוד שדרה (אם מצוין)",
@@ -367,6 +569,12 @@ JOURNEY_TEMPLATES = [
                 "description": "ניתוח + אשפוז",
                 "node_type": "medical",
                 "stage_order": 25,
+                "trigger": "כישלון טיפול שמרני (6+ שבועות) / דחיפות נוירולוגית",
+                "roi": "תיעוד כישלון שמרני נדרש לאישור ביטוח",
+                "estimated_cost": 30000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 5,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח — ניתוח + שיקום",
                     "בדיקות קדם-ניתוחיות",
@@ -379,6 +587,12 @@ JOURNEY_TEMPLATES = [
                 "description": "שיקום",
                 "node_type": "medical",
                 "stage_order": 35,
+                "trigger": "שחרור מבית חולים",
+                "roi": "פיזיותרפיה מוקדמת מונעת כאב כרוני ואשפוז חוזר",
+                "estimated_cost": 12000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "פיזיותרפיה — 8-16 שבועות",
                     "חגורת גב (אם מצוין)",
@@ -389,7 +603,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "kidney_transplant",
         "label": "השתלת כליה",
@@ -400,6 +615,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הכנה ורישום להשתלה",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "אי ספיקת כליות סופנית (ESRD) / eGFR < 20",
+                "roi": "רישום מוקדם לרשימת המתנה מגדיל סיכוי לתורם",
+                "estimated_cost": 8000,
+                "coverage_categories": ["diagnostics", "transplant"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "ייעוץ נפרולוג + כירורג השתלות",
                     "בדיקות מיון — HLA, PRA, לב, ריאות",
@@ -412,6 +633,12 @@ JOURNEY_TEMPLATES = [
                 "description": "השתלה + אשפוז",
                 "node_type": "medical",
                 "stage_order": 28,
+                "trigger": "זמינות תורם / קבלת שיחה",
+                "roi": "כיסוי מדכאי חיסון (Tacrolimus) לכל החיים — יקר, חובה לוודא ביטוח",
+                "estimated_cost": 150000,
+                "coverage_categories": ["surgery", "hospitalization", "transplant"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "השתלת כליה",
                     "מדכאי חיסון — Tacrolimus, Mycophenolate",
@@ -424,6 +651,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב לאחר השתלה",
                 "node_type": "medical",
                 "stage_order": 46,
+                "trigger": "שחרור מבית חולים",
+                "roi": "מעקב צמוד מונע דחייה — אשפוז חוזר עולה פי 10",
+                "estimated_cost": 30000,
+                "coverage_categories": ["diagnostics", "rehabilitation"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "בדיקות דם 2× בשבוע (חודש 1)",
                     "מעקב רמות Tacrolimus",
@@ -434,7 +667,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "prostate_cancer",
         "label": "סרטן ערמונית",
@@ -445,6 +679,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "PSA מוגבר / ממצא בבדיקה רקטלית / תסמיני מתן שתן",
+                "roi": "MRI לפני ביופסיה — מפחית ביופסיות מיותרות",
+                "estimated_cost": 4000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "PSA + בדיקה רקטלית",
                     "MRI ערמונית (mpMRI)",
@@ -454,9 +694,32 @@ JOURNEY_TEMPLATES = [
                 ],
             },
             {
+                "description": "חוות דעת שנייה",
+                "node_type": "medical",
+                "stage_order": 13,
+                "trigger": "לפני בחירה בין כירורגיה, קרינה ומעקב פעיל",
+                "roi": "ההחלטה בין גישות שונות משפיעה על איכות חיים לשנים",
+                "estimated_cost": 2000,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": True,
+                "notes": "צומת גלובלי — זמין בכל שלב",
+                "sub_items": [
+                    "בדיקת כיסוי ביטוחי",
+                    "הפניה לאורולוג אונקולוג בכיר",
+                    "העברת MRI + פתולוגיה",
+                ],
+            },
+            {
                 "description": "טיפול",
                 "node_type": "medical",
                 "stage_order": 25,
+                "trigger": "staging + ייעוץ MDT + בחירת גישה טיפולית",
+                "roi": "אישור ביטוח לניתוח רובוטי / PARP inhibitor — עשרות אלפי שקלים",
+                "estimated_cost": 35000,
+                "coverage_categories": ["surgery", "rehabilitation", "advanced_tech"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "ייעוץ רב-תחומי — כירורגיה vs קרינה vs מעקב פעיל",
                     "פרוסטטקטומי רובוטי (אישור ביטוח)",
@@ -469,6 +732,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב",
                 "node_type": "medical",
                 "stage_order": 44,
+                "trigger": "סיום טיפול",
+                "roi": "זיהוי עלייה ב-PSA מוקדמת מאפשר טיפול הצלה",
+                "estimated_cost": 3000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "PSA כל 3-6 חודשים",
                     "ניהול תופעות לוואי ADT — צפיפות עצם, כלי דם",
@@ -477,7 +746,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "diabetes_management",
         "label": "סוכרת — ניהול ומניעת סיבוכים",
@@ -488,6 +758,12 @@ JOURNEY_TEMPLATES = [
                 "description": "הערכה ראשונית",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "אבחנת סוכרת / HbA1c > 7% / סיבוכים ראשוניים",
+                "roi": "איתור סיבוכים מוקדמים (כליות, עיניים) מונע אשפוזים",
+                "estimated_cost": 2500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "HbA1c + פרופיל גלוקוז",
                     "תפקודי כליות — eGFR, UACR",
@@ -501,6 +777,12 @@ JOURNEY_TEMPLATES = [
                 "description": "התאמת טיפול",
                 "node_type": "medical",
                 "stage_order": 22,
+                "trigger": "תוצאות הערכה / שינוי טיפול / ערכי סוכר לא מאוזנים",
+                "roi": "אישור ביטוח ל-SGLT2/GLP1 וחיישן סוכר — אלפי שקלים לשנה",
+                "estimated_cost": 8000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 90,
+                "overlay_global": False,
                 "sub_items": [
                     "מטפורמין + SGLT2 / GLP1 (בקשת כיסוי ביטוחי)",
                     "אינסולין — התאמת מינון",
@@ -513,6 +795,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מניעת סיבוכים",
                 "node_type": "medical",
                 "stage_order": 36,
+                "trigger": "טיפול מיוצב — מעקב שוטף",
+                "roi": "מעקב שנתי מפחית סיכון לדיאליזה, עיוורון, קטיעה",
+                "estimated_cost": 3000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "HbA1c כל 3 חודשים",
                     "בדיקת כליות שנתית",
@@ -523,7 +811,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "vascular_disease",
         "label": "מחלת כלי דם פריפרית",
@@ -534,6 +823,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאב ברגליים בהליכה / פצע שאינו מחלים / ABI נמוך",
+                "roi": "CT אנגיוגרפיה לפני ניתוח חוסכת צנתור אבחוני",
+                "estimated_cost": 2500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
                 "sub_items": [
                     "מדד קרסול-זרוע (ABI)",
                     "דופלר כלי דם פריפריים",
@@ -545,6 +840,12 @@ JOURNEY_TEMPLATES = [
                 "description": "טיפול",
                 "node_type": "medical",
                 "stage_order": 25,
+                "trigger": "staging + ייעוץ כירורגי",
+                "roi": "PTA / stenting בהסדר שב\"ן חוסך עשרות אלפי שקלים",
+                "estimated_cost": 25000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 7,
+                "overlay_global": False,
                 "sub_items": [
                     "טיפול שמרני — הליכה, Cilostazol",
                     "PTA / stenting (אישור ביטוח)",
@@ -557,6 +858,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב",
                 "node_type": "medical",
                 "stage_order": 42,
+                "trigger": "לאחר ניתוח / טיפול",
+                "roi": "מעקב דופלר מוקדם מאתר סתימה חוזרת לפני תסמינים",
+                "estimated_cost": 2000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "דופלר ביקורת 6 שבועות",
                     "ABI מעקב כל 6 חודשים",
@@ -565,7 +872,8 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
-    # ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════════════════════════
     {
         "key": "gynecology_oncology",
         "label": "גינקולוגיה אונקולוגית",
@@ -576,6 +884,12 @@ JOURNEY_TEMPLATES = [
                 "description": "אבחון",
                 "node_type": "medical",
                 "stage_order": 12,
+                "trigger": "כאב בטן / דימום חריג / בטן נפוחה / ממצא בUS",
+                "roi": "staging מוקדם קובע אם ניתן לנתח — משפיע על פרוגנוזה",
+                "estimated_cost": 4000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 21,
+                "overlay_global": False,
                 "sub_items": [
                     "אולטרסאונד גינקולוגי ± CT/MRI",
                     "CA-125, HE4",
@@ -585,9 +899,32 @@ JOURNEY_TEMPLATES = [
                 ],
             },
             {
+                "description": "חוות דעת שנייה",
+                "node_type": "medical",
+                "stage_order": 13,
+                "trigger": "לפני החלטה על גישה ניתוחית",
+                "roi": "ניתוח debulking מלא ע\"י מנתח מנוסה — גורם פרוגנוסטי מרכזי",
+                "estimated_cost": 2000,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": True,
+                "notes": "צומת גלובלי — זמין בכל שלב",
+                "sub_items": [
+                    "בדיקת כיסוי ביטוחי",
+                    "הפניה לגינקואונקולוג בכיר",
+                    "העברת US + CT + פתולוגיה",
+                ],
+            },
+            {
                 "description": "ניתוח",
                 "node_type": "medical",
                 "stage_order": 22,
+                "trigger": "staging + MDT",
+                "roi": "אישור ביטוח לניתוח בבית חולים מומחה מוקדם מונע עיכוב",
+                "estimated_cost": 30000,
+                "coverage_categories": ["surgery", "hospitalization"],
+                "duration_days": 7,
+                "overlay_global": False,
                 "sub_items": [
                     "אישור ביטוח — ניתוח גינקולוגי",
                     "ניתוח — hysterectomy / debulking",
@@ -599,6 +936,12 @@ JOURNEY_TEMPLATES = [
                 "description": "כימותרפיה + ממוקד",
                 "node_type": "medical",
                 "stage_order": 30,
+                "trigger": "פתולוגיה פוסט-ניתוחי",
+                "roi": "אישור ביטוחי ל-PARP inhibitor (Lynparza/Zejula) — חוסך עשרות אלפים",
+                "estimated_cost": 60000,
+                "coverage_categories": ["rehabilitation", "advanced_tech"],
+                "duration_days": 180,
+                "overlay_global": False,
                 "sub_items": [
                     "קרבופלטין + פקליטקסל",
                     "Bevacizumab (אם מצוין) — בקשת כיסוי",
@@ -610,6 +953,12 @@ JOURNEY_TEMPLATES = [
                 "description": "מעקב",
                 "node_type": "medical",
                 "stage_order": 46,
+                "trigger": "סיום פרוטוקול",
+                "roi": "גילוי הישנות מוקדמת — CA-125 עולה שבועות לפני תסמינים",
+                "estimated_cost": 4000,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 365,
+                "overlay_global": False,
                 "sub_items": [
                     "CA-125 + בדיקה גינקולוגית כל 3 חודשים",
                     "CT/PET לפי אינדיקציה",
@@ -618,4 +967,161 @@ JOURNEY_TEMPLATES = [
             },
         ],
     },
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # מסע חדש — סרטן ריאות
+    # ═══════════════════════════════════════════════════════════════════════
+    {
+        "key": "lung_cancer",
+        "label": "סרטן ריאות",
+        "icon": "🫁",
+        "category": "אונקולוגיה",
+        "nodes": [
+            {
+                "description": "תסמינים והפניה",
+                "node_type": "administrative",
+                "stage_order": 10,
+                "trigger": "תלונה על עייפות / חולשה / כאבי שרירים / שיעול ממושך / קוצר נשימה",
+                "roi": "מניעת טרטור בין רופאים, קיצור זמן אבחון",
+                "estimated_cost": 500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 7,
+                "overlay_global": False,
+                "sub_items": [
+                    "מעקב אחרי הפניית רופא משפחה לפנימית / ריאות",
+                    "וידוא הפניה דחופה (לא רגילה)",
+                    "תיעוד תסמינים ותאריך תחילתם",
+                    "רישום תרופות שוטפות + עישון",
+                ],
+            },
+            {
+                "description": "פולמונולוג ואבחון",
+                "node_type": "medical",
+                "stage_order": 12,
+                "trigger": "הפניית רופא משפחה לרופא ריאות",
+                "roi": "תיאום CT/PET דרך שב\"ן מונע כפילות ומוריד עלות",
+                "estimated_cost": 4500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
+                "sub_items": [
+                    "קביעת תור לרופא ריאות (פולמונולוג)",
+                    "CT חזה עם חומר ניגוד",
+                    "PET-CT (staging)",
+                    "ביופסיה ברונכוסקופית / CT-מונחית",
+                    "מיפוי גנטי — EGFR, ALK, ROS1, KRAS, PDL-1",
+                    "בחירת מכון בהסדר שב\"ן / פרטי",
+                ],
+            },
+            {
+                "description": "חוות דעת שנייה",
+                "node_type": "medical",
+                "stage_order": 13,
+                "trigger": "לפני כל החלטה טיפולית — זמין בכל שלב",
+                "roi": "בדיקת כיסוי ביטוח פרטי ל\"חוות דעת מומחה\" — לרוב מכוסה",
+                "estimated_cost": 1500,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": True,
+                "notes": "צומת גלובלי — כפתור קבוע בממשק, לא תלוי בשלב",
+                "sub_items": [
+                    "בדיקת כיסוי ביטוחי לחוות דעת מומחה",
+                    "הפניה לאונקולוג ריאות בכיר / מרכז מצוינות",
+                    "העברת מיפוי גנטי + CT + פתולוגיה",
+                ],
+            },
+            {
+                "description": "צוות מולטידיסיפלינרי",
+                "node_type": "medical",
+                "stage_order": 14,
+                "trigger": "קבלת תוצאות ביופסיה ומיפוי גנטי",
+                "roi": "דיון MDT מבטיח פרוטוקול אופטימלי — מונע טיפול לא מתאים",
+                "estimated_cost": 0,
+                "coverage_categories": ["second_opinion"],
+                "duration_days": 7,
+                "overlay_global": False,
+                "sub_items": [
+                    "הכנת תיק רפואי מלא לוועדה",
+                    "ועדת MDT — אונקולוג, כירורג, פולמונולוג, רדיולוג",
+                    "קבלת פרוטוקול טיפול (ביולוגי / כימו / קרינה)",
+                    "בדיקת התאמה ל-Rybrevant / Lazertinib / Keytruda",
+                    "בקשת כיסוי ביטוחי לתרופות ממוקדות",
+                ],
+            },
+            {
+                "description": "ניהול תופעות לוואי",
+                "node_type": "medical",
+                "stage_order": 30,
+                "trigger": "התחלת טיפול תרופתי / כימי / ביולוגי",
+                "roi": "ניטור פרואקטיבי מונע הפסקת טיפול ואשפוזים מיותרים",
+                "estimated_cost": 3000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 180,
+                "overlay_global": False,
+                "sub_items": [
+                    "ניטור שוטף — שלשולים, פריחה, ציפורניים (תופעות ממוקדות)",
+                    "בדיקות דם לפני כל מחזור",
+                    "אם סבילות נמוכה — ייעוץ אונקולוגי תומך",
+                    "ייעוץ תזונה לתקופת הטיפול",
+                    "תמיכה נפשית — מטופל ומשפחה",
+                ],
+            },
+            {
+                "description": "מעקב הדמיה",
+                "node_type": "medical",
+                "stage_order": 46,
+                "trigger": "כל 3-6 חודשים לפי הפרוטוקול שהוגדר ב-MDT",
+                "roi": "בדיקות דרך שב\"ן חוסכות בתביעות פרטיות; גילוי הישנות מוקדמת",
+                "estimated_cost": 2500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 1,
+                "overlay_global": False,
+                "notes": "שלב מחזורי — חוזר כל 3-6 חודשים. Recursive Imaging Scheduler.",
+                "sub_items": [
+                    "CT חזה ± בטן עם חומר ניגוד",
+                    "PET-CT (לפי פרוטוקול)",
+                    "וידוא תור דרך שב\"ן / פרטי לפי כיסוי",
+                    "דיון תוצאות עם האונקולוג",
+                ],
+            },
+            {
+                "description": "הישנות — חזרה לאבחון",
+                "node_type": "medical",
+                "stage_order": 47,
+                "trigger": "ממצא חדש בהדמיה / עלייה ב-markers",
+                "roi": "מיפוי גנטי מעודכן — ייתכן מוטציה עמידות חדשה הניתנת לטיפול",
+                "estimated_cost": 4500,
+                "coverage_categories": ["diagnostics"],
+                "duration_days": 14,
+                "overlay_global": False,
+                "notes": "הסתעפות — מופעל רק אם יש ממצא חדש. חוזר לשלב אבחון.",
+                "sub_items": [
+                    "חזרה לפולמונולוג / אונקולוג",
+                    "ביופסיה / מיפוי גנטי מעודכן",
+                    "בחינת קו טיפול שני",
+                    "עדכון בקשות כיסוי ביטוחי",
+                ],
+            },
+            {
+                "description": "שלב פליאטיבי",
+                "node_type": "medical",
+                "stage_order": 48,
+                "trigger": "מעבר לניהול תסמינים / מחלה מתקדמת",
+                "roi": "מיצוי זכויות סיעוד וביטוח לאומי מוקדם חוסך מאות אלפי שקלים",
+                "estimated_cost": 5000,
+                "coverage_categories": ["rehabilitation"],
+                "duration_days": 0,
+                "overlay_global": False,
+                "notes": "הסתעפות — מופעל במעבר לשלב פליאטיבי.",
+                "sub_items": [
+                    "שינוי Workflow לניהול תסמינים",
+                    "מיצוי זכויות סיעוד — ביטוח לאומי",
+                    "בקשת גמלת סיעוד / ניידות",
+                    "תמיכה רגשית מוגברת למשפחה",
+                    "ייעוץ הוספיס (אם רלוונטי)",
+                ],
+            },
+        ],
+    },
+
 ]
