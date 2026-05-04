@@ -695,7 +695,7 @@ export default function PatientDetail() {
     >
       <WorkflowPanel patientId={id} />
     </ResizablePanel>
-    </div>
+    </>
   )
 }
 
