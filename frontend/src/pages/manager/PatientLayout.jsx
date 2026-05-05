@@ -58,6 +58,9 @@ export default function PatientLayout() {
         </div>
       </div>
 
+      {/* Red flags banner */}
+      <RedFlagsBanner patientId={id} />
+
       {/* Tab content */}
       <Outlet />
     </div>
