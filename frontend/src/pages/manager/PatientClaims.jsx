@@ -224,6 +224,7 @@ export default function PatientClaims() {
           </div>
         </div>
       )}
+      <Form17Section patientId={id} />
     </div>
   )
 }
