@@ -194,7 +194,11 @@ class Patient(Base):
     entitlements = relationship("Entitlement", back_populates="patient", cascade="all, delete-orphan")
     documents = relationship("PatientDocument", back_populates="patient", cascade="all, delete-orphan")
     patient_medications  = relationship("PatientMedication", back_populates="patient", cascade="all, delete-orphan")
-    fund_applications    = relationship("PatientFundApplication", back_populates="patient", cascade="all, delete-orphan")
+    fund_applications    = relationship("PatientFundApplication",  back_populates="patient", cascade="all, delete-orphan")
+    care_team            = relationship("PatientCareTeamMember",   back_populates="patient", cascade="all, delete-orphan")
+    meetings             = relationship("PatientMeeting",          back_populates="patient", cascade="all, delete-orphan")
+    form17_entries       = relationship("PatientForm17",           back_populates="patient", cascade="all, delete-orphan")
+    red_flags            = relationship("PatientRedFlag",          back_populates="patient", cascade="all, delete-orphan")
 
 
 
