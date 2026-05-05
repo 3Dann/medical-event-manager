@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, NavLink, Outlet } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
+import RedFlagsBanner from '../../components/RedFlagsBanner'
 
 export default function PatientLayout() {
   const { id }    = useParams()
