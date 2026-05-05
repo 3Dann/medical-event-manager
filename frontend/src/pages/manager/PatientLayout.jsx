@@ -25,11 +25,11 @@ export default function PatientLayout() {
   ]
 
   return (
-    // flex-1 + min-h-0: fills main's remaining height, prevents flex overflow.
-    // overflow-hidden: the inner div handles its own scroll — main's scrollbar won't show here.
-    <div dir="rtl" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+    // flex-1 + min-h-0: grows to fill the flex-col outlet wrapper in ManagerLayout.
+    // No overflow-hidden here — let the inner scroll div handle that.
+    <div dir="rtl" className="flex flex-col flex-1 min-h-0">
 
-      {/* Patient header — fixed height, never scrolls away */}
+      {/* Patient header — always visible */}
       <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-3 bg-slate-50">
         <h1 className="text-2xl font-bold text-slate-800">
           {patient?.full_name ?? '...'}
@@ -60,7 +60,7 @@ export default function PatientLayout() {
         </div>
       </div>
 
-      {/* Scrollable content area — only this part scrolls */}
+      {/* Scrollable content — only this area scrolls */}
       <div className="flex-1 overflow-y-auto min-h-0">
         <Outlet />
       </div>
