@@ -5,6 +5,7 @@ import WorkflowPanel from '../../components/workflows/WorkflowPanel'
 import ResizablePanel from '../../components/ResizablePanel'
 import { validateIsraeliId } from '../../utils/validateId'
 import ConditionTagsSelector from '../../components/ConditionTagsSelector'
+import CareTeamSection from '../../components/CareTeamSection'
 
 const MEDICAL_STAGES = [
   { value: '',                 label: '— לא מוגדר —' },
