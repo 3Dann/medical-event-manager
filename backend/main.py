@@ -322,6 +322,10 @@ app.include_router(medications_routes.router)
 app.include_router(policy_ai_routes.router)
 app.include_router(audit_routes.router)
 app.include_router(financial_map_routes.router)
+app.include_router(care_team_routes.router)
+app.include_router(meetings_routes.router)
+app.include_router(form17_routes.router)
+app.include_router(red_flags_routes.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
