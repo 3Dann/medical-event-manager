@@ -25,22 +25,19 @@ export default function PatientLayout() {
   ]
 
   return (
-    // flex-1 + min-h-0: grows to fill the flex-col outlet wrapper in ManagerLayout.
-    // No overflow-hidden here — let the inner scroll div handle that.
-    <div dir="rtl" className="flex flex-col flex-1 min-h-0">
-
-      {/* Patient header — always visible */}
-      <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-3 bg-slate-50">
+    <div dir="rtl">
+      {/* Patient header */}
+      <div className="px-4 md:px-6 pt-4 pb-2 bg-slate-50 border-b border-slate-100">
         <h1 className="text-2xl font-bold text-slate-800">
           {patient?.full_name ?? '...'}
         </h1>
         <p className="text-slate-500 text-sm">
-          {patient?.id_number ? `ת.ז.: ${patient.id_number}` : ' '}
+          {patient?.id_number ? `ת.ז.: ${patient.id_number}` : ' '}
         </p>
       </div>
 
-      {/* Tab bar — always visible, no sticky needed */}
-      <div className="flex-shrink-0 bg-slate-50 border-b border-slate-200 px-4 md:px-6">
+      {/* Tab bar */}
+      <div className="bg-slate-50 border-b border-slate-200 px-4 md:px-6">
         <div className="flex gap-1 overflow-x-auto">
           {tabs.map(tab => (
             <NavLink
@@ -60,11 +57,8 @@ export default function PatientLayout() {
         </div>
       </div>
 
-      {/* Scrollable content — only this area scrolls */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <Outlet />
-      </div>
-
+      {/* Tab content */}
+      <Outlet />
     </div>
   )
 }
