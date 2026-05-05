@@ -513,7 +513,7 @@ export default function PatientStrategy() {
 
       {/* ── FINANCIAL MAP TAB ─────────────────────────────────────────────── */}
       {tab === 'financial_map' && (
-        <FinancialMapTab patientId={patientId} />
+        <FinancialMapTab patientId={id} />
       )}
 
       {/* ── STRATEGY TAB ───────────────────────────────────────────────────── */}
