@@ -716,6 +716,90 @@ class PatientFundApplication(Base):
     fund    = relationship("FinancialFund", back_populates="applications")
 
 
+class PatientCareTeamMember(Base):
+    """צוות מטפלים — רשימת אנשי מקצוע המשויכים למטופל ספציפי."""
+    __tablename__ = "patient_care_team"
+
+    id           = Column(Integer, primary_key=True, index=True)
+    patient_id   = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    role         = Column(String, nullable=False)   # oncologist|navigator|pain_doctor|nutritionist|psycho_oncologist|rights_advisor|other
+    name         = Column(String, nullable=False)
+    phone        = Column(String, nullable=True)
+    email        = Column(String, nullable=True)
+    organization = Column(String, nullable=True)
+    notes        = Column(Text,   nullable=True)
+    is_primary   = Column(Boolean, default=False)
+    created_at   = Column(DateTime(timezone=True), server_default=func.now())
+
+    patient = relationship("Patient", back_populates="care_team")
+
+
+class PatientMeeting(Base):
+    """דף מעקב פגישה — תיעוד כל פגישה עם גורם רפואי/ביטוחי."""
+    __tablename__ = "patient_meetings"
+
+    id                        = Column(Integer, primary_key=True, index=True)
+    patient_id                = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    meeting_type              = Column(String, nullable=False)   # oncologist|insurance_agent|social_worker|other
+    meeting_date              = Column(String, nullable=True)    # YYYY-MM-DD
+    professional_name         = Column(String, nullable=True)
+    status_summary            = Column(Text,   nullable=True)    # ב-2 משפטים
+    action_items              = Column(Text,   nullable=True)    # JSON: [{task, responsible, done}]
+    # מסמכים שיש לבקש
+    has_visit_summary         = Column(Boolean, default=False)
+    has_referrals             = Column(Boolean, default=False)
+    has_prescriptions         = Column(Boolean, default=False)
+    has_lab_results           = Column(Boolean, default=False)
+    has_insurance_approval    = Column(Boolean, default=False)
+    # מעקב כספי
+    meeting_cost              = Column(Float,   nullable=True)
+    reimbursement_entity      = Column(String, nullable=True)   # kupat_holim|private|both
+    receipt_received          = Column(Boolean, default=False)
+    reimbursement_submitted   = Column(Boolean, default=False)
+    # הערות מטפל
+    caregiver_notes           = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    patient = relationship("Patient", back_populates="meetings")
+
+
+class PatientForm17(Base):
+    """מעקב טופס 17 — התחייבויות קופה לפי בדיקה/טיפול."""
+    __tablename__ = "patient_form17"
+
+    id                  = Column(Integer, primary_key=True, index=True)
+    patient_id          = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    procedure_name      = Column(String, nullable=False)
+    insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id"), nullable=True)
+    status              = Column(String, default="pending")   # pending|requested|approved|denied
+    requested_date      = Column(String, nullable=True)
+    approved_date       = Column(String, nullable=True)
+    amount_approved     = Column(Float,  nullable=True)
+    notes               = Column(Text,   nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    patient          = relationship("Patient", back_populates="form17_entries")
+    insurance_source = relationship("InsuranceSource")
+
+
+class PatientRedFlag(Base):
+    """נורות אדומות — התראות רפואיות, פיננסיות ושחיקת מטפל."""
+    __tablename__ = "patient_red_flags"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    flag_type   = Column(String, nullable=False)    # medical|financial|caregiver
+    severity    = Column(String, default="warning") # warning|critical
+    title       = Column(String, nullable=False)
+    description = Column(Text,   nullable=True)
+    is_active   = Column(Boolean, default=True)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    patient = relationship("Patient", back_populates="red_flags")
+
+
 class UserActivityLog(Base):
     """Audit log — one row per meaningful user action."""
     __tablename__ = "user_activity_logs"
