@@ -1,0 +1,329 @@
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import axios from 'axios'
+
+const TYPES = [
+  { value: 'oncologist',      label: 'אונקולוג' },
+  { value: 'insurance_agent', label: 'סוכן ביטוח' },
+  { value: 'social_worker',   label: 'עו״ס / מתאמת' },
+  { value: 'pain_doctor',     label: 'רופא כאב' },
+  { value: 'hmo',             label: 'קופת חולים' },
+  { value: 'other',           label: 'אחר' },
+]
+
+const TYPE_ICONS = { oncologist: '👨‍⚕️', insurance_agent: '📋', social_worker: '🤝', pain_doctor: '💊', hmo: '🏥', other: '📝' }
+
+const REIMBURSE = [
+  { value: '',             label: '— לא רלוונטי —' },
+  { value: 'kupat_holim', label: 'קופת חולים' },
+  { value: 'private',     label: 'ביטוח פרטי' },
+  { value: 'both',        label: 'שניהם' },
+]
+
+const EMPTY_MEETING = {
+  meeting_type: 'oncologist', meeting_date: '', professional_name: '',
+  status_summary: '', action_items: [],
+  has_visit_summary: false, has_referrals: false, has_prescriptions: false,
+  has_lab_results: false, has_insurance_approval: false,
+  meeting_cost: '', reimbursement_entity: '', receipt_received: false,
+  reimbursement_submitted: false, caregiver_notes: '',
+}
+
+function MeetingForm({ patientId, meeting, onClose, onSaved }) {
+  const [form, setForm] = useState(meeting ? {
+    ...meeting,
+    action_items: meeting.action_items || [],
+    meeting_cost: meeting.meeting_cost ?? '',
+  } : EMPTY_MEETING)
+  const [saving, setSaving] = useState(false)
+  const [newTask, setNewTask] = useState('')
+
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  const addTask = () => {
+    if (!newTask.trim()) return
+    set('action_items', [...form.action_items, { task: newTask.trim(), responsible: '', done: false }])
+    setNewTask('')
+  }
+
+  const toggleTask = i => {
+    const updated = form.action_items.map((t, idx) => idx === i ? { ...t, done: !t.done } : t)
+    set('action_items', updated)
+  }
+
+  const removeTask = i => set('action_items', form.action_items.filter((_, idx) => idx !== i))
+
+  const save = async () => {
+    setSaving(true)
+    try {
+      const payload = { ...form, meeting_cost: form.meeting_cost ? +form.meeting_cost : null }
+      if (meeting?.id) {
+        await axios.put(`/api/patients/${patientId}/meetings/${meeting.id}`, payload)
+      } else {
+        await axios.post(`/api/patients/${patientId}/meetings`, payload)
+      }
+      onSaved(); onClose()
+    } finally { setSaving(false) }
+  }
+
+  const DOCS = [
+    ['has_visit_summary', 'סיכום ביקור חתום'],
+    ['has_referrals', 'הפניות לבדיקות / טפסי 17'],
+    ['has_prescriptions', 'מרשמים (כולל תרופות תופעות לוואי)'],
+    ['has_lab_results', 'תוצאות מעבדה / דימות'],
+    ['has_insurance_approval', 'אישור ביטוחי'],
+  ]
+
+  return (
+    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" dir="rtl"
+           onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <h3 className="font-bold text-slate-800 text-lg">{meeting ? 'עריכת פגישה' : 'תיעוד פגישה חדשה'}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+        </div>
+
+        <div className="overflow-y-auto flex-1 px-6 py-4 space-y-5">
+          {/* Type + Date + Name */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="label">סוג פגישה</label>
+              <select className="input" value={form.meeting_type} onChange={e => set('meeting_type', e.target.value)}>
+                {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="label">תאריך</label>
+              <input type="date" className="input" value={form.meeting_date} onChange={e => set('meeting_date', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">שם איש המקצוע</label>
+              <input className="input" value={form.professional_name} onChange={e => set('professional_name', e.target.value)} placeholder="ד״ר / גב׳ ..." />
+            </div>
+          </div>
+
+          {/* Status summary */}
+          <div>
+            <label className="label">סיכום סטטוס (2 משפטים)</label>
+            <textarea className="input resize-none" rows={3} value={form.status_summary}
+              onChange={e => set('status_summary', e.target.value)}
+              placeholder="מה המצב לפי דברי איש המקצוע?" />
+          </div>
+
+          {/* Action items */}
+          <div>
+            <label className="label">פעולות נדרשות (Action Items)</label>
+            <div className="space-y-1 mb-2">
+              {form.action_items.map((item, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input type="checkbox" checked={item.done} onChange={() => toggleTask(i)} />
+                  <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>{item.task}</span>
+                  {item.responsible && <span className="text-xs text-slate-400">{item.responsible}</span>}
+                  <button onClick={() => removeTask(i)} className="text-slate-300 hover:text-red-400 text-xs">✕</button>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input className="input flex-1 text-sm" value={newTask}
+                onChange={e => setNewTask(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addTask()}
+                placeholder="הוסף משימה..." />
+              <button onClick={addTask} className="btn-secondary text-sm px-3">הוסף</button>
+            </div>
+          </div>
+
+          {/* Documents checklist */}
+          <div>
+            <label className="label">מסמכים שהתקבלו / יש לבקש</label>
+            <div className="grid grid-cols-2 gap-2">
+              {DOCS.map(([key, label]) => (
+                <label key={key} className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form[key]} onChange={e => set(key, e.target.checked)} />
+                  <span className="text-sm text-slate-700">{label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Financial */}
+          <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-4">
+            <div>
+              <label className="label">עלות הפגישה (₪)</label>
+              <input type="number" className="input" value={form.meeting_cost}
+                onChange={e => set('meeting_cost', e.target.value)} />
+            </div>
+            <div>
+              <label className="label">גוף לתביעת החזר</label>
+              <select className="input" value={form.reimbursement_entity}
+                onChange={e => set('reimbursement_entity', e.target.value)}>
+                {REIMBURSE.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2 pt-5">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={form.receipt_received} onChange={e => set('receipt_received', e.target.checked)} />
+                <span className="text-sm">קבלה התקבלה</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={form.reimbursement_submitted} onChange={e => set('reimbursement_submitted', e.target.checked)} />
+                <span className="text-sm">בקשת החזר הוגשה</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Caregiver notes */}
+          <div>
+            <label className="label">הערות אישיות (לא מוצגות למטופל)</label>
+            <textarea className="input resize-none" rows={2} value={form.caregiver_notes}
+              onChange={e => set('caregiver_notes', e.target.value)}
+              placeholder="איך המטופל הרגיש? משהו שלא נאמר?" />
+          </div>
+        </div>
+
+        <div className="flex gap-3 justify-end px-6 py-4 border-t border-slate-100">
+          <button onClick={onClose} className="btn-secondary">ביטול</button>
+          <button onClick={save} disabled={saving} className="btn-primary disabled:opacity-40">
+            {saving ? 'שומר...' : 'שמור פגישה'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function MeetingCard({ meeting, onEdit, onDelete }) {
+  const [expanded, setExpanded] = useState(false)
+  const hasActions = meeting.action_items?.length > 0
+  const doneTasks = meeting.action_items?.filter(t => t.done).length || 0
+  const docs = [
+    [meeting.has_visit_summary, 'סיכום ביקור'],
+    [meeting.has_referrals, 'הפניות'],
+    [meeting.has_prescriptions, 'מרשמים'],
+    [meeting.has_lab_results, 'תוצאות'],
+    [meeting.has_insurance_approval, 'אישור ביטוח'],
+  ].filter(([v]) => v).map(([, l]) => l)
+
+  return (
+    <div className="card border border-slate-200">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{TYPE_ICONS[meeting.meeting_type] || '📝'}</span>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-slate-800 text-sm">{meeting.meeting_type_label}</span>
+              {meeting.professional_name && <span className="text-sm text-slate-500">— {meeting.professional_name}</span>}
+              {meeting.meeting_date && <span className="text-xs text-slate-400">{meeting.meeting_date}</span>}
+            </div>
+            {meeting.status_summary && (
+              <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{meeting.status_summary}</p>
+            )}
+            <div className="flex gap-3 mt-1 flex-wrap">
+              {hasActions && (
+                <span className="text-xs text-slate-500">{doneTasks}/{meeting.action_items.length} משימות</span>
+              )}
+              {docs.length > 0 && (
+                <span className="text-xs text-emerald-600">✓ {docs.join(', ')}</span>
+              )}
+              {meeting.meeting_cost > 0 && (
+                <span className="text-xs text-slate-500">
+                  ₪{meeting.meeting_cost.toLocaleString('he-IL')}
+                  {meeting.receipt_received ? ' · קבלה ✓' : ' · ❌ קבלה'}
+                  {meeting.reimbursement_submitted ? ' · הוגש ✓' : ''}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button onClick={() => setExpanded(e => !e)} className="text-xs text-slate-400 hover:text-slate-600">
+            {expanded ? '▲' : '▼'}
+          </button>
+          <button onClick={() => onEdit(meeting)} className="text-xs text-blue-500 hover:text-blue-700">עריכה</button>
+          <button onClick={() => onDelete(meeting.id)} className="text-xs text-red-400 hover:text-red-600">מחק</button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+          {hasActions && (
+            <div>
+              <p className="text-xs font-medium text-slate-500 mb-1">משימות</p>
+              {meeting.action_items.map((t, i) => (
+                <div key={i} className={`text-sm flex items-center gap-2 ${t.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                  <span>{t.done ? '✅' : '☐'}</span>
+                  <span>{t.task}</span>
+                  {t.responsible && <span className="text-xs text-slate-400">({t.responsible})</span>}
+                </div>
+              ))}
+            </div>
+          )}
+          {meeting.caregiver_notes && (
+            <div>
+              <p className="text-xs font-medium text-slate-500 mb-1">הערות אישיות</p>
+              <p className="text-sm text-slate-600 italic">{meeting.caregiver_notes}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function PatientMeetings() {
+  const { id } = useParams()
+  const [meetings, setMeetings] = useState([])
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const load = () => {
+    setLoading(true)
+    axios.get(`/api/patients/${id}/meetings`)
+      .then(r => setMeetings(r.data))
+      .finally(() => setLoading(false))
+  }
+  useEffect(() => { load() }, [id])
+
+  const deleteMeeting = async (mid) => {
+    if (!confirm('למחוק פגישה זו?')) return
+    await axios.delete(`/api/patients/${id}/meetings/${mid}`)
+    load()
+  }
+
+  return (
+    <div className="p-4 md:p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800">מעקב פגישות</h2>
+          <p className="text-sm text-slate-500">תיעוד כל פגישה עם גורם רפואי, ביטוחי או סוציאלי</p>
+        </div>
+        <button onClick={() => { setEditing(null); setShowForm(true) }} className="btn-primary">
+          + תיעוד פגישה
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="py-12 text-center text-slate-400">טוען...</div>
+      ) : meetings.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-slate-400 mb-3">לא תועדו פגישות עדיין</p>
+          <button onClick={() => setShowForm(true)} className="btn-secondary">תעד את הפגישה הראשונה</button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {meetings.map(m => (
+            <MeetingCard key={m.id} meeting={m}
+              onEdit={m => { setEditing(m); setShowForm(true) }}
+              onDelete={deleteMeeting} />
+          ))}
+        </div>
+      )}
+
+      {showForm && (
+        <MeetingForm patientId={id} meeting={editing}
+          onClose={() => { setShowForm(false); setEditing(null) }}
+          onSaved={load} />
+      )}
+    </div>
+  )
+}
