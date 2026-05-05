@@ -60,7 +60,8 @@
     "cancel": "Cancelar",
     "insurance": "Seguros",
     "claims": "Reclamaciones",
-    "strategy": "Estrategia"
+    "strategy": "Estrategia",
+    "meetings": "Reuniones"
   },
   "auth": {
     "login": "Iniciar sesión",

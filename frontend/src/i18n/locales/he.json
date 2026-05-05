@@ -67,7 +67,8 @@
     "demo_mode_active": "מצב הצגה פעיל",
     "demo_mode_off": "כבה מצב הצגה",
     "demo_mode_on": "הפעל מצב הצגה",
-    "demo_mode_banner": "מצב הצגה פעיל — אין שמירת נתונים"
+    "demo_mode_banner": "מצב הצגה פעיל — אין שמירת נתונים",
+    "meetings": "פגישות"
   },
   "auth": {
     "login": "התחברות",

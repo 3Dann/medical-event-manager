@@ -67,7 +67,8 @@
     "demo_mode_active": "Demo Mode Active",
     "demo_mode_off": "Turn Off Demo",
     "demo_mode_on": "Turn On Demo",
-    "demo_mode_banner": "Demo Mode Active — Data Not Saved"
+    "demo_mode_banner": "Demo Mode Active — Data Not Saved",
+    "meetings": "Meetings"
   },
   "auth": {
     "login": "Sign In",
