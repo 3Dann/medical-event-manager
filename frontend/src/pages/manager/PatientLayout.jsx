@@ -25,9 +25,12 @@ export default function PatientLayout() {
   ]
 
   return (
-    <div dir="rtl">
-      {/* Patient header — scrolls with content */}
-      <div className="px-4 md:px-6 pt-4 pb-3">
+    // flex-1 + min-h-0: fills main's remaining height, prevents flex overflow.
+    // overflow-hidden: the inner div handles its own scroll — main's scrollbar won't show here.
+    <div dir="rtl" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+
+      {/* Patient header — fixed height, never scrolls away */}
+      <div className="flex-shrink-0 px-4 md:px-6 pt-4 pb-3 bg-slate-50">
         <h1 className="text-2xl font-bold text-slate-800">
           {patient?.full_name ?? '...'}
         </h1>
@@ -36,8 +39,8 @@ export default function PatientLayout() {
         </p>
       </div>
 
-      {/* Tab bar — sticky below the app header (≈49px) */}
-      <div className="sticky top-[49px] z-10 bg-slate-50 border-b border-slate-200 px-4 md:px-6">
+      {/* Tab bar — always visible, no sticky needed */}
+      <div className="flex-shrink-0 bg-slate-50 border-b border-slate-200 px-4 md:px-6">
         <div className="flex gap-1 overflow-x-auto">
           {tabs.map(tab => (
             <NavLink
@@ -57,8 +60,11 @@ export default function PatientLayout() {
         </div>
       </div>
 
-      {/* Tab content */}
-      <Outlet />
+      {/* Scrollable content area — only this part scrolls */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <Outlet />
+      </div>
+
     </div>
   )
 }
