@@ -275,7 +275,7 @@ export default function ManagerLayout() {
           Orly Medical
         </div>
 
-        <div className="flex-1 relative z-10">
+        <div className="flex-1 relative z-10 flex flex-col min-h-0">
           <Outlet />
         </div>
 
