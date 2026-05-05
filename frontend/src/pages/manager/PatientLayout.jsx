@@ -23,6 +23,7 @@ export default function PatientLayout() {
     { to: 'strategy',      label: t('strategy') },
     { to: 'medications',   label: t('medications') },
     { to: 'documents',     label: t('documents') },
+    { to: 'meetings',      label: t('meetings') },
   ]
 
   return (
