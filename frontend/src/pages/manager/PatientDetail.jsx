@@ -343,6 +343,9 @@ export default function PatientDetail() {
         </div>
       </div>
 
+      {/* Care Team */}
+      <CareTeamSection patientId={id} />
+
       {/* ═══ Unified timeline ═══════════════════════════════════════════════ */}
       <div className="card">
         <div className="flex justify-between items-center mb-4">
