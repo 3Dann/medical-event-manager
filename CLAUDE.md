@@ -118,9 +118,15 @@ medical-event-manager/
 
 ## מה חסר / צעדים הבאים
 
-### עדיפות עליונה (סדר עדכני — 2026-04-30)
-- [x] **מסעות לפי אינדיקציה** — 12 מחלות קיימות ב-journey_templates.py. בוצע (2026-04-30): מניעת כפילות (409), endpoint הסרה, source_template_key בNode, מודל שני-פאנלים עם preview, הצעה אוטומטית לפי condition_tags, מסעות מוחלים + הסרה, progress bar, סטטוס לחיץ במקום select
-- [x] **מפה פיננסית ומימון המסע** — בוצע (2026-05-04): FinancialFund + PatientFundApplication models, 15 קרנות ישראליות seed, routes/financial_map.py (9 endpoints), FinancialMapTab.jsx (summary bar, progress bar, פירוט לפי שלב, CRUD קרנות, קרנות מומלצות, action items). טאב "💰 מפה פיננסית" ב-PatientStrategy במקום השני. journey_templates.py הועשר ל-13 תבניות עם trigger/roi/estimated_cost/coverage_categories/overlay_global לכל צומת. Node מקבל overlay_global, estimated_cost, coverage_categories.
+### עדיפות עליונה (סדר עדכני — 2026-05-05)
+- [x] **מסעות לפי אינדיקציה** — בוצע (2026-04-30)
+- [x] **מפה פיננסית ומימון המסע** — בוצע (2026-05-04): FinancialFund + PatientFundApplication, 15 קרנות ישראליות, routes/financial_map.py, FinancialMapTab.jsx
+- [x] **מסעות מועשרים + lung_cancer** — בוצע (2026-05-05): 13 תבניות עם trigger/roi/estimated_cost/coverage_categories/overlay_global. Node מקבל overlay_global, estimated_cost, coverage_categories.
+- [x] **PatientLayout — ניווט מטופל** — בוצע (2026-05-05): כל טאבי המטופל תחת ManagerPatientLayout (nested routing). כותרת + טאבים קבועים בראש, Outlet לתוכן.
+- [x] **צוות מטפלים** — בוצע (2026-05-05): PatientCareTeamMember model, routes/care_team.py, CareTeamSection.jsx בתוך "פרטים וצמתים". 8 תפקידים, CRUD מלא.
+- [x] **דף מעקב פגישה** — בוצע (2026-05-05): PatientMeeting model, routes/meetings.py, PatientMeetings.jsx — טאב "פגישות" חדש. סוג פגישה, action items, צ'ק-ליסט מסמכים, מעקב כספי.
+- [x] **מעקב טופס 17** — בוצע (2026-05-05): PatientForm17 model, routes/form17.py, Form17Section.jsx בתחתית "תביעות".
+- [x] **נורות אדומות** — בוצע (2026-05-05): PatientRedFlag model, routes/red_flags.py, RedFlagsBanner.jsx מעל תוכן הטאב — רפואי/פיננסי/שחיקת מטפל.
 - [ ] **פורטל מטופל** — כניסה עצמאית, ציר זמן read-only, מסמכים, סטטוס תביעות, שליחת בקשות
 - [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
