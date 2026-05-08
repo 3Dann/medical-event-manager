@@ -243,6 +243,29 @@ export default function FinancialMapTab({ patientId }) {
 
   useEffect(() => { load() }, [load])
 
+  const generateReport = async () => {
+    setGenerating(true)
+    try {
+      const r = await fetch(`/api/patients/${patientId}/reports/financial-map`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      })
+      if (!r.ok) throw new Error()
+      const blob = await r.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `מפה-פיננסית-${patientId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      alert('שגיאה בייצור הדוח')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const removeApp = async (appId) => {
     if (!confirm('להסיר מקור מימון זה?')) return
     await fetch(`/api/patients/${patientId}/financial-funds/${appId}`, {
