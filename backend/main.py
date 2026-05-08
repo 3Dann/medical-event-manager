@@ -326,6 +326,7 @@ app.include_router(care_team_routes.router)
 app.include_router(meetings_routes.router)
 app.include_router(form17_routes.router)
 app.include_router(red_flags_routes.router)
+app.include_router(reports_routes.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
