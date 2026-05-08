@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import FundManagementPanel from './FundManagementPanel'
 
 const DEV_EMAIL = 'da.tzalik@gmail.com'
 
