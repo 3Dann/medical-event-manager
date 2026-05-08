@@ -815,3 +815,19 @@ class UserActivityLog(Base):
     user_agent    = Column(String, nullable=True)
     status_code   = Column(Integer, nullable=True)
     created_at    = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+
+
+class PatientRequest(Base):
+    """בקשות שהמטופל שולח למנהל האירוע."""
+    __tablename__ = "patient_requests"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    category    = Column(String, default="general")  # general|document|meeting|question|financial
+    message     = Column(Text, nullable=False)
+    status      = Column(String, default="pending")  # pending|read|resolved
+    manager_note= Column(Text, nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+
+    patient = relationship("Patient", back_populates="requests")
