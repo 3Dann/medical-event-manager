@@ -23,6 +23,7 @@ const ROUTE_KEYS = {
   '/manager/doctors': 'nav:doctors',
   '/manager/responsiveness': 'nav:responsiveness',
   '/manager/workflows': 'nav:workflows',
+  '/manager/reports': 'nav:reports',
   '/manager/feedback': 'nav:feedback',
   '/manager/profile': 'nav:profile',
   '/manager/admin': 'nav:admin',
