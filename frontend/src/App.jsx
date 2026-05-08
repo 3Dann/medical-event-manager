@@ -77,6 +77,7 @@ function AppRoutes() {
         <Route path="feedback/submit" element={<FeedbackSubmitPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="workflows" element={<WorkflowsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="patients/new" element={<IntakeWizard />} />
         <Route path="admin" element={<ProtectedRoute role="manager" adminOnly><AdminPage /></ProtectedRoute>} />
         <Route path="landing-editor" element={<ProtectedRoute role="manager" adminOnly><LandingEditorPage /></ProtectedRoute>} />
