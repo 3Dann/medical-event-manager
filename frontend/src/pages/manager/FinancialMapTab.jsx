@@ -229,6 +229,7 @@ export default function FinancialMapTab({ patientId }) {
   const [showAdd, setShowAdd]     = useState(false)
   const [updating, setUpdating]   = useState(null) // app being updated
   const [expanded, setExpanded]   = useState({})   // stage expansions
+  const [generating, setGenerating] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
