@@ -1,6 +1,130 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+
+// ── Patient Requests Panel ─────────────────────────────────────────────────────
+const REQ_STATUS_COLORS = {
+  pending:  'bg-amber-100 text-amber-700',
+  read:     'bg-blue-100 text-blue-700',
+  resolved: 'bg-green-100 text-green-700',
+}
+const REQ_STATUS_LABELS = { pending: 'ממתינה', read: 'נקראה', resolved: 'טופלה' }
+const REQ_CAT_LABELS = { general: 'כללי', document: 'בקשת מסמך', meeting: 'בקשת פגישה', question: 'שאלה', financial: 'עניין כספי' }
+
+function PatientRequestsPanel({ patientId }) {
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [open, setOpen]         = useState(true)
+  const [replyId, setReplyId]   = useState(null)
+  const [note, setNote]         = useState('')
+  const [saving, setSaving]     = useState(false)
+
+  const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('he-IL', { day:'2-digit', month:'2-digit', year:'numeric' }) : ''
+
+  const load = useCallback(() => {
+    axios.get(`/api/patients/${patientId}/requests`)
+      .then(r => setRequests(r.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [patientId])
+
+  useEffect(() => { load() }, [load])
+
+  const resolve = async (req, newStatus) => {
+    setSaving(true)
+    await axios.put(`/api/patients/${patientId}/requests/${req.id}`, {
+      status: newStatus,
+      manager_note: replyId === req.id ? note : undefined,
+    }).catch(() => {})
+    setReplyId(null); setNote(''); setSaving(false)
+    load()
+  }
+
+  const pending = requests.filter(r => r.status === 'pending').length
+
+  return (
+    <div className="border border-slate-200 rounded-2xl overflow-hidden mt-6">
+      <button onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-50 hover:bg-slate-100 transition-colors">
+        <div className="flex items-center gap-2">
+          <span className="text-lg">{open ? '▾' : '▸'}</span>
+          {pending > 0 && (
+            <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pending}</span>
+          )}
+        </div>
+        <span className="font-semibold text-slate-800">פניות מהמטופל</span>
+      </button>
+
+      {open && (
+        <div className="divide-y divide-slate-100">
+          {loading ? (
+            <div className="py-6 text-center text-slate-400 text-sm">טוען...</div>
+          ) : requests.length === 0 ? (
+            <div className="py-8 text-center text-slate-400 text-sm">אין פניות ממטופל זה</div>
+          ) : (
+            requests.map(r => (
+              <div key={r.id} className="p-4 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${REQ_STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'}`}>
+                      {REQ_STATUS_LABELS[r.status] || r.status}
+                    </span>
+                    <span className="text-xs text-slate-400">{fmtDate(r.created_at)}</span>
+                  </div>
+                  <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                    {REQ_CAT_LABELS[r.category] || r.category}
+                  </span>
+                </div>
+
+                <p className="text-sm text-slate-700 text-right leading-relaxed">{r.message}</p>
+
+                {r.manager_note && (
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                    <p className="text-xs font-semibold text-blue-700 mb-1 text-right">תגובה שנשלחה</p>
+                    <p className="text-sm text-blue-800 text-right">{r.manager_note}</p>
+                  </div>
+                )}
+
+                {r.status !== 'resolved' && (
+                  replyId === r.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm text-right resize-none focus:outline-none focus:border-blue-400"
+                        rows={2}
+                        placeholder="כתוב תגובה למטופל (אופציונלי)..."
+                        value={note}
+                        onChange={e => setNote(e.target.value)}
+                      />
+                      <div className="flex gap-2 justify-end">
+                        <button onClick={() => { setReplyId(null); setNote('') }}
+                          className="text-xs text-slate-500 px-3 py-1.5 hover:text-slate-700">ביטול</button>
+                        <button onClick={() => resolve(r, 'resolved')} disabled={saving}
+                          className="text-xs font-medium bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg disabled:opacity-40">
+                          {saving ? 'שומר...' : 'סמן כטופל'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={() => setReplyId(r.id)}
+                        className="text-xs text-blue-600 hover:text-blue-700 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                        הגב וסגור
+                      </button>
+                      <button onClick={() => resolve(r, 'resolved')} disabled={saving}
+                        className="text-xs font-medium text-green-700 hover:text-green-800 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
+                        טפול ✓
+                      </button>
+                    </div>
+                  )
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const TYPES = [
   { value: 'oncologist',      label: 'אונקולוג' },
