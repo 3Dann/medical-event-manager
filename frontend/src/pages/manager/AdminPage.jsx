@@ -175,6 +175,7 @@ export default function AdminPage() {
           { key: 'users',       label: 'משתמשים' },
           { key: 'permissions', label: 'הרשאות גישה לתיקים' },
           { key: 'activity',    label: 'לוג פעילות' },
+          { key: 'funds',       label: 'קרנות מימון' },
         ].map(t => (
           <button key={t.key}
             onClick={() => setTab(t.key)}
