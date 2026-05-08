@@ -448,6 +448,8 @@ export default function PatientMeetings() {
           onClose={() => { setShowForm(false); setEditing(null) }}
           onSaved={load} />
       )}
+
+      <PatientRequestsPanel patientId={id} />
     </div>
   )
 }
