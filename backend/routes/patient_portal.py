@@ -80,7 +80,7 @@ def get_patient_summary(
     # Workflow instances (journey)
     wf_instances = db.query(models.WorkflowInstance).filter(
         models.WorkflowInstance.patient_id == patient.id,
-    ).order_by(models.WorkflowInstance.created_at.desc()).all()
+    ).order_by(models.WorkflowInstance.id.desc()).all()
 
     def _wf_dict(wf):
         steps = db.query(models.WorkflowStep).filter(
