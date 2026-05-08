@@ -416,6 +416,14 @@ export default function AdminPage() {
         />
       )}
 
+      {/* ── Funds tab ── */}
+      {tab === 'funds' && (
+        <div>
+          <p className="text-slate-500 text-sm mb-6">ניהול מאגר הקרנות הגלובלי — קרנות סיוע, זכאויות סוציאליות, הלוואות והטבות מס</p>
+          <FundManagementPanel />
+        </div>
+      )}
+
       {/* ── Drug Database Panel ─────────────────────────────────────── */}
       <DrugDatabasePanel />
     </div>
