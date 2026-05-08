@@ -17,3 +17,5 @@ qrcode[pil]==8.2
 webauthn==2.7.1
 anthropic==0.97.0
 resend==2.10.0
+reportlab==4.2.5
+python-bidi==0.6.6
