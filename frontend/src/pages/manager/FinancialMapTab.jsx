@@ -301,6 +301,35 @@ export default function FinancialMapTab({ patientId }) {
   return (
     <div className="space-y-6">
 
+      {/* ── Report button ──────────────────────────────────────────────── */}
+      <div className="flex justify-start">
+        <button
+          onClick={generateReport}
+          disabled={generating}
+          className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl
+            border border-slate-200 bg-white hover:bg-slate-50 text-slate-700
+            disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+        >
+          {generating ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              מייצר דוח...
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              הפק דוח PDF
+            </>
+          )}
+        </button>
+      </div>
+
       {/* ── Summary Cards ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <SummaryCard label="עלות כוללת מוערכת" value={fmt(summary.total_cost)} color="slate" />
