@@ -128,7 +128,7 @@ medical-event-manager/
 - [x] **מעקב טופס 17** — בוצע (2026-05-05): PatientForm17 model, routes/form17.py, Form17Section.jsx בתחתית "תביעות".
 - [x] **נורות אדומות** — בוצע (2026-05-05): PatientRedFlag model, routes/red_flags.py, RedFlagsBanner.jsx מעל תוכן הטאב — רפואי/פיננסי/שחיקת מטפל.
 - [x] **מערכת דוחות — דוח מפה פיננסית** — בוצע (2026-05-08): routes/reports.py (PDF ב-ReportLab + RTL + שמירה כמסמך), ReportsPage.jsx + כפתור ב-FinancialMapTab, Dockerfile עם fonts-dejavu-core, requirements: reportlab+python-bidi, symlink pdf_builder.py בbackend. 3 endpoints: GET /api/patients/{id}/reports/financial-map, /reports, /api/reports/recent.
-- [ ] **פורטל מטופל** — כניסה עצמאית, ציר זמן read-only, מסמכים, סטטוס תביעות, שליחת בקשות
+- [x] **פורטל מטופל** — בוצע (2026-05-08): PatientRequest model + routes/patient_portal.py, PatientSummary.jsx בנוי מחדש — 5 טאבים (ציר זמן, תביעות, מסמכים+הורדה, מצב כספי, פניות), PatientRequestsPanel ב-PatientMeetings למנהל
 - [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
 - [ ] **מערכת בקרת משתמשים (User Activity & Permissions)** — ראה פירוט למטה
