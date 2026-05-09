@@ -69,16 +69,16 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
 
   const handlePrint = useCallback(() => {
     if (!blobUrl) return
-    if (isPdf(fileType)) {
-      // PDF: פתח בחלון חדש — לדפדפן יש כפתור הדפסה מובנה
-      window.open(blobUrl, '_blank', 'noopener')
+    if (isPdf(fileType) && iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.print()
     } else {
+      // תמונה או fallback — חלון הדפסה נפרד
       const win = window.open('', '_blank')
       if (!win) return
       win.document.write(`<html><head><title>${fileName}</title>
         <style>body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;}
         img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head>
-        <body><img src="${blobUrl}" onload="window.print()"/></body></html>`)
+        <body><img src="${blobUrl}" onload="window.print();window.close()"/></body></html>`)
       win.document.close()
     }
   }, [fileType, blobUrl, fileName])
