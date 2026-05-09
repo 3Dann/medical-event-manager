@@ -306,7 +306,7 @@ export default function ReportsPage() {
             דוחות אחרונים
           </h2>
         </div>
-        <RecentReports reports={recent} onDownload={download} />
+        <RecentReports reports={recent} onDownload={download} onView={setViewingDoc} />
       </div>
 
     </div>
