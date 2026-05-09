@@ -210,7 +210,7 @@ function DocumentsTab({ documents, patientId }) {
     <>
       {viewingDoc && (
         <DocViewerModal
-          viewUrl={`/api/patients/${patientId}/documents/${viewingDoc.id}/view?token=${localStorage.getItem('token')}`}
+          viewUrl={`/api/patients/${patientId}/documents/${viewingDoc.id}/download`}
           dlUrl={`/api/patients/${patientId}/documents/${viewingDoc.id}/download`}
           fileName={viewingDoc.original_name}
           fileType={viewingDoc.file_type}
