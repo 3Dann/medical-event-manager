@@ -199,8 +199,9 @@ function RecentReports({ reports, onDownload, onView }) {
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function ReportsPage() {
-  const [recent, setRecent]       = useState([])
-  const [generating, setGenerating] = useState(null) // report type being generated
+  const [recent, setRecent]         = useState([])
+  const [generating, setGenerating] = useState(null)
+  const [viewingDoc, setViewingDoc] = useState(null)
 
   const loadRecent = useCallback(async () => {
     try {
