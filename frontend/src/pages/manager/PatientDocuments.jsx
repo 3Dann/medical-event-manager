@@ -113,7 +113,8 @@ export default function PatientDocuments() {
     <div className="p-4 md:p-6 max-w-6xl mx-auto" dir="rtl">
       {viewingDoc && (
         <DocViewerModal
-          fetchUrl={`/api/patients/${id}/documents/${viewingDoc.id}/download`}
+          viewUrl={`/api/patients/${id}/documents/${viewingDoc.id}/view?token=${localStorage.getItem('token')}`}
+          dlUrl={`/api/patients/${id}/documents/${viewingDoc.id}/download`}
           fileName={viewingDoc.original_name}
           fileType={viewingDoc.file_type}
           onClose={() => setViewingDoc(null)}
