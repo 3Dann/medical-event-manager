@@ -220,6 +220,120 @@ def grant_patient_permission(
     return {"id": perm.id, "manager_id": perm.manager_id, "manager_name": manager.full_name}
 
 
+@router.get("/dashboard")
+def admin_dashboard(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """דשבורד ניהולי — סקירת עומס מלווים, נורות אסקלציה, פניות ממתינות."""
+    managers = db.query(models.User).filter(
+        models.User.role == models.UserRole.manager
+    ).order_by(models.User.full_name).all()
+
+    manager_rows = []
+    total_critical = 0
+    total_pending_requests = 0
+    total_pending_claims = 0
+    alerts = []
+
+    for mgr in managers:
+        patients = db.query(models.Patient).filter(
+            models.Patient.manager_id == mgr.id
+        ).all()
+        patient_ids = [p.id for p in patients]
+
+        critical_flags = 0
+        warning_flags = 0
+        if patient_ids:
+            flags = db.query(models.PatientRedFlag).filter(
+                models.PatientRedFlag.patient_id.in_(patient_ids),
+                models.PatientRedFlag.is_active == True,
+            ).all()
+            critical_flags = sum(1 for f in flags if f.severity == "critical")
+            warning_flags = sum(1 for f in flags if f.severity == "warning")
+
+            # collect critical alerts
+            for f in flags:
+                if f.severity == "critical":
+                    patient = next((p for p in patients if p.id == f.patient_id), None)
+                    alerts.append({
+                        "type": "red_flag",
+                        "severity": "critical",
+                        "patient_id": f.patient_id,
+                        "patient_name": patient.full_name if patient else "",
+                        "manager_name": mgr.full_name,
+                        "manager_id": mgr.id,
+                        "title": f.title,
+                        "description": f.description or "",
+                        "flag_type": f.flag_type,
+                    })
+
+        pending_requests = 0
+        if patient_ids:
+            pending_requests = db.query(models.PatientRequest).filter(
+                models.PatientRequest.patient_id.in_(patient_ids),
+                models.PatientRequest.status == "pending",
+            ).count()
+
+            # collect pending request alerts (max 3 per manager)
+            req_items = db.query(models.PatientRequest).filter(
+                models.PatientRequest.patient_id.in_(patient_ids),
+                models.PatientRequest.status == "pending",
+            ).order_by(models.PatientRequest.created_at.asc()).limit(3).all()
+            for req in req_items:
+                patient = next((p for p in patients if p.id == req.patient_id), None)
+                alerts.append({
+                    "type": "pending_request",
+                    "severity": "warning",
+                    "patient_id": req.patient_id,
+                    "patient_name": patient.full_name if patient else "",
+                    "manager_name": mgr.full_name,
+                    "manager_id": mgr.id,
+                    "title": f"פנייה ממתינה — {req.category}",
+                    "description": req.message[:120] + ("..." if len(req.message) > 120 else ""),
+                    "created_at": req.created_at.isoformat() if req.created_at else None,
+                })
+
+        pending_claims = 0
+        if patient_ids:
+            pending_claims = db.query(models.Claim).filter(
+                models.Claim.patient_id.in_(patient_ids),
+                models.Claim.status.in_(["pending", "draft"]),
+            ).count()
+
+        total_critical += critical_flags
+        total_pending_requests += pending_requests
+        total_pending_claims += pending_claims
+
+        manager_rows.append({
+            "id": mgr.id,
+            "full_name": mgr.full_name,
+            "email": mgr.email,
+            "patient_count": len(patients),
+            "critical_flags": critical_flags,
+            "warning_flags": warning_flags,
+            "pending_requests": pending_requests,
+            "pending_claims": pending_claims,
+        })
+
+    # sort alerts: critical first, then by patient name
+    alerts.sort(key=lambda a: (0 if a["severity"] == "critical" else 1, a["patient_name"]))
+
+    all_patients_count = db.query(models.Patient).count()
+
+    return {
+        "totals": {
+            "managers": len(managers),
+            "patients": all_patients_count,
+            "critical_flags": total_critical,
+            "pending_requests": total_pending_requests,
+            "pending_claims": total_pending_claims,
+        },
+        "managers": manager_rows,
+        "alerts": alerts[:20],
+    }
+
+
 @router.delete("/patients/{patient_id}/permissions/{manager_id}")
 def revoke_patient_permission(
     patient_id: int,
