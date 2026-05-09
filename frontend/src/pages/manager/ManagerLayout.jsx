@@ -28,6 +28,7 @@ const ROUTE_KEYS = {
   '/manager/feedback': 'nav:feedback',
   '/manager/profile': 'nav:profile',
   '/manager/admin': 'nav:admin',
+  '/manager/admin-dashboard': 'nav:admin_dashboard',
 }
 const SUB_KEYS = { insurance: 'nav:insurance', claims: 'nav:claims', strategy: 'nav:strategy' }
 
