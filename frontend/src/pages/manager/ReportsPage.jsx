@@ -133,7 +133,7 @@ function ReportCard({ title, description, icon, onGenerate, generating }) {
 }
 
 // ── Recent reports list ─────────────────────────────────────────────────────
-function RecentReports({ reports, onDownload }) {
+function RecentReports({ reports, onDownload, onView }) {
   if (reports.length === 0) {
     return (
       <div className="text-center py-12 text-slate-400 text-sm">
