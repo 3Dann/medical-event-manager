@@ -7,27 +7,17 @@ function isPdf(t)   { return PDF_TYPES.includes(t) }
 function isImage(t) { return IMAGE_TYPES.includes(t) }
 function canView(t) { return isPdf(t) || isImage(t) }
 
-/**
- * DocViewerModal — צפייה והדפסה של מסמכים.
- *
- * Props:
- *   viewUrl  — /api/.../view?token=... (inline)
- *   dlUrl    — /api/.../download (attachment)
- *   fileName — שם הקובץ
- *   fileType — MIME type
- *   onClose  — callback לסגירה
- */
 export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onClose }) {
-  const [status, setStatus] = useState('loading') // loading | ready | error
+  const [status, setStatus]   = useState('loading')
   const [blobUrl, setBlobUrl] = useState(null)
   const [errMsg, setErrMsg]   = useState('')
-  const iframeRef = useRef(null)
+  const iframeRef  = useRef(null)
   const mountedRef = useRef(true)
 
-  // ESC לסגירה — תמיד על window, לא תלוי ב-iframe
+  // ESC — useCapture כדי לתפוס לפני ה-iframe
   useEffect(() => {
     const h = e => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', h, true) // useCapture=true → לפני ה-iframe
+    window.addEventListener('keydown', h, true)
     return () => window.removeEventListener('keydown', h, true)
   }, [onClose])
 
@@ -41,18 +31,14 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
 
     fetch(viewUrl, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => {
-        if (!r.ok) {
-          const msg = r.status === 404
-            ? 'הקובץ לא נמצא בשרת. יש להעלות את המסמך מחדש.'
-            : `שגיאת שרת (${r.status})`
-          throw new Error(msg)
-        }
+        if (!r.ok) throw new Error(
+          r.status === 404 ? 'הקובץ לא נמצא. יש להעלות את המסמך מחדש.' : `שגיאת שרת (${r.status})`
+        )
         return r.blob()
       })
       .then(blob => {
         if (!mountedRef.current) return
-        const url = URL.createObjectURL(blob)
-        setBlobUrl(url)
+        setBlobUrl(URL.createObjectURL(blob))
         setStatus('ready')
       })
       .catch(e => {
@@ -72,7 +58,6 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
     if (isPdf(fileType) && iframeRef.current?.contentWindow) {
       iframeRef.current.contentWindow.print()
     } else {
-      // תמונה או fallback — חלון הדפסה נפרד
       const win = window.open('', '_blank')
       if (!win) return
       win.document.write(`<html><head><title>${fileName}</title>
@@ -92,129 +77,146 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
   }, [blobUrl, fileName])
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black/90">
+    <>
+      {/* רקע — לחיצה עליו סוגרת */}
+      <div
+        className="fixed inset-0 bg-black/90 z-50"
+        onClick={onClose}
+      />
 
-      {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3 px-4 py-2 bg-slate-900 border-b border-slate-700 flex-shrink-0">
-
-        {/* שמאל: שם קובץ + פעולות */}
-        <div className="flex items-center gap-2 min-w-0">
-          <p className="text-slate-300 text-sm font-medium truncate max-w-xs" title={fileName}>
-            {fileName}
-          </p>
-          {status === 'ready' && (
-            <>
-              <span className="text-slate-600">|</span>
-              <button onClick={handleDownload}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                הורד
-              </button>
-              <button onClick={handlePrint}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                הדפס
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* ימין: כפתור סגירה ראשי — גדול וברור */}
+      {/* כפתורי שליטה — fixed מעל הכל, תמיד נגישים */}
+      <div
+        className="fixed top-4 left-4 z-[70] flex items-center gap-2"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* סגור — תמיד נגיש */}
         <button
           onClick={onClose}
-          className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold text-sm transition-all border border-white/20 hover:border-white/40 flex-shrink-0"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
+          style={{ background: '#ef4444', color: '#fff', border: '2px solid #fff' }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
           </svg>
           סגור
         </button>
+
+        {/* הדפסה — נגיש רק אחרי טעינה */}
+        {status === 'ready' && (
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
+            style={{ background: '#2563eb', color: '#fff', border: '2px solid #fff' }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            הדפס
+          </button>
+        )}
+
+        {/* הורד */}
+        {status === 'ready' && (
+          <button
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
+            style={{ background: '#374151', color: '#fff', border: '2px solid rgba(255,255,255,0.3)' }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            הורד
+          </button>
+        )}
       </div>
 
-      {/* Content — לחיצה על הרקע סוגרת */}
+      {/* שם קובץ */}
       <div
-        className="flex-1 overflow-hidden cursor-pointer"
+        className="fixed top-4 right-4 z-[70] max-w-xs"
+        onClick={e => e.stopPropagation()}
+      >
+        <p className="text-white text-sm font-medium bg-black/60 px-3 py-2 rounded-lg truncate shadow-xl"
+          title={fileName}>
+          {fileName}
+        </p>
+      </div>
+
+      {/* תוכן */}
+      <div
+        className="fixed z-[60] flex items-center justify-center"
+        style={{ inset: '60px 0 28px 0' }}
         onClick={onClose}
       >
         {status === 'loading' && (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-white text-sm flex items-center gap-3 cursor-default" onClick={e => e.stopPropagation()}>
-              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-              </svg>
-              טוען מסמך...
-            </div>
+          <div className="flex items-center gap-3 text-white text-sm"
+            onClick={e => e.stopPropagation()}>
+            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            טוען מסמך...
           </div>
         )}
 
         {status === 'error' && (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center px-8 cursor-default" onClick={e => e.stopPropagation()}>
-              <div className="text-5xl mb-4">⚠️</div>
-              <p className="text-white font-semibold text-lg mb-2">{errMsg}</p>
-              <button
-                onClick={onClose}
-                className="mt-4 px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-sm font-medium transition-colors"
-              >
-                סגור
-              </button>
-            </div>
+          <div className="text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-4">⚠️</div>
+            <p className="text-white font-semibold text-lg mb-6">{errMsg}</p>
+            <button
+              onClick={onClose}
+              className="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl"
+              style={{ background: '#ef4444', border: '2px solid #fff' }}
+            >
+              סגור
+            </button>
           </div>
         )}
 
         {status === 'ready' && blobUrl && isPdf(fileType) && (
-          /* padding סביב ה-PDF — כדי שהרקע ילחץ לסגירה */
-          <div className="w-full h-full p-3 box-border" onClick={e => e.stopPropagation()}>
+          <div className="w-full h-full px-2" onClick={e => e.stopPropagation()}>
             <iframe
               ref={iframeRef}
               src={blobUrl}
-              className="w-full h-full border-0 rounded-lg"
+              className="w-full h-full border-0 rounded-lg shadow-2xl"
               title={fileName}
             />
           </div>
         )}
 
         {status === 'ready' && blobUrl && isImage(fileType) && (
-          <div className="w-full h-full flex items-center justify-center p-6">
-            <img
-              src={blobUrl}
-              alt={fileName}
-              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-default"
-              onClick={e => e.stopPropagation()}
-            />
-          </div>
+          <img
+            src={blobUrl}
+            alt={fileName}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
         )}
 
         {status === 'ready' && blobUrl && !canView(fileType) && (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center text-white cursor-default" onClick={e => e.stopPropagation()}>
-              <div className="text-5xl mb-4">📎</div>
-              <p className="text-lg font-medium mb-2">{fileName}</p>
-              <p className="text-slate-400 text-sm mb-5">תצוגה מקדימה אינה זמינה לסוג קובץ זה</p>
-              <button onClick={handleDownload} className="btn-primary inline-flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                הורד קובץ
-              </button>
-            </div>
+          <div className="text-center" onClick={e => e.stopPropagation()}>
+            <div className="text-5xl mb-4">📎</div>
+            <p className="text-white text-lg font-medium mb-2">{fileName}</p>
+            <p className="text-slate-400 text-sm mb-5">תצוגה מקדימה אינה זמינה לסוג קובץ זה</p>
+            <button onClick={handleDownload}
+              className="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl inline-flex items-center gap-2"
+              style={{ background: '#374151', border: '2px solid rgba(255,255,255,0.3)' }}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              הורד קובץ
+            </button>
           </div>
         )}
       </div>
 
-      {/* רצועת רמז תחתית */}
-      <div className="bg-slate-900 border-t border-slate-700 py-1.5 text-center flex-shrink-0">
-        <p className="text-slate-500 text-xs">לחץ על הרקע או ESC לסגירה</p>
+      {/* רמז תחתון */}
+      <div className="fixed bottom-0 left-0 right-0 z-[70] text-center py-1.5 pointer-events-none">
+        <p className="text-slate-400 text-xs">לחץ על הרקע או ESC לסגירה</p>
       </div>
-    </div>
+    </>
   )
 }
 
