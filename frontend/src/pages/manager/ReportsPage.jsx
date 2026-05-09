@@ -244,6 +244,14 @@ export default function ReportsPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-8 max-w-4xl mx-auto">
+      {viewingDoc && (
+        <DocViewerModal
+          fetchUrl={`/api/patients/${viewingDoc.patient_id}/documents/${viewingDoc.id}/download`}
+          fileName={viewingDoc.original_name}
+          fileType="application/pdf"
+          onClose={() => setViewingDoc(null)}
+        />
+      )}
 
       {/* Header */}
       <div>
