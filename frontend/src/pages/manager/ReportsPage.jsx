@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import DocViewerModal from '../../components/DocViewerModal'
 
 const TOKEN = () => localStorage.getItem('token')
 const AUTH  = () => ({ Authorization: `Bearer ${TOKEN()}` })
