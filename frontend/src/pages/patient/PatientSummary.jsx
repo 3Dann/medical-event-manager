@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
+import DocViewerModal, { canView } from '../../components/DocViewerModal'
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const fmt = (n) => n != null ? `₪${Math.round(n).toLocaleString('he-IL')}` : '—'
