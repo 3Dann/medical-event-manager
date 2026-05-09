@@ -81,6 +81,7 @@ function AppRoutes() {
         <Route path="reports" element={<ReportsPage />} />
         <Route path="patients/new" element={<IntakeWizard />} />
         <Route path="admin" element={<ProtectedRoute role="manager" adminOnly><AdminPage /></ProtectedRoute>} />
+        <Route path="admin-dashboard" element={<ProtectedRoute role="manager" adminOnly><AdminDashboardPage /></ProtectedRoute>} />
         <Route path="landing-editor" element={<ProtectedRoute role="manager" adminOnly><LandingEditorPage /></ProtectedRoute>} />
       </Route>
 
