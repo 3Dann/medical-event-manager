@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 
 const PDF_TYPES   = ['application/pdf']
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
