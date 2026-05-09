@@ -35,10 +35,14 @@ from bidi.algorithm import get_display
 
 router = APIRouter()
 
-UPLOAD_DIR = os.environ.get(
-    "UPLOAD_DIR",
-    os.path.join(os.path.dirname(__file__), "../../uploads"),
-)
+def _resolve_upload_dir():
+    if os.environ.get("UPLOAD_DIR"):
+        return os.environ["UPLOAD_DIR"]
+    if os.path.isdir("/data"):
+        return "/data/uploads"
+    return os.path.join(os.path.dirname(__file__), "../../uploads")
+
+UPLOAD_DIR = _resolve_upload_dir()
 
 PAGE_W, PAGE_H = A4
 MARGIN = 18 * mm
