@@ -39,6 +39,7 @@ export default function PatientDocuments() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
+  const [viewingDoc, setViewingDoc] = useState(null)
   const fileRef = useRef()
 
   useEffect(() => { fetchDocs() }, [id])
