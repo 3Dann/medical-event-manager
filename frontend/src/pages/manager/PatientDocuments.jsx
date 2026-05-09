@@ -111,6 +111,14 @@ export default function PatientDocuments() {
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto" dir="rtl">
+      {viewingDoc && (
+        <DocViewerModal
+          fetchUrl={`/api/patients/${id}/documents/${viewingDoc.id}/download`}
+          fileName={viewingDoc.original_name}
+          fileType={viewingDoc.file_type}
+          onClose={() => setViewingDoc(null)}
+        />
+      )}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-800">מסמכים</h2>
         <button
