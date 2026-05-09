@@ -76,23 +76,17 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
     a.click()
   }, [blobUrl, fileName])
 
-  return (
-    <>
-      {/* רקע — לחיצה עליו סוגרת */}
-      <div
-        className="fixed inset-0 bg-black/90 z-50"
-        onClick={onClose}
-      />
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-black/90" onClick={onClose}>
 
-      {/* כפתורי שליטה — fixed מעל הכל, תמיד נגישים */}
+      {/* כפתורי שליטה — absolute בתוך ה-fixed backdrop */}
       <div
-        className="fixed top-4 left-4 z-[70] flex items-center gap-2"
+        className="absolute top-4 left-4 flex items-center gap-2"
         onClick={e => e.stopPropagation()}
       >
-        {/* סגור — תמיד נגיש */}
         <button
           onClick={onClose}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-2xl"
           style={{ background: '#ef4444', color: '#fff', border: '2px solid #fff' }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,11 +95,10 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
           סגור
         </button>
 
-        {/* הדפסה — נגיש רק אחרי טעינה */}
         {status === 'ready' && (
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-2xl"
             style={{ background: '#2563eb', color: '#fff', border: '2px solid #fff' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,12 +109,11 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
           </button>
         )}
 
-        {/* הורד */}
         {status === 'ready' && (
           <button
             onClick={handleDownload}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-xl transition-all"
-            style={{ background: '#374151', color: '#fff', border: '2px solid rgba(255,255,255,0.3)' }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm shadow-2xl"
+            style={{ background: '#374151', color: '#fff', border: '2px solid rgba(255,255,255,0.4)' }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -133,25 +125,19 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
       </div>
 
       {/* שם קובץ */}
-      <div
-        className="fixed top-4 right-4 z-[70] max-w-xs"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="absolute top-4 right-4 max-w-xs" onClick={e => e.stopPropagation()}>
         <p className="text-white text-sm font-medium bg-black/60 px-3 py-2 rounded-lg truncate shadow-xl"
-          title={fileName}>
-          {fileName}
-        </p>
+          title={fileName}>{fileName}</p>
       </div>
 
       {/* תוכן */}
       <div
-        className="fixed z-[60] flex items-center justify-center"
-        style={{ inset: '60px 0 28px 0' }}
+        className="absolute flex items-center justify-center"
+        style={{ top: 60, left: 0, right: 0, bottom: 28 }}
         onClick={onClose}
       >
         {status === 'loading' && (
-          <div className="flex items-center gap-3 text-white text-sm"
-            onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-3 text-white text-sm" onClick={e => e.stopPropagation()}>
             <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
@@ -164,11 +150,9 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
           <div className="text-center" onClick={e => e.stopPropagation()}>
             <div className="text-5xl mb-4">⚠️</div>
             <p className="text-white font-semibold text-lg mb-6">{errMsg}</p>
-            <button
-              onClick={onClose}
+            <button onClick={onClose}
               className="px-6 py-2.5 rounded-xl text-sm font-bold text-white shadow-xl"
-              style={{ background: '#ef4444', border: '2px solid #fff' }}
-            >
+              style={{ background: '#ef4444', border: '2px solid #fff' }}>
               סגור
             </button>
           </div>
@@ -176,22 +160,15 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
 
         {status === 'ready' && blobUrl && isPdf(fileType) && (
           <div className="w-full h-full px-2" onClick={e => e.stopPropagation()}>
-            <iframe
-              ref={iframeRef}
-              src={blobUrl}
-              className="w-full h-full border-0 rounded-lg shadow-2xl"
-              title={fileName}
-            />
+            <iframe ref={iframeRef} src={blobUrl}
+              className="w-full h-full border-0 rounded-lg shadow-2xl" title={fileName} />
           </div>
         )}
 
         {status === 'ready' && blobUrl && isImage(fileType) && (
-          <img
-            src={blobUrl}
-            alt={fileName}
+          <img src={blobUrl} alt={fileName}
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
+            onClick={e => e.stopPropagation()} />
         )}
 
         {status === 'ready' && blobUrl && !canView(fileType) && (
@@ -213,10 +190,11 @@ export default function DocViewerModal({ viewUrl, dlUrl, fileName, fileType, onC
       </div>
 
       {/* רמז תחתון */}
-      <div className="fixed bottom-0 left-0 right-0 z-[70] text-center py-1.5 pointer-events-none">
+      <div className="absolute bottom-0 left-0 right-0 text-center py-1.5 pointer-events-none">
         <p className="text-slate-400 text-xs">לחץ על הרקע או ESC לסגירה</p>
       </div>
-    </>
+    </div>,
+    document.body
   )
 }
 
