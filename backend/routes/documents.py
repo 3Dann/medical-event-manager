@@ -124,6 +124,39 @@ def download_document(
     )
 
 
+@router.get("/{patient_id}/documents/{doc_id}/view")
+def view_document_inline(
+    patient_id: int,
+    doc_id: int,
+    token: str = Query(...),
+    db: Session = Depends(get_db),
+):
+    """הגשת מסמך inline לצפייה בדפדפן — token בquery param כי iframe לא שולח Authorization header."""
+    current_user = auth_utils.get_current_user_from_token(token, db)
+    _get_patient_or_403(patient_id, current_user, db)
+
+    doc = db.query(models.PatientDocument).filter(
+        models.PatientDocument.id == doc_id,
+        models.PatientDocument.patient_id == patient_id,
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = os.path.join(UPLOAD_DIR, str(patient_id), doc.filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    with open(file_path, "rb") as f:
+        content = f.read()
+
+    media_type = doc.file_type or "application/octet-stream"
+    return Response(
+        content=content,
+        media_type=media_type,
+        headers={"Content-Disposition": "inline"},
+    )
+
+
 @router.delete("/{patient_id}/documents/{doc_id}")
 def delete_document(
     patient_id: int,
