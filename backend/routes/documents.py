@@ -10,8 +10,15 @@ import auth as auth_utils
 
 router = APIRouter(prefix="/api/patients", tags=["documents"])
 
-# Storage directory — persistent on Railway via /data volume
-UPLOAD_DIR = os.environ.get("UPLOAD_DIR", os.path.join(os.path.dirname(__file__), "../../uploads"))
+# /data קיים → Railway volume mounted → שמור שם. אחרת → local fallback.
+def _resolve_upload_dir():
+    if os.environ.get("UPLOAD_DIR"):
+        return os.environ["UPLOAD_DIR"]
+    if os.path.isdir("/data"):
+        return "/data/uploads"
+    return os.path.join(os.path.dirname(__file__), "../../uploads")
+
+UPLOAD_DIR = _resolve_upload_dir()
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 ALLOWED_TYPES = {
