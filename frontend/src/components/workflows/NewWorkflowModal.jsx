@@ -113,5 +113,6 @@ export default function NewWorkflowModal({ patientId, onClose, onCreated }) {
         </div>
       </div>
     </div>
+    </>
   )
 }
