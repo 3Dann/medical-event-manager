@@ -601,7 +601,7 @@ export default function PatientDetail() {
                               {isApplied   && <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-semibold">✓ מוחל</span>}
                               {isSuggested && <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">★ מומלץ</span>}
                             </div>
-                            <p className="text-[10px] text-slate-400 mt-0.5">{tpl.nodes.length} צמתים</p>
+                            <p className="text-[10px] text-slate-600 mt-0.5">{tpl.nodes.length} צמתים</p>
                           </div>
                         </button>
                       )
