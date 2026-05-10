@@ -118,7 +118,7 @@ export default function PatientMedications() {
       setCandidates(prev => prev.filter(x => x.name !== c.name))
       await fetchAll()
     } catch (e) {
-      alert('שגיאה בהוספת תרופה')
+      showToast('לא ניתן להוסיף את התרופה. נסה שוב.')
     } finally {
       setAddingCandidate(null)
     }
