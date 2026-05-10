@@ -27,7 +27,7 @@ export default function AlertsPanel({ alerts }) {
           </svg>
         </div>
         <p className="text-slate-500 text-sm font-medium">אין התראות פעילות</p>
-        <p className="text-slate-400 text-xs mt-1">כל המטופלים תקינים</p>
+        <p className="text-slate-600 text-xs mt-1">כל המטופלים תקינים</p>
       </div>
     )
 
