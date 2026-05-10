@@ -246,7 +246,7 @@ export default function PatientMedications() {
 
       {/* Active medications */}
       {active.length === 0 && !showForm ? (
-        <div className="card text-center py-12 text-slate-400">
+        <div className="card text-center py-12 text-slate-600">
           אין תרופות פעילות — לחץ "הוסף תרופה" להתחלה
         </div>
       ) : (
