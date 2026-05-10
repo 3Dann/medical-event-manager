@@ -750,7 +750,7 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
           <button onClick={() => { onAdd(newText); setNewText(''); setShowAdd(false) }}
             className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">+</button>
           <button onClick={() => { setShowAdd(false); setNewText('') }}
-            className="text-xs text-slate-400 px-1">✕</button>
+            className="text-xs text-slate-600 px-1">✕</button>
         </div>
       ) : (
         <button onClick={() => setShowAdd(true)}
