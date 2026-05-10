@@ -174,7 +174,7 @@ function RecentReports({ reports, onDownload, onView }) {
               </svg>
               הורד
             </button>
-            <span className="text-xs text-slate-400">{fmt_size(doc.file_size)}</span>
+            <span className="text-xs text-slate-600">{fmt_size(doc.file_size)}</span>
           </div>
 
           <div className="flex-1 min-w-0 text-right">
