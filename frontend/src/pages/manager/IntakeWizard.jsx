@@ -443,7 +443,7 @@ function MedicationsStep({ medications, onChange }) {
     <div className="space-y-4">
       {/* List */}
       {medications.length === 0 ? (
-        <div className="text-center py-10 text-slate-400 bg-slate-50 rounded-xl text-sm">
+        <div className="text-center py-10 text-slate-600 bg-slate-50 rounded-xl text-sm">
           אין תרופות — לחץ "הוסף תרופה" להתחלה
         </div>
       ) : (
