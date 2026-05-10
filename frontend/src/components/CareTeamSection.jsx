@@ -133,8 +133,8 @@ export default function CareTeamSection({ patientId }) {
                 </div>
               </div>
               <div className="flex gap-2 shrink-0">
-                <button onClick={() => { setEditing(m); setShowModal(true) }} className="text-xs text-slate-400 hover:text-blue-600">עריכה</button>
-                <button onClick={() => remove(m.id)} className="text-xs text-slate-400 hover:text-red-500">הסר</button>
+                <button onClick={() => { setEditing(m); setShowModal(true) }} className="text-xs text-slate-600 hover:text-blue-600">עריכה</button>
+                <button onClick={() => remove(m.id)} className="text-xs text-slate-600 hover:text-red-500">הסר</button>
               </div>
             </div>
           ))}
