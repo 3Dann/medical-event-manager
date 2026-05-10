@@ -632,23 +632,35 @@ function HomeScreen({ patient, manager, data, onNavigate }) {
       )}
 
       {/* Navigation cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className={`grid gap-4 ${simple ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
         {sections.map(s => (
           <button
             key={s.key}
             onClick={() => onNavigate(s.key)}
-            className={`bg-gradient-to-br ${s.color} border-2 ${s.border} rounded-3xl p-6 text-right hover:shadow-md active:scale-95 transition-all`}
+            className={`bg-gradient-to-br ${s.color} border-2 ${s.border} rounded-3xl text-right hover:shadow-md active:scale-95 transition-all ${simple ? 'p-8 flex items-center gap-6' : 'p-6'}`}
           >
-            <div className="flex items-start justify-between mb-3">
-              <span className="text-5xl">{s.icon}</span>
-              {s.badge != null && (
-                <span className="bg-white/80 text-slate-700 font-bold px-3 py-1 rounded-full text-sm">
-                  {s.badge} {s.badgeLabel}
-                </span>
-              )}
-            </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-1">{s.title}</h2>
-            <p className="text-slate-600 leading-relaxed">{s.desc}</p>
+            {simple ? (
+              <>
+                <span className="text-6xl flex-shrink-0">{s.icon}</span>
+                <div className="text-right flex-1">
+                  <h2 className="text-2xl font-bold text-slate-800 mb-1">{s.title}</h2>
+                  <p className="text-slate-600">{s.desc}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-5xl">{s.icon}</span>
+                  {s.badge != null && (
+                    <span className="bg-white/80 text-slate-700 font-bold px-3 py-1 rounded-full text-sm">
+                      {s.badge} {s.badgeLabel}
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-xl font-bold text-slate-800 mb-1">{s.title}</h2>
+                <p className="text-slate-600 leading-relaxed">{s.desc}</p>
+              </>
+            )}
           </button>
         ))}
       </div>
