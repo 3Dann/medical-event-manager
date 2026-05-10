@@ -24,6 +24,7 @@ const emptyForm = () => ({
 
 export default function PatientMedications() {
   const { id } = useParams()
+  const { toast, showToast, dismissToast } = useToast()
   const [medications, setMedications] = useState([])
   const [interactions, setInteractions] = useState([])
   const [checkingInteractions, setCheckingInteractions] = useState(false)
