@@ -39,7 +39,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
       )
       onUpdated(res.data)
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה')
+      showToast('לא ניתן להתקדם בשלב כרגע. נסה שוב.')
     } finally {
       setSaving(false)
     }
@@ -51,7 +51,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
       const res = await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/skip`, { reason: notes })
       onUpdated(res.data)
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה')
+      showToast('לא ניתן לדלג על השלב כרגע. נסה שוב.')
     } finally {
       setSaving(false)
       setShowSkipConfirm(false)
@@ -64,10 +64,9 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
       const res = await axios.post(
         `/api/workflows/instances/${instanceId}/steps/${step.id}/tasks/${taskId}/toggle`
       )
-      // res.data is the updated step dict
       setStep(res.data)
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה')
+      showToast('לא ניתן לעדכן את המשימה. נסה שוב.')
     } finally {
       setTogglingTask(null)
     }
