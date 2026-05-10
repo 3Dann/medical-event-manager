@@ -379,7 +379,7 @@ export default function WorkflowsPage() {
                     <span className={`text-sm px-3 py-0.5 rounded-full ${CATEGORY_COLORS[selected.category] || 'bg-slate-100 text-slate-500'}`}>
                       {CATEGORY_LABELS[selected.category] || selected.category}
                     </span>
-                    {selected.is_builtin && <span className="text-xs text-slate-400">🔒 מובנית</span>}
+                    {selected.is_builtin && <span className="text-xs text-slate-600">🔒 מובנית</span>}
                   </div>
                   {selected.description && <p className="text-slate-500 text-sm">{selected.description}</p>}
                 </div>
