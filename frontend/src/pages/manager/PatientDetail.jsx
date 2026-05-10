@@ -495,7 +495,7 @@ export default function PatientDetail() {
                             )
                           })()}
                           {node.planned_date && (
-                            <span className="text-[11px] text-slate-400">📅 {node.planned_date}</span>
+                            <span className="text-[11px] text-slate-600">📅 {node.planned_date}</span>
                           )}
                         </div>
                         {/* Notes */}
