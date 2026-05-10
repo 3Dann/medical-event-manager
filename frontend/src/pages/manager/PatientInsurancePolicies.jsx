@@ -509,7 +509,7 @@ function AddSourceForm({ patientId, onDone }) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">חברת ביטוח *</label>
+          <label className="block text-xs text-slate-600 mb-1">חברת ביטוח *</label>
           <select className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200"
             value={form.company_name} onChange={e => setForm(f => ({ ...f, company_name: e.target.value }))}>
             <option value="">— בחר —</option>
