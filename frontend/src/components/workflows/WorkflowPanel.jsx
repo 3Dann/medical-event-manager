@@ -28,7 +28,8 @@ export default function WorkflowPanel({ patientId }) {
   const [activeStep, setActiveStep] = useState(null)   // step object currently expanded
   const [showNew, setShowNew] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [deleteConfirm, setDeleteConfirm] = useState(false) // first confirmation step
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const { toast, showToast, dismissToast } = useToast() // first confirmation step
 
   const fetchInstances = useCallback(async () => {
     try {
