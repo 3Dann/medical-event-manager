@@ -105,7 +105,7 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
           {filtered ? (
             <div className="p-2 space-y-1">
               {filtered.length === 0 ? (
-                <div className="text-slate-400 text-sm text-center py-3">לא נמצא — ניתן להוסיף</div>
+                <div className="text-slate-600 text-sm text-center py-3">לא נמצא — ניתן להוסיף</div>
               ) : filtered.map(t => (
                 <button key={t.key} onClick={() => toggle(t.key)}
                   className={`w-full text-right px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between
