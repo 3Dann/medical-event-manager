@@ -555,7 +555,7 @@ export default function PatientInsurance() {
           {blResult.success
             ? `✅ ${blResult.message} — ${blResult.count} זכאויות יובאו`
             : `❌ ${blResult.message}`}
-          <button onClick={() => setBlResult(null)} className="text-xs text-slate-400 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setBlResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
         </div>
       )}
 
