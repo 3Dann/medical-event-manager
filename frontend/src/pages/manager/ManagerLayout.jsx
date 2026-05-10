@@ -71,6 +71,7 @@ export default function ManagerLayout() {
   const { t } = useTranslation()
   const canUseDemo = user?.is_admin || user?.demo_mode_allowed
   const [hasUnread, setHasUnread] = useState(false)
+  const [newTaskCount, setNewTaskCount] = useState(0)
 
   const fetchUnread = useCallback(async () => {
     if (!user?.is_admin) return
@@ -80,10 +81,19 @@ export default function ManagerLayout() {
     } catch (_) {}
   }, [user?.is_admin])
 
-  useEffect(() => { fetchUnread() }, [fetchUnread])
+  const fetchNewTasks = useCallback(async () => {
+    if (user?.role !== 'manager') return
+    try {
+      const r = await axios.get('/api/tasks/new-count')
+      setNewTaskCount(r.data.count || 0)
+    } catch (_) {}
+  }, [user?.role])
+
+  useEffect(() => { fetchUnread(); fetchNewTasks() }, [fetchUnread, fetchNewTasks])
 
   useEffect(() => {
     if (location.pathname === '/manager/feedback') setHasUnread(false)
+    if (location.pathname === '/manager/my-day') setNewTaskCount(0)
   }, [location.pathname])
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
