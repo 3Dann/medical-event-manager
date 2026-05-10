@@ -131,7 +131,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
           <h2 className="text-xl font-bold text-slate-800">
             {template ? `עריכת תבנית${template.is_builtin ? ' — גיבוי נשמר אוטומטית' : ''}` : 'תבנית חדשה'}
           </h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-2xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-2xl leading-none p-2 -m-2 rounded-lg">&times;</button>
         </div>
 
         <div className="p-6 space-y-5">
