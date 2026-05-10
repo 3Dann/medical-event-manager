@@ -517,7 +517,7 @@ function AddSourceForm({ patientId, onDone }) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-400 mb-1">מספר פוליסה</label>
+          <label className="block text-xs text-slate-600 mb-1">מספר פוליסה</label>
           <input dir="ltr" className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 font-mono"
             value={form.policy_number} onChange={e => setForm(f => ({ ...f, policy_number: e.target.value }))} />
         </div>
