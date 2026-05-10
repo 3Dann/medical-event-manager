@@ -762,7 +762,7 @@ export default function DoctorsDatabase() {
             <tbody className="divide-y divide-slate-100">
               {doctors.map((doc, idx) => (
                 <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-3 py-3 text-center text-xs text-slate-400 font-mono">{idx + 1}</td>
+                  <td className="px-3 py-3 text-center text-xs text-slate-600 font-mono">{idx + 1}</td>
                   {allColDefs.filter(c => visibleCols.includes(c.key)).map(c => (
                     <td key={c.key} dir="auto" className={`px-4 py-3 text-slate-600 text-sm ${c.key === 'name' ? 'font-medium text-slate-800' : ''}`}>
                       {renderCell(doc, c.key)}
