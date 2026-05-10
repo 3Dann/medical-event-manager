@@ -498,12 +498,12 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
         <button onClick={onClear} className="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100">נקה</button>
       </div>
 
-      <p className="text-xs text-slate-400 mb-3">{total.toLocaleString()} רשומות</p>
+      <p className="text-xs text-slate-600 mb-3">{total.toLocaleString()} רשומות</p>
 
       {loading ? (
-        <div className="text-center py-12 text-slate-400 text-sm">טוען...</div>
+        <div className="text-center py-12 text-slate-600 text-sm">טוען...</div>
       ) : logs.length === 0 ? (
-        <div className="text-center py-12 text-slate-400 text-sm">אין רשומות</div>
+        <div className="text-center py-12 text-slate-600 text-sm">אין רשומות</div>
       ) : (
         <div className="overflow-x-auto">
           <div className="space-y-1.5">
