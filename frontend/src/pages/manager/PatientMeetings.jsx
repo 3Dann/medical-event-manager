@@ -241,9 +241,9 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
               {form.action_items.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <input type="checkbox" checked={item.done} onChange={() => toggleTask(i)} />
-                  <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>{item.task}</span>
-                  {item.responsible && <span className="text-xs text-slate-400">{item.responsible}</span>}
-                  <button onClick={() => removeTask(i)} className="text-slate-300 hover:text-red-400 text-xs">✕</button>
+                  <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-500' : 'text-slate-700'}`}>{item.task}</span>
+                  {item.responsible && <span className="text-xs text-slate-600">{item.responsible}</span>}
+                  <button onClick={() => removeTask(i)} className="text-slate-500 hover:text-red-400 text-xs">✕</button>
                 </div>
               ))}
             </div>
