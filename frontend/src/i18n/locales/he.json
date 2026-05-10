@@ -70,7 +70,8 @@
     "demo_mode_on": "הפעל מצב הצגה",
     "demo_mode_banner": "מצב הצגה פעיל — אין שמירת נתונים",
     "meetings": "פגישות",
-    "reports": "דוחות"
+    "reports": "דוחות",
+    "my_day": "היום שלי"
   },
   "auth": {
     "login": "התחברות",
