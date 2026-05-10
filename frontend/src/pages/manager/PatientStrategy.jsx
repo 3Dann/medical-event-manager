@@ -561,7 +561,7 @@ export default function PatientStrategy() {
                       <div className="text-left text-xs text-slate-600">
                         {step.amount && <p>₪{step.amount.toLocaleString()}</p>}
                         {step.percentage && <p>{step.percentage}%</p>}
-                        <p className="text-slate-400">ציון: {step.responsiveness_score}/10</p>
+                        <p className="text-slate-600">ציון: {step.responsiveness_score}/10</p>
                       </div>
                     </div>
                   )
