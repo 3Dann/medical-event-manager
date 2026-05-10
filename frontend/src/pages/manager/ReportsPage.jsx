@@ -201,6 +201,7 @@ function RecentReports({ reports, onDownload, onView }) {
 
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function ReportsPage() {
+  const { toast, showToast, dismissToast } = useToast()
   const [recent, setRecent]         = useState([])
   const [generating, setGenerating] = useState(null)
   const [viewingDoc, setViewingDoc] = useState(null)
