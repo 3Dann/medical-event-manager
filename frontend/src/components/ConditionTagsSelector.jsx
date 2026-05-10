@@ -73,7 +73,7 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
         onClick={() => setOpen(v => !v)}
       >
         {selectedTags.length === 0 && (
-          <span className="text-slate-400 text-sm self-center">בחר אבחנות / מצב רפואי...</span>
+          <span className="text-slate-600 text-sm self-center">בחר אבחנות / מצב רפואי...</span>
         )}
         {selectedTags.map(t => (
           <span key={t.key}
@@ -83,7 +83,7 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
             <span className="text-blue-400 hover:text-blue-700 cursor-pointer">✕</span>
           </span>
         ))}
-        <span className="mr-auto text-slate-400 text-sm self-center">{open ? '▲' : '▼'}</span>
+        <span className="mr-auto text-slate-600 text-sm self-center">{open ? '▲' : '▼'}</span>
       </div>
 
       {/* Dropdown */}
