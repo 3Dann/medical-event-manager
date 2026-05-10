@@ -958,7 +958,7 @@ export default function IntakeWizard() {
           {/* ADL */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-800">ADL <span className="text-slate-400 font-normal text-sm">(0-100)</span></h3>
+              <h3 className="font-semibold text-slate-800">ADL <span className="text-slate-600 font-normal text-sm">(0-100)</span></h3>
               <span className="text-lg font-bold text-blue-600">{adlScore}/100</span>
             </div>
             <div className="space-y-3">
@@ -990,7 +990,7 @@ export default function IntakeWizard() {
           {/* IADL */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-800">IADL <span className="text-slate-400 font-normal text-sm">(0-8)</span></h3>
+              <h3 className="font-semibold text-slate-800">IADL <span className="text-slate-600 font-normal text-sm">(0-8)</span></h3>
               <span className="text-lg font-bold text-blue-600">{iadlScore}/8</span>
             </div>
             <div className="space-y-3">
@@ -1022,7 +1022,7 @@ export default function IntakeWizard() {
           {/* MMSE */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-slate-800">MMSE <span className="text-slate-400 font-normal text-sm">(0-30)</span></h3>
+              <h3 className="font-semibold text-slate-800">MMSE <span className="text-slate-600 font-normal text-sm">(0-30)</span></h3>
               <span className={`text-lg font-bold ${mmseScore >= 24 ? 'text-green-600' : mmseScore >= 18 ? 'text-amber-600' : 'text-red-600'}`}>
                 {mmseScore}/30
               </span>
