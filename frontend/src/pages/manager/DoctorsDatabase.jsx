@@ -46,7 +46,7 @@ function InsuranceCell({ doc, allOptions, onSave }) {
                 {HMO_LABELS[c] || c}
               </span>
             ))
-          : <span className="text-slate-300 text-xs">+ הוסף</span>
+          : <span className="text-slate-500 text-xs">+ הוסף</span>
         }
       </div>
       {open && (
