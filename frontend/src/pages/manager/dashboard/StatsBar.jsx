@@ -12,7 +12,7 @@ function StatCard({ label, value, color = 'slate', sub }) {
     <div className="card flex flex-col gap-1">
       <p className="text-sm text-slate-500">{label}</p>
       <p className={`text-3xl font-bold mt-1 ${palette[color] ?? palette.slate}`}>{value}</p>
-      {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-slate-600 mt-0.5">{sub}</p>}
     </div>
   )
 }
