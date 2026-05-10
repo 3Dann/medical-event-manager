@@ -61,6 +61,14 @@ async def lifespan(app: FastAPI):
         id="weekly_drug_update",
         replace_existing=True,
     )
+    scheduler.add_job(
+        _daily_overdue_check,
+        trigger="cron",
+        hour=8,
+        minute=0,
+        id="daily_overdue_check",
+        replace_existing=True,
+    )
     scheduler.start()
     app.state.scheduler = scheduler
     logger.info("Scheduler started")
