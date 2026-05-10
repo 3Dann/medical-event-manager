@@ -361,9 +361,9 @@ export default function AdminPage() {
                 <div>
                   <p className="text-xs font-medium text-slate-600 mb-2">גישות פעילות</p>
                   {permsLoading ? (
-                    <p className="text-sm text-slate-400">טוען...</p>
+                    <p className="text-sm text-slate-600">טוען...</p>
                   ) : permissions.length === 0 ? (
-                    <p className="text-sm text-slate-400 py-3">אין הרשאות נוספות — רק הבעלים ניגש לתיק זה</p>
+                    <p className="text-sm text-slate-600 py-3">אין הרשאות נוספות — רק הבעלים ניגש לתיק זה</p>
                   ) : (
                     <div className="space-y-2">
                       {permissions.map(perm => (
