@@ -299,7 +299,7 @@ export default function WorkflowsPage() {
       await axios.delete(`/api/workflows/templates/${tmpl.id}`)
       loadTemplates()
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה במחיקה')
+      showToast('לא ניתן למחוק את התבנית. נסה שוב.')
     }
   }
 
