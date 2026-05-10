@@ -75,6 +75,8 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
   const formatDate = d => d ? new Date(d).toLocaleDateString('he-IL') : null
 
   return (
+    <>
+    <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
     <div className={`border-2 rounded-xl transition-all ${st.border} ${st.bg}`}>
       <button
         className="w-full flex items-center gap-3 p-3 text-right"
