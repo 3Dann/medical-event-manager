@@ -105,7 +105,7 @@ export default function PatientMedications() {
       const res = await axios.get(`/api/patients/${id}/medications/extract/${extractDocId}`)
       setCandidates(res.data.candidates)
     } catch (err) {
-      alert(err.response?.data?.detail || 'שגיאה בחילוץ')
+      showToast('לא ניתן לזהות תרופות מהמסמך. נסה שוב.')
     } finally { setExtracting(false) }
   }
 
