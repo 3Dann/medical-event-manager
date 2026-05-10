@@ -742,7 +742,7 @@ export default function PatientInsurance() {
 
       {/* Sources list */}
       {sources.length === 0 ? (
-        <div className="card text-center py-10 text-slate-400">אין מקורות ביטוח עדיין</div>
+        <div className="card text-center py-10 text-slate-600">אין מקורות ביטוח עדיין</div>
       ) : (
         <div className="space-y-4">
           {sources.map(s => (
