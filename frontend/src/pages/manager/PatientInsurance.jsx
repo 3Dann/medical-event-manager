@@ -545,7 +545,7 @@ export default function PatientInsurance() {
           {hmoResult.success
             ? `✅ ${hmoResult.message}`
             : `❌ ${hmoResult.message}`}
-          <button onClick={() => setHmoResult(null)} className="text-xs text-slate-400 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setHmoResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
         </div>
       )}
 
