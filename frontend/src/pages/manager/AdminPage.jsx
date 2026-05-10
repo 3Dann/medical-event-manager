@@ -299,7 +299,7 @@ export default function AdminPage() {
           <div className="w-72 flex-shrink-0">
             <p className="text-xs text-slate-500 mb-2">בחר תיק מטופל</p>
             <div className="space-y-1 max-h-[70vh] overflow-y-auto">
-              {patients.length === 0 && <p className="text-sm text-slate-400 py-4 text-center">אין תיקים</p>}
+              {patients.length === 0 && <p className="text-sm text-slate-600 py-4 text-center">אין תיקים</p>}
               {patients.map(p => (
                 <button
                   key={p.id}
