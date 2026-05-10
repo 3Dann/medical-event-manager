@@ -83,7 +83,7 @@ export default function WorkflowPanel({ patientId }) {
       setSelected(res.data)
       setInstances(prev => prev.map(i => i.id === res.data.id ? res.data : i))
     } catch (e) {
-      alert(e.response?.data?.detail || 'שגיאה')
+      showToast('שגיאה בעדכון הזרימה. נסה שוב.')
     }
   }
 
