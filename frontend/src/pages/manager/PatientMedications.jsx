@@ -307,7 +307,7 @@ export default function PatientMedications() {
           >
             בדוק אינטראקציות מלאות ב-Drugs.com ↗
           </a>
-          <p className="text-xs text-slate-300 mt-0.5">למידע בלבד — אינו תחליף לייעוץ רפואי</p>
+          <p className="text-xs text-slate-500 mt-0.5">למידע בלבד — אינו תחליף לייעוץ רפואי</p>
         </div>
       )}
     </div>
