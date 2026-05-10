@@ -771,7 +771,7 @@ export default function PatientInsurance() {
                   {CATEGORIES.map(cat => {
                     const cov = s.coverages.find(c=>c.category===cat.key)
                     return (
-                      <span key={cat.key} className={`text-xs px-2 py-1 rounded-full ${cov?.is_covered?'bg-green-100 text-green-700':'bg-slate-100 text-slate-400'}`}>
+                      <span key={cat.key} className={`text-xs px-2 py-1 rounded-full ${cov?.is_covered?'bg-green-100 text-green-700':'bg-slate-100 text-slate-600'}`}>
                         {cov?.is_covered ? '✓' : '✗'} {cat.label}
                         {cov?.is_covered && cov?.coverage_percentage ? ` ${cov.coverage_percentage}%` : ''}
                         {cov?.is_covered && cov?.coverage_amount ? ` ₪${Number(cov.coverage_amount).toLocaleString()}` : ''}
