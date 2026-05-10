@@ -395,13 +395,15 @@ export default function PatientStrategy() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => approveClaim(claim.id)}
-                        className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors">
-                        אשר הגשה
+                        disabled={approvingId === claim.id || deletingId === claim.id}
+                        className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+                        {approvingId === claim.id ? 'מאשר...' : 'אשר הגשה'}
                       </button>
                       <button
-                        onClick={() => axios.delete(`/api/patients/${id}/claims/${claim.id}`).then(fetchAll)}
-                        className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
-                        בטל
+                        onClick={() => deleteClaim(claim.id)}
+                        disabled={deletingId === claim.id || approvingId === claim.id}
+                        className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50">
+                        {deletingId === claim.id ? 'מוחק...' : 'בטל'}
                       </button>
                     </div>
                   </div>
