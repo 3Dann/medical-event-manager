@@ -106,12 +106,30 @@ function EmptyState({ icon, text, sub }) {
 
 // ── Timeline section ──────────────────────────────────────────────────────────
 function TimelineSection({ workflows, redFlags, onBack }) {
+  const speakText = () => {
+    const parts = []
+    if (redFlags.length > 0)
+      parts.push(`יש ${redFlags.length} הודעות חשובות: ${redFlags.map(f => f.title).join('. ')}.`)
+    if (workflows.length === 0) {
+      parts.push('אין תהליכי טיפול פעילים כרגע.')
+    } else {
+      workflows.forEach(wf => {
+        const status = wf.status === 'active' ? 'פעיל' : wf.status === 'completed' ? 'הושלם' : 'מושהה'
+        parts.push(`${wf.title}: ${status}, ${wf.progress} אחוז הושלם.`)
+        const activeStep = wf.steps.find(s => s.status === 'active')
+        if (activeStep) parts.push(`השלב הנוכחי: ${activeStep.name}.`)
+      })
+    }
+    return parts.join(' ')
+  }
+
   return (
     <div>
       <SectionHeader
         title="הטיפול שלי"
         subtitle="מסע הטיפול הרפואי שלך שלב אחרי שלב"
         onBack={onBack}
+        speakText={speakText}
       />
 
       {redFlags.length > 0 && (
