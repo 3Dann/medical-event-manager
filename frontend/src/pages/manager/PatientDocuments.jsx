@@ -203,7 +203,7 @@ export default function PatientDocuments() {
 
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-slate-800 truncate">{doc.original_name}</p>
-                <div className="flex items-center gap-3 text-xs text-slate-400 mt-0.5 flex-wrap">
+                <div className="flex items-center gap-3 text-xs text-slate-600 mt-0.5 flex-wrap">
                   {doc.category && (
                     <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{doc.category}</span>
                   )}
