@@ -493,7 +493,7 @@ export default function DoctorsDatabase() {
       case 'gives_expert_opinion':
         return doc.gives_expert_opinion
           ? <span className="inline-block bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">כן</span>
-          : <span className="text-slate-300 text-xs">לא</span>
+          : <span className="text-slate-500 text-xs">לא</span>
       case 'private_price':
         return doc.private_price ? `₪${doc.private_price.toLocaleString()}` : '—'
       case 'phone': case 'phone2': case 'whatsapp':
