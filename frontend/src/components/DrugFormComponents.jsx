@@ -402,17 +402,17 @@ export function MedRow({ med, onEdit, onDelete, onToggle }) {
       <div className="flex items-center gap-1 shrink-0">
         {onToggle && (
           <button onClick={() => onToggle(med)} title={med.is_active ? 'השהה' : 'הפעל'}
-            className="text-xs px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+            className="text-sm px-2.5 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
             {med.is_active ? '⏸' : '▶'}
           </button>
         )}
         {onEdit && (
           <button onClick={() => onEdit(med)}
-            className="text-xs px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">✏️</button>
+            className="text-sm px-2.5 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">✏️</button>
         )}
         {onDelete && (
           <button onClick={() => onDelete(med.id || med._idx)}
-            className="text-xs px-2 py-1 rounded-lg border border-red-100 text-red-400 hover:bg-red-50">🗑</button>
+            className="text-sm px-2.5 py-2 rounded-lg border border-red-100 text-red-400 hover:bg-red-50">🗑</button>
         )}
       </div>
     </div>
