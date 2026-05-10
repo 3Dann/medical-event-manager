@@ -373,10 +373,10 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">משימות</p>
               {meeting.action_items.map((t, i) => (
-                <div key={i} className={`text-sm flex items-center gap-2 ${t.done ? 'line-through text-slate-400' : 'text-slate-700'}`}>
+                <div key={i} className={`text-sm flex items-center gap-2 ${t.done ? 'line-through text-slate-500' : 'text-slate-700'}`}>
                   <span>{t.done ? '✅' : '☐'}</span>
                   <span>{t.task}</span>
-                  {t.responsible && <span className="text-xs text-slate-400">({t.responsible})</span>}
+                  {t.responsible && <span className="text-xs text-slate-600">({t.responsible})</span>}
                 </div>
               ))}
             </div>
