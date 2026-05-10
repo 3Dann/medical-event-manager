@@ -54,11 +54,11 @@ export default function AlertsPanel({ alerts }) {
                   <span className="text-xs text-slate-500">
                     מטופל: <span className="font-medium text-slate-700">{alert.patient_name}</span>
                   </span>
-                  <span className="text-slate-300">·</span>
+                  <span className="text-slate-500">·</span>
                   <span className="text-xs text-slate-500">מלווה: {alert.manager_name}</span>
                   {alert.flag_type && (
                     <>
-                      <span className="text-slate-300">·</span>
+                      <span className="text-slate-500">·</span>
                       <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium
                         ${isCritical ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {FLAG_TYPE_LABELS[alert.flag_type] ?? alert.flag_type}
