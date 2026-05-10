@@ -359,7 +359,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button onClick={() => setExpanded(e => !e)} className="text-xs text-slate-400 hover:text-slate-600">
+          <button onClick={() => setExpanded(e => !e)} className="text-xs text-slate-600 hover:text-slate-800">
             {expanded ? '▲' : '▼'}
           </button>
           <button onClick={() => onEdit(meeting)} className="text-xs text-blue-500 hover:text-blue-700">עריכה</button>
