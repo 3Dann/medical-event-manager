@@ -141,6 +141,11 @@ export default function ManagerLayout() {
               {item.to === '/manager/feedback' && hasUnread && (
                 <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-800" />
               )}
+              {item.badgeKey === 'myDay' && newTaskCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 bg-purple-500 rounded-full border border-slate-800 flex items-center justify-center text-[10px] font-bold text-white px-0.5">
+                  {newTaskCount}
+                </span>
+              )}
             </div>
             {sidebarOpen && <span>{t(item.tKey)}</span>}
           </NavLink>
