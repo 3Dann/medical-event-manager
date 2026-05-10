@@ -539,6 +539,7 @@ function AddSourceForm({ patientId, onDone }) {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function PatientInsurancePolicies() {
   const { id } = useParams()
+  const { toast, showToast, dismissToast } = useToast()
   const [patient, setPatient] = useState(null)
   const [sources, setSources] = useState([])
   const [expanded, setExpanded] = useState(null)       // card key
