@@ -247,5 +247,6 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
         </div>
       )}
     </div>
+    </>
   )
 }
