@@ -396,7 +396,7 @@ export function MedRow({ med, onEdit, onDelete, onToggle }) {
           <span className="text-blue-600 text-xs font-medium">· {med.indication}</span>
         )}
         {!med.is_active && (
-          <span className="text-xs bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full">לא פעיל</span>
+          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">לא פעיל</span>
         )}
       </div>
       <div className="flex items-center gap-1 shrink-0">
