@@ -1168,7 +1168,7 @@ export default function IntakeWizard() {
           <div className="border border-slate-200 rounded-2xl overflow-hidden">
             <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
               <h3 className="font-bold text-slate-800 text-sm">3. ייפוי כוח</h3>
-              <span className="text-xs text-slate-400 bg-white border border-slate-200 px-2 py-0.5 rounded-full">אופציונלי</span>
+              <span className="text-xs text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded-full">אופציונלי</span>
             </div>
             <div className="p-5">
               <label className="flex items-center gap-3 mb-4 cursor-pointer text-slate-700">
