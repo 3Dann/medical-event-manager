@@ -1254,6 +1254,22 @@ export default function IntakeWizard() {
               → חזרה ללוח בקרה
             </button>
             <h1 className="text-2xl font-bold text-slate-800">פתיחת תיק מטופל חדש</h1>
+            <div className="flex items-center gap-3">
+              {draftSaved && (
+                <span className="text-xs text-green-600 flex items-center gap-1">
+                  <span>✓</span> טיוטה נשמרה
+                </span>
+              )}
+              {!draftSaved && (
+                <button
+                  onClick={clearDraft}
+                  className="text-xs text-slate-500 hover:text-red-500 transition-colors"
+                  title="נקה את הטיוטה והתחל מחדש"
+                >
+                  נקה טיוטה
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Progress */}
