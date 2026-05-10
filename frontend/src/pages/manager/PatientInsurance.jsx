@@ -341,7 +341,7 @@ export default function PatientInsurance() {
         <tr className={`${covered ? 'bg-green-50' : 'bg-white'} group`}>
           <td className="p-2 border border-slate-200 font-medium text-slate-700 text-xs" title={catDesc || catLabel}>
             {catLabel}
-            {catDesc && <div className="text-slate-400 font-normal">{catDesc}</div>}
+            {catDesc && <div className="text-slate-600 font-normal">{catDesc}</div>}
           </td>
           <td className="p-2 border border-slate-200 text-center">
             <input type="checkbox" checked={covered}
