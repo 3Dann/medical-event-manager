@@ -321,6 +321,7 @@ export default function PatientStrategy() {
 
   return (
     <div className="p-4 md:p-6 space-y-6" dir="rtl">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {/* Conflict modal */}
       {conflict && (
         <ConflictModal
