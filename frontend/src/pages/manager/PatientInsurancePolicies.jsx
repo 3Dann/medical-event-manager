@@ -689,7 +689,7 @@ export default function PatientInsurancePolicies() {
           {/* Upload zone */}
           <div className="mb-4">
             <FileUploadZone onUpload={uploadPolicy} uploading={uploading} />
-            <p className="text-xs text-slate-400 text-center mt-1.5">
+            <p className="text-xs text-slate-600 text-center mt-1.5">
               ✨ ניתוח AI אוטומטי — Claude מחלץ את כל הכיסויים, הסכומים והחריגים
             </p>
           </div>
