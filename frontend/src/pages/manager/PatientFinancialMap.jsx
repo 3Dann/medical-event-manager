@@ -157,7 +157,7 @@ export default function PatientFinancialMap() {
       {activeTab === 'alerts' && (
         <div className="space-y-2">
           {alerts.length === 0
-            ? <p className="text-slate-400 text-center py-8">אין התראות</p>
+            ? <p className="text-slate-600 text-center py-8">אין התראות</p>
             : alerts.map((alert, i) => (
               <div key={i} className={`rounded-xl border px-4 py-3 text-sm flex items-start gap-3 ${SEVERITY_COLORS[alert.severity] || SEVERITY_COLORS.info}`}>
                 <span className="mt-0.5">
