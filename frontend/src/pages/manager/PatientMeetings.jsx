@@ -69,7 +69,7 @@ function PatientRequestsPanel({ patientId }) {
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${REQ_STATUS_COLORS[r.status] || 'bg-slate-100 text-slate-600'}`}>
                       {REQ_STATUS_LABELS[r.status] || r.status}
                     </span>
-                    <span className="text-xs text-slate-400">{fmtDate(r.created_at)}</span>
+                    <span className="text-xs text-slate-600">{fmtDate(r.created_at)}</span>
                   </div>
                   <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
                     {REQ_CAT_LABELS[r.category] || r.category}
