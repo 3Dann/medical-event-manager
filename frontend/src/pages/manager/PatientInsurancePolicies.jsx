@@ -700,7 +700,7 @@ export default function PatientInsurancePolicies() {
 
           {/* Policy list */}
           {sources.length === 0 ? (
-            <div className="text-center py-8 text-slate-400">
+            <div className="text-center py-8 text-slate-600">
               <Icon d={ShieldPath} size={32} color="#cbd5e1" className="mx-auto mb-2" />
               <p className="text-sm">אין מקורות ביטוח — העלה פוליסה לניתוח AI</p>
             </div>
