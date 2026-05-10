@@ -107,10 +107,19 @@ export default function PatientMedications() {
     } finally { setExtracting(false) }
   }
 
+  const [addingCandidate, setAddingCandidate] = useState(null)
+
   const addCandidate = async (c) => {
-    await axios.post(`/api/patients/${id}/medications`, { name: c.name, generic_name: c.generic_name, dosage: c.dosage, frequency: c.frequency, indication: c.indication })
-    setCandidates(prev => prev.filter(x => x.name !== c.name))
-    fetchAll()
+    setAddingCandidate(c.name)
+    try {
+      await axios.post(`/api/patients/${id}/medications`, { name: c.name, generic_name: c.generic_name, dosage: c.dosage, frequency: c.frequency, indication: c.indication })
+      setCandidates(prev => prev.filter(x => x.name !== c.name))
+      await fetchAll()
+    } catch (e) {
+      alert('שגיאה בהוספת תרופה')
+    } finally {
+      setAddingCandidate(null)
+    }
   }
 
   const active = medications.filter(m => m.is_active)
