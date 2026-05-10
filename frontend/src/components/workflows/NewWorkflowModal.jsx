@@ -38,7 +38,7 @@ export default function NewWorkflowModal({ patientId, onClose, onCreated }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-bold text-lg text-slate-800">זרימת עבודה חדשה</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">✕</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700">✕</button>
         </div>
 
         <div className="p-5 space-y-4">
