@@ -462,7 +462,7 @@ export default function PatientStrategy() {
             <div className="card text-center py-10">
               <p className="text-2xl mb-2">💡</p>
               <p className="text-slate-600 font-medium">אין הצעות זרימה כרגע</p>
-              <p className="text-slate-400 text-sm mt-1">הגדר אבחנות ותגיות בטאב "פרטים וצמתים" כדי לקבל הצעות מותאמות</p>
+              <p className="text-slate-600 text-sm mt-1">הגדר אבחנות ותגיות בטאב "פרטים וצמתים" כדי לקבל הצעות מותאמות</p>
             </div>
           )}
 
