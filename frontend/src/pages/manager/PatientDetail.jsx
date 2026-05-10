@@ -646,7 +646,7 @@ export default function PatientDetail() {
                           <ul className="mr-7 space-y-0.5">
                             {node.sub_items.slice(0, 5).map((sub, j) => (
                               <li key={j} className="text-[11px] text-slate-500 flex gap-1.5">
-                                <span className="text-slate-300 flex-shrink-0">·</span>{sub}
+                                <span className="text-slate-500 flex-shrink-0">·</span>{sub}
                               </li>
                             ))}
                             {node.sub_items.length > 5 && (
