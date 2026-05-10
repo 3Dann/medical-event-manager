@@ -1032,10 +1032,10 @@ export default function IntakeWizard() {
                 <div key={sec.key} className="flex items-center gap-4">
                   <div className="flex-1">
                     <p className="text-sm text-slate-700">{sec.label}</p>
-                    <p className="text-xs text-slate-400">{sec.hint}</p>
+                    <p className="text-xs text-slate-600">{sec.hint}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400">0</span>
+                    <span className="text-xs text-slate-600">0</span>
                     <input
                       type="range" min={0} max={sec.max} step={1}
                       value={form.mmse_answers[sec.key] ?? 0}
