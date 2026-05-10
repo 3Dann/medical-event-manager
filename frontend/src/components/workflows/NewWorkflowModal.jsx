@@ -26,7 +26,7 @@ export default function NewWorkflowModal({ patientId, onClose, onCreated }) {
       onCreated(res.data)
       onClose()
     } catch (e) {
-      alert('שגיאה ביצירת זרימה')
+      showToast('לא ניתן ליצור זרימה כרגע. נסה שוב.')
     } finally {
       setLoading(false)
     }
