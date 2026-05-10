@@ -78,7 +78,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
         className="w-full flex items-center gap-3 p-3 text-right"
         onClick={() => setExpanded(e => !e)}
       >
-        <span className={`text-lg font-bold w-6 text-center ${step.status === 'completed' ? 'text-green-600' : step.status === 'active' ? 'text-blue-600' : 'text-slate-400'}`}>
+        <span className={`text-lg font-bold w-6 text-center ${step.status === 'completed' ? 'text-green-600' : step.status === 'active' ? 'text-blue-600' : 'text-slate-500'}`}>
           {st.icon}
         </span>
         <div className="flex-1 min-w-0">
