@@ -89,7 +89,7 @@ export default function PatientFinancialMap() {
                       <td className="px-4 py-3 text-slate-600">{cat.estimated ? fmt(cat.estimated) : '—'}</td>
                       <td className="px-4 py-3">
                         {cat.sources.length === 0
-                          ? <span className="text-slate-300">—</span>
+                          ? <span className="text-slate-500">—</span>
                           : (
                             <div className="flex flex-wrap gap-1">
                               {cat.sources.map((s, j) => (
