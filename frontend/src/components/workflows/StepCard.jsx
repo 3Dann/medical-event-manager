@@ -237,7 +237,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
 
           {step.status === 'completed' && step.notes && (
             <div className="text-sm text-slate-600 bg-white/70 rounded-lg p-2">
-              <span className="text-xs text-slate-400">הערה: </span>{step.notes}
+              <span className="text-xs text-slate-600">הערה: </span>{step.notes}
             </div>
           )}
         </div>
