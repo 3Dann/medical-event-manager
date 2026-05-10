@@ -195,7 +195,7 @@ export default function FundManagementPanel() {
   const active = funds.filter(f => f.is_active).length
   const inactive = funds.length - active
 
-  if (loading) return <p className="text-sm text-slate-400 py-4 text-right">טוען...</p>
+  if (loading) return <p className="text-sm text-slate-600 py-4 text-right">טוען...</p>
 
   return (
     <div className="space-y-4">
