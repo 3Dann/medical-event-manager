@@ -150,7 +150,7 @@ function WorkflowCard({ instance, onRefresh }) {
                   ${active ? 'bg-blue-500' : done ? 'bg-green-500' : 'bg-slate-300'}`}>
                   {done ? '✓' : active ? '●' : '○'}
                 </span>
-                <span className={done ? 'line-through text-slate-400' : active ? 'font-medium text-blue-700' : 'text-slate-600'}>
+                <span className={done ? 'line-through text-slate-500' : active ? 'font-medium text-blue-700' : 'text-slate-600'}>
                   {step.name}
                 </span>
                 {step.step_type && (
