@@ -303,7 +303,7 @@ export default function PatientMedications() {
             href={DRUGS_COM_URL(drugsComNames)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-slate-400 hover:text-blue-600 underline"
+            className="text-xs text-slate-600 hover:text-blue-600 underline"
           >
             בדוק אינטראקציות מלאות ב-Drugs.com ↗
           </a>
