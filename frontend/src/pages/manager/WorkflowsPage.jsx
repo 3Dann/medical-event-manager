@@ -363,7 +363,7 @@ export default function WorkflowsPage() {
                   </div>
                 </div>
                 {t.is_builtin && (
-                  <div className="mt-2 text-xs text-slate-400">🔒 מובנית</div>
+                  <div className="mt-2 text-xs text-slate-600">🔒 מובנית</div>
                 )}
               </button>
             ))}
