@@ -114,7 +114,7 @@ export default function PatientClaims() {
             <button
               onClick={handleFeedbackConfirm}
               disabled={feedbackSaving}
-              className="btn-primary text-xs px-3 py-1.5"
+              className="btn-primary text-xs px-3 py-2.5"
             >
               {feedbackSaving ? 'מעדכן...' : '🧠 כן, עדכן'}
             </button>
