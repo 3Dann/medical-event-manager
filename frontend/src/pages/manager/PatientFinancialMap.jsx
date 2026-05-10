@@ -68,7 +68,7 @@ export default function PatientFinancialMap() {
       {activeTab === 'map' && (
         <div className="card overflow-x-auto">
           {categories.length === 0
-            ? <p className="text-slate-400 text-center py-8">אין נתוני ביטוח — הוסף מקורות ביטוח</p>
+            ? <p className="text-slate-600 text-center py-8">אין נתוני ביטוח — הוסף מקורות ביטוח</p>
             : (
               <table className="w-full text-sm">
                 <thead>
