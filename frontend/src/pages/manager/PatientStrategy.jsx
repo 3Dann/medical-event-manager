@@ -637,7 +637,7 @@ export default function PatientStrategy() {
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-lg">👥</span>
                 <h3 className="font-semibold text-slate-800">פערים נפוצים במטופלים דומים</h3>
-                <span className="text-xs text-slate-400">({insights.similar_patients_count} מטופלים עם אותה קופת חולים)</span>
+                <span className="text-xs text-slate-600">({insights.similar_patients_count} מטופלים עם אותה קופת חולים)</span>
               </div>
               <div className="space-y-2">
                 {insights.similar_gaps.map(gap => (
