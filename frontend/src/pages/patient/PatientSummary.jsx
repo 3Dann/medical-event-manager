@@ -213,12 +213,21 @@ function TimelineSection({ workflows, redFlags, onBack }) {
 
 // ── Claims section ────────────────────────────────────────────────────────────
 function ClaimsSection({ claims, onBack }) {
+  const speakText = () => {
+    if (claims.length === 0) return 'אין בקשות לתשלום עדיין.'
+    return `יש ${claims.length} בקשות לתשלום. ` + claims.map(c => {
+      const st = CLAIM_STATUS[c.status]?.label || c.status
+      return `${c.source_label}: ${st}${c.amount ? ', סכום ' + fmt(c.amount) : ''}.`
+    }).join(' ')
+  }
+
   return (
     <div>
       <SectionHeader
         title="בקשות לתשלום מהביטוח"
         subtitle="כאן תוכל לראות את כל הבקשות שהוגשו לחברות הביטוח"
         onBack={onBack}
+        speakText={speakText}
       />
       {claims.length === 0 ? (
         <EmptyState icon="📋" text="אין בקשות לתשלום עדיין" sub="מנהל האירוע שלך יטפל בכך" />
