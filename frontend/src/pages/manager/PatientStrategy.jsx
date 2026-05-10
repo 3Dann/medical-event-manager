@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import FinancialMapTab from './FinancialMapTab'
+import AppToast from '../../components/AppToast'
+import { useToast } from '../../hooks/useToast'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 
 const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ef4444']
