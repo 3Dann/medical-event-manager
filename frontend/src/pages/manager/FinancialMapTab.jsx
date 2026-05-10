@@ -263,7 +263,7 @@ export default function FinancialMapTab({ patientId }) {
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
-      alert('שגיאה בייצור הדוח')
+      showToast('שגיאה בייצור הדוח. נסה שוב.')
     } finally {
       setGenerating(false)
     }
