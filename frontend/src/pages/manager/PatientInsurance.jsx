@@ -442,7 +442,7 @@ export default function PatientInsurance() {
               <p className="text-xs text-slate-500">הוראות מפורטות להורדה והעלאה</p>
             </div>
           </div>
-          <button onClick={() => setShowHarGuide(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+          <button onClick={() => setShowHarGuide(false)} className="text-slate-500 hover:text-slate-700 text-xl leading-none">✕</button>
         </div>
 
         {/* Section A: Download */}
