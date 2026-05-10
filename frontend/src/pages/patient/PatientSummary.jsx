@@ -351,6 +351,8 @@ function FinancialSection({ financial, onBack }) {
         title="המצב הכספי שלי"
         subtitle="כמה הביטוח משלם ומה נשאר לך לשלם"
         onBack={onBack}
+        speakText={() => !hasCost ? 'המפה הכספית עוד לא מוכנה.' :
+          `עלות כוללת מוערכת: ${fmt(total_cost)}. הביטוח משלם: ${fmt(total_covered)}, ${cov_pct} אחוז מהעלות. ${ext_funding > 0 ? 'מימון נוסף: ' + fmt(ext_funding) + '. ' : ''}חלק שלך לתשלום: ${fmt(gap)}.`}
       />
       {!hasCost ? (
         <EmptyState icon="💰" text="המפה הכספית עוד לא מוכנה" sub="מנהל האירוע שלך יעדכן את הנתונים בקרוב" />
