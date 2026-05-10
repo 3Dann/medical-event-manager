@@ -149,7 +149,7 @@ function CoverageDetailPanel({ sources, covKey, title, refItems, patient }) {
   return (
     <div className="animate-in fade-in slide-in-from-top-2 duration-200 mt-1 rounded-xl p-4"
       style={{ background: '#f8fafc', border: '1px solid #e2e8f0' }}>
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{title} — פירוט כיסויים</p>
+      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-3">{title} — פירוט כיסויים</p>
 
       {covKey === 'kupah' ? (
         patient?.hmo_name ? (
