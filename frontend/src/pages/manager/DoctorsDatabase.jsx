@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
+import AppToast from '../../components/AppToast'
+import { useToast } from '../../hooks/useToast'
 
 // ── InsuranceCell — inline multi-select in table cell ─────────────────────────
 function InsuranceCell({ doc, allOptions, onSave }) {
