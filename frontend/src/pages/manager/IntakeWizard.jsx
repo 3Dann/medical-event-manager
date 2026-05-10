@@ -1241,7 +1241,7 @@ export default function IntakeWizard() {
                     } ${
                       i === step ? 'bg-blue-600 text-white shadow-md scale-110' :
                       i < step  ? 'bg-blue-500 text-white' :
-                      'bg-slate-200 text-slate-400'
+                      'bg-slate-200 text-slate-500'
                     }`}
                   >
                     {i < step ? '✓' : i + 1}
