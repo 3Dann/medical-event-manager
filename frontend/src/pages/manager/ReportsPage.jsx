@@ -247,6 +247,7 @@ export default function ReportsPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-8 max-w-4xl mx-auto">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {viewingDoc && (
         <DocViewerModal
           viewUrl={`/api/patients/${viewingDoc.patient_id}/documents/${viewingDoc.id}/download`}
