@@ -233,7 +233,7 @@ function CoverageDetailPanel({ sources, covKey, title, refItems, patient }) {
                     : <Icon d={XCirclePath} size={13} color="#cbd5e1" className="mt-0.5 shrink-0" />}
                   <div className="min-w-0">
                     <p className="text-xs font-medium" style={{ color: isCovered ? '#065f46' : '#94a3b8' }}>{item.label}</p>
-                    <p className="text-xs text-slate-400 truncate">{item.note}</p>
+                    <p className="text-xs text-slate-600 truncate">{item.note}</p>
                   </div>
                 </div>
               )
