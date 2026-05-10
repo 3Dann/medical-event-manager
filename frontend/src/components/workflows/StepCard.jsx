@@ -139,7 +139,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
                     `}>
                       {task.is_completed ? '✓' : ''}
                     </span>
-                    <span className={task.is_completed ? 'line-through text-slate-400' : 'text-slate-700'}>
+                    <span className={task.is_completed ? 'line-through text-slate-500' : 'text-slate-700'}>
                       {task.title}
                     </span>
                     {togglingTask === task.id && (
