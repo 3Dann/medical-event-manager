@@ -1042,7 +1042,7 @@ export default function IntakeWizard() {
                       onChange={e => set('mmse_answers', { ...form.mmse_answers, [sec.key]: Number(e.target.value) })}
                       className="w-24"
                     />
-                    <span className="text-xs text-slate-400">{sec.max}</span>
+                    <span className="text-xs text-slate-600">{sec.max}</span>
                     <span className="text-sm font-bold text-slate-800 w-5 text-center">
                       {form.mmse_answers[sec.key] ?? 0}
                     </span>
