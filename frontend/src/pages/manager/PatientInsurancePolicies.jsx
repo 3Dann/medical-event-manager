@@ -219,7 +219,7 @@ function CoverageDetailPanel({ sources, covKey, title, refItems, patient }) {
       {/* Reference items */}
       {refItems && refItems.length > 0 && (
         <div className="mt-3 pt-3" style={{ borderTop: '1px solid #e2e8f0' }}>
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">כיסויים אופייניים בשוק</p>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">כיסויים אופייניים בשוק</p>
           <div className="grid grid-cols-2 gap-1.5">
             {refItems.map(item => {
               const isCovered = sources.some(s =>
