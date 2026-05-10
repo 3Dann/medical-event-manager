@@ -113,7 +113,7 @@ export default function CareTeamSection({ patientId }) {
       </div>
 
       {members.length === 0 ? (
-        <p className="text-sm text-slate-400 text-center py-4">לא הוגדר צוות מטפלים עדיין</p>
+        <p className="text-sm text-slate-600 text-center py-4">לא הוגדר צוות מטפלים עדיין</p>
       ) : (
         <div className="space-y-2">
           {members.map(m => (
