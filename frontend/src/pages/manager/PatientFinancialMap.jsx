@@ -25,7 +25,7 @@ export default function PatientFinancialMap() {
   }, [id])
 
   if (loading) return (
-    <div className="p-6 text-center text-slate-400">
+    <div className="p-6 text-center text-slate-600">
       <div className="inline-block w-6 h-6 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin mb-2" />
       <p>מחשב מפה פיננסית...</p>
     </div>
