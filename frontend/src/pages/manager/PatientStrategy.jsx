@@ -629,7 +629,7 @@ export default function PatientStrategy() {
             <div className="card text-center py-14">
               <p className="text-4xl mb-3">🧠</p>
               <p className="font-medium text-slate-700">המערכת עדיין לא אספה מספיק נתונים</p>
-              <p className="text-sm text-slate-400 mt-1">ברגע שתביעות יאושרו או יידחו, יופיעו כאן תובנות</p>
+              <p className="text-sm text-slate-600 mt-1">ברגע שתביעות יאושרו או יידחו, יופיעו כאן תובנות</p>
             </div>
           )}
           {insights?.similar_gaps?.length > 0 && (
