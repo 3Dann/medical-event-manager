@@ -240,7 +240,7 @@ export default function FundManagementPanel() {
                   <p className="text-xs text-slate-500">{fund.organization}</p>
                 )}
                 {fund.description && (
-                  <p className="text-xs text-slate-400 line-clamp-1">{fund.description}</p>
+                  <p className="text-xs text-slate-600 line-clamp-1">{fund.description}</p>
                 )}
               </div>
               <div className="shrink-0 text-left space-y-2">
