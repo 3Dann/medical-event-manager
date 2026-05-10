@@ -722,7 +722,7 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
                 onChange={e => onToggle(item.id, e.target.checked)}
                 className="w-3.5 h-3.5 accent-blue-600 cursor-pointer shrink-0"
               />
-              <span className={`text-xs flex-1 ${item.is_done ? 'line-through text-slate-400' : 'text-slate-600'}`}>
+              <span className={`text-xs flex-1 ${item.is_done ? 'line-through text-slate-500' : 'text-slate-600'}`}>
                 {item.text}
               </span>
               <button
