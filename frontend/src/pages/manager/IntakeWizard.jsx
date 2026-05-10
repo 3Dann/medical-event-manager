@@ -141,7 +141,7 @@ function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, 
         <button
           type="button"
           onMouseDown={e => { e.preventDefault(); setOpen(o => !o) }}
-          className={`px-1.5 border-t border-b border-l rounded-l-lg text-slate-400 hover:bg-slate-50 text-xs ${hasError ? 'border-red-400' : 'border-slate-300'}`}
+          className={`px-1.5 border-t border-b border-l rounded-l-lg text-slate-600 hover:bg-slate-50 text-xs ${hasError ? 'border-red-400' : 'border-slate-300'}`}
         >▾</button>
       </div>
       {open && (
