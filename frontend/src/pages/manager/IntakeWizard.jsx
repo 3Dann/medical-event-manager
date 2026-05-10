@@ -671,6 +671,7 @@ export default function IntakeWizard() {
         signer_name: form.signer_is_self ? form.full_name : form.signer_name,
         signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
       })
+      sessionStorage.removeItem(DRAFT_KEY)
       navigate(`/manager/patients/${patientId}`)
     } catch (err) {
       setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
