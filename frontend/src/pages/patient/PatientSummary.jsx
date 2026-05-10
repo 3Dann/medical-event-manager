@@ -537,6 +537,7 @@ function HelpButton({ view }) {
 // ── Home screen ───────────────────────────────────────────────────────────────
 function HomeScreen({ patient, manager, data, onNavigate }) {
   const { claims, documents, workflows, red_flags } = data
+  const { simple } = useSimple()
 
   const sections = [
     {
