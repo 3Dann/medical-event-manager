@@ -133,7 +133,7 @@ export default function WorkflowPanel({ patientId }) {
                   <div className="h-1 bg-slate-200 rounded-full">
                     <div className="h-1 bg-blue-500 rounded-full" style={{ width: `${inst.progress}%` }} />
                   </div>
-                  <div className="text-xs text-slate-400 mt-0.5">{inst.progress}%</div>
+                  <div className="text-xs text-slate-600 mt-0.5">{inst.progress}%</div>
                 </div>
               </button>
             ))}
