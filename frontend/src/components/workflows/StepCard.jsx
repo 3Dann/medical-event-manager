@@ -157,7 +157,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
               <div className="text-xs font-medium text-slate-500">היסטוריה:</div>
               {step.actions.slice(-3).map(a => (
                 <div key={a.id} className="text-xs text-slate-500 flex gap-2">
-                  <span className="text-slate-300">{a.created_at ? new Date(a.created_at).toLocaleDateString('he-IL') : ''}</span>
+                  <span className="text-slate-500">{a.created_at ? new Date(a.created_at).toLocaleDateString('he-IL') : ''}</span>
                   <span>{a.description || a.action_type}</span>
                 </div>
               ))}
