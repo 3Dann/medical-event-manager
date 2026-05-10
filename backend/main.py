@@ -33,6 +33,20 @@ def _weekly_drug_update():
         db.close()
 
 
+def _daily_overdue_check():
+    """בדיקה יומית — רושם לוג על משימות שעבר זמנן."""
+    from datetime import datetime, timezone
+    db = SessionLocal()
+    try:
+        now = datetime.now(timezone.utc)
+        overdue = db.query(models.Task).filter(
+            models.Task.due_date < now,
+            models.Task.status != "done",
+        ).count()
+        if overdue > 0:
+            logger.warning(f"OVERDUE TASKS: {overdue} tasks past due date")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
