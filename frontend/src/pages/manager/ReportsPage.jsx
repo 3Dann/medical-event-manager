@@ -235,7 +235,7 @@ export default function ReportsPage() {
       URL.revokeObjectURL(url)
       loadRecent()
     } catch (e) {
-      alert('שגיאה בייצור הדוח. בדוק שהמטופל מכיל נתוני מפה פיננסית.')
+      showToast('שגיאה בייצור הדוח. יש לוודא שהמטופל מכיל נתוני מפה פיננסית.')
     } finally {
       setGenerating(null)
     }
