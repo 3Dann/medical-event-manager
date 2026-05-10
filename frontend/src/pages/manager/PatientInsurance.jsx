@@ -258,7 +258,7 @@ export default function PatientInsurance() {
               <tr key={cat.key} className={`${covered ? 'bg-green-50' : 'bg-white'} hover:bg-slate-50`}>
                 <td className="p-2 border border-slate-200 font-medium text-slate-700 text-xs" title={`${cat.label} — ${cat.desc}`}>
                   {cat.label}
-                  <div className="text-slate-400 font-normal">{cat.desc}</div>
+                  <div className="text-slate-600 font-normal">{cat.desc}</div>
                 </td>
                 <td className="p-2 border border-slate-200 text-center">
                   {editable ? (
