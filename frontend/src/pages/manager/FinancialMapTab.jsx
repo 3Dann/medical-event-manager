@@ -284,8 +284,8 @@ export default function FinancialMapTab({ patientId }) {
     load()
   }
 
-  if (loading) return <div className="py-16 text-center text-slate-400">טוען מפה פיננסית...</div>
-  if (!data)   return <div className="py-16 text-center text-slate-400">שגיאה בטעינת הנתונים</div>
+  if (loading) return <div className="py-16 text-center text-slate-600">טוען מפה פיננסית...</div>
+  if (!data)   return <div className="py-16 text-center text-slate-600">שגיאה בטעינת הנתונים</div>
 
   const { summary, by_stage, optional_nodes, fund_applications, recommended_funds, action_items } = data
   const hasCost = summary.total_cost > 0
