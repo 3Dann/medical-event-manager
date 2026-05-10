@@ -271,6 +271,7 @@ function DocumentsSection({ documents, patientId, onBack }) {
         title="המסמכים שלי"
         subtitle="כל המסמכים הרפואיים והביטוחיים שלך במקום אחד"
         onBack={onBack}
+        speakText={() => documents.length === 0 ? 'אין מסמכים עדיין.' : `יש ${documents.length} מסמכים. ${documents.map(d => d.original_name).join(', ')}.`}
       />
       {viewingDoc && (
         <DocViewerModal
