@@ -613,6 +613,7 @@ export default function PatientInsurancePolicies() {
 
   return (
     <div className="p-6 max-w-5xl">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
 
       {/* Coverage gaps alert */}
       {gaps.length > 0 && (
