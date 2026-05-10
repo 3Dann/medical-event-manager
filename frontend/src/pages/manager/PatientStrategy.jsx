@@ -617,7 +617,7 @@ export default function PatientStrategy() {
             </table>
           </div>
           {matrix.sources.length === 0 && (
-            <div className="text-center py-10 text-slate-400">אין מקורות ביטוח. הוסף ביטוחים כדי לראות את המטריצה.</div>
+            <div className="text-center py-10 text-slate-600">אין מקורות ביטוח. הוסף ביטוחים כדי לראות את המטריצה.</div>
           )}
         </div>
       )}
