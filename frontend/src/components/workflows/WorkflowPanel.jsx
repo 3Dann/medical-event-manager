@@ -105,7 +105,7 @@ export default function WorkflowPanel({ patientId }) {
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="text-4xl mb-3">⚡</div>
           <div className="text-slate-600 font-medium mb-1">אין זרימות עבודה</div>
-          <div className="text-slate-400 text-sm mb-4">הפעל זרימה לניהול תהליך מובנה</div>
+          <div className="text-slate-600 text-sm mb-4">הפעל זרימה לניהול תהליך מובנה</div>
           <button
             onClick={() => setShowNew(true)}
             className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
