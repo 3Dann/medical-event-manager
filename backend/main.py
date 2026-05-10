@@ -45,6 +45,8 @@ def _daily_overdue_check():
         ).count()
         if overdue > 0:
             logger.warning(f"OVERDUE TASKS: {overdue} tasks past due date")
+    finally:
+        db.close()
 
 
 @asynccontextmanager
