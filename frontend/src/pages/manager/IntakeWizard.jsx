@@ -302,7 +302,7 @@ function SignatureCanvas({ label, onChange }) {
           onTouchEnd={endDraw}
         />
         {isEmpty && (
-          <p className="absolute inset-0 flex items-center justify-center text-slate-300 text-sm pointer-events-none">
+          <p className="absolute inset-0 flex items-center justify-center text-slate-400 text-sm pointer-events-none">
             חתום כאן
           </p>
         )}
