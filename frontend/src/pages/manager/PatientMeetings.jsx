@@ -336,7 +336,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-slate-800 text-sm">{meeting.meeting_type_label}</span>
               {meeting.professional_name && <span className="text-sm text-slate-500">— {meeting.professional_name}</span>}
-              {meeting.meeting_date && <span className="text-xs text-slate-400">{meeting.meeting_date}</span>}
+              {meeting.meeting_date && <span className="text-xs text-slate-600">{meeting.meeting_date}</span>}
             </div>
             {meeting.status_summary && (
               <p className="text-xs text-slate-600 mt-0.5 line-clamp-2">{meeting.status_summary}</p>
