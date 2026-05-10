@@ -607,7 +607,7 @@ export default function PatientInsurance() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl my-4">
             <div className="p-6 border-b flex justify-between items-center">
               <h3 className="font-semibold text-lg">הוספת מקור ביטוח</h3>
-              <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-slate-700 text-xl">✕</button>
+              <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-slate-700 text-xl p-2 -m-2 rounded-lg">✕</button>
             </div>
             <form onSubmit={handleAddSource}>
               <div className="p-6 space-y-4">
