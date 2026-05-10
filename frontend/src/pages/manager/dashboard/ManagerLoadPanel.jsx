@@ -37,7 +37,7 @@ export default function ManagerLoadPanel({ managers }) {
   const maxPatients = Math.max(1, ...managers.map(m => m.patient_count))
 
   if (managers.length === 0)
-    return <div className="card text-center py-10 text-slate-400 text-sm">אין מלווים במערכת</div>
+    return <div className="card text-center py-10 text-slate-600 text-sm">אין מלווים במערכת</div>
 
   return (
     <div className="space-y-2">
