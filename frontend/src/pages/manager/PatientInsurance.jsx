@@ -411,8 +411,8 @@ export default function PatientInsurance() {
                       placeholder="שם סוג הכיסוי (לדוג׳: כיסוי נסיעות לחו״ל)"
                       value={newCatLabel} onChange={e => setNewCatLabel(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') handleAddCustom(); if (e.key === 'Escape') { setShowAddRow(false); setNewCatLabel('') } }} />
-                    <button onClick={handleAddCustom} className="btn-primary text-xs py-1 px-3">הוסף</button>
-                    <button onClick={() => { setShowAddRow(false); setNewCatLabel('') }} className="btn-secondary text-xs py-1 px-2">ביטול</button>
+                    <button onClick={handleAddCustom} className="btn-primary text-xs py-2.5 px-3">הוסף</button>
+                    <button onClick={() => { setShowAddRow(false); setNewCatLabel('') }} className="btn-secondary text-xs py-2.5 px-2">ביטול</button>
                   </div>
                 </td>
               </tr>
