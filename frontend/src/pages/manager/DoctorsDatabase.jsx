@@ -344,18 +344,13 @@ export default function DoctorsDatabase() {
       setCurrentPage(1)
       fetchDoctors(1)
       fetchFilterOptions()
-      alert(`נמחקו ${(res.data.deleted ?? 0).toLocaleString()} רופאים`)
+      showToast(`נמחקו ${(res.data.deleted ?? 0).toLocaleString()} רופאים בהצלחה`, 'success')
     } catch (e) {
-      const status  = e.response?.status
-      const detail  = e.response?.data?.detail
-      const message = detail
-        ? `שגיאה ${status}: ${detail}`
-        : status === 403
-          ? 'אין הרשאה למחוק — נדרשת התחברות מחדש'
-          : status === 404
-            ? 'נתיב מחיקה לא נמצא — הפעל מחדש את השרת'
-            : `שגיאה ${status ?? 'רשת'} — נסה שוב לאחר הפעלת השרת מחדש`
-      alert(message)
+      const status = e.response?.status
+      const msg = status === 403 ? 'אין הרשאה למחוק — נסה להתחבר מחדש'
+                : status === 404 ? 'שגיאה בשרת — הפעל מחדש ונסה שוב'
+                : 'שגיאה במחיקת הרופאים. נסה שוב.'
+      showToast(msg)
     }
   }
 
