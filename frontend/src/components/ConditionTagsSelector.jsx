@@ -154,8 +154,8 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
                   {groups.map(g => <option key={g.category} value={g.category}>{g.category_he}</option>)}
                 </select>
                 <div className="flex gap-2">
-                  <button onClick={handleAddNew} className="btn-primary text-xs py-1 flex-1">הוסף</button>
-                  <button onClick={() => setAdding(false)} className="btn-secondary text-xs py-1 flex-1">ביטול</button>
+                  <button onClick={handleAddNew} className="btn-primary text-xs py-2.5 flex-1">הוסף</button>
+                  <button onClick={() => setAdding(false)} className="btn-secondary text-xs py-2.5 flex-1">ביטול</button>
                 </div>
               </div>
             )}
