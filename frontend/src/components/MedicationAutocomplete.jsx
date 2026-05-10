@@ -113,11 +113,11 @@ export default function MedicationAutocomplete({
                 <span className="font-medium text-slate-800">{d.name}</span>
                 {d.hebrew_name && <span className="font-medium text-blue-700">{d.hebrew_name}</span>}
               </div>
-              <div className="text-xs text-slate-400 mt-0.5 flex gap-2 flex-wrap">
+              <div className="text-xs text-slate-600 mt-0.5 flex gap-2 flex-wrap">
                 {d.generic_name && <span>{d.generic_name}</span>}
                 {d.dosage_form && <span>· {d.dosage_form}</span>}
                 {d.common_dosages?.length > 0 && (
-                  <span className="text-slate-300">· {d.common_dosages.slice(0, 4).join(', ')}</span>
+                  <span className="text-slate-500">· {d.common_dosages.slice(0, 4).join(', ')}</span>
                 )}
               </div>
             </li>
