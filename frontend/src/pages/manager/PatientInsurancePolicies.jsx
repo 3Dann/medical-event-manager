@@ -210,7 +210,7 @@ function CoverageDetailPanel({ sources, covKey, title, refItems, patient }) {
                 ))}
               </div>
             ) : (
-              <p className="text-slate-400 text-xs">אין כיסויים מפורטים</p>
+              <p className="text-slate-600 text-xs">אין כיסויים מפורטים</p>
             )}
           </div>
         ))
