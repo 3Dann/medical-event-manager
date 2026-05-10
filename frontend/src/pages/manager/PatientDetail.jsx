@@ -615,7 +615,7 @@ export default function PatientDetail() {
             <div className="flex-1 overflow-y-auto p-6">
               {!selectedTplPreview ? (
                 <div className="h-full flex items-center justify-center">
-                  <div className="text-center text-slate-400">
+                  <div className="text-center text-slate-600">
                     <div className="text-4xl mb-3">←</div>
                     <p className="text-sm">בחר תבנית לתצוגה מקדימה</p>
                   </div>
