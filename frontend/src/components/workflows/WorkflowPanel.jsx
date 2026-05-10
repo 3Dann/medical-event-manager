@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import StepCard from './StepCard'
 import NewWorkflowModal from './NewWorkflowModal'
+import AppToast from '../AppToast'
+import { useToast } from '../../hooks/useToast'
 
 const STATUS_LABELS = { active: 'פעיל', completed: 'הושלם', cancelled: 'בוטל', paused: 'מושהה' }
 const STATUS_COLORS = {
