@@ -85,7 +85,7 @@ export default function WorkflowPanel({ patientId }) {
   }
 
   if (loading) return (
-    <div className="p-6 text-center text-slate-400 text-sm">טוען זרימות...</div>
+    <div className="p-6 text-center text-slate-600 text-sm">טוען זרימות...</div>
   )
 
   return (
