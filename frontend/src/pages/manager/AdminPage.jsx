@@ -509,7 +509,7 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
           <div className="space-y-1.5">
             {logs.map(log => (
               <div key={log.id} className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl px-4 py-2.5 text-sm flex-wrap">
-                <span className="text-slate-400 text-xs font-mono w-36 flex-shrink-0">
+                <span className="text-slate-600 text-xs font-mono w-36 flex-shrink-0">
                   {log.created_at ? new Date(log.created_at).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                 </span>
                 <span className="font-medium text-slate-800 w-32 flex-shrink-0 truncate">{log.user_name || <span className="text-slate-400">אנונימי</span>}</span>
