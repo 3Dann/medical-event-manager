@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import axios from 'axios'
 import DocViewerModal, { canView } from '../../components/DocViewerModal'
 import { useSimple } from '../../context/SimpleContext'
+import { useSpeech } from '../../hooks/useSpeech'
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const fmt = (n) => n != null ? `₪${Math.round(n).toLocaleString('he-IL')}` : '—'
