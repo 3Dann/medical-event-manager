@@ -845,3 +845,50 @@ class FamilyShareToken(Base):
     is_active  = Column(Boolean, default=True)
 
     patient = relationship("Patient")
+
+
+class Task(Base):
+    """משימה — מאגדת פעולות מכל המקורות ומשימות ידניות."""
+    __tablename__ = "tasks"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    title       = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+
+    # שיוך
+    assigned_to = Column(Integer, ForeignKey("users.id"), nullable=False)   # מנהל אירוע
+    created_by  = Column(Integer, ForeignKey("users.id"), nullable=False)   # מי יצר
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=True) # מטופל קשור
+
+    # מקור
+    source_type = Column(String, default="manual")  # manual|meeting_action|workflow_step|patient_request|red_flag
+    source_id   = Column(Integer, nullable=True)     # id ברשומה המקורית
+    source_meta = Column(Text, nullable=True)         # JSON — פרטים מהמקור
+
+    # זמן ועדיפות
+    due_date    = Column(DateTime(timezone=True), nullable=True)
+    priority    = Column(String, default="normal")   # low|normal|high|urgent
+
+    # סטטוס
+    status       = Column(String, default="pending")  # pending|in_progress|done
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    is_new       = Column(Boolean, default=False)     # הוטל ע"י אדמין, טרם נצפה
+
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at  = Column(DateTime(timezone=True), onupdate=func.now())
+
+    assigned_user = relationship("User", foreign_keys=[assigned_to])
+    creator       = relationship("User", foreign_keys=[created_by])
+    patient       = relationship("Patient")
+
+
+class CalendarToken(Base):
+    """טוקן ICS אישי — לכל משתמש כתובת ייחודית ליומן חי."""
+    __tablename__ = "calendar_tokens"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    token      = Column(String(64), unique=True, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
