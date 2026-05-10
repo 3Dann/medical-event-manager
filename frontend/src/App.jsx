@@ -38,6 +38,7 @@ import IntakeWizard from './pages/manager/IntakeWizard'
 import LandingEditorPage from './pages/manager/LandingEditorPage'
 import FeedbackSubmitPage from './pages/manager/FeedbackSubmitPage'
 import AdminDashboardPage from './pages/manager/AdminDashboardPage'
+import MyDay from './pages/manager/MyDay'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
