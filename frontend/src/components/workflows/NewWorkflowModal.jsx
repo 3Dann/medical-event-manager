@@ -8,6 +8,7 @@ export default function NewWorkflowModal({ patientId, onClose, onCreated }) {
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [title, setTitle] = useState('')
   const [loading, setLoading] = useState(false)
+  const { toast, showToast, dismissToast } = useToast()
 
   useEffect(() => {
     axios.get('/api/workflows/templates').then(r => setTemplates(r.data))
