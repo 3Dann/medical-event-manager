@@ -754,7 +754,7 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
         </div>
       ) : (
         <button onClick={() => setShowAdd(true)}
-          className="text-[10px] text-slate-400 hover:text-blue-600 mt-0.5">
+          className="text-[10px] text-slate-600 hover:text-blue-600 mt-0.5">
           + הוסף תת-סעיף
         </button>
       )}
