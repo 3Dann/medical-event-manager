@@ -494,15 +494,42 @@ function MedicationsStep({ medications, onChange }) {
   )
 }
 
+const DRAFT_KEY = 'intake_wizard_draft'
+
 export default function IntakeWizard() {
   const navigate = useNavigate()
   const { isDemoMode } = useDemoMode()
   const [step, setStep] = useState(0)
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [form, setForm] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY)
+      return saved ? JSON.parse(saved) : EMPTY_FORM
+    } catch { return EMPTY_FORM }
+  })
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const [draftSaved, setDraftSaved] = useState(false)
+  const draftTimer = useRef(null)
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
+
+  useEffect(() => {
+    clearTimeout(draftTimer.current)
+    draftTimer.current = setTimeout(() => {
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(form))
+        setDraftSaved(true)
+        setTimeout(() => setDraftSaved(false), 1500)
+      } catch {}
+    }, 800)
+    return () => clearTimeout(draftTimer.current)
+  }, [form])
+
+  const clearDraft = () => {
+    sessionStorage.removeItem(DRAFT_KEY)
+    setForm(EMPTY_FORM)
+    setStep(0)
+  }
 
   // ── Auto-suggest specialty from diagnosis ───────────────────────────────────
   const [suggestLoading, setSuggestLoading] = useState(false)
