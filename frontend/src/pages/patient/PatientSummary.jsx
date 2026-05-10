@@ -740,6 +740,9 @@ function HomeScreen({ patient, manager, data, onNavigate }) {
           </svg>
         </button>
       )}
+
+      {/* Family share */}
+      <FamilyShareButton />
     </div>
   )
 }
