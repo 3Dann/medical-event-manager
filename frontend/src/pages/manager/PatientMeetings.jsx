@@ -204,7 +204,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
            onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg">{meeting ? 'עריכת פגישה' : 'תיעוד פגישה חדשה'}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl">✕</button>
         </div>
 
         <div className="overflow-y-auto flex-1 px-6 py-4 space-y-5">
