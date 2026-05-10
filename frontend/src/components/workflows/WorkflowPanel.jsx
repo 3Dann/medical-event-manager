@@ -12,10 +12,10 @@ const STATUS_COLORS = {
 }
 
 const STEP_STATUS = {
-  pending:   { circle: 'bg-slate-100 border-slate-300 text-slate-400',  line: 'bg-slate-200', label: 'text-slate-400' },
+  pending:   { circle: 'bg-slate-100 border-slate-300 text-slate-500',  line: 'bg-slate-200', label: 'text-slate-500' },
   active:    { circle: 'bg-blue-600  border-blue-600  text-white',       line: 'bg-slate-200', label: 'text-blue-700 font-semibold' },
   completed: { circle: 'bg-green-500 border-green-500 text-white',       line: 'bg-green-400', label: 'text-green-700' },
-  skipped:   { circle: 'bg-slate-200 border-slate-300 text-slate-400',   line: 'bg-slate-200', label: 'text-slate-400 line-through' },
+  skipped:   { circle: 'bg-slate-200 border-slate-300 text-slate-500',   line: 'bg-slate-200', label: 'text-slate-500 line-through' },
 }
 
 const STEP_ICON = { pending: null, active: null, completed: '✓', skipped: '⇢' }
