@@ -406,7 +406,7 @@ function PolicyCard({ src, expanded, onToggle, onDelete, onSave }) {
               {/* Exclusions */}
               {(editedExclusions.length > 0 || editMode) && (
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+                  <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 flex items-center gap-1">
                     <Icon d={BanPath} size={11} color="#94a3b8" /> חריגים
                     {editMode && <span className="text-red-500 normal-case font-normal mr-1">— עריכה</span>}
                   </p>
