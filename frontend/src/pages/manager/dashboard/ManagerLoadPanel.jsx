@@ -65,7 +65,7 @@ export default function ManagerLoadPanel({ managers }) {
             <LoadBar value={mgr.patient_count} max={maxPatients} />
           </div>
           {mgr.patient_count === 0 && (
-            <p className="text-xs text-slate-400 mt-2 text-center">אין תיקים פעילים</p>
+            <p className="text-xs text-slate-600 mt-2 text-center">אין תיקים פעילים</p>
           )}
         </div>
       ))}
