@@ -337,7 +337,7 @@ function PolicyCard({ src, expanded, onToggle, onDelete, onSave }) {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-slate-800 text-sm">{sourceLabel(src)}</span>
             {src.policy_number && (
-              <span className="text-xs text-slate-400 font-mono" dir="ltr">#{src.policy_number}</span>
+              <span className="text-xs text-slate-600 font-mono" dir="ltr">#{src.policy_number}</span>
             )}
             <span className="text-xs px-2 py-0.5 rounded-full font-medium"
               style={{ background: statusMeta.bg, color: statusMeta.color }}>
