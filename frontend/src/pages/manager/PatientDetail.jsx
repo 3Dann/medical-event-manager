@@ -386,7 +386,7 @@ export default function PatientDetail() {
             <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div className="bg-green-500 h-1.5 rounded-full transition-all" style={{ width: `${(completedCount / customNodes.length) * 100}%` }} />
             </div>
-            <span className="text-xs text-slate-400 flex-shrink-0">
+            <span className="text-xs text-slate-600 flex-shrink-0">
               {completedCount}/{customNodes.length} הושלמו{activeCount > 0 ? ` · ${activeCount} פעילים` : ''}
             </span>
           </div>
