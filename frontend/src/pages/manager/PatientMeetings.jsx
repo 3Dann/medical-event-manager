@@ -427,10 +427,10 @@ export default function PatientMeetings() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-slate-400">טוען...</div>
+        <div className="py-12 text-center text-slate-600">טוען...</div>
       ) : meetings.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-slate-400 mb-3">לא תועדו פגישות עדיין</p>
+          <p className="text-slate-600 mb-3">לא תועדו פגישות עדיין</p>
           <button onClick={() => setShowForm(true)} className="btn-secondary">תעד את הפגישה הראשונה</button>
         </div>
       ) : (
