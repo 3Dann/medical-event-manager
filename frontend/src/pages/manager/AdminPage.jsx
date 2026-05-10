@@ -520,7 +520,7 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
                     {log.resource_id ? ` #${log.resource_id}` : ''}
                   </span>
                 )}
-                <span className="text-xs text-slate-400 font-mono w-28 flex-shrink-0">{log.ip_address || '—'}</span>
+                <span className="text-xs text-slate-600 font-mono w-28 flex-shrink-0">{log.ip_address || '—'}</span>
                 {statusBadge(log.status_code)}
               </div>
             ))}
