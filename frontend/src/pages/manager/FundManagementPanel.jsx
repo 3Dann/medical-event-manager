@@ -78,7 +78,7 @@ function FundModal({ fund, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg">{isEdit ? 'עריכת קרן' : 'קרן חדשה'}</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl">✕</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl p-2 -m-2 rounded-lg">✕</button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
