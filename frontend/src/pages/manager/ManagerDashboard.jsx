@@ -139,7 +139,7 @@ export default function ManagerDashboard() {
             </svg>
           </div>
           <p className="text-slate-600 font-medium">{t('dashboard:no_patients')}</p>
-          <p className="text-slate-400 text-sm mt-1">{t('dashboard:no_patients_hint')}</p>
+          <p className="text-slate-600 text-sm mt-1">{t('dashboard:no_patients_hint')}</p>
         </div>
       ) : (
         <div className="grid gap-4">
