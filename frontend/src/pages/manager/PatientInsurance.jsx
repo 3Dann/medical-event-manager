@@ -698,7 +698,7 @@ export default function PatientInsurance() {
                     </div>
                     {/* Basic import — fallback */}
                     <details className="group">
-                      <summary className="text-xs text-slate-400 cursor-pointer hover:text-slate-600 select-none">
+                      <summary className="text-xs text-slate-600 cursor-pointer hover:text-slate-800 select-none">
                         ייבוא בסיסי (ללא AI) ▸
                       </summary>
                       <div className="mt-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
