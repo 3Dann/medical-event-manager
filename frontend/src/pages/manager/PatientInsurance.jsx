@@ -278,7 +278,7 @@ export default function PatientInsurance() {
                         disabled={!covered} placeholder={covered?'—':''} />
                     ) : (
                       <span className="text-xs text-slate-700">
-                        {covered && cov[field] ? Number(cov[field]).toLocaleString() : covered ? <span className="text-slate-300">—</span> : ''}
+                        {covered && cov[field] ? Number(cov[field]).toLocaleString() : covered ? <span className="text-slate-500">—</span> : ''}
                       </span>
                     )}
                   </td>
