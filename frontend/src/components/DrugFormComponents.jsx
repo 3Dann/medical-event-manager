@@ -331,7 +331,7 @@ export function MedicationCard({ med, onChange, onRemove }) {
         <button
           type="button"
           onClick={() => setShowExtra(v => !v)}
-          className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1 select-none"
+          className="text-xs text-slate-600 hover:text-slate-800 flex items-center gap-1 select-none"
         >
           <span>{showExtra ? '▾' : '▸'}</span>
           שדות נוספים
