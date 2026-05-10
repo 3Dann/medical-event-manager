@@ -237,7 +237,7 @@ export default function WorkflowPanel({ patientId }) {
                             {step.name}
                           </div>
                           {step.duration_days && step.status !== 'completed' && step.status !== 'skipped' && (
-                            <div className="text-xs text-slate-400">~{step.duration_days}י׳</div>
+                            <div className="text-xs text-slate-600">~{step.duration_days}י׳</div>
                           )}
                         </button>
 
