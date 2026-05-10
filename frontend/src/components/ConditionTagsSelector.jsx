@@ -64,12 +64,13 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
       setNewCat('')
       setAdding(false)
     } catch (e) {
-      alert('שגיאה בהוספת תגית')
+      showToast('לא ניתן להוסיף תגית כרגע. נסה שוב.')
     }
   }
 
   return (
     <div ref={ref} className="relative">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {/* Selected tags chips */}
       <div
         className="input min-h-[42px] flex flex-wrap gap-1.5 cursor-pointer"
