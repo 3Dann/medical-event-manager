@@ -110,7 +110,7 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
                 <button key={t.key} onClick={() => toggle(t.key)}
                   className={`w-full text-right px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between
                     ${value.includes(t.key) ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'}`}>
-                  <span className="text-xs text-slate-400">{t.category_he}</span>
+                  <span className="text-xs text-slate-600">{t.category_he}</span>
                   <span>{t.label_he}</span>
                   {value.includes(t.key) && <span className="text-blue-500 mr-2">✓</span>}
                 </button>
