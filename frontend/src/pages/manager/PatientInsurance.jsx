@@ -447,7 +447,7 @@ export default function PatientInsurance() {
 
         {/* Section A: Download */}
         <div className="p-5 space-y-3">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">שלב א׳ — הורדת הקובץ מהר הביטוח</p>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">שלב א׳ — הורדת הקובץ מהר הביטוח</p>
 
           {[
             { n:1, icon:'🌐', title:'כניסה לאתר', detail: 'בדפדפן שלך הקלד: www.hrb.gov.il — זהו האתר הרשמי של מאגר הביטוח הלאומי.' },
@@ -469,7 +469,7 @@ export default function PatientInsurance() {
           ))}
 
           {/* Section B: Upload */}
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide pt-2">שלב ב׳ — העלאה למערכת</p>
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide pt-2">שלב ב׳ — העלאה למערכת</p>
 
           <div className="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
             <div className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</div>
