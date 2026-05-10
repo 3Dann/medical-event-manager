@@ -192,9 +192,9 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                       onChange={e => updateStep(idx, 'name', e.target.value)}
                     />
                     <button onClick={() => moveStep(idx, -1)} disabled={idx === 0}
-                      className="text-slate-400 hover:text-slate-600 disabled:opacity-30 px-1">↑</button>
+                      className="text-slate-600 hover:text-slate-800 disabled:opacity-30 px-1">↑</button>
                     <button onClick={() => moveStep(idx, 1)} disabled={idx === form.steps.length - 1}
-                      className="text-slate-400 hover:text-slate-600 disabled:opacity-30 px-1">↓</button>
+                      className="text-slate-600 hover:text-slate-800 disabled:opacity-30 px-1">↓</button>
                     <button onClick={() => removeStep(idx)}
                       className="text-red-400 hover:text-red-600 px-1">✕</button>
                   </div>
