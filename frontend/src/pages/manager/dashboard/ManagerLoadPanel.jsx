@@ -50,7 +50,7 @@ export default function ManagerLoadPanel({ managers }) {
               </div>
               <div>
                 <p className="font-semibold text-slate-800 text-sm">{mgr.full_name}</p>
-                <p className="text-xs text-slate-400">{mgr.email}</p>
+                <p className="text-xs text-slate-600">{mgr.email}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-1.5 justify-end">
