@@ -370,8 +370,8 @@ export default function AdminPage() {
                         <div key={perm.id} className="flex items-center justify-between bg-white border border-slate-200 rounded-lg px-4 py-2.5">
                           <div>
                             <span className="text-sm font-medium text-slate-800">{perm.manager_name}</span>
-                            <span className="text-xs text-slate-400 mr-2">{perm.manager_email}</span>
-                            <div className="text-xs text-slate-400">הוענק ע"י {perm.granted_by_name}</div>
+                            <span className="text-xs text-slate-600 mr-2">{perm.manager_email}</span>
+                            <div className="text-xs text-slate-600">הוענק ע"י {perm.granted_by_name}</div>
                           </div>
                           <button
                             onClick={() => handleRevoke(perm.manager_id)}
