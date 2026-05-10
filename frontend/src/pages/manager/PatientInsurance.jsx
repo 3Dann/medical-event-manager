@@ -535,7 +535,7 @@ export default function PatientInsurance() {
           {salResult.success
             ? `✅ ${salResult.message} — ${salResult.count} כיסויים יובאו`
             : `❌ ${salResult.message}`}
-          <button onClick={() => setSalResult(null)} className="text-xs text-slate-400 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setSalResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
         </div>
       )}
 
