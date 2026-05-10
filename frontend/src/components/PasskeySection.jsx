@@ -181,7 +181,7 @@ export default function PasskeySection() {
       )}
 
       {creds.length === 0 && supported && !adding && (
-        <p className="text-sm text-slate-400 text-center py-4">
+        <p className="text-sm text-slate-600 text-center py-4">
           אין Passkeys רשומים עדיין
         </p>
       )}
