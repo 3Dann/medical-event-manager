@@ -593,6 +593,85 @@ function HelpButton({ view }) {
   )
 }
 
+// ── Family share button ───────────────────────────────────────────────────────
+function FamilyShareButton() {
+  const [status, setStatus]   = useState(null)   // null | {active, token, expires_at}
+  const [loading, setLoading] = useState(false)
+  const [copied, setCopied]   = useState(false)
+  const [open, setOpen]       = useState(false)
+
+  useEffect(() => {
+    axios.get('/api/patient/family-share/status').then(r => setStatus(r.data)).catch(() => {})
+  }, [])
+
+  const shareUrl = status?.token
+    ? `${window.location.origin}/family/${status.token}`
+    : null
+
+  const generate = async () => {
+    setLoading(true)
+    try {
+      const r = await axios.post('/api/patient/family-share')
+      setStatus({ active: true, token: r.data.token, expires_at: r.data.expires_at })
+    } catch (_) {}
+    setLoading(false)
+  }
+
+  const revoke = async () => {
+    if (!window.confirm('לבטל את הקישור לבן המשפחה?')) return
+    await axios.delete('/api/patient/family-share').catch(() => {})
+    setStatus({ active: false })
+    setOpen(false)
+  }
+
+  const copy = () => {
+    if (!shareUrl) return
+    navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
+  }
+
+  return (
+    <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-5">
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-3xl">👨‍👩‍👧</span>
+        <div>
+          <p className="font-bold text-slate-800">שיתוף עם בן משפחה</p>
+          <p className="text-slate-600">שלח קישור לקרוב משפחה לצפייה בלבד</p>
+        </div>
+      </div>
+
+      {!status ? null : !status.active ? (
+        <button
+          onClick={generate}
+          disabled={loading}
+          className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold disabled:opacity-50 transition-colors"
+        >
+          {loading ? 'יוצר קישור...' : 'צור קישור לשיתוף'}
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="bg-white border border-purple-200 rounded-xl px-4 py-3 flex items-center gap-3">
+            <span className="text-sm text-slate-600 flex-1 truncate font-mono">{shareUrl}</span>
+            <button
+              onClick={copy}
+              className={`shrink-0 px-3 py-2 rounded-lg font-medium transition-colors ${copied ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'}`}
+            >
+              {copied ? '✓ הועתק!' : 'העתק'}
+            </button>
+          </div>
+          <p className="text-slate-500">
+            הקישור תקף עד {new Date(status.expires_at).toLocaleDateString('he-IL')}
+          </p>
+          <button onClick={revoke} className="text-red-500 hover:text-red-700 font-medium">
+            בטל את הקישור
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── Home screen ───────────────────────────────────────────────────────────────
 function HomeScreen({ patient, manager, data, onNavigate }) {
   const { claims, documents, workflows, red_flags } = data
