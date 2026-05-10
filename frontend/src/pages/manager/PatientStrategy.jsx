@@ -159,7 +159,7 @@ function WorkflowCard({ instance, onRefresh }) {
                   </span>
                 )}
                 {step.estimated_cost > 0 && (
-                  <span className="text-xs text-slate-400">₪{step.estimated_cost?.toLocaleString()}</span>
+                  <span className="text-xs text-slate-600">₪{step.estimated_cost?.toLocaleString()}</span>
                 )}
               </div>
             )
