@@ -748,9 +748,9 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
             autoFocus
           />
           <button onClick={() => { onAdd(newText); setNewText(''); setShowAdd(false) }}
-            className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">+</button>
+            className="text-xs bg-blue-600 text-white px-2.5 py-2 rounded-lg">+</button>
           <button onClick={() => { setShowAdd(false); setNewText('') }}
-            className="text-xs text-slate-600 px-1">✕</button>
+            className="text-xs text-slate-600 p-2 -m-1 rounded-lg">✕</button>
         </div>
       ) : (
         <button onClick={() => setShowAdd(true)}
