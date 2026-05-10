@@ -10,6 +10,7 @@ import { useToast } from '../hooks/useToast'
  *   onChange  — (keys: string[]) => void
  */
 export default function ConditionTagsSelector({ value = [], onChange }) {
+  const { toast, showToast, dismissToast } = useToast()
   const [groups, setGroups]       = useState([])   // [{category, category_he, tags:[{key,label_he}]}]
   const [search, setSearch]       = useState('')
   const [open, setOpen]           = useState(false)
