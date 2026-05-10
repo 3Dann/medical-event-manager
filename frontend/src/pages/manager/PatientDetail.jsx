@@ -53,6 +53,7 @@ function sortNodes(nodes) {
 export default function PatientDetail() {
   const { id }   = useParams()
   const navigate = useNavigate()
+  const { toast, showToast, dismissToast } = useToast()
 
   const [patient,      setPatient]      = useState(null)
   const [nodes,        setNodes]        = useState([])
