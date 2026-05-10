@@ -677,7 +677,7 @@ export default function DoctorsDatabase() {
           />
           <button
             onClick={submitSearch}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors p-0.5"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 transition-colors p-0.5"
             title="חפש (Enter)"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
