@@ -190,7 +190,7 @@ function CoverageDetailPanel({ sources, covKey, title, refItems, patient }) {
               <Icon d={BuildPath} size={13} color="#8599b8" />
               <p className="text-slate-700 text-sm font-semibold">{sourceLabel(src)}</p>
               {src.policy_number && (
-                <span className="text-slate-400 text-xs font-mono" dir="ltr">#{src.policy_number}</span>
+                <span className="text-slate-600 text-xs font-mono" dir="ltr">#{src.policy_number}</span>
               )}
               {src.notes?.includes('confidence:') && (
                 <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#ecfdf5', color: '#059669' }}>
