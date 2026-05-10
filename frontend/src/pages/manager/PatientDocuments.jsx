@@ -150,7 +150,7 @@ export default function PatientDocuments() {
               onChange={e => setSelectedFile(e.target.files[0] || null)}
               className="block w-full text-sm text-slate-600 file:mr-0 file:ml-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
-            <p className="text-xs text-slate-400 mt-1">PDF, תמונות, Word, Excel — עד 20MB</p>
+            <p className="text-xs text-slate-600 mt-1">PDF, תמונות, Word, Excel — עד 20MB</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
