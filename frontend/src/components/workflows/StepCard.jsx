@@ -85,7 +85,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
           <div className="flex items-center gap-2">
             <span className="font-medium text-slate-800 text-sm">{step.name}</span>
             {step.is_optional && (
-              <span className="text-xs text-slate-400">(אופציונלי)</span>
+              <span className="text-xs text-slate-600">(אופציונלי)</span>
             )}
             {tasks.length > 0 && step.status !== 'completed' && step.status !== 'skipped' && (
               <span className={`text-xs px-1.5 py-0.5 rounded-full ${allTasksDone ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>
