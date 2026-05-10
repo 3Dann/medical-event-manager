@@ -126,7 +126,7 @@ export default function RedFlagsBanner({ patientId }) {
     return (
       <div className="px-4 md:px-6 py-1.5 flex justify-end">
         <button onClick={() => setShowAdd(true)}
-          className="text-xs text-slate-400 hover:text-red-500 transition-colors">
+          className="text-xs text-slate-600 hover:text-red-500 transition-colors">
           + הוסף נורה אדומה
         </button>
       </div>
