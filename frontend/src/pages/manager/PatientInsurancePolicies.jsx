@@ -624,7 +624,7 @@ export default function PatientInsurancePolicies() {
       )}
 
       {/* ── Row 1: Private insurance types ── */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">ביטוח פרטי</p>
+      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">ביטוח פרטי</p>
       <div className="grid grid-cols-5 gap-3 mb-1">
         {POLICY_TYPES_ROW1.map(type => (
           <CoverageCard key={type.id}
