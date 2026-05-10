@@ -498,7 +498,7 @@ function AddSourceForm({ patientId, onDone }) {
       <p className="text-sm font-semibold text-slate-700 mb-4">הוספת מקור ביטוח ידנית</p>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs text-slate-400 mb-1">סוג *</label>
+          <label className="block text-xs text-slate-600 mb-1">סוג *</label>
           <select className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200"
             value={form.source_type} onChange={e => setForm(f => ({ ...f, source_type: e.target.value }))}>
             <option value="private">ביטוח פרטי</option>
