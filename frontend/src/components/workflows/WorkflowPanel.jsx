@@ -93,6 +93,7 @@ export default function WorkflowPanel({ patientId }) {
 
   return (
     <div className="h-full flex flex-col" dir="rtl">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {/* Header */}
       <div className="p-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
         <button
