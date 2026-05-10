@@ -87,7 +87,7 @@ function AddFundModal({ patientId, onClose, onAdded }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg">הוספת מקור מימון</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl">✕</button>
         </div>
 
         <div className="flex border-b border-slate-100">
