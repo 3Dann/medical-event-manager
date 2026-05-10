@@ -573,7 +573,7 @@ export default function PatientDetail() {
               <p className="text-xs text-slate-500 mt-0.5">בחר תבנית לתצוגה מקדימה ולהחלה על ציר הזמן</p>
             </div>
             <button onClick={() => { setShowJourneyModal(false); setSelectedTplPreview(null) }}
-              className="text-slate-400 hover:text-slate-600 text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">✕</button>
+              className="text-slate-500 hover:text-slate-700 text-xl w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100">✕</button>
           </div>
 
           {/* Two-panel body */}
