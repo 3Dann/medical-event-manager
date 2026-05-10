@@ -186,9 +186,9 @@ export default function PatientDocuments() {
       )}
 
       {loading ? (
-        <div className="text-center text-slate-400 py-12">טוען...</div>
+        <div className="text-center text-slate-600 py-12">טוען...</div>
       ) : docs.length === 0 ? (
-        <div className="text-center text-slate-400 py-12">
+        <div className="text-center text-slate-600 py-12">
           <div className="text-4xl mb-3">📂</div>
           <p>אין מסמכים עדיין</p>
         </div>
