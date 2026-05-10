@@ -43,7 +43,7 @@ function MemberModal({ patientId, member, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" dir="rtl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-slate-800">{member ? 'עריכת איש צוות' : 'הוספת איש צוות'}</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-700">✕</button>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
         </div>
         <div className="space-y-3">
           <div>
