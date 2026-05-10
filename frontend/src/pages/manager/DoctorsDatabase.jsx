@@ -520,6 +520,7 @@ export default function DoctorsDatabase() {
 
   return (
     <div className="p-4 md:p-8" dir="rtl">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="min-w-0">
