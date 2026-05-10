@@ -263,7 +263,7 @@ export default function DoctorsDatabase() {
       a.click()
       window.URL.revokeObjectURL(url)
     } catch (e) {
-      alert('שגיאה בייצוא')
+      showToast('שגיאה בייצוא הקובץ. נסה שוב.')
     } finally {
       setExporting(false)
     }
