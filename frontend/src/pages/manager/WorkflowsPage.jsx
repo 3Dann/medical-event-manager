@@ -224,7 +224,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                 </div>
               ))}
               {form.steps.length === 0 && (
-                <p className="text-slate-400 text-sm text-center py-4">אין שלבים — לחץ "הוסף שלב" להתחלה</p>
+                <p className="text-slate-600 text-sm text-center py-4">אין שלבים — לחץ "הוסף שלב" להתחלה</p>
               )}
             </div>
           </div>
