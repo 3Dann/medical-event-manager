@@ -243,7 +243,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
                   <input type="checkbox" checked={item.done} onChange={() => toggleTask(i)} />
                   <span className={`flex-1 text-sm ${item.done ? 'line-through text-slate-500' : 'text-slate-700'}`}>{item.task}</span>
                   {item.responsible && <span className="text-xs text-slate-600">{item.responsible}</span>}
-                  <button onClick={() => removeTask(i)} className="text-slate-500 hover:text-red-400 text-xs">✕</button>
+                  <button onClick={() => removeTask(i)} className="text-slate-500 hover:text-red-400 text-xs p-1.5 -m-1.5 rounded">✕</button>
                 </div>
               ))}
             </div>
