@@ -183,7 +183,7 @@ function RecentReports({ reports, onDownload, onView }) {
               {doc.patient_name && (
                 <span className="text-xs text-blue-600">{doc.patient_name}</span>
               )}
-              <span className="text-xs text-slate-400">{fmt_date(doc.created_at)}</span>
+              <span className="text-xs text-slate-600">{fmt_date(doc.created_at)}</span>
             </div>
           </div>
 
