@@ -51,19 +51,42 @@ const DOC_CATEGORY = {
   'רפואי': '🏥', 'ביטוחי': '📋', 'משפטי': '⚖️', 'דוח': '📊', 'אחר': '📄'
 }
 
+// ── Speak button ──────────────────────────────────────────────────────────────
+function SpeakButton({ getText }) {
+  const { speak, stop, speaking, supported } = useSpeech()
+  if (!supported) return null
+  return (
+    <button
+      onClick={() => speaking ? stop() : speak(getText())}
+      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all ${
+        speaking
+          ? 'bg-red-100 text-red-700 hover:bg-red-200'
+          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+      }`}
+      aria-label={speaking ? 'עצור הקראה' : 'הקרא את הדף'}
+    >
+      <span className="text-xl">{speaking ? '⏹️' : '🔊'}</span>
+      <span className="hidden sm:inline">{speaking ? 'עצור' : 'הקרא לי'}</span>
+    </button>
+  )
+}
+
 // ── Section header with back button ──────────────────────────────────────────
-function SectionHeader({ title, subtitle, onBack }) {
+function SectionHeader({ title, subtitle, onBack, speakText }) {
   return (
     <div className="mb-6">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 text-base font-medium py-1"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-        חזרה לדף הבית
-      </button>
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-base font-medium py-1"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          חזרה לדף הבית
+        </button>
+        {speakText && <SpeakButton getText={speakText} />}
+      </div>
       <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
       {subtitle && <p className="text-slate-600 mt-1">{subtitle}</p>}
     </div>
