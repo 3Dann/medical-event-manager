@@ -56,7 +56,7 @@ export default function PasskeyLoginButton({ email = '', onSuccess, onError }) {
     <div className="mt-3">
       <div className="flex items-center gap-2 mb-3">
         <div className="flex-1 h-px bg-slate-200" />
-        <span className="text-xs text-slate-400">או</span>
+        <span className="text-xs text-slate-600">או</span>
         <div className="flex-1 h-px bg-slate-200" />
       </div>
       <button
