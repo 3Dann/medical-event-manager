@@ -644,7 +644,7 @@ export default function PatientInsurancePolicies() {
       )}
 
       {/* ── Row 2: National + kupah + categories ── */}
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-5">כיסויים נוספים</p>
+      <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2 mt-5">כיסויים נוספים</p>
       <div className="grid grid-cols-5 gap-3 mb-1">
         {row2.map(card => (
           <CoverageCard key={card.id}
