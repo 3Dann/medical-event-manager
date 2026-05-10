@@ -92,7 +92,7 @@ function ReportCard({ title, description, icon, onGenerate, generating }) {
                     >
                       {p.full_name}
                       {p.diagnosis_details && (
-                        <span className="text-xs text-slate-400 mr-2">{p.diagnosis_details}</span>
+                        <span className="text-xs text-slate-600 mr-2">{p.diagnosis_details}</span>
                       )}
                     </button>
                   ))
