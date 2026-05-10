@@ -914,7 +914,7 @@ export default function IntakeWizard() {
                   onChange={e => { set('specialty', e.target.value); setSpecialtyAutoFilled(false) }}
                 />
                 {suggestLoading && (
-                  <span className="absolute left-3 top-2.5 text-xs text-slate-400 animate-pulse">⏳</span>
+                  <span className="absolute left-3 top-2.5 text-xs text-slate-600 animate-pulse">⏳</span>
                 )}
                 {specialtyAutoFilled && form.specialty && !suggestLoading && (
                   <span className="absolute left-2 top-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">הוצע</span>
@@ -929,7 +929,7 @@ export default function IntakeWizard() {
                   onChange={e => { set('sub_specialty', e.target.value); setSubSpecialtyAutoFilled(false) }}
                 />
                 {suggestLoading && (
-                  <span className="absolute left-3 top-2.5 text-xs text-slate-400 animate-pulse">⏳</span>
+                  <span className="absolute left-3 top-2.5 text-xs text-slate-600 animate-pulse">⏳</span>
                 )}
                 {subSpecialtyAutoFilled && form.sub_specialty && !suggestLoading && (
                   <span className="absolute left-2 top-2 text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">הוצע</span>
