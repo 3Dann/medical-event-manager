@@ -232,6 +232,8 @@ export default function PatientStrategy() {
   const [loading,      setLoading]      = useState(true)
   const [applying,     setApplying]     = useState(false)
   const [conflict,     setConflict]     = useState(null)
+  const [approvingId,  setApprovingId]  = useState(null)
+  const [deletingId,   setDeletingId]   = useState(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
