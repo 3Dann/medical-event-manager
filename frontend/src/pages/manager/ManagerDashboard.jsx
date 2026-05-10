@@ -110,7 +110,7 @@ export default function ManagerDashboard() {
             </div>
           </div>
           <div className="flex-shrink-0 text-right">
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-600">
               {globalInsights.total_claims - globalInsights.total_claims_analyzed > 0
                 ? t('dashboard:open_claims', { count: globalInsights.total_claims - globalInsights.total_claims_analyzed })
                 : t('dashboard:all_analyzed')}
