@@ -254,7 +254,7 @@ function CovRow({ covered, label, note, waiting }) {
         : <Icon d={XCirclePath} size={13} color="#cbd5e1" className="mt-0.5 shrink-0" />}
       <div className="min-w-0">
         <p className="text-xs font-medium" style={{ color: covered ? '#065f46' : '#94a3b8' }}>{label}</p>
-        {note && <p className="text-xs text-slate-400 truncate">{note}</p>}
+        {note && <p className="text-xs text-slate-600 truncate">{note}</p>}
         {waiting && <p className="text-xs text-amber-500">המתנה: {waiting}</p>}
       </div>
     </div>
