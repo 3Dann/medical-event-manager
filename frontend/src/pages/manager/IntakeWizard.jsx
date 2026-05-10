@@ -208,7 +208,7 @@ function DateInput({ value, onChange, hasError }) {
         width={88}
         hasError={hasError}
       />
-      <span className="text-slate-400 font-medium">/</span>
+      <span className="text-slate-600 font-medium">/</span>
       <DateSegment
         inputRef={monthRef}
         value={month}
@@ -219,7 +219,7 @@ function DateInput({ value, onChange, hasError }) {
         width={74}
         hasError={hasError}
       />
-      <span className="text-slate-400 font-medium">/</span>
+      <span className="text-slate-600 font-medium">/</span>
       <DateSegment
         inputRef={dayRef}
         value={day}
