@@ -287,7 +287,7 @@ function FileUploadZone({ onUpload, uploading }) {
         ? <p className="text-sm text-teal-600 font-medium">מנתח עם AI...</p>
         : <>
             <p className="text-sm font-medium text-slate-600">גרור פוליסה לכאן או לחץ להעלאה</p>
-            <p className="text-xs text-slate-400 mt-1">PDF, Excel, Word — ניתוח AI אוטומטי</p>
+            <p className="text-xs text-slate-600 mt-1">PDF, Excel, Word — ניתוח AI אוטומטי</p>
           </>}
     </div>
   )
