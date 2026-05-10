@@ -239,7 +239,7 @@ export default function PatientMedications() {
             </div>
           )}
           {!extracting && candidates.length === 0 && extractDocId && (
-            <p className="text-xs text-slate-400">לחץ "זהה תרופות" לסריקת המסמך.</p>
+            <p className="text-xs text-slate-600">לחץ "זהה תרופות" לסריקת המסמך.</p>
           )}
         </div>
       )}
