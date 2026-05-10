@@ -473,7 +473,7 @@ function MedicationsStep({ medications, onChange }) {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <h3 className="font-bold text-slate-800">{editIdx !== null ? 'עריכת תרופה' : 'הוספת תרופה'}</h3>
-              <button onClick={() => setShowAdd(false)} className="text-slate-500 hover:text-slate-700 text-xl leading-none">✕</button>
+              <button onClick={() => setShowAdd(false)} className="text-slate-500 hover:text-slate-700 text-xl leading-none p-2 -m-2 rounded-lg">✕</button>
             </div>
             <div className="p-6">
               <MedicationCard
