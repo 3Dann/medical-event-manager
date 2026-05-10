@@ -222,6 +222,7 @@ const EMPTY_FORM = {
 
 export default function DoctorsDatabase() {
   const { user: currentUser } = useAuth()
+  const { toast, showToast, dismissToast } = useToast()
   const [doctors, setDoctors] = useState([])
   const [totalDoctors, setTotalDoctors] = useState(0)
   const PAGE_SIZE = 500
