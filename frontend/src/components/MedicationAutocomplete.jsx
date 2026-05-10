@@ -99,7 +99,7 @@ export default function MedicationAutocomplete({
         aria-autocomplete="list"
       />
       {loading && (
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">טוען...</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-600">טוען...</span>
       )}
       <DropdownPortal inputRef={inputRef} open={open && suggestions.length > 0}>
         <ul className="bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto text-sm">
