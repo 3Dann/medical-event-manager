@@ -329,6 +329,7 @@ app.include_router(red_flags_routes.router)
 app.include_router(reports_routes.router)
 app.include_router(patient_portal_routes.router)
 app.include_router(family_share_routes.router)
+app.include_router(tasks_routes.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
