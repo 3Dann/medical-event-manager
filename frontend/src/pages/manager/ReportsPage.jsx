@@ -81,7 +81,7 @@ function ReportCard({ title, description, icon, onGenerate, generating }) {
               </div>
               <div className="overflow-y-auto flex-1">
                 {filtered.length === 0 ? (
-                  <p className="text-center text-slate-400 text-sm py-4">לא נמצאו מטופלים</p>
+                  <p className="text-center text-slate-600 text-sm py-4">לא נמצאו מטופלים</p>
                 ) : (
                   filtered.map(p => (
                     <button
