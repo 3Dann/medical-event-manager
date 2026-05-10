@@ -19,7 +19,7 @@ export default function AdminDashboardPage() {
   const { data, loading, error, refresh } = useDashboard()
 
   if (loading) return (
-    <div className="flex items-center justify-center py-24 text-slate-400">טוען...</div>
+    <div className="flex items-center justify-center py-24 text-slate-600">טוען...</div>
   )
   if (error) return (
     <div className="p-8 text-center text-red-500">{error}</div>
