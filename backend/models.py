@@ -831,3 +831,17 @@ class PatientRequest(Base):
     resolved_at = Column(DateTime(timezone=True), nullable=True)
 
     patient = relationship("Patient", back_populates="requests")
+
+
+class FamilyShareToken(Base):
+    """טוקן לשיתוף תצוגה בלבד עם בן משפחה — תוקף 7 ימים."""
+    __tablename__ = "family_share_tokens"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    token      = Column(String(64), unique=True, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_active  = Column(Boolean, default=True)
+
+    patient = relationship("Patient")
