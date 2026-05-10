@@ -577,7 +577,7 @@ export default function PatientInsurancePolicies() {
       await axios.post(`/api/patients/${id}/insurance/analyze-ai`, fd)
       await fetchAll()
     } catch (err) {
-      alert(err.response?.data?.detail || 'שגיאה בניתוח')
+      showToast('לא ניתן לנתח את הקובץ. בדוק שהפוליסה קריאה ונסה שוב.')
     } finally { setUploading(false) }
   }
 
