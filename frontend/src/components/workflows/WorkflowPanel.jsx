@@ -265,7 +265,7 @@ export default function WorkflowPanel({ patientId }) {
                     />
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-full text-slate-400 text-sm">
+                  <div className="flex items-center justify-center h-full text-slate-600 text-sm">
                     לחץ על שלב לפרטים
                   </div>
                 )}
