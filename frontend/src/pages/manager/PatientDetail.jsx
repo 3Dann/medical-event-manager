@@ -6,6 +6,8 @@ import ResizablePanel from '../../components/ResizablePanel'
 import { validateIsraeliId } from '../../utils/validateId'
 import ConditionTagsSelector from '../../components/ConditionTagsSelector'
 import CareTeamSection from '../../components/CareTeamSection'
+import AppToast from '../../components/AppToast'
+import { useToast } from '../../hooks/useToast'
 
 const MEDICAL_STAGES = [
   { value: '',                 label: '— לא מוגדר —' },
