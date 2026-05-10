@@ -447,6 +447,11 @@ function RequestsSection({ patientId, onBack }) {
         title="שאל שאלה או שלח בקשה"
         subtitle="מנהל האירוע שלך יחזור אליך בהקדם האפשרי"
         onBack={onBack}
+        speakText={() => requests.length === 0 ? 'לא שלחת בקשות עדיין. תוכל ללחוץ על הכפתור ולשלוח בקשה חדשה.' :
+          `יש לך ${requests.length} בקשות. ${requests.map(r => {
+            const st = REQUEST_STATUS[r.status]?.label || r.status
+            return `${r.category_label}: ${st}.`
+          }).join(' ')}`}
       />
 
       {sentOk && (
