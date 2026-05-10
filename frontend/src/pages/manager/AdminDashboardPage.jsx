@@ -67,14 +67,11 @@ export default function AdminDashboardPage() {
           </DashboardWidget>
         </div>
 
-        {/*
-          ── פאנל עתידי לדוגמה ──────────────────────────────────
-          <div className="lg:col-span-5">
-            <DashboardWidget title="פגישות השבוע">
-              <UpcomingMeetingsPanel meetings={data.upcoming_meetings} />
-            </DashboardWidget>
-          </div>
-        */}
+        <div className="lg:col-span-5">
+          <DashboardWidget title="משימות באיחור">
+            <OverdueTasksPanel />
+          </DashboardWidget>
+        </div>
 
       </div>
     </div>
