@@ -122,7 +122,7 @@ export default function PatientFinancialMap() {
       {activeTab === 'priority' && (
         <div className="space-y-3">
           {claim_priority.length === 0
-            ? <p className="text-slate-400 text-center py-8">אין תביעות ממתינות</p>
+            ? <p className="text-slate-600 text-center py-8">אין תביעות ממתינות</p>
             : claim_priority.map(item => (
               <div key={`${item.source_id}-${item.category}`}
                 className="card flex items-center gap-4">
