@@ -1109,7 +1109,7 @@ export default function IntakeWizard() {
                 </div>
               </div>
             )}
-            <p className="text-xs text-slate-400 mt-3">
+            <p className="text-xs text-slate-600 mt-3">
               תאריך חתימה: <strong>{new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
             </p>
           </div>
