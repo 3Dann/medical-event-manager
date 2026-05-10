@@ -137,7 +137,7 @@ export default function Form17Section({ patientId }) {
       </div>
 
       {entries.length === 0 ? (
-        <p className="text-sm text-slate-400 py-3 text-center">לא הוגדרו התחייבויות קופה עדיין</p>
+        <p className="text-sm text-slate-600 py-3 text-center">לא הוגדרו התחייבויות קופה עדיין</p>
       ) : (
         <div className="space-y-2">
           {entries.map(e => (
