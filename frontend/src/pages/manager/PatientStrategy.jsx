@@ -573,7 +573,7 @@ export default function PatientStrategy() {
           {strategy.recommendations.length === 0 && (
             <div className="card text-center py-12">
               <p className="text-slate-500">אין מספיק נתוני ביטוח לייצור אסטרטגיה.</p>
-              <p className="text-slate-400 text-sm mt-1">הוסף מקורות ביטוח וכיסויים בלשונית "ביטוחים".</p>
+              <p className="text-slate-600 text-sm mt-1">הוסף מקורות ביטוח וכיסויים בלשונית "ביטוחים".</p>
             </div>
           )}
         </div>
