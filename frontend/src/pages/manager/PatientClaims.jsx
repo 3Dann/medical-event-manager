@@ -177,7 +177,7 @@ export default function PatientClaims() {
 
       {/* Claims list */}
       {claims.length === 0 ? (
-        <div className="card text-center py-10 text-slate-400">אין תביעות עדיין</div>
+        <div className="card text-center py-10 text-slate-600">אין תביעות עדיין</div>
       ) : (
         <div className="card overflow-hidden p-0">
           <div className="overflow-x-auto">
