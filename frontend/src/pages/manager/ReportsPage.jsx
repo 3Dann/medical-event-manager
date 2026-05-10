@@ -63,7 +63,7 @@ function ReportCard({ title, description, icon, onGenerate, generating }) {
             <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
-            <span className={selectedPatient ? 'text-slate-800 font-medium' : 'text-slate-400'}>
+            <span className={selectedPatient ? 'text-slate-800 font-medium' : 'text-slate-600'}>
               {selectedPatient ? selectedPatient.full_name : 'בחר מטופל...'}
             </span>
           </button>
