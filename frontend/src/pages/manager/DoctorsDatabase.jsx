@@ -743,7 +743,7 @@ export default function DoctorsDatabase() {
             </svg>
           </div>
           <p className="text-slate-600 font-medium">אין רופאים במאגר</p>
-          <p className="text-slate-400 text-sm mt-1">הוסף רופאים ידנית באמצעות כפתור "הוספת רופא"</p>
+          <p className="text-slate-600 text-sm mt-1">הוסף רופאים ידנית באמצעות כפתור "הוספת רופא"</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
