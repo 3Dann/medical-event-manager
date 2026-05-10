@@ -104,7 +104,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
           )}
         </div>
         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.badge}`}>{st.label}</span>
-        <span className="text-slate-400 text-xs">{expanded ? '▲' : '▼'}</span>
+        <span className="text-slate-600 text-xs">{expanded ? '▲' : '▼'}</span>
       </button>
 
       {expanded && (
