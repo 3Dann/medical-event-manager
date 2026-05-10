@@ -306,7 +306,7 @@ export default function PatientStrategy() {
       setConflict(null)
       fetchAll()
     } catch (e) {
-      alert('שגיאה ביצירת זרימות')
+      showToast('לא ניתן ליצור זרימות כרגע. נסה שוב.')
     } finally {
       setApplying(false)
     }
