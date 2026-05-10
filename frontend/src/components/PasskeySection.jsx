@@ -164,7 +164,7 @@ export default function PasskeySection() {
                 <p className="text-sm font-medium text-slate-800">
                   🔐 {c.device_name}
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 mt-0.5">
                   נרשם: {fmtDate(c.created_at)}
                   {c.last_used && ` · שימוש אחרון: ${fmtDate(c.last_used)}`}
                 </p>
