@@ -5,7 +5,7 @@ const STATUS_STYLES = {
   pending:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-500',  icon: '○', label: 'ממתין' },
   active:    { bg: 'bg-blue-50',    border: 'border-blue-300',  badge: 'bg-blue-100 text-blue-700',    icon: '●', label: 'פעיל'  },
   completed: { bg: 'bg-green-50',   border: 'border-green-300', badge: 'bg-green-100 text-green-700',  icon: '✓', label: 'הושלם' },
-  skipped:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-400',  icon: '⇢', label: 'דולג'  },
+  skipped:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-600',  icon: '⇢', label: 'דולג'  },
 }
 
 export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
