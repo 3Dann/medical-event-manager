@@ -85,7 +85,7 @@ export function CityAutocomplete({ value, onChange, required, error }) {
         autoComplete="off"
       />
       {!_citiesCache && input.length > 0 && (
-        <span className="absolute left-3 top-2.5 text-xs text-slate-400">טוען...</span>
+        <span className="absolute left-3 top-2.5 text-xs text-slate-600">טוען...</span>
       )}
       {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
