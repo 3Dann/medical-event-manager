@@ -366,7 +366,7 @@ function PolicyCard({ src, expanded, onToggle, onDelete, onSave }) {
             {/* Left: coverages */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">כיסויים</p>
+                <p className="text-xs font-semibold text-slate-600 uppercase tracking-wider">כיסויים</p>
                 {!editMode && (
                   <button onClick={() => setEditMode(true)}
                     className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
