@@ -391,7 +391,7 @@ function PolicyCard({ src, expanded, onToggle, onDelete, onSave }) {
                       <p className="text-xs font-medium" style={{ color: cov.is_covered ? '#065f46' : '#94a3b8' }}>
                         {COVERAGE_LABELS[cov.category] || cov.category}
                       </p>
-                      {cov.notes && <p className="text-xs text-slate-400 truncate">{cov.notes}</p>}
+                      {cov.notes && <p className="text-xs text-slate-600 truncate">{cov.notes}</p>}
                       {cov.coverage_amount && (
                         <p className="text-xs text-slate-500">₪{Number(cov.coverage_amount).toLocaleString('he-IL')}</p>
                       )}
