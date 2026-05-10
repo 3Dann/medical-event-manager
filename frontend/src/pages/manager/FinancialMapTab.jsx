@@ -480,7 +480,7 @@ export default function FinancialMapTab({ patientId }) {
 
         {fund_applications.length === 0 ? (
           <div className="border border-dashed border-slate-200 rounded-xl py-8 text-center">
-            <p className="text-slate-400 text-sm">לא הוגדרו עדיין מקורות מימון</p>
+            <p className="text-slate-600 text-sm">לא הוגדרו עדיין מקורות מימון</p>
             <button onClick={() => setShowAdd(true)} className="mt-2 text-blue-600 text-sm hover:underline">
               הוסף את הראשון
             </button>
