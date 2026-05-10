@@ -257,11 +257,26 @@ export default function PatientStrategy() {
   }, [id])
 
   const approveClaim = async (claimId) => {
+    setApprovingId(claimId)
     try {
       await axios.post(`/api/patients/${id}/claims/${claimId}/approve`)
-      fetchAll()
+      await fetchAll()
     } catch (e) {
       alert('שגיאה באישור תביעה')
+    } finally {
+      setApprovingId(null)
+    }
+  }
+
+  const deleteClaim = async (claimId) => {
+    setDeletingId(claimId)
+    try {
+      await axios.delete(`/api/patients/${id}/claims/${claimId}`)
+      await fetchAll()
+    } catch (e) {
+      alert('שגיאה במחיקת תביעה')
+    } finally {
+      setDeletingId(null)
     }
   }
 
