@@ -143,7 +143,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
                       {task.title}
                     </span>
                     {togglingTask === task.id && (
-                      <span className="text-xs text-slate-400 mr-auto">...</span>
+                      <span className="text-xs text-slate-600 mr-auto">...</span>
                     )}
                   </button>
                 ))}
