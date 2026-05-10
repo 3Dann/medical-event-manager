@@ -220,7 +220,7 @@ export default function FundManagementPanel() {
       </div>
 
       {visible.length === 0 ? (
-        <p className="text-sm text-slate-400 text-right py-4">אין קרנות להצגה</p>
+        <p className="text-sm text-slate-600 text-right py-4">אין קרנות להצגה</p>
       ) : (
         <div className="space-y-2">
           {visible.map(fund => (
