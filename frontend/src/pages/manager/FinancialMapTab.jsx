@@ -411,7 +411,7 @@ export default function FinancialMapTab({ patientId }) {
                       <div className="min-w-0 flex-1 text-right">
                         <p className="text-sm font-medium text-slate-800 truncate">{node.description}</p>
                         {node.coverage_categories?.length > 0 && (
-                          <p className="text-xs text-slate-400 mt-0.5">
+                          <p className="text-xs text-slate-600 mt-0.5">
                             {node.coverage_categories.map(c => ({
                               diagnostics: 'בדיקות', surgery: 'ניתוח', hospitalization: 'אשפוז',
                               rehabilitation: 'שיקום', second_opinion: 'חוות דעת', advanced_tech: 'טכנולוגיה',
