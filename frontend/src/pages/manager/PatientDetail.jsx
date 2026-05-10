@@ -582,7 +582,7 @@ export default function PatientDetail() {
             <div className="w-64 flex-shrink-0 border-l border-slate-100 overflow-y-auto p-3 space-y-4">
               {Object.entries(groupByCategory(journeyTemplates)).map(([cat, tpls]) => (
                 <div key={cat}>
-                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5 px-2">{cat}</p>
+                  <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wide mb-1.5 px-2">{cat}</p>
                   <div className="space-y-1">
                     {tpls.map(tpl => {
                       const isApplied   = appliedTemplateKeys.has(tpl.key)
