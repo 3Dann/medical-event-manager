@@ -426,7 +426,7 @@ export default function FinancialMapTab({ patientId }) {
                       <div className="text-left shrink-0 space-y-0.5">
                         {node.estimated_cost
                           ? <p className="text-sm font-semibold text-slate-700">{fmt(node.estimated_cost)}</p>
-                          : <p className="text-sm text-slate-400">עלות לא הוגדרה</p>}
+                          : <p className="text-sm text-slate-600">עלות לא הוגדרה</p>}
                         {node.covered_amount > 0 && (
                           <p className="text-xs text-emerald-600">{fmt(node.covered_amount)} מכוסה</p>
                         )}
