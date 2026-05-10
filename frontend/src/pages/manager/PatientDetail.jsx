@@ -211,6 +211,7 @@ export default function PatientDetail() {
 
   return (
     <>
+    <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
     <div className="p-4 md:p-6">
 
       {/* Patient info + quick nav */}
