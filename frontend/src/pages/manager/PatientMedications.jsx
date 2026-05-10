@@ -131,6 +131,7 @@ export default function PatientMedications() {
 
   return (
     <div className="p-6 space-y-6 max-w-4xl">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
 
       {/* Interactions panel — stays visible during background check */}
       {(interactions.length > 0 || checkingInteractions) && (
