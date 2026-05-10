@@ -148,7 +148,9 @@ export default function PatientDetail() {
       setSelectedTplPreview(null)
     } catch (e) {
       if (e.response?.status === 409) {
-        alert('מסע זה כבר מוחל על מטופל זה')
+        showToast('מסע זה כבר מוחל על מטופל זה', 'info')
+      } else {
+        showToast('שגיאה בהחלת המסע. נסה שוב.')
       }
     } finally { setApplyingTemplate(null) }
   }
