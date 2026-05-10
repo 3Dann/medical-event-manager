@@ -438,7 +438,7 @@ export default function WorkflowsPage() {
       {activeTab === 'instances' && (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           {instances.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">אין הרצות פעילות</div>
+            <div className="text-center py-16 text-slate-600">אין הרצות פעילות</div>
           ) : (
             <div className="overflow-x-auto">
             <table className="w-full text-sm" dir="rtl">
