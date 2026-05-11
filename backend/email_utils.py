@@ -24,10 +24,10 @@ def send_email(to: str, subject: str, body_html: str) -> bool:
             "subject": subject,
             "html": body_html,
         })
-        logger.info(f"Email sent to {to}")
+        logger.info(f"Email sent (domain: {to.split('@')[-1] if '@' in to else '?'})")
         return True
     except Exception as e:
-        logger.error(f"Failed to send email to {to}: {e}")
+        logger.error(f"Failed to send email (domain: {to.split('@')[-1] if '@' in to else '?'}): {e}")
         return False
 
 
