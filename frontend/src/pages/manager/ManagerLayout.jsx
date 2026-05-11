@@ -98,8 +98,8 @@ export default function ManagerLayout() {
 
   // sidebarOpen: collapsed vs expanded (md+ screens)
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 1024)
-  // mobileOpen: drawer visible on mobile/small-tablet
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [demoLauncher, setDemoLauncher] = useState(false)
 
   const handleLogout = () => { logout(); navigate('/login') }
   const isRoot = location.pathname === '/manager'
