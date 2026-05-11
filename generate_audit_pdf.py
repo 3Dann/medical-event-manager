@@ -701,7 +701,7 @@ story.append(hr(C['green'], 1.5))
 story.append(sp(6))
 
 positives = [
-    "JWT עם 2FA מלא — TOTP, דוא\"ל ו-WebAuthn מוגדרים ופעילים",
+    "JWT עם 2FA מלא — TOTP, דוא״ל ו-WebAuthn מוגדרים ופעילים",
     "bcrypt להצפנת סיסמאות ו-SQLAlchemy עם parameterized queries — אין SQL injection",
     "Audit middleware מיירט 17 סוגי פעולות ורושם לוג מלא",
     "Rate limiting מוגדר על endpoints קריטיים עם Railway-aware IP detection",
