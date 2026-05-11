@@ -142,6 +142,31 @@ def download_document(
     )
 
 
+@router.post("/{patient_id}/documents/{doc_id}/view-token")
+def create_view_token(
+    patient_id: int,
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    """מייצר view token חד-פעמי עם TTL של 90 שניות לצפייה במסמך."""
+    _get_patient_or_403(patient_id, current_user, db)
+    doc = db.query(models.PatientDocument).filter(
+        models.PatientDocument.id == doc_id,
+        models.PatientDocument.patient_id == patient_id,
+    ).first()
+    if not doc:
+        raise HTTPException(status_code=404)
+    _cleanup_view_tokens()
+    vt = secrets.token_urlsafe(32)
+    _VIEW_TOKENS[vt] = (
+        datetime.now(timezone.utc) + timedelta(seconds=90),
+        patient_id,
+        doc_id,
+    )
+    return {"view_token": vt}
+
+
 @router.get("/{patient_id}/documents/{doc_id}/view")
 def view_document_inline(
     patient_id: int,
@@ -149,9 +174,18 @@ def view_document_inline(
     token: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    """הגשת מסמך inline לצפייה בדפדפן — token בquery param כי iframe לא שולח Authorization header."""
-    current_user = auth_utils.get_current_user_from_token(token, db)
-    _get_patient_or_403(patient_id, current_user, db)
+    """הגשת מסמך inline. מקבל view_token קצר-חיים (90 שניות) במקום JWT."""
+    _cleanup_view_tokens()
+    entry = _VIEW_TOKENS.get(token)
+    if not entry:
+        raise HTTPException(status_code=401, detail="קישור לא תקין או פג תוקף")
+    expires_at, allowed_patient, allowed_doc = entry
+    if datetime.now(timezone.utc) > expires_at:
+        del _VIEW_TOKENS[token]
+        raise HTTPException(status_code=401, detail="קישור פג תוקף")
+    if allowed_patient != patient_id or allowed_doc != doc_id:
+        raise HTTPException(status_code=403)
+    del _VIEW_TOKENS[token]  # one-time use
 
     doc = db.query(models.PatientDocument).filter(
         models.PatientDocument.id == doc_id,
