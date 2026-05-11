@@ -99,7 +99,7 @@ function EmptyState({ icon, text, sub }) {
     <div className="text-center py-12">
       <div className="text-5xl mb-4">{icon}</div>
       <p className="text-slate-700 font-medium text-lg">{text}</p>
-      {sub && <p className="text-slate-500 mt-2">{sub}</p>}
+      {sub && <p className="text-slate-600 mt-2">{sub}</p>}
     </div>
   )
 }
