@@ -171,21 +171,34 @@ export default function ManagerLayout() {
 
       <div className="p-2 border-t border-slate-700 flex-shrink-0 space-y-1">
         {canUseDemo && (
-          <button
-            onClick={toggleDemoMode}
-            title={isDemoMode ? t('nav:demo_mode_off') : t('nav:demo_mode_on')}
-            className={`flex items-center gap-3 w-full px-2.5 py-2.5 rounded-lg text-sm transition-colors ${
-              isDemoMode
-                ? 'bg-amber-500 text-white hover:bg-amber-600'
-                : 'text-slate-300 hover:bg-slate-700'
-            }`}
-          >
-            <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
-            </svg>
-            {sidebarOpen && <span>{isDemoMode ? t('nav:demo_mode_active') : t('nav:demo_mode')}</span>}
-          </button>
+          <>
+            <button
+              onClick={toggleDemoMode}
+              title={isDemoMode ? t('nav:demo_mode_off') : t('nav:demo_mode_on')}
+              className={`flex items-center gap-3 w-full px-2.5 py-2.5 rounded-lg text-sm transition-colors ${
+                isDemoMode
+                  ? 'bg-amber-500 text-white hover:bg-amber-600'
+                  : 'text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+              </svg>
+              {sidebarOpen && <span>{isDemoMode ? t('nav:demo_mode_active') : t('nav:demo_mode')}</span>}
+            </button>
+            <button
+              onClick={() => setDemoLauncher(true)}
+              title="הצג פורטלים"
+              className="flex items-center gap-3 w-full px-2.5 py-2.5 rounded-lg text-sm transition-colors text-slate-300 hover:bg-slate-700"
+            >
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+              </svg>
+              {sidebarOpen && <span>הצג פורטלים</span>}
+            </button>
+          </>
         )}
         {sidebarOpen && (
           <div className="mb-1 px-2.5 py-1.5">
