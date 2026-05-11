@@ -108,6 +108,8 @@ async def upload_document(
         raise HTTPException(status_code=413, detail="File too large (max 20MB)")
     if file.content_type and file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="File type not allowed")
+    if not _validate_magic(content):
+        raise HTTPException(status_code=415, detail="סוג הקובץ אינו נתמך")
 
     ext = os.path.splitext(file.filename or "")[1]
     stored_name = f"{uuid.uuid4().hex}{ext}"
