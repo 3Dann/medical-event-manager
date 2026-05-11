@@ -400,6 +400,7 @@ function RequestsSection({ patientId, onBack }) {
   const [requests, setRequests] = useState([])
   const [loading, setLoading]   = useState(true)
   const [sending, setSending]   = useState(false)
+  const [sendError, setSendError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [category, setCategory] = useState('general')
   const [message, setMessage]   = useState(() => {
