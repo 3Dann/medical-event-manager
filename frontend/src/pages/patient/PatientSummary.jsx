@@ -430,6 +430,7 @@ function RequestsSection({ patientId, onBack }) {
   const submit = async () => {
     if (!message.trim()) return
     setSending(true)
+    setSendError(null)
     try {
       await axios.post('/api/patient/requests', { category, message: message.trim() })
       sessionStorage.removeItem(DRAFT_KEY)
@@ -438,7 +439,9 @@ function RequestsSection({ patientId, onBack }) {
       setSentOk(true)
       setTimeout(() => setSentOk(false), 4000)
       load()
-    } catch (_) {}
+    } catch (_) {
+      setSendError('שליחת הבקשה נכשלה. בדוק את החיבור לאינטרנט ונסה שנית.')
+    }
     setSending(false)
   }
 
