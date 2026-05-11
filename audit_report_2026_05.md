@@ -80,7 +80,7 @@
 **חומרה:** גבוה
 **קובץ:** backend/main.py שורה 106
 
-`allow_methods=["*"]` ו-`allow_headers=["*"]` — פתוח לכל שיטות HTTP ו-headers.
+`allow_methods=["GET","POST","PUT","DELETE"]` ו-`allow_headers=["Content-Type","Authorization"]` — פתוח לכל שיטות HTTP ו-headers.
 
 **המלצה:** רשימה מפורשת: `["GET", "POST", "PUT", "DELETE"]` ו-`["Content-Type", "Authorization"]`.
 
