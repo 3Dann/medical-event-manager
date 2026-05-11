@@ -111,7 +111,8 @@ class Verify2FARequest(BaseModel):
 
 
 @router.post("/verify-2fa", response_model=Token)
-def verify_2fa(data: Verify2FARequest, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(get_db)):
     from jose import JWTError
     try:
         payload = auth_utils.decode_token(data.temp_token)
