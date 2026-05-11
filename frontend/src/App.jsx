@@ -39,6 +39,8 @@ import LandingEditorPage from './pages/manager/LandingEditorPage'
 import FeedbackSubmitPage from './pages/manager/FeedbackSubmitPage'
 import AdminDashboardPage from './pages/manager/AdminDashboardPage'
 import MyDay from './pages/manager/MyDay'
+import DemoPatientPortal from './pages/demo/DemoPatientPortal'
+import DemoBrokerPortal from './pages/demo/DemoBrokerPortal'
 
 // Patient pages
 import PatientLayout from './pages/patient/PatientLayout'
