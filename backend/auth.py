@@ -56,6 +56,25 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
+
+def get_optional_current_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db)
+) -> Optional[models.User]:
+    """מחזיר את המשתמש אם מחובר, None אחרת — ללא שגיאה."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+    return db.query(models.User).filter(models.User.id == int(user_id)).first()
+
+
 def get_current_user_from_token(token: str, db: Session) -> models.User:
     """כמו get_current_user אך מקבל token כפרמטר רגיל (לא Depends) — לשימוש ב-query param."""
     credentials_exception = HTTPException(
