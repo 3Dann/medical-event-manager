@@ -58,8 +58,8 @@ def _sync_tasks_for_manager(manager_user_id: int, db: Session):
 
     # הרשאות גישה נוספות
     granted_ids = [
-        g.patient_id for g in db.query(models.PatientAccess).filter(
-            models.PatientAccess.manager_id == manager_user_id
+        g.patient_id for g in db.query(models.PatientPermission).filter(
+            models.PatientPermission.manager_id == manager_user_id
         ).all()
     ]
     granted_patients = db.query(models.Patient).filter(
