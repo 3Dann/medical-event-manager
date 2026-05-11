@@ -670,7 +670,7 @@ function FamilyShareButton() {
               {copied ? '✓ הועתק!' : 'העתק'}
             </button>
           </div>
-          <p className="text-slate-500">
+          <p className="text-slate-600">
             הקישור תקף עד {new Date(status.expires_at).toLocaleDateString('he-IL')}
           </p>
           <button onClick={revoke} className="text-red-500 hover:text-red-700 font-medium">
