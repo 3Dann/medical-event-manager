@@ -901,7 +901,7 @@ export default function PatientSummary() {
   const { patient, manager, claims, documents, workflows, financial, red_flags } = data
 
   return (
-    <div className="pb-24 sm:pb-6 text-base leading-relaxed" dir="rtl">
+    <div className="pb-24 sm:pb-6 text-base leading-[1.8]" dir="rtl">
       <HelpButton view={view} />
       <BottomNav view={view} onNavigate={setView} />
 
