@@ -258,8 +258,9 @@ def run_migrations():
             try:
                 conn.execute(sqlalchemy.text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
                 conn.commit()
-            except Exception:
-                pass  # column already exists
+                logger.debug(f"Migration: added {table}.{col}")
+            except Exception as e:
+                logger.debug(f"Migration skip {table}.{col}: {e}")
 
 run_migrations()
 
