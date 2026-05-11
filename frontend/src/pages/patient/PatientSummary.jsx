@@ -241,7 +241,7 @@ function ClaimsSection({ claims, onBack }) {
                   <div className="min-w-0 text-right">
                     <p className="font-bold text-slate-800">{c.source_label}</p>
                     {c.description && <p className="text-slate-600 mt-1 leading-relaxed">{c.description}</p>}
-                    {c.created_at && <p className="text-slate-500 mt-2">{fmtDate(c.created_at)}</p>}
+                    {c.created_at && <p className="text-slate-600 mt-2">{fmtDate(c.created_at)}</p>}
                   </div>
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <span className={`px-3 py-1 rounded-full font-semibold ${st.bg} ${st.text}`}>
