@@ -41,6 +41,24 @@ ALLOWED_TYPES = {
 }
 MAX_SIZE = 20 * 1024 * 1024  # 20 MB
 
+# Magic bytes לולידציה של תוכן קובץ (לא רק Content-Type)
+_MAGIC = [
+    (b'%PDF',       'application/pdf'),
+    (b'\xFF\xD8\xFF', 'image/jpeg'),
+    (b'\x89PNG',    'image/png'),
+    (b'GIF87a',     'image/gif'),
+    (b'GIF89a',     'image/gif'),
+    (b'RIFF',       'image/webp'),
+    (b'PK\x03\x04', None),  # ZIP — docx / xlsx
+    (b'\xD0\xCF\x11\xE0', None),  # OLE — doc / xls ישן
+]
+
+def _validate_magic(content: bytes) -> bool:
+    for magic, _ in _MAGIC:
+        if content[:len(magic)] == magic:
+            return True
+    return False
+
 
 def _get_patient_or_403(patient_id: int, user, db: Session):
     return auth_utils.get_patient_with_access(patient_id, user, db)
