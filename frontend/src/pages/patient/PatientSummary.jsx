@@ -464,6 +464,12 @@ function RequestsSection({ patientId, onBack }) {
           <span>הבקשה נשלחה בהצלחה! מנהל האירוע שלך יחזור אליך בקרוב.</span>
         </div>
       )}
+      {sendError && (
+        <div className="bg-red-50 border-2 border-red-200 text-red-800 font-medium rounded-2xl p-4 mb-5 flex items-center gap-3">
+          <span className="text-2xl">⚠️</span>
+          <span>{sendError}</span>
+        </div>
+      )}
 
       {!showForm ? (
         <button
