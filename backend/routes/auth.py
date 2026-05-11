@@ -181,18 +181,20 @@ def get_me(current_user: models.User = Depends(auth_utils.get_current_user)):
 
 
 @router.post("/forgot-password")
-def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("3/15minutes")
+def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    _GENERIC = "אם האימייל רשום במערכת, קוד איפוס ישלח אליו"
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
-        raise HTTPException(status_code=404, detail="אימייל לא נמצא במערכת")
+        return {"message": _GENERIC, "reset_token": None, "email_configured": False}
     token = secrets.token_hex(3).upper()  # 6 chars
     user.reset_token = token
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.commit()
     sent = email_utils.send_reset_code(user.email, token)
     return {
-        "message": f"קוד איפוס נשלח לאימייל {user.email}" if sent else "קוד איפוס נוצר",
-        "reset_token": None if sent else token,  # hide when real email sent
+        "message": _GENERIC,
+        "reset_token": None if sent else token,
         "email_configured": sent,
     }
 
