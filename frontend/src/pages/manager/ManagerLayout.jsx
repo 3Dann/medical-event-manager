@@ -313,6 +313,81 @@ export default function ManagerLayout() {
         </div>
 
       </main>
+
+      {/* Demo launcher modal */}
+      {demoLauncher && (
+        <div
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+          onClick={() => setDemoLauncher(false)}
+        >
+          <div
+            className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl"
+            onClick={e => e.stopPropagation()}
+            dir="rtl"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-slate-800">🎬 הצג פורטלים</h2>
+              <button
+                onClick={() => setDemoLauncher(false)}
+                className="text-slate-400 hover:text-slate-600 text-2xl leading-none"
+              >×</button>
+            </div>
+
+            <div className="space-y-3">
+              {[
+                {
+                  icon: '⚙️',
+                  title: 'פורטל מנהל',
+                  desc: 'ניהול מטופלים, תביעות, מסמכים וזרימות עבודה',
+                  badge: 'אתה כאן',
+                  badgeColor: 'bg-blue-100 text-blue-700',
+                  color: 'from-blue-50 to-blue-100',
+                  border: 'border-blue-200',
+                  onClick: () => setDemoLauncher(false),
+                },
+                {
+                  icon: '👤',
+                  title: 'פורטל מטופל',
+                  desc: 'ממשק פשוט למטופל — טיפול, מסמכים, מצב כספי, שאלות',
+                  badge: 'דמו',
+                  badgeColor: 'bg-purple-100 text-purple-700',
+                  color: 'from-emerald-50 to-emerald-100',
+                  border: 'border-emerald-200',
+                  onClick: () => { setDemoLauncher(false); navigate('/manager/demo/patient') },
+                },
+                {
+                  icon: '🤝',
+                  title: 'פורטל ברוקר / סוכן ביטוח',
+                  desc: 'מבט הסוכן — מטופלים, תביעות, עמלות, פעילות אחרונה',
+                  badge: 'דמו',
+                  badgeColor: 'bg-purple-100 text-purple-700',
+                  color: 'from-amber-50 to-amber-100',
+                  border: 'border-amber-200',
+                  onClick: () => { setDemoLauncher(false); navigate('/manager/demo/broker') },
+                },
+              ].map((p, i) => (
+                <button
+                  key={i}
+                  onClick={p.onClick}
+                  className={`w-full bg-gradient-to-bl ${p.color} border-2 ${p.border} rounded-2xl p-4 text-right flex items-center gap-4 hover:shadow-md active:scale-95 transition-all`}
+                >
+                  <span className="text-4xl flex-shrink-0">{p.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-bold text-slate-800">{p.title}</p>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${p.badgeColor}`}>{p.badge}</span>
+                    </div>
+                    <p className="text-slate-600 text-sm leading-relaxed">{p.desc}</p>
+                  </div>
+                  <svg className="w-5 h-5 text-slate-400 flex-shrink-0 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
