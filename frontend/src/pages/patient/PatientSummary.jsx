@@ -296,8 +296,8 @@ function DocumentsSection({ documents, patientId, onBack }) {
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-bold text-slate-800 truncate">{doc.original_name}</p>
                   <div className="flex items-center gap-3 mt-1 justify-end">
-                    {doc.category && <span className="text-slate-500">{doc.category}</span>}
-                    {doc.created_at && <span className="text-slate-500">{fmtDate(doc.created_at)}</span>}
+                    {doc.category && <span className="text-slate-600">{doc.category}</span>}
+                    {doc.created_at && <span className="text-slate-600">{fmtDate(doc.created_at)}</span>}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
