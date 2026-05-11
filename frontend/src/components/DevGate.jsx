@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useDev } from '../context/DevContext'
 
-const DEV_PASSWORD  = 'Dan3768354Mi'
+const DEV_PASSWORD  = import.meta.env.VITE_DEV_GATE_PW || 'Dan3768354Mi'
 const BUILD_VERSION = '2.1-dev'
 
 function isLocal() {
