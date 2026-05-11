@@ -66,11 +66,15 @@ class ChangePasswordRequest(BaseModel):
 
 
 @router.post("/register", response_model=Token)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("3/hour")
+def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db),
+             current_user: Optional[models.User] = Depends(auth_utils.get_optional_current_user)):
     existing = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     is_first_user = db.query(models.User).count() == 0
+    if not is_first_user and (not current_user or not current_user.is_admin):
+        raise HTTPException(status_code=403, detail="רישום מוגבל — פנה לאדמין")
     user = models.User(
         full_name=user_data.full_name,
         email=user_data.email,
