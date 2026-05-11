@@ -244,6 +244,9 @@ def run_migrations():
         ("patient_fund_applications", "applied_at",   "DATETIME"),
         ("patient_fund_applications", "resolved_at",  "DATETIME"),
         ("patient_fund_applications", "updated_at",   "DATETIME"),
+        # CalendarToken — expiry and revocation
+        ("calendar_tokens", "expires_at", "DATETIME"),
+        ("calendar_tokens", "is_active",  "BOOLEAN DEFAULT 1"),
     ]
     with engine.connect() as conn:
         for table, col, col_type in migrations:
