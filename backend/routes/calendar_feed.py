@@ -188,6 +188,10 @@ def get_calendar_feed(token: str, db: Session = Depends(get_db)):
     ).first()
     if not cal_token:
         return Response(status_code=404)
+    if not getattr(cal_token, 'is_active', True):
+        return Response(status_code=403)
+    if cal_token.expires_at and datetime.now(timezone.utc) > cal_token.expires_at:
+        return Response(status_code=403)
 
     user = db.query(models.User).filter(
         models.User.id == cal_token.user_id
