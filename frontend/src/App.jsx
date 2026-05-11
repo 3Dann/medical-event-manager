@@ -99,6 +99,26 @@ function AppRoutes() {
   )
 }
 
+function GlobalErrorToast() {
+  const [msg, setMsg] = useState(null)
+  useEffect(() => {
+    const handler = (e) => {
+      setMsg(e.detail)
+      setTimeout(() => setMsg(null), 5000)
+    }
+    window.addEventListener('api-server-error', handler)
+    return () => window.removeEventListener('api-server-error', handler)
+  }, [])
+  if (!msg) return null
+  return (
+    <div className="fixed top-4 right-4 left-4 sm:left-auto sm:w-96 z-[9999] bg-red-600 text-white rounded-2xl px-5 py-4 shadow-2xl flex items-center gap-3 animate-fade-in" dir="rtl">
+      <span className="text-2xl flex-shrink-0">⚠️</span>
+      <span className="font-medium">{msg}</span>
+      <button onClick={() => setMsg(null)} className="mr-auto text-white/70 hover:text-white text-xl leading-none">×</button>
+    </div>
+  )
+}
+
 function LangDirectionSync() {
   useEffect(() => {
     // Direction is ALWAYS RTL — the system layout is Hebrew/RTL regardless of content language
