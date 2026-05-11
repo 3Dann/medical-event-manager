@@ -1,20 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime, timedelta
+from typing import Optional
 import secrets
 import pyotp
 import qrcode
 import io
 import base64
 from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from database import get_db
 import models
 import auth as auth_utils
 import email_utils
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+
+
+def _get_real_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+limiter = Limiter(key_func=_get_real_ip)
 
 
 class UserCreate(BaseModel):
