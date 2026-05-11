@@ -549,7 +549,7 @@ function RequestsSection({ patientId, onBack }) {
                     <span className={`px-3 py-1 rounded-full font-semibold ${st.bg} ${st.text}`}>
                       {st.label}
                     </span>
-                    <span className="text-slate-500">{fmtDate(r.created_at)}</span>
+                    <span className="text-slate-600">{fmtDate(r.created_at)}</span>
                   </div>
                   <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-medium">
                     {r.category_label}
