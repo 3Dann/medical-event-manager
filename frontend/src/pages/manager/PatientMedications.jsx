@@ -179,7 +179,7 @@ export default function PatientMedications() {
                     <p className={`font-medium text-sm ${c.text}`}>
                       {ix.drug_a} ↔ {ix.drug_b}
                       <span className={`mr-2 text-xs px-2 py-0.5 rounded-full font-normal ${c.badge}`}>
-                        {ix.severity === 'high' ? 'חמור' : ix.severity === 'medium' ? 'בינוני' : 'קל'}
+                        {ix.severity === 'high' ? t('severity_high') : ix.severity === 'medium' ? t('severity_medium') : t('severity_low')}
                       </span>
                     </p>
                     <p className="text-xs text-slate-600 mt-0.5">{ix.description}</p>
