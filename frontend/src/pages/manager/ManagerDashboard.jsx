@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { SkeletonCard } from '../../components/Skeleton'
 const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-yellow' }
 
 export default function ManagerDashboard() {
