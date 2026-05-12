@@ -11,10 +11,10 @@ const REQ_STATUS_COLORS = {
   read:     'bg-blue-100 text-blue-700',
   resolved: 'bg-green-100 text-green-700',
 }
-const REQ_STATUS_LABELS = { pending: 'ממתינה', read: 'נקראה', resolved: 'טופלה' }
-const REQ_CAT_LABELS = { general: 'כללי', document: 'בקשת מסמך', meeting: 'בקשת פגישה', question: 'שאלה', financial: 'עניין כספי' }
-
 function PatientRequestsPanel({ patientId }) {
+  const { t } = useTranslation('meetings')
+  const REQ_STATUS_LABELS = { pending: t('req_status_pending'), read: t('req_status_read'), resolved: t('req_status_resolved') }
+  const REQ_CAT_LABELS = { general: t('req_cat_general'), document: t('req_cat_document'), meeting: t('req_cat_meeting'), question: t('req_cat_question'), financial: t('req_cat_financial') }
   const [requests, setRequests] = useState([])
   const [loading, setLoading]   = useState(true)
   const [open, setOpen]         = useState(true)
