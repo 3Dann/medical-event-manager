@@ -513,6 +513,7 @@ export default function IntakeWizard() {
   const navigate = useNavigate()
   const { isDemoMode } = useDemoMode()
   const { showToast } = useToast()
+  const { t } = useTranslation(['intake', 'common'])
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     try {
