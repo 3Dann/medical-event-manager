@@ -62,12 +62,24 @@ def _is_hebrew(q: str) -> bool:
 
 
 def _search_db(q: str, db: Session) -> list[dict]:
+    from sqlalchemy import or_
     q_low = q.lower()
     is_heb = _is_hebrew(q)
-    drugs = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).all()
+    pat = f"%{q}%"
+
+    # DB-level pre-filter — avoid loading all 1,162 rows into memory
+    query = db.query(models.DrugEntry).filter(
+        models.DrugEntry.is_active == True,
+        or_(
+            models.DrugEntry.name.ilike(pat),
+            models.DrugEntry.generic_name.ilike(pat),
+            models.DrugEntry.hebrew_name.ilike(pat),
+        )
+    ).limit(100)
+
     seen = set()
     scored = []
-    for d in drugs:
+    for d in query:
         if d.name in seen:
             continue
         hebrew = d.hebrew_name or ""
@@ -75,7 +87,6 @@ def _search_db(q: str, db: Session) -> list[dict]:
         if score < 9:
             seen.add(d.name)
             dosages = json.loads(d.common_dosages) if d.common_dosages else []
-            # Sort key: for Hebrew queries sort by Hebrew name, else by English name
             sort_key = hebrew.lower() if (is_heb and hebrew) else d.name.lower()
             scored.append((score, sort_key, {
                 "name": d.name,
