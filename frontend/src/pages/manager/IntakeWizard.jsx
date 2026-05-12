@@ -10,14 +10,15 @@ import { useToast } from '../../hooks/useToast'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const STEPS = [
-  { id: 'personal',    label: 'פרטים אישיים' },
-  { id: 'address',     label: 'כתובת להתקשרות' },
-  { id: 'contact',     label: 'פרטי קשר לחירום' },
-  { id: 'medical',     label: 'מידע רפואי' },
-  { id: 'medications', label: 'תרופות' },
-  { id: 'assessment',  label: 'הערכות תפקודיות' },
-  { id: 'signatures',  label: 'חתימות' },
+// Labels use i18n keys — resolved at render time with t('intake:step_*')
+const STEP_KEYS = [
+  { id: 'personal',    key: 'step_personal' },
+  { id: 'address',     key: 'step_address' },
+  { id: 'contact',     key: 'step_contact' },
+  { id: 'medical',     key: 'step_medical' },
+  { id: 'medications', key: 'step_medications' },
+  { id: 'assessment',  key: 'step_assessment' },
+  { id: 'signatures',  key: 'step_signatures' },
 ]
 
 const PHONE_PREFIXES = ['050','051','052','053','054','055','056','057','058','059','02','03','04','08','09','072','073','074','076','077','078','079']
