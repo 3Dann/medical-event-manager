@@ -825,8 +825,8 @@ export default function PatientInsurance() {
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowEntitlementForm(false)} className="btn-secondary text-sm">ביטול</button>
-              <button type="submit" className="btn-primary text-sm">הוסף</button>
+              <button type="button" onClick={() => setShowEntitlementForm(false)} className="btn-secondary text-sm">{t('common:cancel', { ns: 'common' })}</button>
+              <button type="submit" className="btn-primary text-sm">{t('common:add', { ns: 'common' })}</button>
             </div>
           </form>
         )}
