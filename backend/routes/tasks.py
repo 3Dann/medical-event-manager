@@ -140,74 +140,51 @@ def _upsert_task(manager_id: int, patient: models.Patient,
     db.add(task)
 
 
-def _sync_meeting_actions(manager_id: int, patient: models.Patient, db: Session):
-    meetings = db.query(models.PatientMeeting).filter(
-        models.PatientMeeting.patient_id == patient.id
-    ).all()
-    for meeting in meetings:
-        try:
-            items = json.loads(meeting.action_items) if meeting.action_items else []
-        except Exception:
-            items = []
-        for i, item in enumerate(items):
-            if item.get("done"):
-                continue
-            title = f"{item.get('task', '')} — {patient.full_name}"
-            due = None
-            if meeting.meeting_date:
-                try:
-                    due = datetime.fromisoformat(str(meeting.meeting_date)).replace(tzinfo=timezone.utc)
-                except Exception:
-                    pass
-            _upsert_task(manager_id, patient, "meeting_action",
-                         meeting.id * 1000 + i, title, due, "normal",
-                         {"meeting_id": meeting.id, "item_index": i,
-                          "meeting_date": str(meeting.meeting_date)}, db)
+def _sync_meeting_actions(manager_id: int, patient: models.Patient, db: Session, meeting=None):
+    try:
+        items = json.loads(meeting.action_items) if meeting.action_items else []
+    except Exception:
+        items = []
+    for i, item in enumerate(items):
+        if item.get("done"):
+            continue
+        title = f"{item.get('task', '')} — {patient.full_name}"
+        due = None
+        if meeting.meeting_date:
+            try:
+                due = datetime.fromisoformat(str(meeting.meeting_date)).replace(tzinfo=timezone.utc)
+            except Exception:
+                pass
+        _upsert_task(manager_id, patient, "meeting_action",
+                     meeting.id * 1000 + i, title, due, "normal",
+                     {"meeting_id": meeting.id, "item_index": i,
+                      "meeting_date": str(meeting.meeting_date)}, db)
 
 
-def _sync_workflow_steps(manager_id: int, patient: models.Patient, db: Session):
-    instances = db.query(models.WorkflowInstance).filter(
-        models.WorkflowInstance.patient_id == patient.id,
-        models.WorkflowInstance.status == "active",
-    ).all()
-    for inst in instances:
-        steps = db.query(models.WorkflowStep).filter(
-            models.WorkflowStep.instance_id == inst.id,
-            models.WorkflowStep.status == "active",
-        ).all()
-        for step in steps:
-            title = f"{step.name} — {inst.title} — {patient.full_name}"
-            due = None
-            if step.due_date:
-                due = step.due_date.replace(tzinfo=timezone.utc) if step.due_date.tzinfo is None else step.due_date
-            _upsert_task(manager_id, patient, "workflow_step",
-                         step.id, title, due, "normal",
-                         {"instance_id": inst.id, "step_name": step.name}, db)
+def _sync_workflow_steps(manager_id: int, patient: models.Patient, db: Session,
+                         instance=None, step=None):
+    title = f"{step.name} — {instance.title} — {patient.full_name}"
+    due = None
+    if step.due_date:
+        due = step.due_date.replace(tzinfo=timezone.utc) if step.due_date.tzinfo is None else step.due_date
+    _upsert_task(manager_id, patient, "workflow_step",
+                 step.id, title, due, "normal",
+                 {"instance_id": instance.id, "step_name": step.name}, db)
 
 
-def _sync_patient_requests(manager_id: int, patient: models.Patient, db: Session):
-    requests = db.query(models.PatientRequest).filter(
-        models.PatientRequest.patient_id == patient.id,
-        models.PatientRequest.status == "pending",
-    ).all()
-    for req in requests:
-        title = f"פנייה ממתינה: {req.category} — {patient.full_name}"
-        _upsert_task(manager_id, patient, "patient_request",
-                     req.id, title, None, "high",
-                     {"category": req.category, "message": req.message[:80]}, db)
+def _sync_patient_requests(manager_id: int, patient: models.Patient, db: Session, request=None):
+    title = f"פנייה ממתינה: {request.category} — {patient.full_name}"
+    _upsert_task(manager_id, patient, "patient_request",
+                 request.id, title, None, "high",
+                 {"category": request.category, "message": request.message[:80]}, db)
 
 
-def _sync_red_flags(manager_id: int, patient: models.Patient, db: Session):
-    flags = db.query(models.PatientRedFlag).filter(
-        models.PatientRedFlag.patient_id == patient.id,
-        models.PatientRedFlag.is_active == True,
-    ).all()
-    for flag in flags:
-        title = f"🔴 {flag.title} — {patient.full_name}"
-        priority = "urgent" if flag.severity == "critical" else "high"
-        _upsert_task(manager_id, patient, "red_flag",
-                     flag.id, title, None, priority,
-                     {"flag_type": flag.flag_type, "severity": flag.severity}, db)
+def _sync_red_flags(manager_id: int, patient: models.Patient, db: Session, flag=None):
+    title = f"🔴 {flag.title} — {patient.full_name}"
+    priority = "urgent" if flag.severity == "critical" else "high"
+    _upsert_task(manager_id, patient, "red_flag",
+                 flag.id, title, None, priority,
+                 {"flag_type": flag.flag_type, "severity": flag.severity}, db)
 
 
 def _task_dict(task: models.Task) -> dict:
