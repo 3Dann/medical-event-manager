@@ -76,7 +76,7 @@ export default function FeedbackInbox() {
         setFeedback(r.data)
         axios.put('/api/public/feedback/mark-read').catch(() => {})
       })
-      .catch(console.error)
+      .catch(() => showToast('שגיאה בטעינת משובים'))
       .finally(() => setLoading(false))
   }, [])
 
