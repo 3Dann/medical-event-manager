@@ -88,7 +88,7 @@ export default function PatientClaims() {
   const totalApproved = claims.reduce((s, c) => s + (c.amount_approved || 0), 0)
 
   const outcomeIcon = { approved: '✅', partial: '🔶', rejected: '❌' }
-  const outcomeLabel = { approved: 'אושרה', partial: 'אושרה חלקית', rejected: 'נדחתה' }
+  const outcomeLabel = { approved: t('outcome_approved'), partial: t('outcome_partial'), rejected: t('outcome_rejected') }
 
   return (
     <div className="p-4 md:p-8 space-y-6">
