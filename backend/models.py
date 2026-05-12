@@ -241,6 +241,8 @@ class Patient(Base):
     form17_entries       = relationship("PatientForm17",           back_populates="patient", cascade="all, delete-orphan")
     red_flags            = relationship("PatientRedFlag",          back_populates="patient", cascade="all, delete-orphan")
     requests             = relationship("PatientRequest",          back_populates="patient", cascade="all, delete-orphan")
+    address_record       = relationship("PatientAddress",          back_populates="patient", uselist=False, cascade="all, delete-orphan")
+    emergency_contact_record = relationship("PatientEmergencyContact", back_populates="patient", uselist=False, cascade="all, delete-orphan")
 
 
 
