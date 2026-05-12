@@ -300,7 +300,8 @@ export default function WorkflowsPage() {
   }
 
   const deleteTemplate = async (tmpl) => {
-    if (!window.confirm(`למחוק את התבנית "${tmpl.name}"?`)) return
+    const ok = await confirm({ title: 'מחיקת תבנית', message: `למחוק את התבנית "${tmpl.name}"? פעולה זו בלתי הפיכה.`, confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     try {
       await axios.delete(`/api/workflows/templates/${tmpl.id}`)
       loadTemplates()
