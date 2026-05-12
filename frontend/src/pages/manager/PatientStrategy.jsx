@@ -361,12 +361,12 @@ export default function PatientStrategy() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
+      <nav aria-label="טאבי אסטרטגיה" className="flex gap-1 border-b border-slate-200">
         {[
           ['workflows',     '⚡ זרימות מנוע'],
           ['financial_map', '💰 מפה פיננסית'],
-          ['strategy',      'המלצות תביעות'],
-          ['matrix',        'מטריצת כיסויים'],
+          ['strategy',      t('common:recommendations', { defaultValue: 'המלצות תביעות' })],
+          ['matrix',        t('common:coverage_matrix', { defaultValue: 'מטריצת כיסויים' })],
           ['insights',      '🧠 תובנות'],
         ].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
