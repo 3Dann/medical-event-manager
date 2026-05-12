@@ -5,6 +5,11 @@
       "source": "skills-il/localization",
       "sourceType": "github",
       "computedHash": "f418a156122b6a7e3200545106b4fbdcb535c018dac4b23691f69a6ef8b2f2a3"
+    },
+    "hebrew-rtl-best-practices": {
+      "source": "skills-il/localization",
+      "sourceType": "github",
+      "computedHash": "2a6a019a917014329ddd3a5746396895633f9b91e1e623cb580e1d36576536ba"
     }
   }
 }
