@@ -826,7 +826,7 @@ export default function DoctorsDatabase() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto" dir="rtl">
             <h2 className="text-lg font-semibold mb-5">
-              {editingId ? 'עריכת רופא' : 'הוספת רופא חדש'}
+              {editingId ? t('edit_doctor_title') : t('add_doctor_title')}
             </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
