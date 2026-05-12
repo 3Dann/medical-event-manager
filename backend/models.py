@@ -1,8 +1,24 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy.types import TypeDecorator
 import enum
 from database import Base
+import field_encrypt as _fe
+
+
+class EncryptedText(TypeDecorator):
+    """Transparent AES encryption for sensitive text columns.
+    Requires FIELD_ENCRYPTION_KEY env var. Falls back to plaintext if key missing.
+    """
+    impl = Text
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        return _fe.encrypt(value) if value is not None else None
+
+    def process_result_value(self, value, dialect):
+        return _fe.decrypt(value) if value is not None else None
 
 
 class UserRole(str, enum.Enum):
