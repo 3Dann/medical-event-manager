@@ -322,7 +322,7 @@ export default function AdminPage() {
           {/* Permissions panel */}
           <div className="flex-1">
             {!selectedPatient ? (
-              <div className="text-slate-600 text-sm pt-8 text-center">בחר תיק מהרשימה לניהול הרשאות</div>
+              <div className="text-slate-600 text-sm pt-8 text-center">{t('select_patient_for_permissions')}</div>
             ) : (
               <>
                 <div className="mb-4">
