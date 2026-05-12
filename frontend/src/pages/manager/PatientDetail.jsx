@@ -559,7 +559,7 @@ export default function PatientDetail() {
                         </div>
                         {!isFixed && (
                           <div>
-                            <label className="label text-xs">מיקום בציר</label>
+                            <label className="label text-xs">{t('node_position_label')}</label>
                             <select className="input text-xs py-1" value={editNodeData.stage_order ?? node.stage_order ?? 15} onChange={e => setEditNodeData({...editNodeData, stage_order: Number(e.target.value)})}>
                               {INSERT_SLOTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                             </select>
