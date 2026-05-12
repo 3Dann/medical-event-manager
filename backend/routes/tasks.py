@@ -198,7 +198,7 @@ def _task_dict(task: models.Task) -> dict:
         "patient_name": patient_name,
         "source_type":  task.source_type,
         "source_id":    task.source_id,
-        "source_meta":  json.loads(task.source_meta) if task.source_meta else {},
+        "source_meta":  safe_json_loads(task.source_meta, default={}),
         "due_date":     task.due_date.isoformat() if task.due_date else None,
         "priority":     task.priority,
         "status":       task.status,
