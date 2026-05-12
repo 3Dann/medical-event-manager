@@ -42,14 +42,19 @@ export default function PatientDocuments() {
   const [viewingDoc, setViewingDoc] = useState(null)
   const fileRef = useRef()
 
-  useEffect(() => { fetchDocs() }, [id])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchDocs(ctrl.signal)
+    return () => ctrl.abort()
+  }, [id])
 
-  async function fetchDocs() {
+  async function fetchDocs(signal) {
     setLoading(true)
     try {
-      const res = await axios.get(`/api/patients/${id}/documents`)
+      const res = await axios.get(`/api/patients/${id}/documents`, { signal })
       setDocs(res.data)
-    } catch {
+    } catch (e) {
+      if (axios.isCancel(e)) return
       setError('שגיאה בטעינת מסמכים')
     } finally {
       setLoading(false)
