@@ -35,12 +35,16 @@ export default function AdminPage() {
   const [activityDateFrom, setActivityDateFrom] = useState('')
   const [activityDateTo, setActivityDateTo] = useState('')
 
-  useEffect(() => { fetchUsers() }, [])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchUsers(ctrl.signal)
+    return () => ctrl.abort()
+  }, [])
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (signal) => {
     setLoading(true)
-    try { const res = await axios.get('/api/admin/users'); setUsers(res.data) }
-    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
+    try { const res = await axios.get('/api/admin/users', { signal }); setUsers(res.data) }
+    catch (e) { if (!axios.isCancel(e)) showToast('שגיאת שרת. נסה שוב.') }
     finally { setLoading(false) }
   }
 
