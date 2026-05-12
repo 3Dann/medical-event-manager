@@ -5,7 +5,7 @@ from typing import Optional
 import jwt as pyjwt
 from jwt import PyJWTError as JWTError
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from database import get_db
