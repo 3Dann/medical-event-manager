@@ -3,7 +3,9 @@ FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
-COPY frontend/ ./
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/index.html frontend/vite.config.js frontend/tailwind.config.js frontend/postcss.config.js ./
 RUN npm run build
 
 # Stage 2: Python backend + built frontend
