@@ -97,8 +97,8 @@ def share_token_status(current_user=Depends(get_current_user), db: Session = Dep
 
     return {
         "active":     True,
-        "token":      row.token,
         "expires_at": row.expires_at.isoformat(),
+        "created_at": row.created_at.isoformat() if row.created_at else None,
     }
 
 
