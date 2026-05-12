@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useContext, createContext, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import { validateIsraeliId } from '../../utils/validateId'
 import { CityAutocomplete, StreetAutocomplete } from '../../components/AddressAutocomplete'
 import { MedicationCard, MedRow } from '../../components/DrugFormComponents'
