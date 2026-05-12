@@ -312,25 +312,28 @@ export default function MyDay() {
   // Filters — extensible
   const [filters, setFilters] = useState({ source_type: '', priority: '', status: 'open', patient_id: '' })
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal) => {
     setLoading(true)
     try {
-      // sync first (POST — writes), then fetch (GET — read-only)
       await axios.post('/api/tasks/sync').catch(() => {})
       const [tasksRes, patientsRes] = await Promise.all([
-        axios.get('/api/tasks/my'),
-        axios.get('/api/patients'),
+        axios.get('/api/tasks/my', { signal }),
+        axios.get('/api/patients', { signal }),
       ])
       setTasks(tasksRes.data?.items ?? tasksRes.data)
       setPatients(patientsRes.data)
-    } catch {
-      showToast('שגיאה בטעינת המשימות')
+    } catch (e) {
+      if (!axios.isCancel(e)) showToast('שגיאה בטעינת המשימות')
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [load])
 
   const complete = async (id) => {
     setCompleting(id)
