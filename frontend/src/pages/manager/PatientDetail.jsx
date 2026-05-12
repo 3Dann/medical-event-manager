@@ -716,6 +716,7 @@ export default function PatientDetail() {
     >
       <WorkflowPanel patientId={id} />
     </ResizablePanel>
+    {ConfirmUI}
     </>
   )
 }
