@@ -215,50 +215,50 @@ export default function ProfilePage() {
   return (
     <div className="p-4 md:p-8 max-w-xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800 mb-1">פרופיל</h1>
-        <p className="text-slate-500 text-sm">הגדרות חשבון ואבטחה</p>
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">{t('title')}</h1>
+        <p className="text-slate-500 text-sm">{t('account_settings')}</p>
       </div>
 
       <div className="card">
-        <p className="text-sm text-slate-500">שם</p>
+        <p className="text-sm text-slate-500">{t('name_label')}</p>
         <p className="font-medium text-slate-800">{user?.full_name}</p>
         <p className="text-sm text-slate-400 mt-1">{user?.email}</p>
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-slate-800 mb-4">שינוי סיסמה</h2>
+        <h2 className="font-semibold text-slate-800 mb-4">{t('change_password')}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">סיסמה נוכחית</label>
+            <label className="label">{t('current_password')}</label>
             <input type="password" className="input" value={form.current_password}
               onChange={e => setForm({ ...form, current_password: e.target.value })} required />
           </div>
           <div>
-            <label className="label">סיסמה חדשה</label>
+            <label className="label">{t('new_password')}</label>
             <input type="password" className="input" value={form.new_password}
               onChange={e => setForm({ ...form, new_password: e.target.value })} required minLength={6} />
           </div>
           <div>
-            <label className="label">אימות סיסמה חדשה</label>
+            <label className="label">{t('confirm_new_password')}</label>
             <input type="password" className="input" value={form.confirm}
               onChange={e => setForm({ ...form, confirm: e.target.value })} required />
           </div>
           {tfaStatus?.totp_enabled && (
             <div>
               <label className="label">
-                קוד אימות דו-שלבי ({tfaStatus.totp_method === 'email' ? 'אימייל' : 'TOTP'})
+                {t('tfa_code_label')} ({tfaStatus.totp_method === 'email' ? t('tfa_method_email') : 'TOTP'})
               </label>
               {tfaStatus.totp_method === 'email' && !emailCodeDisplay && (
                 <button type="button" onClick={requestEmailCode}
                   className="mb-2 text-sm text-blue-600 hover:underline">
-                  שלח קוד לאימייל
+                  {t('send_email_code')}
                 </button>
               )}
               {emailCodeDisplay && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-center mb-2">
                   {emailCodeDisplay.startsWith('DEV:') ? (
                     <>
-                      <p className="text-xs text-blue-600">קוד (מצב פיתוח):</p>
+                      <p className="text-xs text-blue-600">{t('dev_code_label')}</p>
                       <p className="text-xl font-bold text-blue-800 tracking-widest">{emailCodeDisplay.replace('DEV: ', '')}</p>
                     </>
                   ) : (
@@ -269,7 +269,7 @@ export default function ProfilePage() {
               <input className="input text-center tracking-widest uppercase" maxLength={6}
                 value={form.tfa_code}
                 onChange={e => setForm({ ...form, tfa_code: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') })}
-                placeholder="קוד 6 תווים" required />
+                placeholder={t('code_6_chars')} required />
             </div>
           )}
           {status && (
@@ -278,7 +278,7 @@ export default function ProfilePage() {
             </p>
           )}
           <button type="submit" disabled={loading} className="btn-primary w-full">
-            {loading ? 'מעדכן...' : 'עדכן סיסמה'}
+            {loading ? t('updating') : t('update_password')}
           </button>
         </form>
       </div>
