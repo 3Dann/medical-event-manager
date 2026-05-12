@@ -591,9 +591,9 @@ const HELP_TEXT = {
 function HelpButton({ view }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="fixed bottom-24 left-4 z-40 sm:bottom-6">
+    <div className="fixed bottom-24 right-4 z-40 sm:bottom-6">
       {open && (
-        <div className="absolute bottom-14 left-0 w-72 bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-xl text-right">
+        <div className="absolute bottom-14 right-0 w-72 bg-white border-2 border-blue-200 rounded-2xl p-4 shadow-xl text-right">
           <p className="font-bold text-slate-800 mb-2">מה יש כאן?</p>
           <p className="text-slate-700 leading-relaxed">{HELP_TEXT[view] || HELP_TEXT.home}</p>
           <button onClick={() => setOpen(false)} className="mt-3 text-blue-600 font-medium">סגור</button>
