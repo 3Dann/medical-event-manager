@@ -163,7 +163,7 @@ export default function PatientClaims() {
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><label className="label">קטגוריה</label>
+                <div><label className="label">{t('category_label')}</label>
                   <select className="input" value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
                     {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
