@@ -462,6 +462,7 @@ export default function PatientMeetings() {
       )}
 
       <PatientRequestsPanel patientId={id} />
+      {ConfirmUI}
     </div>
   )
 }
