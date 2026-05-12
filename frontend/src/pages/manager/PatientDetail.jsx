@@ -339,7 +339,7 @@ export default function PatientDetail() {
                   </dd>
                 </div>
               )}
-              {patient.notes && <div><dt className="text-slate-500">הערות</dt><dd>{patient.notes}</dd></div>}
+              {patient.notes && <div><dt className="text-slate-500">{t('notes_label')}</dt><dd>{patient.notes}</dd></div>}
             </dl>
           )}
         </div>
