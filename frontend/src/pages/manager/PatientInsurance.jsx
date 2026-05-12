@@ -429,9 +429,9 @@ export default function PatientInsurance() {
           </tbody>
         </table>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-xs text-slate-600">שינויים נשמרים אוטומטית עם יציאה מהשדה</p>
+          <p className="text-xs text-slate-600">{t('auto_save_hint')}</p>
           <button onClick={() => setShowAddRow(true)} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-            + הוסף סוג כיסוי
+            + {t('add_coverage_type')}
           </button>
         </div>
       </div>
