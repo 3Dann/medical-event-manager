@@ -14,9 +14,28 @@ from data.seed_data import RESPONSIVENESS_DEFAULTS
 import sqlalchemy
 import os
 import logging
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("main")
+
+_sentry_dsn = os.getenv("SENTRY_DSN", "")
+if _sentry_dsn:
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        integrations=[
+            FastApiIntegration(),
+            SqlalchemyIntegration(),
+            LoggingIntegration(level=logging.WARNING, event_level=logging.ERROR),
+        ],
+        traces_sample_rate=0.1,
+        send_default_pii=False,
+        environment=os.getenv("RAILWAY_ENVIRONMENT", "development"),
+    )
+    logger.info("Sentry initialized")
 
 def _seed_drugs_on_startup():
     from drug_updater import seed_drugs
