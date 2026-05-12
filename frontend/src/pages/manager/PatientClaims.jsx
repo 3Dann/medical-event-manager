@@ -130,13 +130,13 @@ export default function PatientClaims() {
               disabled={feedbackSaving}
               className="btn-primary text-xs px-3 py-2.5"
             >
-              {feedbackSaving ? 'מעדכן...' : '🧠 כן, עדכן'}
+              {feedbackSaving ? t('updating') : `🧠 ${t('feedback_yes_update')}`}
             </button>
             <button
               onClick={() => setPendingFeedback(null)}
               className="btn-secondary text-xs px-3 py-2.5"
             >
-              דלג
+              {t('skip')}
             </button>
           </div>
         </div>
