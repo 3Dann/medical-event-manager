@@ -889,10 +889,12 @@ export default function PatientSummary() {
   const [view, setView]     = useState('home')
 
   useEffect(() => {
-    axios.get('/api/patient/summary')
+    const ctrl = new AbortController()
+    axios.get('/api/patient/summary', { signal: ctrl.signal })
       .then(r => setData(r.data))
-      .catch(() => {})
+      .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
+    return () => ctrl.abort()
   }, [])
 
   const goBack = () => setView('home')
