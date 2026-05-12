@@ -617,8 +617,8 @@ export default function DoctorsDatabase() {
               onChange={e => setNewColName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addCustomCol()}
             />
-            <button onClick={addCustomCol} className="btn-primary text-sm py-1.5 px-4">+ הוסף עמודה</button>
-            <button onClick={() => setVisibleCols(DEFAULT_VISIBLE)} className="text-sm text-slate-600 hover:text-slate-800 px-2 py-1.5">איפוס</button>
+            <button onClick={addCustomCol} className="btn-primary text-sm py-1.5 px-4">+ {t('add_column_btn')}</button>
+            <button onClick={() => setVisibleCols(DEFAULT_VISIBLE)} className="text-sm text-slate-600 hover:text-slate-800 px-2 py-1.5">{t('reset_columns')}</button>
           </div>
         </div>
       )}
