@@ -91,14 +91,14 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
           {!status?.totp_enabled ? (
             <div className="space-y-2">
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
-                <p className="text-sm text-amber-800 font-medium">אימות דו-שלבי נדרש</p>
-                <p className="text-xs text-amber-700 mt-1">בחר שיטת אימות להפעלה:</p>
+                <p className="text-sm text-amber-800 font-medium">{t('tfa_required')}</p>
+                <p className="text-xs text-amber-700 mt-1">{t('tfa_choose_method')}</p>
               </div>
               <button onClick={startTOTP} className="btn-primary w-full py-2 text-sm">
-                הפעל אימות QR (מומלץ)
+                {t('tfa_enable_qr')}
               </button>
               <button onClick={startEmail} className="w-full py-2 text-sm border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">
-                הפעל אימות אימייל
+                {t('tfa_enable_email')}
               </button>
             </div>
           ) : (
