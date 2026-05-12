@@ -348,6 +348,7 @@
   },
   "claims": {
     "title": "תביעות",
+    "claims_tracker_title": "מעקב תביעות",
     "new_claim": "תביעה חדשה",
     "cat_second_opinion": "חוות דעת",
     "cat_surgery": "ניתוחים",
