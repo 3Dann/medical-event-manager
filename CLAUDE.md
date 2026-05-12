@@ -231,7 +231,17 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Railway deploy** — webhook GitHub שבור; להשתמש ב-`railway up --detach` ידנית עד reconnect ב-Dashboard
 - **Railway CLI login** — לאחר עדכון גרסה (4.44 → 4.57+) config נמחק. לאחר `railway login` צריך גם `railway link --project medical-event-manager`. גרסה נוכחית: 4.57.4.
 - **railway.toml** — קיים בשורש הפרויקט. אין לציין `builder = "NIXPACKS"` כשיש Dockerfile — גורם לבלבול. הגדרות: healthcheckPath, healthcheckTimeout=120, restartPolicyType=ON_FAILURE, numReplicas=1.
-- **SQLite WAL mode** — מופעל אוטומטית בכל חיבור ב-`database.py` (PRAGMA journal_mode=WAL + synchronous=NORMAL + busy_timeout=5000)
+- **SQLite WAL mode** — מופעל אוטומטית בכל חיבור ב-`database.py` (PRAGMA journal_mode=WAL + synchronous=NORMAL + busy_timeout=5000 + foreign_keys=ON)
+- **JWT library** — PyJWT 2.10.1 (הוחלף מ-python-jose שיש לו CVEs). import: `import jwt as pyjwt; from jwt import PyJWTError as JWTError`
+- **JWT revocation** — `RevokedToken` table + `jti` claim בכל token. `POST /api/auth/logout` מוסיף jti ל-blacklist. `get_current_user` בודק revocation.
+- **Field encryption** — `field_encrypt.py` (Fernet/AES). env var: `FIELD_ENCRYPTION_KEY` (מוגדר ב-Railway). משמש ל-totp_secret. prefix `enc:` על ערכים מוצפנים; ערכים ישנים עוברים כ-plaintext (backward compat).
+- **Tasks sync** — GET /api/tasks/my הוא read-only. כתיבה עוברת דרך POST /api/tasks/sync.
+- **X-Forwarded-For** — נאמן רק מ-Railway internal network (100.64.x.x). מניעת IP spoofing לעקיפת rate limits.
+- **reset_users_once** — דורש `ALLOW_USER_RESET=1` בenv. ללא זה — מדלג על המחיקה ויוצר flag file.
+- **CSP header** — Content-Security-Policy מוגדר ב-SecurityHeadersMiddleware. default-src 'self', script-src 'self' 'unsafe-inline'.
+- **Calendar tokens** — ברירת מחדל TTL 365 יום. backfill אוטומטי לטוקנים ישנים ללא תפוגה.
+- **Admin temp password** — נשלח למייל בלבד (send_temp_password ב-email_utils.py). אינו מוחזר ב-API response.
+- **Tasks pagination** — GET /api/tasks/my מחזיר `{"total": N, "items": [...]}` עם limit/offset params.
 - **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
 - **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
 - **DNS** — דומיין `ormed.co.il` מנוהל ב-Cloudflare (הועבר מ-LiveDNS ב-2026-04-28). לכניסה: dash.cloudflare.com
