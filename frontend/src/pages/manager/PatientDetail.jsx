@@ -284,7 +284,7 @@ export default function PatientDetail() {
                     if (hmo) { const r = await axios.get(`/api/patients/hmo-plans/${hmo}`); setHmoPlans(r.data) }
                     else setHmoPlans([])
                   }}>
-                    <option value="">— לא מוגדר —</option>
+                    <option value="">{t('not_defined_option')}</option>
                     <option value="clalit">כללית</option><option value="maccabi">מכבי</option>
                     <option value="meuhedet">מאוחדת</option><option value="leumit">לאומית</option>
                   </select>
