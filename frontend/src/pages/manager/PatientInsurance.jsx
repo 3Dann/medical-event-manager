@@ -623,7 +623,7 @@ export default function PatientInsurance() {
                 {/* Source info */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="label">סוג מקור *</label>
+                    <label className="label">{t('source_type_label')}</label>
                     <select className="input" value={form.source_type} onChange={e => setForm({...form, source_type: e.target.value})}>
                       {Object.entries(SOURCE_TYPE_LABELS).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
                     </select>
