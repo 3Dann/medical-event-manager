@@ -29,7 +29,6 @@ const EMPTY_TEMPLATE = {
 
 function TemplateEditorModal({ template, onClose, onSaved }) {
   const { t } = useTranslation('workflows')
-  const t_workflows_name_required = t('name_required')
   const [form, setForm] = useState(() => {
     if (template) {
       return {
