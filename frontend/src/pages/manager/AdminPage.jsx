@@ -40,13 +40,13 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     setLoading(true)
     try { const res = await axios.get('/api/admin/users'); setUsers(res.data) }
-    catch (e) { console.error(e) }
+    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
     finally { setLoading(false) }
   }
 
   const fetchPatients = async () => {
     try { const res = await axios.get('/api/admin/patients'); setPatients(res.data) }
-    catch (e) { console.error(e) }
+    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
   }
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function AdminPage() {
       setActivityLogs(res.data.items)
       setActivityTotal(res.data.total)
       setActivityPage(page)
-    } catch (e) { console.error(e) }
+    } catch (e) { showToast('שגיאת שרת. נסה שוב.') }
     finally { setActivityLoading(false) }
   }
 
@@ -79,7 +79,7 @@ export default function AdminPage() {
     try {
       const res = await axios.get(`/api/admin/patients/${patientId}/permissions`)
       setPermissions(res.data)
-    } catch (e) { console.error(e) }
+    } catch (e) { showToast('שגיאת שרת. נסה שוב.') }
     finally { setPermsLoading(false) }
   }
 
