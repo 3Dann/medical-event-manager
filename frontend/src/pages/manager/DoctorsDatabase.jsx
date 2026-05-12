@@ -306,9 +306,11 @@ export default function DoctorsDatabase() {
   }
   useEffect(() => { localStorage.setItem('doctor_table_cols', JSON.stringify(visibleCols)) }, [visibleCols])
   useEffect(() => {
-    axios.get('/api/doctors/schema').then(res => {
-      setExtraColDefs(res.data.extra.map(k => ({ key: `extra.${k}`, label: k, type: 'text', isExtra: true })))
-    }).catch(() => {})
+    const ctrl = new AbortController()
+    axios.get('/api/doctors/schema', { signal: ctrl.signal })
+      .then(res => setExtraColDefs(res.data.extra.map(k => ({ key: `extra.${k}`, label: k, type: 'text', isExtra: true }))))
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => ctrl.abort()
   }, [])
 
   const fetchFilterOptions = async () => {
