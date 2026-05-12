@@ -156,7 +156,9 @@ def get_filter_options(
 
 
 @router.get("/export/excel")
+@limiter.limit("10/minute")
 def export_doctors_excel(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
