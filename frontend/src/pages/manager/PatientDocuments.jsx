@@ -114,7 +114,7 @@ export default function PatientDocuments() {
       await axios.delete(`/api/patients/${id}/documents/${docId}`)
       setDocs(prev => prev.filter(d => d.id !== docId))
     } catch {
-      setError('שגיאה במחיקה')
+      setError(t('delete_error'))
     } finally {
       setDeletingId(null)
     }
