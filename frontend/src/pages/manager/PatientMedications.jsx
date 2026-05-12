@@ -243,7 +243,7 @@ export default function PatientMedications() {
             </button>
           </div>
           {documents.length === 0 && (
-            <p className="text-xs text-blue-500">אין מסמכי PDF בתיק המטופל — יש להעלות מסמך בטאב מסמכים תחילה.</p>
+            <p className="text-xs text-blue-500">{t('no_pdf_docs')}</p>
           )}
           {candidates.length > 0 && (
             <div className="space-y-2 border-t border-blue-200 pt-3">
