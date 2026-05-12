@@ -168,9 +168,9 @@ export default function PatientClaims() {
                     {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
-                <div><label className="label">עדיפות (#)</label><input type="number" className="input" value={form.priority_order} onChange={e => setForm({...form, priority_order: e.target.value})} placeholder="1, 2, 3..." /></div>
-                <div><label className="label">סכום מבוקש (₪)</label><input type="number" className="input" value={form.amount_requested} onChange={e => setForm({...form, amount_requested: e.target.value})} /></div>
-                <div><label className="label">סטטוס</label>
+                <div><label className="label">{t('priority')} (#)</label><input type="number" className="input" value={form.priority_order} onChange={e => setForm({...form, priority_order: e.target.value})} placeholder="1, 2, 3..." /></div>
+                <div><label className="label">{t('amount_requested_label')}</label><input type="number" className="input" value={form.amount_requested} onChange={e => setForm({...form, amount_requested: e.target.value})} /></div>
+                <div><label className="label">{t('status_label')}</label>
                   <select className="input" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
                     {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
