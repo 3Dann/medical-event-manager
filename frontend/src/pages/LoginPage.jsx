@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [emailSentMsg, setEmailSentMsg] = useState('')
   const [emailCodeReady, setEmailCodeReady] = useState(false)
   const [pendingUser, setPendingUser] = useState(null)
+  const [totpSetupQR, setTotpSetupQR] = useState('')   // QR for first-time TOTP setup during login
 
   const handleSubmit = async (e) => {
     e.preventDefault()
