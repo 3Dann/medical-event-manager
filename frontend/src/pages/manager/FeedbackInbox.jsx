@@ -66,6 +66,7 @@ function Section({ title, items, emptyText, onToggle, accent }) {
 }
 
 export default function FeedbackInbox() {
+  const { t } = useTranslation('feedback')
   const [feedback, setFeedback] = useState([])
   const [loading, setLoading]   = useState(true)
   const [filter, setFilter]     = useState('all')
