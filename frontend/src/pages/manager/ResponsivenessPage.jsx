@@ -63,7 +63,7 @@ export default function ResponsivenessPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-medium text-slate-800">{score.company_name}</h3>
-                      {score.is_default && <span className="badge-gray text-xs">ברירת מחדל</span>}
+                      {score.is_default && <span className="badge-gray text-xs">{t('default_score')}</span>}
                       <span className="text-lg font-bold text-blue-600">{score.overall_score}/10</span>
                     </div>
 
