@@ -199,12 +199,12 @@ export default function PatientClaims() {
             <thead className="bg-slate-50 border-b">
               <tr>
                 <th className="p-3 text-right text-slate-600 font-medium">#</th>
-                <th className="p-3 text-right text-slate-600 font-medium">מקור</th>
-                <th className="p-3 text-right text-slate-600 font-medium">קטגוריה</th>
-                <th className="p-3 text-right text-slate-600 font-medium">נתבע</th>
-                <th className="p-3 text-right text-slate-600 font-medium">אושר</th>
-                <th className="p-3 text-right text-slate-600 font-medium">סטטוס</th>
-                <th className="p-3 text-right text-slate-600 font-medium">דדליין</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_source')}</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_category')}</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_requested')}</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_approved')}</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_status')}</th>
+                <th className="p-3 text-right text-slate-600 font-medium">{t('col_deadline')}</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
