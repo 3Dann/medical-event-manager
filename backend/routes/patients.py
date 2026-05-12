@@ -29,6 +29,10 @@ class PatientCreate(BaseModel):
     full_name: str
     id_number: Optional[str] = None
     diagnosis_status: str = "no"
+
+    @field_validator('birth_date', mode='before', check_fields=False)
+    @classmethod
+    def validate_birth_date(cls, v): return _validate_iso_date(v)
     diagnosis_details: Optional[str] = None
     notes: Optional[str] = None
     hmo_name: Optional[str] = None
