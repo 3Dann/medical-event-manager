@@ -191,13 +191,13 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
             raise HTTPException(status_code=400, detail="גוגל אותנטיקייטור לא מוגדר בחשבון זה — השתמש באימות אימייל")
         totp = pyotp.TOTP(fe.decrypt(user.totp_secret))
         if not totp.verify(data.code, valid_window=2):
-            raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
+            raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
     else:
         # email or sms
         if not user.email_2fa_code or user.email_2fa_code != data.code:
-            raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
+            raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
         if not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
-            raise HTTPException(status_code=401, detail="הקוד פג תוקף — בקש קוד חדש")
+            raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד פג תוקף, בקש קוד חדש")
         user.email_2fa_code = None
         user.email_2fa_expires = None
         db.commit()
