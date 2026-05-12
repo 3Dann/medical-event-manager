@@ -86,7 +86,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
   }
 
   const save = async () => {
-    if (!form.name.trim()) { setError(t_workflows_name_required); return }
+    if (!form.name.trim()) { setError(t('name_required')); return }
     setSaving(true)
     setError(null)
     try {
