@@ -63,10 +63,11 @@ def revoke_share_token(current_user=Depends(get_current_user), db: Session = Dep
         models.Patient.patient_user_id == current_user.id
     ).first()
     if patient:
+        now = datetime.now(timezone.utc)
         db.query(models.FamilyShareToken).filter(
             models.FamilyShareToken.patient_id == patient.id,
             models.FamilyShareToken.is_active == True,
-        ).update({"is_active": False})
+        ).update({"is_active": False, "revoked_at": now, "revoked_by": current_user.id})
         db.commit()
 
     return {"ok": True}
