@@ -322,7 +322,7 @@ export default function PatientDetail() {
                   : (patient.condition_tags || [])
                 return tags.length > 0 && (
                   <div>
-                    <dt className="text-slate-500">אבחנות</dt>
+                    <dt className="text-slate-500">{t('diagnoses_label')}</dt>
                     <dd className="flex flex-wrap gap-1 mt-1">
                       {tags.map(t => (
                         <span key={t} className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">{t}</span>
