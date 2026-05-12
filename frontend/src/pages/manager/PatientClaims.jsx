@@ -22,11 +22,20 @@ export default function PatientClaims() {
   const [pendingFeedback, setPendingFeedback] = useState(null) // { companyName, outcome, scoreUpdated }
   const [feedbackSaving, setFeedbackSaving] = useState(false)
 
-  useEffect(() => { fetchAll() }, [id])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    return () => ctrl.abort()
+  }, [id])
 
-  const fetchAll = async () => {
-    const [c, s] = await Promise.all([axios.get(`/api/patients/${id}/claims`), axios.get(`/api/patients/${id}/insurance`)])
-    setClaims(c.data); setSources(s.data)
+  const fetchAll = async (signal) => {
+    try {
+      const [c, s] = await Promise.all([
+        axios.get(`/api/patients/${id}/claims`, { signal }),
+        axios.get(`/api/patients/${id}/insurance`, { signal }),
+      ])
+      setClaims(c.data); setSources(s.data)
+    } catch (e) { if (!axios.isCancel(e)) throw e }
   }
 
   const handleCreate = async (e) => {
