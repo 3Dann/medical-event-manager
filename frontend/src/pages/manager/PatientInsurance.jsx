@@ -3,10 +3,7 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 
-const SOURCE_TYPE_LABELS = {
-  sal_habriut: 'סל הבריאות', kupat_holim: 'קופת חולים',
-  har_habitua: 'הר הביטוח', private: 'ביטוח פרטי', bituch_leumi: 'ביטוח לאומי',
-}
+// SOURCE_TYPE_LABELS defined inside component for i18n
 const CATEGORIES = [
   { key: 'second_opinion',   label: 'חוות דעת',           desc: 'רשימה מוסדרת / חופשית' },
   { key: 'surgery',          label: 'ניתוחים',             desc: 'בארץ / חו"ל' },
