@@ -300,6 +300,7 @@ function CalendarModal({ onClose }) {
 export default function MyDay() {
   const { user } = useAuth()
   const { toast, showToast, dismissToast } = useToast()
+  const [confirmDelete, ConfirmUI] = useConfirm()
 
   const [tasks, setTasks]           = useState([])
   const [patients, setPatients]     = useState([])
