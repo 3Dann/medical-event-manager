@@ -146,16 +146,16 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
             ) : (
               <p className="text-sm font-medium text-blue-800">✓ {emailCode}</p>
             )}
-            <p className="text-xs text-blue-500 mt-1">הזן את הקוד שקיבלת — תוקף 10 דקות</p>
+            <p className="text-xs text-blue-500 mt-1">{t('tfa_code_validity')}</p>
           </div>
           <form onSubmit={confirmEmail} className="space-y-3">
             <div>
-              <label className="label">הזן קוד לאישור</label>
+              <label className="label">{t('tfa_enter_code')}</label>
               <input className="input text-center tracking-widest uppercase" maxLength={6} value={code}
                 onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} required autoFocus />
             </div>
-            <button type="submit" disabled={code.length !== 6} className="btn-primary w-full py-2">אשר והפעל</button>
-            <button type="button" onClick={() => setView('idle')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">ביטול</button>
+            <button type="submit" disabled={code.length !== 6} className="btn-primary w-full py-2">{t('tfa_confirm_activate')}</button>
+            <button type="button" onClick={() => setView('idle')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">{t('common:cancel', { ns: 'common' })}</button>
           </form>
         </div>
       )}
