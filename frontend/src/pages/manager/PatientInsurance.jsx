@@ -517,7 +517,7 @@ export default function PatientInsurance() {
 
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-slate-800">מקורות ביטוח</h2>
+        <h2 className="text-xl font-bold text-slate-800">{t('insurance_sources_title')}</h2>
         <div className="flex flex-wrap gap-2">
           <button onClick={handleImportSal} disabled={importingSal}
             className="btn-secondary text-sm">
