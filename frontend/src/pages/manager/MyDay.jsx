@@ -203,7 +203,7 @@ function NewTaskModal({ patients, onClose, onCreated }) {
             </div>
           </div>
           <div>
-            <label className="label">תאריך יעד</label>
+            <label className="label">{t('due_date')}</label>
             <input type="date" className="input" value={form.due_date} onChange={e => setForm(f => ({...f, due_date: e.target.value}))} />
           </div>
         </div>
