@@ -101,6 +101,15 @@ class User(Base):
     webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
 
 
+class RevokedToken(Base):
+    """JWT token blacklist — stores revoked token IDs until they expire."""
+    __tablename__ = "revoked_tokens"
+    id         = Column(Integer, primary_key=True)
+    jti        = Column(String(64), unique=True, nullable=False, index=True)
+    revoked_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+
+
 class DocumentViewToken(Base):
     __tablename__ = "document_view_tokens"
     id         = Column(Integer, primary_key=True)
