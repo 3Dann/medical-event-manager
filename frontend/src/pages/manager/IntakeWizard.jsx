@@ -1130,3 +1130,277 @@ export default function IntakeWizard() {
     </ErrorCtx.Provider>
   )
 }
+
+// ── FunctionalStep sub-component ──────────────────────────────────────────────
+function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
+  const { form, set } = useContext(FormCtx)
+  return (
+    <div className="space-y-6">
+      {/* ADL */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-slate-800">ADL <span className="text-slate-600 font-normal text-sm">(0-100)</span></h3>
+          <span className="text-lg font-bold text-blue-600">{adlScore}/100</span>
+        </div>
+        <div className="space-y-3">
+          {ADL_ITEMS.map(item => (
+            <fieldset key={item.key} className="grid grid-cols-3 gap-3 items-center">
+              <legend className="text-sm text-slate-700 col-span-1">{item.label}</legend>
+              <div className="col-span-2 flex gap-2 flex-wrap" role="radiogroup" aria-label={item.label}>
+                {item.options.map(opt => (
+                  <label key={opt.v} className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all min-h-[36px] ${
+                    Number(form.adl_answers[item.key]) === opt.v
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'border-slate-200 hover:border-blue-300 text-slate-600'
+                  }`}>
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`adl_${item.key}`}
+                      value={opt.v}
+                      checked={Number(form.adl_answers[item.key]) === opt.v}
+                      onChange={() => set('adl_answers', { ...form.adl_answers, [item.key]: opt.v })}
+                      aria-label={`${item.label}: ${opt.l}`}
+                    />
+                    {opt.l} ({opt.v})
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      </div>
+
+      <hr className="border-slate-200" />
+
+      {/* IADL */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-slate-800">IADL <span className="text-slate-600 font-normal text-sm">(0-8)</span></h3>
+          <span className="text-lg font-bold text-blue-600">{iadlScore}/8</span>
+        </div>
+        <div className="space-y-3">
+          {IADL_ITEMS.map(item => (
+            <fieldset key={item.key} className="grid grid-cols-3 gap-3 items-center">
+              <legend className="text-sm text-slate-700">{item.label}</legend>
+              <div className="col-span-2 flex gap-2 flex-wrap" role="radiogroup" aria-label={item.label}>
+                {item.options.map(opt => (
+                  <label key={opt.v} className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all min-h-[36px] ${
+                    Number(form.iadl_answers[item.key]) === opt.v
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'border-slate-200 hover:border-green-300 text-slate-600'
+                  }`}>
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`iadl_${item.key}`}
+                      value={opt.v}
+                      checked={Number(form.iadl_answers[item.key]) === opt.v}
+                      onChange={() => set('iadl_answers', { ...form.iadl_answers, [item.key]: opt.v })}
+                      aria-label={`${item.label}: ${opt.l}`}
+                    />
+                    {opt.l}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      </div>
+
+      <hr className="border-slate-200" />
+
+      {/* MMSE */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold text-slate-800">MMSE <span className="text-slate-600 font-normal text-sm">(0-30)</span></h3>
+          <span className={`text-lg font-bold ${mmseScore >= 24 ? 'text-green-600' : mmseScore >= 18 ? 'text-amber-600' : 'text-red-600'}`}>
+            {mmseScore}/30
+          </span>
+        </div>
+        <div className="space-y-3">
+          {MMSE_SECTIONS.map(sec => (
+            <div key={sec.key} className="flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-sm text-slate-700">{sec.label}</p>
+                <p className="text-xs text-slate-600">{sec.hint}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-600">0</span>
+                <input
+                  type="range" min={0} max={sec.max} step={1}
+                  value={form.mmse_answers[sec.key] ?? 0}
+                  onChange={e => set('mmse_answers', { ...form.mmse_answers, [sec.key]: Number(e.target.value) })}
+                  className="w-24"
+                />
+                <span className="text-xs text-slate-600">{sec.max}</span>
+                <span className="text-sm font-bold text-slate-800 w-5 text-center">
+                  {form.mmse_answers[sec.key] ?? 0}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── SignaturesStep sub-component ───────────────────────────────────────────────
+function SignaturesStep() {
+  const { form, set } = useContext(FormCtx)
+  const errors = useContext(ErrorCtx)
+  return (
+    <div className="space-y-6">
+      {/* אזהרה משפטית */}
+      <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 flex gap-3">
+        <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+        <div>
+          <p className="text-sm font-bold text-amber-800">טיוטה בלבד — לא אושרה משפטית</p>
+          <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+            המסמכים שלהלן הם טיוטות שנוסחו על בסיס חוק זכויות החולה, חוק הפיקוח על הביטוח וחוק ייפוי הכוח.
+            הם <strong>טרם עברו בדיקה של עורך דין</strong> ואין בהם משום ייעוץ משפטי.
+            יש להעבירם לאישור משפטי לפני שימוש מחייב.
+          </p>
+        </div>
+      </div>
+
+      {/* חותם */}
+      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+        <p className="text-sm font-semibold text-slate-700 mb-3">מי חותם על המסמכים?</p>
+        <div className="flex gap-4 mb-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={form.signer_is_self} onChange={() => set('signer_is_self', true)} className="w-4 h-4" />
+            <span className="text-sm text-slate-700">המטופל/ת עצמו/ה</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="radio" checked={!form.signer_is_self} onChange={() => set('signer_is_self', false)} className="w-4 h-4" />
+            <span className="text-sm text-slate-700">בא/ת כוח / אפוטרופוס</span>
+          </label>
+        </div>
+        {!form.signer_is_self && (
+          <div className="grid grid-cols-2 gap-3 mt-2">
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">שם מלא של החותם *</label>
+              <input
+                className={`w-full border rounded-lg px-3 py-2 text-sm ${errors.signer_name ? 'border-red-400' : 'border-slate-300'}`}
+                value={form.signer_name}
+                onChange={e => set('signer_name', e.target.value)}
+                placeholder="שם החותם"
+              />
+              {errors.signer_name && <p className="text-xs text-red-500 mt-1">{errors.signer_name}</p>}
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">קשר למטופל</label>
+              <input
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                value={form.signer_relation}
+                onChange={e => set('signer_relation', e.target.value)}
+                placeholder="בן/בת זוג, ילד/ה, אפוטרופוס..."
+              />
+            </div>
+          </div>
+        )}
+        <p className="text-xs text-slate-600 mt-3">
+          תאריך חתימה: <strong>{new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+        </p>
+      </div>
+
+      {/* מסמך 1: ויתור סודיות רפואית */}
+      <DocSign
+        title="1. ויתור סודיות רפואית"
+        required
+        signerName={form.signer_is_self ? form.full_name : form.signer_name}
+        agreed={form.consent_agreed}
+        signature={form.consent_signature}
+        onAgreed={v => set('consent_agreed', v)}
+        onSignature={s => set('consent_signature', s)}
+        errorAgreed={errors.consent}
+        errorSig={errors.consent_sig}
+        text={`אני החתום/ה מטה מאשר/ת בזאת את מנהל האירוע הרפואי ו/או מי מנציגיו המורשים לקבל, לעיין ולהחזיק בכל מידע רפואי הנוגע אליי, לרבות ובלי לגרוע:
+
+• תיקים רפואיים, רישומים קליניים ותוצאות בדיקות מכל גורם רפואי ו/או מוסד רפואי.
+• אבחנות רפואיות, חוות דעת מומחים, פרוטוקולי טיפול ותוכניות טיפול עתידיות.
+• תוצאות בדיקות מעבדה, הדמיה, פתולוגיה וכל בדיקה אחרת.
+• מידע על אשפוזים, ניתוחים, טיפולים ונהלים רפואיים.
+
+הרשאה זו ניתנת לצורך: ניהול האירוע הרפואי, הגשת תביעות לחברות ביטוח, קבלת חוות דעת רפואיות שנייה, תיאום טיפול רב-מקצועי ומיצוי זכויות הבריאות שלי.
+
+הרשאה זו תקפה למשך תקופת ההתקשרות עם מנהל האירוע הרפואי בלבד, ואינה מועברת לצד שלישי שאינו קשור ישירות לניהול האירוע. הרשאה זו ניתנת לביטול בכל עת על ידי הודעה בכתב.
+
+אני מצהיר/ה כי קראתי ויתור זה בעיון ובמלואו, הבנתי את תוכנו ואת משמעויותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+      />
+
+      {/* מסמך 2: ויתור סודיות פיננסי */}
+      <DocSign
+        title="2. ויתור סודיות פיננסי"
+        required
+        signerName={form.signer_is_self ? form.full_name : form.signer_name}
+        agreed={form.financial_consent_agreed}
+        signature={form.financial_consent_signature}
+        onAgreed={v => set('financial_consent_agreed', v)}
+        onSignature={s => set('financial_consent_signature', s)}
+        errorAgreed={errors.financial_consent}
+        errorSig={errors.financial_consent_sig}
+        text={`אני החתום/ה מטה מאשר/ת בזאת את מנהל האירוע הרפואי ו/או מי מנציגיו המורשים לקבל, לעיין ולהחזיק בכל מידע פיננסי וביטוחי הנוגע אליי, לרבות ובלי לגרוע:
+
+• פרטי פוליסות ביטוח חיים, ביטוח בריאות, ביטוח סיעוד, ביטוח מנהלים וכל ביטוח אחר.
+• היסטוריית תשלומי פרמיות, תנאי כיסוי, חריגים ומדיניות חברות הביטוח.
+• מסמכי תביעות, אישורים, סירובים ותכתובות עם חברות ביטוח.
+• מידע על הטבות ביטוח לאומי, גמלאות וזכויות סוציאליות רלוונטיות.
+
+הרשאה זו ניתנת לצורך: הגשת תביעות ביטוח ומעקב אחריהן, ניהול משא ומתן עם חברות ביטוח, ערעור על החלטות דחייה, וקבלת פיצויים ותגמולים המגיעים על פי הפוליסות.
+
+הרשאה זו תקפה למשך תקופת ההתקשרות עם מנהל האירוע הרפואי בלבד, ואינה מועברת לצד שלישי שאינו קשור ישירות לניהול האירוע. הרשאה זו ניתנת לביטול בכל עת על ידי הודעה בכתב.
+
+אני מצהיר/ה כי קראתי ויתור זה בעיון ובמלואו, הבנתי את תוכנו ואת משמעויותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+      />
+
+      {/* מסמך 3: ייפוי כוח (אופציונלי) */}
+      <div className="border border-slate-200 rounded-2xl overflow-hidden">
+        <div className="bg-slate-50 px-5 py-3 border-b border-slate-200 flex items-center justify-between">
+          <h3 className="font-bold text-slate-800 text-sm">3. ייפוי כוח</h3>
+          <span className="text-xs text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded-full">אופציונלי</span>
+        </div>
+        <div className="p-5">
+          <label className="flex items-center gap-3 mb-4 cursor-pointer text-slate-700">
+            <input type="checkbox" checked={form.poa_agreed} onChange={e => set('poa_agreed', e.target.checked)} className="w-4 h-4" />
+            <span className="text-sm font-medium">ברצוני לחתום על ייפוי כוח</span>
+          </label>
+          {form.poa_agreed && (
+            <DocSign
+              title=""
+              signerName={form.signer_is_self ? form.full_name : form.signer_name}
+              agreed={form.poa_agreed}
+              signature={form.poa_signature}
+              onAgreed={() => {}}
+              onSignature={s => set('poa_signature', s)}
+              hideAgreedCheckbox
+              text={`אני החתום/ה מטה מייפה בזאת את כוחו/ה של מנהל האירוע הרפואי ונציגיו המורשים לפעול בשמי ובמקומי בכל הנוגע לניהול האירוע הרפואי, לרבות הסמכויות הבאות:
+
+1. פנייה לגורמים רפואיים — בתי חולים, קופות חולים, קליניקות פרטיות ורופאים מומחים, לקבלת מידע, מסמכים ותיאום טיפול.
+
+2. פנייה לגורמים ביטוחיים — חברות ביטוח, סוכני ביטוח, ביטוח לאומי וגורמי רווחה, לצורך הגשת תביעות, ערעורים וקבלת זכויות.
+
+3. חתימה על מסמכים — טפסי שחרור מידע, הרשאות גישה, תביעות ביטוח, ערעורים ופניות מנהליות הנדרשים לניהול האירוע.
+
+4. ייצוג — בפגישות, שיחות ותכתובות מול כל גורם הקשור לאירוע הרפואי ולזכויותיי.
+
+ייפוי כוח זה מוגבל לפעולות הנדרשות לניהול האירוע הרפואי בלבד, ואינו מקנה סמכות לפעול בענייניי הכספיים הכלליים.
+
+ייפוי כוח זה תקף מיום חתימתו ועד לסיום ההתקשרות עם מנהל האירוע הרפואי, אלא אם יבוטל בהודעה בכתב מוקדמת של 14 יום.
+
+אני מצהיר/ה כי קראתי ייפוי כוח זה בעיון ובמלואו, הבנתי את תוכנו, היקפו ומגבלותיו, ואני חותם/ת עליו מרצוני החופשי, ללא כפייה.`}
+            />
+          )}
+        </div>
+      </div>
+
+      {errors.submit && (
+        <p className="text-red-500 text-sm text-center bg-red-50 rounded-xl px-4 py-3">{errors.submit}</p>
+      )}
+    </div>
+  )
+}
