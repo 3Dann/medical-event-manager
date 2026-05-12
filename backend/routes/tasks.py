@@ -365,7 +365,7 @@ def _complete_source(task: models.Task, db: Session):
                 idx   = meta.get("item_index", 0)
                 if 0 <= idx < len(items):
                     items[idx]["done"] = True
-                    meeting.action_items = json.dumps(items, ensure_ascii=False)
+                    meeting.action_items = safe_json_dumps(items)
         except Exception:
             pass
 
