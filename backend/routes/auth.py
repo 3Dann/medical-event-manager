@@ -261,8 +261,8 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
 def setup_2fa(current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
     """Generate a new TOTP secret and return a QR code for scanning."""
     secret = pyotp.random_base32()
-    totp = pyotp.TOTP(fe.decrypt(secret))
-uri = totp.provisioning_uri(name=current_user.email, issuer_name="Orly Medical")
+    totp = pyotp.TOTP(secret)
+    uri = totp.provisioning_uri(name=current_user.email, issuer_name="Orly Medical")
     img = qrcode.make(uri)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
