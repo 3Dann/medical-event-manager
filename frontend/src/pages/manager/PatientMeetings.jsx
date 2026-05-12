@@ -226,7 +226,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
           {/* Type + Date + Name */}
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="label">סוג פגישה</label>
+              <label className="label">{t('meeting_type_label')}</label>
               <select className="input" value={form.meeting_type} onChange={e => set('meeting_type', e.target.value)}>
                 {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
