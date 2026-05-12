@@ -1042,18 +1042,23 @@ export default function IntakeWizard() {
             </div>
             <div className="space-y-3">
               {IADL_ITEMS.map(item => (
-                <div key={item.key} className="grid grid-cols-3 gap-3 items-center">
-                  <span className="text-sm text-slate-700">{item.label}</span>
-                  <div className="col-span-2 flex gap-2 flex-wrap">
+                <fieldset key={item.key} className="grid grid-cols-3 gap-3 items-center">
+                  <legend className="text-sm text-slate-700">{item.label}</legend>
+                  <div className="col-span-2 flex gap-2 flex-wrap" role="radiogroup" aria-label={item.label}>
                     {item.options.map(opt => (
-                      <label key={opt.v} className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all ${
+                      <label key={opt.v} className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all min-h-[36px] ${
                         Number(form.iadl_answers[item.key]) === opt.v
                           ? 'bg-green-600 text-white border-green-600'
                           : 'border-slate-200 hover:border-green-300 text-slate-600'
                       }`}>
-                        <input type="radio" className="hidden"
+                        <input
+                          type="radio"
+                          className="sr-only"
+                          name={`iadl_${item.key}`}
+                          value={opt.v}
                           checked={Number(form.iadl_answers[item.key]) === opt.v}
                           onChange={() => set('iadl_answers', { ...form.iadl_answers, [item.key]: opt.v })}
+                          aria-label={`${item.label}: ${opt.l}`}
                         />
                         {opt.l}
                       </label>
