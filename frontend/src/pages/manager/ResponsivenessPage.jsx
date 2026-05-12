@@ -108,7 +108,7 @@ export default function ResponsivenessPage() {
                     )}
                   </div>
                   {editing !== score.id && (
-                    <button onClick={() => handleEdit(score)} className="text-sm text-blue-600 hover:underline mr-4">ערוך</button>
+                    <button onClick={() => handleEdit(score)} className="text-sm text-blue-600 hover:underline mr-4">{t('edit')}</button>
                   )}
                 </div>
               </div>
