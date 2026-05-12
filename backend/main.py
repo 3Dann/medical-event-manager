@@ -319,6 +319,9 @@ def run_migrations():
         ("family_share_tokens", "revoked_by", "INTEGER"),
         # Calendar token mandatory TTL
         ("calendar_tokens", "expires_at_v2", "DATETIME"),
+        # SMS 2FA phone number on User
+        ("users", "phone_2fa",        "TEXT"),
+        ("users", "phone_2fa_prefix", "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
