@@ -15,7 +15,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import AccessibilityPage from './pages/AccessibilityPage'
 
 // Lazy-loaded pages (loaded only when navigated to)
-const LoginPage          = lazy(() => import('./pages/LoginPage' /* v2 */))
+const LoginPage          = lazy(() => import('./pages/LoginPage'))
 const ProgressPage       = lazy(() => import('./pages/ProgressPage'))
 const ManagerLayout      = lazy(() => import('./pages/manager/ManagerLayout'))
 const ManagerDashboard   = lazy(() => import('./pages/manager/ManagerDashboard'))
