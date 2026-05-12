@@ -286,7 +286,11 @@ export default function PatientStrategy() {
     }
   }
 
-  useEffect(() => { fetchAll() }, [fetchAll])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    return () => ctrl.abort()
+  }, [fetchAll])
 
   const handleApplySuggestions = async (conflictResolutions = null) => {
     // If there are unresolved conflicts, show modal first
