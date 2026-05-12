@@ -457,14 +457,25 @@ def confirm_2fa(data: Confirm2FARequest, current_user: models.User = Depends(aut
 
 @router.delete("/2fa/disable")
 def disable_2fa(data: Confirm2FARequest, current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
-    """Disable 2FA — requires current TOTP code to confirm."""
-    if not current_user.totp_enabled or not current_user.totp_secret:
+    """Disable 2FA — requires current valid code (TOTP / email / SMS)."""
+    if not current_user.totp_enabled:
         raise HTTPException(status_code=400, detail="אימות דו-שלבי אינו מופעל")
-    totp = pyotp.TOTP(fe.decrypt(current_user.totp_secret))
-    if not totp.verify(data.code, valid_window=1):
-        raise HTTPException(status_code=400, detail="קוד שגוי")
+    method = current_user.totp_method or "totp"
+    if method in ("email", "sms"):
+        if not current_user.email_2fa_code or current_user.email_2fa_code != data.code:
+            raise HTTPException(status_code=400, detail="קוד שגוי — בקש קוד חדש תחילה")
+    else:
+        if not current_user.totp_secret:
+            raise HTTPException(status_code=400, detail="אימות דו-שלבי אינו מופעל")
+        totp = pyotp.TOTP(fe.decrypt(current_user.totp_secret))
+        if not totp.verify(data.code, valid_window=1):
+            raise HTTPException(status_code=400, detail="קוד שגוי")
     current_user.totp_secret = None
     current_user.totp_enabled = False
+    current_user.email_2fa_code = None
+    current_user.email_2fa_expires = None
+    current_user.phone_2fa = None
+    current_user.phone_2fa_prefix = None
     db.commit()
     return {"message": "אימות דו-שלבי בוטל"}
 
