@@ -603,10 +603,11 @@ function HelpButton({ view }) {
 
 // ── Family share button ───────────────────────────────────────────────────────
 function FamilyShareButton() {
-  const [status, setStatus]   = useState(null)   // null | {active, token, expires_at}
+  const [status, setStatus]   = useState(null)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied]   = useState(false)
   const [open, setOpen]       = useState(false)
+  const [confirmRevoke, ConfirmRevokeUI] = useConfirm()
 
   useEffect(() => {
     axios.get('/api/patient/family-share/status').then(r => setStatus(r.data)).catch(() => {})
