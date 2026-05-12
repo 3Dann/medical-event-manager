@@ -495,7 +495,7 @@ export default function PatientDetail() {
                           </span>
                           {!isFixed && (
                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${node.node_type === 'medical' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                              {node.node_type === 'medical' ? 'טיפולי' : 'פיננסי'}
+                              {node.node_type === 'medical' ? t('node_type_medical') : t('node_type_financial')}
                             </span>
                           )}
                           <button
