@@ -417,7 +417,7 @@ export default function PatientInsurance() {
                 <td className="p-2 border border-slate-200" colSpan={9}>
                   <div className="flex items-center gap-2">
                     <input autoFocus className="input text-xs flex-1 py-1"
-                      placeholder="שם סוג הכיסוי (לדוג׳: כיסוי נסיעות לחו״ל)"
+                      placeholder={t('coverage_type_placeholder')}
                       value={newCatLabel} onChange={e => setNewCatLabel(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') handleAddCustom(); if (e.key === 'Escape') { setShowAddRow(false); setNewCatLabel('') } }} />
                     <button onClick={handleAddCustom} className="btn-primary text-xs py-2.5 px-3">הוסף</button>
