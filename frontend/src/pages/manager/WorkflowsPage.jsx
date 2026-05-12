@@ -501,6 +501,7 @@ export default function WorkflowsPage() {
           onSaved={handleSaved}
         />
       )}
+      {ConfirmUI}
     </div>
   )
 }
