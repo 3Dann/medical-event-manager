@@ -20,14 +20,18 @@ function PatientRequestsPanel({ patientId }) {
   const [note, setNote]         = useState('')
   const [saving, setSaving]     = useState(false)
 
-  const load = useCallback(() => {
-    axios.get(`/api/patients/${patientId}/requests`)
+  const load = useCallback((signal) => {
+    axios.get(`/api/patients/${patientId}/requests`, { signal })
       .then(r => setRequests(r.data))
-      .catch(() => {})
+      .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
   }, [patientId])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [load])
 
   const resolve = async (req, newStatus) => {
     setSaving(true)
