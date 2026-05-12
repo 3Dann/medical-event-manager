@@ -7,12 +7,18 @@ GET /api/calendar/{token}.ics   — feed ציבורי ללא אימות
 import json
 import re
 from datetime import datetime, timezone, timedelta
-from fastapi import APIRouter, Depends
+import logging
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import Response
+from slowapi import Limiter
+from slowapi.util import get_ipaddr
 from sqlalchemy.orm import Session
 
 from database import get_db
 import models
+
+logger = logging.getLogger("calendar_feed")
+limiter = Limiter(key_func=get_ipaddr)
 
 router = APIRouter()
 
