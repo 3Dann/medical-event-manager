@@ -121,7 +121,7 @@ export default function PatientClaims() {
               <p className="font-medium text-slate-800 text-sm">
                 תביעה {outcomeLabel[pendingFeedback.outcome]} — {pendingFeedback.companyName}
               </p>
-              <p className="text-xs text-slate-500">האם לעדכן את ציון ההיענות של החברה בהתאם לתוצאה?</p>
+              <p className="text-xs text-slate-500">{t('feedback_prompt')}</p>
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">
