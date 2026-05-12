@@ -270,6 +270,8 @@ def run_migrations():
         ("patients", "phone2",                           "VARCHAR"),
         # Demo mode permission
         ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
+        ("users", "failed_login_attempts", "INTEGER DEFAULT 0"),
+        ("users", "locked_until", "DATETIME"),
         # Feedback enhancements
         ("project_feedback", "feedback_type", "VARCHAR DEFAULT 'general'"),
         ("project_feedback", "is_read",       "BOOLEAN DEFAULT 0"),
