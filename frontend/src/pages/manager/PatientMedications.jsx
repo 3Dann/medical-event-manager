@@ -247,7 +247,7 @@ export default function PatientMedications() {
           )}
           {candidates.length > 0 && (
             <div className="space-y-2 border-t border-blue-200 pt-3">
-              <p className="text-xs font-medium text-blue-800">{candidates.length} תרופות שזוהו — לחץ ✓ להוספה:</p>
+              <p className="text-xs font-medium text-blue-800">{t('candidates_found', { count: candidates.length })}</p>
               {candidates.map((c, i) => (
                 <div key={i} className="flex items-center justify-between bg-white rounded-xl border border-blue-200 px-3 py-2">
                   <span className="text-sm font-medium text-slate-800">{c.name}</span>
