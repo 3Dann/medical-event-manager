@@ -424,7 +424,7 @@ export default function MyDay() {
             onClick={() => setShowNew(true)}
             className="flex items-center gap-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-xl transition-colors"
           >
-            + משימה חדשה
+            + {t('new_task')}
           </button>
         </div>
       </div>
