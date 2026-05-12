@@ -521,20 +521,20 @@ export default function PatientInsurance() {
         <div className="flex flex-wrap gap-2">
           <button onClick={handleImportSal} disabled={importingSal}
             className="btn-secondary text-sm">
-            {importingSal ? 'מייבא...' : '🏥 ייבוא סל הבריאות'}
+            {importingSal ? t('importing') : `🏥 ${t('import_sal')}`}
           </button>
           <button onClick={handleImportHmo} disabled={importingHmo}
             className="btn-secondary text-sm">
-            {importingHmo ? 'מייבא...' : '🏨 ייבוא קופת חולים'}
+            {importingHmo ? t('importing') : `🏨 ${t('import_hmo')}`}
           </button>
           <button onClick={handleImportBituchLeumi} disabled={importingBL}
             className="btn-secondary text-sm">
-            {importingBL ? 'מייבא...' : '🏛️ ייבוא ביטוח לאומי'}
+            {importingBL ? t('importing') : `🏛️ ${t('import_leumi')}`}
           </button>
           <button onClick={() => setShowHarGuide(true)} className="btn-secondary text-sm">
-            📊 הר הביטוח (Excel)
+            📊 {t('import_sar_excel')}
           </button>
-          <button onClick={() => { setShowForm(true); setCoverages(emptyCoverages()) }} className="btn-primary text-sm">+ הוסף מקור</button>
+          <button onClick={() => { setShowForm(true); setCoverages(emptyCoverages()) }} className="btn-primary text-sm">+ {t('add_source')}</button>
         </div>
       </div>
 
