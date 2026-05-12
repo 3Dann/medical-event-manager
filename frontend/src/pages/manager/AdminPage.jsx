@@ -540,12 +540,12 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
         <div className="flex items-center gap-2 mt-4 justify-center">
           <button disabled={page === 1} onClick={() => onPage(page - 1)}
             className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
-            הקודם
+            {t('prev_page')}
           </button>
-          <span className="text-sm text-slate-500">עמוד {page} מתוך {totalPages}</span>
+          <span className="text-sm text-slate-500">{t('page_of', { page, total: totalPages })}</span>
           <button disabled={page >= totalPages} onClick={() => onPage(page + 1)}
             className="text-sm px-3 py-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50">
-            הבא
+            {t('next_page')}
           </button>
         </div>
       )}
