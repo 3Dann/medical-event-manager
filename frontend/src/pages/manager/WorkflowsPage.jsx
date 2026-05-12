@@ -184,7 +184,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                     </span>
                     <input
                       className="flex-1 border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
-                      placeholder="שם השלב *"
+                      placeholder={t('step_name_placeholder')}
                       value={step.name}
                       onChange={e => updateStep(idx, 'name', e.target.value)}
                     />
