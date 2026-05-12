@@ -266,21 +266,25 @@ export default function WorkflowsPage() {
   const [editTarget, setEditTarget] = useState(null)
   const { toast, showToast, dismissToast } = useToast() // null = new template
 
-  const loadTemplates = useCallback(() => {
-    return axios.get('/api/workflows/templates').then(r => {
+  const loadTemplates = useCallback((signal) => {
+    return axios.get('/api/workflows/templates', { signal }).then(r => {
       const visible = r.data.filter(t => !t.name.startsWith('[גיבוי]'))
       setTemplates(visible)
       setSelected(s => s ? visible.find(t => t.id === s.id) || visible[0] : visible[0])
     })
   }, [])
 
-  const loadInstances = useCallback(() => {
-    return axios.get('/api/workflows/instances').then(r => setInstances(r.data))
+  const loadInstances = useCallback((signal) => {
+    return axios.get('/api/workflows/instances', { signal }).then(r => setInstances(r.data))
   }, [])
 
   useEffect(() => {
+    const ctrl = new AbortController()
     setLoading(true)
-    Promise.all([loadTemplates(), loadInstances()]).finally(() => setLoading(false))
+    Promise.all([loadTemplates(ctrl.signal), loadInstances(ctrl.signal)])
+      .catch(e => { if (axios.isCancel(e)) return })
+      .finally(() => setLoading(false))
+    return () => ctrl.abort()
   }, [loadTemplates, loadInstances])
 
   const openEditor = (tmpl = null) => {
