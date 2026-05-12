@@ -260,34 +260,34 @@ export default function AdminPage() {
                         onClick={() => handleAdminToggle(user)}
                         className={`text-xs px-3 py-1.5 rounded-lg ${user.is_admin ? 'bg-purple-50 text-purple-600 hover:bg-purple-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                       >
-                        {user.is_admin ? 'הסר אדמין' : 'הגדר אדמין'}
+                        {user.is_admin ? t('revoke_admin') : t('grant_admin')}
                       </button>
                       <button
                         onClick={() => handleTogglePreserve(user)}
                         className={`text-xs px-3 py-1.5 rounded-lg ${user.preserve_data ? 'bg-green-50 text-green-600 hover:bg-green-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                       >
-                        {user.preserve_data ? 'בטל שמירת מידע' : 'שמור מידע'}
+                        {user.preserve_data ? t('cancel_preserve_data') : t('preserve_data')}
                       </button>
                       <button
                         onClick={() => handleToggleDemoMode(user)}
                         className={`text-xs px-3 py-1.5 rounded-lg ${user.demo_mode_allowed ? 'bg-amber-50 text-amber-600 hover:bg-amber-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                        title="הרשאה להפעיל מצב הצגה"
+                        title={t('demo_mode_permission_hint')}
                       >
-                        {user.demo_mode_allowed ? 'בטל מצב הצגה' : 'אפשר מצב הצגה'}
+                        {user.demo_mode_allowed ? t('cancel_demo_mode') : t('allow_demo_mode')}
                       </button>
                       <button
                         onClick={() => handleReset(user)}
                         className="text-xs bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg hover:bg-amber-100"
                       >
-                        איפוס סיסמה
+                        {t('reset_password')}
                       </button>
                       <button
                         onClick={() => handleDeleteData(user)}
                         disabled={user.preserve_data}
                         className={`text-xs px-3 py-1.5 rounded-lg ${user.preserve_data ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-red-50 text-red-500 hover:bg-red-100'}`}
-                        title={user.preserve_data ? 'המשתמש ביקש לשמור את המידע' : ''}
+                        title={user.preserve_data ? t('preserve_data_tooltip') : ''}
                       >
-                        מחק נתונים
+                        {t('delete_data')}
                       </button>
                     </div>
                   </div>
