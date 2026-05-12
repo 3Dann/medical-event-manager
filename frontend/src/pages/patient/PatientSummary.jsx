@@ -170,7 +170,7 @@ function TimelineSection({ workflows, redFlags, onBack }) {
               </div>
 
               <div className="mb-5">
-                <div className="flex justify-between text-slate-500 mb-2">
+                <div className="flex justify-between text-slate-700 mb-2">
                   <span>{wf.progress}% הושלם</span>
                   <span>התקדמות</span>
                 </div>
