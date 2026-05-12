@@ -85,7 +85,7 @@ function PatientRequestsPanel({ patientId }) {
 
                 {r.manager_note && (
                   <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                    <p className="text-xs font-semibold text-blue-700 mb-1 text-right">תגובה שנשלחה</p>
+                    <p className="text-xs font-semibold text-blue-700 mb-1 text-right">{t('reply_sent')}</p>
                     <p className="text-sm text-blue-800 text-right">{r.manager_note}</p>
                   </div>
                 )}
