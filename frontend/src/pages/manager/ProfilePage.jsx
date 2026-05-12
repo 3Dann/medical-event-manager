@@ -5,6 +5,9 @@ import PasskeySection from '../../components/PasskeySection'
 import { useTranslation } from 'react-i18next'
 
 function TwoFASection() {
+  const { t } = useTranslation('profile')
+  const tfa_totp_activated = t('tfa_totp_activated')
+  const tfa_email_activated = t('tfa_email_activated')
   const [status, setStatus] = useState(null) // {totp_enabled, totp_method}
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('idle') // idle | setup-totp | setup-email | confirm-totp | confirm-email
