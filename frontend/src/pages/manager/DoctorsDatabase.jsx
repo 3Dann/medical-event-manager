@@ -325,7 +325,7 @@ export default function DoctorsDatabase() {
       setDoctors(res.data.items ?? res.data)
       setTotalDoctors(res.data.total ?? (res.data.items ?? res.data).length)
     } catch (e) {
-      console.error(e)
+      showToast('שגיאת שרת. נסה שוב.')
     } finally {
       setLoading(false)
     }
@@ -396,7 +396,7 @@ export default function DoctorsDatabase() {
       setShowForm(false)
       fetchDoctors()
     } catch (e) {
-      console.error(e)
+      showToast('שגיאת שרת. נסה שוב.')
     }
   }
 
@@ -406,7 +406,7 @@ export default function DoctorsDatabase() {
       await axios.delete(`/api/doctors/${id}`)
       fetchDoctors()
     } catch (e) {
-      console.error(e)
+      showToast('שגיאת שרת. נסה שוב.')
     }
   }
 
