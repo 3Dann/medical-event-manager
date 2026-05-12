@@ -413,6 +413,36 @@ class Entitlement(Base):
     patient = relationship("Patient", back_populates="entitlements")
 
 
+class PatientAddress(Base):
+    """Normalised address — extracted from Patient god-object."""
+    __tablename__ = "patient_addresses"
+    id          = Column(Integer, primary_key=True)
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=False, unique=True, index=True)
+    city        = Column(String, nullable=True)
+    city_code   = Column(String, nullable=True)
+    street      = Column(String, nullable=True)
+    house_number = Column(String, nullable=True)
+    entrance    = Column(String, nullable=True)
+    floor       = Column(String, nullable=True)
+    apartment   = Column(String, nullable=True)
+    postal_code = Column(String, nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    patient     = relationship("Patient", back_populates="address_record")
+
+
+class PatientEmergencyContact(Base):
+    """Emergency contact — extracted from Patient god-object."""
+    __tablename__ = "patient_emergency_contacts"
+    id          = Column(Integer, primary_key=True)
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=False, unique=True, index=True)
+    name        = Column(EncryptedText, nullable=True)
+    phone_prefix = Column(String, nullable=True)
+    phone       = Column(EncryptedText, nullable=True)
+    relation    = Column(String, nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+    patient     = relationship("Patient", back_populates="emergency_contact_record")
+
+
 class PatientPermission(Base):
     """Explicit access grants: admin gives manager_id access to a patient they don't own."""
     __tablename__ = "patient_permissions"
