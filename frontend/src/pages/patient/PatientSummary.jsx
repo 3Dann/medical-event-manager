@@ -24,6 +24,7 @@ const STEP_DOT = {
   skipped:   'bg-slate-300',
   pending:   'bg-slate-200',
 }
+const STEP_DOT_LABEL = { completed: 'הושלם', active: 'פעיל', skipped: 'דולג', pending: 'ממתין' }
 
 const FLAG_COLORS = {
   medical:   { bg: 'bg-red-50',    border: 'border-red-200',    icon: '🔴', text: 'text-red-800'   },
