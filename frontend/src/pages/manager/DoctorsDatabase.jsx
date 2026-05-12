@@ -706,7 +706,7 @@ export default function DoctorsDatabase() {
         />
         {filterOptions.sub_specialties.length > 0 && (
           <FilterButton
-            label="תת-התמחות"
+            label={t('filter_sub_specialty')}
             value={filterSubSpecialty}
             valueLabel={filterSubSpecialty}
             options={filterOptions.sub_specialties.map(s => ({ value: s, label: s }))}
