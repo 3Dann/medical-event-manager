@@ -752,7 +752,7 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
             </div>
           ))}
           {items.length > 0 && (
-            <p className="text-[10px] text-slate-600 mt-1">{done}/{items.length} הושלמו</p>
+            <p className="text-[10px] text-slate-600 mt-1">{done}/{items.length} {t('completed_nodes')}</p>
           )}
         </div>
       )}
