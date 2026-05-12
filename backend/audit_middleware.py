@@ -87,7 +87,7 @@ def _write_log(user_id, action_type, resource_type, resource_id, ip, user_agent,
                 resource_type=resource_type,
                 resource_id=resource_id,
                 ip_address=ip,
-                user_agent=(user_agent or "")[:200],
+                user_agent=(user_agent or "")[:500],
                 status_code=status_code,
             )
             db.add(entry)
