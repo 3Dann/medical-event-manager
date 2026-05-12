@@ -110,11 +110,25 @@ def share_token_status(current_user=Depends(get_current_user), db: Session = Dep
 
 # ── צפייה בלבד — ללא אימות ───────────────────────────────────────────────────
 @router.get("/api/family-view/{token}")
-def family_view(token: str, db: Session = Depends(get_db)):
+@limiter.limit("60/minute")
+def family_view(request: Request, token: str, db: Session = Depends(get_db)):
     share   = _get_valid_token(token, db)
     patient = db.query(models.Patient).filter(models.Patient.id == share.patient_id).first()
     if not patient:
         raise HTTPException(status_code=404)
+
+    ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+    logger.info("Family view accessed: patient_id=%s token_id=%s ip=%s", patient.id, share.id, ip)
+    try:
+        db.add(models.UserActivityLog(
+            user_id=None, user_name="family_view",
+            action_type="family_view_access",
+            resource_type="patient", resource_id=str(patient.id),
+            ip_address=ip, status_code=200,
+        ))
+        db.commit()
+    except Exception:
+        pass
 
     # Workflows
     wf_instances = db.query(models.WorkflowInstance).filter(
