@@ -301,11 +301,11 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
             <div className="flex flex-col gap-2 pt-5">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.receipt_received} onChange={e => set('receipt_received', e.target.checked)} />
-                <span className="text-sm">קבלה התקבלה</span>
+                <span className="text-sm">{t('receipt_received_label')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.reimbursement_submitted} onChange={e => set('reimbursement_submitted', e.target.checked)} />
-                <span className="text-sm">בקשת החזר הוגשה</span>
+                <span className="text-sm">{t('reimbursement_submitted_label')}</span>
               </label>
             </div>
           </div>
