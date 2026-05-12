@@ -111,6 +111,9 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
                 user.failed_login_attempts = 0
             db.commit()
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    db.commit()
     if user.totp_enabled and user.totp_secret:
         # Return temp token — frontend must complete 2FA step
         temp = auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=5)
