@@ -251,6 +251,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function WorkflowsPage() {
+  const { t } = useTranslation('workflows')
   const { user } = useAuth()
   const isAdmin = user?.is_admin
 
