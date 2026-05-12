@@ -178,11 +178,11 @@ export default function PatientClaims() {
                 <div><label className="label">{t('submission_date')}</label><input type="date" className="input" value={form.submission_date} onChange={e => setForm({...form, submission_date: e.target.value})} /></div>
                 <div><label className="label">{t('deadline')}</label><input type="date" className="input" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} /></div>
               </div>
-              <div><label className="label">תיאור</label><input className="input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
-              <div><label className="label">הערות</label><textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
+              <div><label className="label">{t('description_label')}</label><input className="input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
+              <div><label className="label">{t('notes_label')}</label><textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
               <div className="flex gap-2 justify-end pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
-                <button type="submit" className="btn-primary">הוסף תביעה</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
+                <button type="submit" className="btn-primary">{t('add_claim_btn')}</button>
               </div>
             </form>
           </div>
