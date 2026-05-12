@@ -303,7 +303,7 @@ export default function WorkflowsPage() {
   }
 
   const deleteTemplate = async (tmpl) => {
-    const ok = await confirm({ title: 'מחיקת תבנית', message: `למחוק את התבנית "${tmpl.name}"? פעולה זו בלתי הפיכה.`, confirmLabel: 'מחק', danger: true })
+    const ok = await confirm({ title: t('delete_template'), message: `${t('delete_confirm_msg', { name: tmpl.name })}`, confirmLabel: t('common:delete', { ns: 'common' }), danger: true })
     if (!ok) return
     try {
       await axios.delete(`/api/workflows/templates/${tmpl.id}`)
