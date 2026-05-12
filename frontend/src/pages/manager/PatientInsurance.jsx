@@ -736,7 +736,7 @@ export default function PatientInsurance() {
 
               {isDuplicate() && (
                 <div className="mx-6 mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">
-                  ⚠️ מקור ביטוח זה כבר קיים בתיק המטופל — לא ניתן להוסיף כפילויות
+                  ⚠️ {t('duplicate_source_warning')}
                 </div>
               )}
 
