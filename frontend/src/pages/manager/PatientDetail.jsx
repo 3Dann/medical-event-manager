@@ -297,11 +297,11 @@ export default function PatientDetail() {
                   </select>
                 </div>
               </div>
-              <div><label className="label">הערות</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
+              <div><label className="label">{t('notes_label')}</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
               <button
                 onClick={handleSavePatient}
                 className="btn-primary w-full"
-              >שמור</button>
+              >{t('common:save', { ns: 'common' })}</button>
             </div>
           ) : (
             <dl className="space-y-3 text-sm">
