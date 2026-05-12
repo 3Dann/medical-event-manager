@@ -218,7 +218,7 @@ export default function PatientClaims() {
                   <td className="p-3">
                     {c.status === 'approved' || c.status === 'partial' ? (
                       <input type="number" defaultValue={c.amount_approved || ''} onBlur={e => handleAmountApproved(c.id, e.target.value)}
-                        className="w-24 border rounded px-2 py-1 text-xs" placeholder="הזן סכום" />
+                        className="w-24 border rounded px-2 py-1 text-xs" placeholder={t('enter_amount')} />
                     ) : '—'}
                   </td>
                   <td className="p-3">
