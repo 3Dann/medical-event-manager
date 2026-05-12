@@ -132,10 +132,12 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
                 className="w-full py-2 text-sm border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">
                 ✉️ {t('tfa_enable_email')}
               </button>
+              {/* SMS 2FA — hidden until Twilio is configured
               <button onClick={() => { setMsg(null); setCode(''); setView('setup-sms') }}
                 className="w-full py-2 text-sm border border-green-300 text-green-700 rounded-lg hover:bg-green-50">
                 💬 קוד ב-SMS לטלפון
               </button>
+              */}
             </div>
           ) : (
             <div className="space-y-2">
