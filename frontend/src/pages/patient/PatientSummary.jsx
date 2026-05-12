@@ -156,7 +156,7 @@ function TimelineSection({ workflows, redFlags, onBack }) {
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="text-right">
                   <h3 className="font-bold text-slate-800 text-lg">{wf.title}</h3>
-                  {wf.template_name && <p className="text-slate-500 mt-0.5">{wf.template_name}</p>}
+                  {wf.template_name && <p className="text-slate-700 mt-0.5">{wf.template_name}</p>}
                 </div>
                 <span className={`text-sm px-3 py-1 rounded-full font-semibold flex-shrink-0 ${
                   wf.status === 'active'    ? 'bg-blue-100 text-blue-700'  :
