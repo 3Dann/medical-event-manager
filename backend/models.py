@@ -105,9 +105,11 @@ class User(Base):
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
     totp_secret = Column(String, nullable=True)
     totp_enabled = Column(Boolean, default=False)
-    totp_method = Column(String, nullable=True, default="totp")  # "totp" or "email"
+    totp_method = Column(String, nullable=True, default="totp")  # "totp" | "email" | "sms"
     email_2fa_code = Column(String, nullable=True)
     email_2fa_expires = Column(DateTime(timezone=True), nullable=True)
+    phone_2fa = Column(String, nullable=True)         # phone number for SMS 2FA (e.g. "+972501234567")
+    phone_2fa_prefix = Column(String, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     locked_until = Column(DateTime(timezone=True), nullable=True)
     last_login = Column(DateTime(timezone=True), nullable=True)
