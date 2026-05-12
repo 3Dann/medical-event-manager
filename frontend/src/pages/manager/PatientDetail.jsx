@@ -188,7 +188,8 @@ export default function PatientDetail() {
   }
 
   const handleDeleteNode = async (nodeId) => {
-    if (!window.confirm('למחוק צומת זה?')) return
+    const ok = await confirm({ title: 'מחיקת צומת', message: 'למחוק צומת זה?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
     fetchAll()
   }
