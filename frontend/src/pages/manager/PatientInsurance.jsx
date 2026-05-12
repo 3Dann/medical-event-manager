@@ -768,9 +768,9 @@ export default function PatientInsurance() {
                 <div className="flex gap-2">
                   <button onClick={() => setExpandedSource(expandedSource===s.id ? null : s.id)}
                     className="btn-secondary text-sm py-1.5">
-                    {expandedSource===s.id ? '▲ סגור' : '▼ כיסויים'}
+                    {expandedSource===s.id ? `▲ ${t('common:close', { ns: 'common' })}` : `▼ ${t('coverages_btn')}`}
                   </button>
-                  <button onClick={() => handleDeleteSource(s.id)} className="btn-danger text-sm py-1.5">מחק</button>
+                  <button onClick={() => handleDeleteSource(s.id)} className="btn-danger text-sm py-1.5">{t('common:delete', { ns: 'common' })}</button>
                 </div>
               </div>
 
