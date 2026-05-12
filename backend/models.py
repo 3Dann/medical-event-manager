@@ -97,6 +97,8 @@ class User(Base):
     last_login = Column(DateTime(timezone=True), nullable=True)
     last_activity = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
+    webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
 
 
 class DocumentViewToken(Base):
@@ -109,8 +111,6 @@ class DocumentViewToken(Base):
     is_used    = Column(Boolean, default=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
-    webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
 
 
 class WebAuthnCredential(Base):
