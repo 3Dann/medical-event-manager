@@ -548,65 +548,7 @@ export default function PatientStrategy() {
 
       {/* ── STRATEGY TAB ───────────────────────────────────────────────────── */}
       {tab === 'strategy' && strategy && (
-        <div className="space-y-4">
-          {strategy.summary?.gaps?.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-              <p className="font-semibold text-red-700 mb-2">⚠️ פערים בכיסוי</p>
-              <div className="flex flex-wrap gap-2">
-                {strategy.summary.gaps.map(g => (
-                  <span key={g} className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                    {CATEGORY_LABELS[g] || g}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {strategy.recommendations.map((rec, ri) => (
-            <div key={ri} className="card">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <span className="text-blue-700 font-bold text-sm">{ri + 1}</span>
-                </div>
-                <h3 className="font-semibold text-slate-800">{rec.category_label}</h3>
-                <span className="badge-blue text-xs">{rec.total_sources} מקורות</span>
-              </div>
-              <div className="space-y-2">
-                {rec.claim_sequence.map((step, si) => {
-                  const confidence = insights?.patient_confidence?.[step.source_label] ??
-                    insights?.company_approval_rates?.find(r => step.source_label?.includes(r.company_name))?.approval_rate ?? null
-                  return (
-                    <div key={si} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                        ${si === 0 ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
-                        {step.order}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm text-slate-800">{step.source_label}</p>
-                          <ConfidenceBadge rate={confidence} />
-                        </div>
-                        <p className="text-xs text-slate-500 mt-0.5">{step.reason}</p>
-                      </div>
-                      <div className="text-left text-xs text-slate-600">
-                        {step.amount && <p>₪{step.amount.toLocaleString()}</p>}
-                        {step.percentage && <p>{step.percentage}%</p>}
-                        <p className="text-slate-600">ציון: {step.responsiveness_score}/10</p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          ))}
-
-          {strategy.recommendations.length === 0 && (
-            <div className="card text-center py-12">
-              <p className="text-slate-500">אין מספיק נתוני ביטוח לייצור אסטרטגיה.</p>
-              <p className="text-slate-600 text-sm mt-1">הוסף מקורות ביטוח וכיסויים בלשונית "ביטוחים".</p>
-            </div>
-          )}
-        </div>
+        <StrategyTab strategy={strategy} insights={insights} />
       )}
 
       {/* ── MATRIX TAB ─────────────────────────────────────────────────────── */}
