@@ -762,7 +762,17 @@ patch_journey_intake_step()
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok"}
+    try:
+        with engine.connect() as conn:
+            conn.execute(sqlalchemy.text("SELECT 1"))
+        return {"status": "ok", "db": "ok"}
+    except Exception as e:
+        from fastapi import Response
+        return Response(
+            content='{"status":"error","db":"unreachable"}',
+            status_code=503,
+            media_type="application/json",
+        )
 
 
 @app.post("/api/admin/backup")
