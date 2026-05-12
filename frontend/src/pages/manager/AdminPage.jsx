@@ -229,10 +229,10 @@ export default function AdminPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-slate-800">{user.full_name}</span>
                         {user.is_admin && (
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">אדמין</span>
+                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">{t('role_admin')}</span>
                         )}
                         {user.preserve_data && (
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">שמור מידע</span>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{t('preserve_data_badge')}</span>
                         )}
                       </div>
                       <p className="text-sm text-slate-500 mt-0.5">{user.email}</p>
