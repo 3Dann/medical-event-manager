@@ -70,7 +70,7 @@ export default function ManagerDashboard() {
           </svg>
           {t('dashboard:new_patient')}
         </button>
-      </div>
+      </header>
 
 
 
