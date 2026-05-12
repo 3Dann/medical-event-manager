@@ -480,9 +480,9 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4 items-end">
         <div>
-          <label className="block text-xs text-slate-500 mb-1">משתמש</label>
+          <label className="block text-xs text-slate-500 mb-1">{t('activity_user')}</label>
           <select className="input text-sm py-1.5 w-44" value={userFilter} onChange={e => onUserFilter(e.target.value)}>
-            <option value="">כולם</option>
+            <option value="">{t('filter_all_users')}</option>
             {users.map(u => <option key={u.id} value={u.id}>{u.full_name}</option>)}
           </select>
         </div>
