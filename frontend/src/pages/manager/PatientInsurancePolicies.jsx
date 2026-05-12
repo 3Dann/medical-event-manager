@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 // ── Icons (inline SVG) ────────────────────────────────────────────────────────
 const Icon = ({ d, size = 15, color = 'currentColor', className = '' }) => (
