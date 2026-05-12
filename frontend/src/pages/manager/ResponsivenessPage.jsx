@@ -93,8 +93,8 @@ export default function ResponsivenessPage() {
                     ) : (
                       <div>
                         <div className="flex gap-6 text-sm text-slate-600">
-                          <span>⚡ מהירות תגובה: <strong>{score.response_speed}/10</strong></span>
-                          <span>📋 בירוקרטיה: <strong>{score.bureaucracy_level}/10</strong></span>
+                          <span>⚡ {t('speed_label')}: <strong>{score.response_speed}/10</strong></span>
+                          <span>📋 {t('bureaucracy_label')}: <strong>{score.bureaucracy_level}/10</strong></span>
                         </div>
                         {score.notes && <p className="text-xs text-slate-500 mt-1">{score.notes}</p>}
                         {/* Visual bar */}
