@@ -95,7 +95,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
           <span className={`text-xs font-medium ${pri.color}`}>{pri.label}</span>
           {task.is_new && (
             <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">
-              חדש מאדמין
+              {t('new_from_admin')}
             </span>
           )}
         </div>
