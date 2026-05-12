@@ -327,7 +327,7 @@ export default function AdminPage() {
               <>
                 <div className="mb-4">
                   <h2 className="font-semibold text-slate-800">{selectedPatient.full_name}</h2>
-                  <p className="text-xs text-slate-500">בעלים: {selectedPatient.manager_name || '—'}</p>
+                  <p className="text-xs text-slate-500">{t('owner_label')}: {selectedPatient.manager_name || '—'}</p>
                 </div>
 
                 {permMsg && (
