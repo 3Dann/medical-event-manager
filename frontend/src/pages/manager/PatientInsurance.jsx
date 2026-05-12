@@ -39,6 +39,10 @@ function sourceLabel(s) {
 
 export default function PatientInsurance() {
   const { t } = useTranslation('insurance')
+  const SOURCE_TYPE_LABELS = {
+    sal_habriut: t('source_sal'), kupat_holim: t('source_hmo'),
+    har_habitua: t('source_sar'), private: t('source_private'), bituch_leumi: t('source_leumi'),
+  }
   const { id } = useParams()
   const [sources, setSources]         = useState([])
   const [entitlements, setEntitlements] = useState([])
