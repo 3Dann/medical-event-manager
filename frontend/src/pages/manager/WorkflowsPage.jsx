@@ -309,7 +309,7 @@ export default function WorkflowsPage() {
       await axios.delete(`/api/workflows/templates/${tmpl.id}`)
       loadTemplates()
     } catch (e) {
-      showToast('לא ניתן למחוק את התבנית. נסה שוב.')
+      showToast(t('delete_error'))
     }
   }
 
