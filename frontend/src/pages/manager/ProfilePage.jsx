@@ -204,11 +204,11 @@ export default function ProfilePage() {
         new_password: form.new_password,
         tfa_code: tfaStatus?.totp_enabled ? form.tfa_code : undefined,
       })
-      setStatus({ ok: true, msg: 'הסיסמה עודכנה בהצלחה' })
+      setStatus({ ok: true, msg: t('password_updated') })
       setForm({ current_password: '', new_password: '', confirm: '', tfa_code: '' })
       setEmailCodeDisplay('')
     } catch (err) {
-      setStatus({ ok: false, msg: err.response?.data?.detail || 'שגיאה בעדכון' })
+      setStatus({ ok: false, msg: err.response?.data?.detail || t('update_error') })
     } finally { setLoading(false) }
   }
 
