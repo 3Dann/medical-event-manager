@@ -831,7 +831,7 @@ export default function PatientInsurance() {
           </form>
         )}
         {entitlements.length === 0 ? (
-          <p className="text-slate-600 text-sm text-center py-4">אין זכאויות ביטוח לאומי עדיין</p>
+          <p className="text-slate-600 text-sm text-center py-4">{t('no_entitlements')}</p>
         ) : (
           <div className="space-y-2">
             {entitlements.map(e => (
