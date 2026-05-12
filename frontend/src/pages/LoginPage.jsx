@@ -168,19 +168,17 @@ export default function LoginPage() {
                   </div>
                 </button>
 
-                {/* TOTP — only if configured */}
-                {totpConfigured && (
-                  <button
-                    onClick={() => setTwoFAMethod('totp')}
-                    className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-colors min-h-[52px]"
-                  >
-                    <span className="text-2xl">📱</span>
-                    <div className="text-right flex-1">
-                      <p className="font-medium text-slate-800 text-sm">קוד מגוגל אותנטיקייטור</p>
-                      <p className="text-xs text-slate-500">פתח את האפליקציה והזן את הקוד בן 6 הספרות</p>
-                    </div>
-                  </button>
-                )}
+                {/* TOTP — always available */}
+                <button
+                  onClick={() => setTwoFAMethod('totp')}
+                  className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-colors min-h-[52px]"
+                >
+                  <span className="text-2xl">📱</span>
+                  <div className="text-right flex-1">
+                    <p className="font-medium text-slate-800 text-sm">קוד מגוגל אותנטיקייטור</p>
+                    <p className="text-xs text-slate-500">פתח את האפליקציה והזן את הקוד בן 6 הספרות</p>
+                  </div>
+                </button>
 
                 {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
 
