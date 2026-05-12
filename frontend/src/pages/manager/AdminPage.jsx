@@ -442,6 +442,32 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
   onUserFilter, onActionFilter, onDateFrom, onDateTo, onSearch, onClear, onPage }) {
   const { t } = useTranslation('admin')
 
+  const ACTION_LABELS = {
+    login:             t('action_login'),
+    view_patient:      t('action_view_patient'),
+    create_patient:    t('action_create_patient'),
+    edit_patient:      t('action_edit_patient'),
+    delete_patient:    t('action_delete_patient'),
+    download_document: t('action_download_document'),
+    upload_document:   t('action_upload_document'),
+    delete_document:   t('action_delete_document'),
+    create_claim:      t('action_create_claim'),
+    edit_claim:        t('action_edit_claim'),
+    delete_claim:      t('action_delete_claim'),
+    add_insurance:     t('action_add_insurance'),
+    admin_change_role: t('action_change_role'),
+    admin_reset_user:  t('action_reset_user'),
+    admin_delete_data: t('action_delete_data'),
+    view_activity_log: t('action_view_log'),
+  }
+  const RESOURCE_LABELS = {
+    patient:   t('resource_patient'),
+    document:  t('resource_document'),
+    claim:     t('resource_claim'),
+    insurance: t('resource_insurance'),
+    user:      t('resource_user'),
+  }
+
   const totalPages = Math.ceil(total / 50)
 
   const statusBadge = (code) => {
