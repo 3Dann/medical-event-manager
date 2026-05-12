@@ -782,8 +782,8 @@ export default function DoctorsDatabase() {
                   ))}
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <button onClick={() => openEdit(doc)} className="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">עריכה</button>
-                      <button onClick={() => handleDelete(doc.id)} className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-100">מחק</button>
+                      <button onClick={() => openEdit(doc)} className="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-200">{t('common:edit', { ns: 'common' })}</button>
+                      <button onClick={() => handleDelete(doc.id)} className="text-xs bg-red-50 text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-100">{t('common:delete', { ns: 'common' })}</button>
                     </div>
                   </td>
                 </tr>
