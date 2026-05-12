@@ -729,7 +729,7 @@ export default function PatientInsurance() {
 
                 {/* Coverage table */}
                 <div>
-                  <p className="label mb-1">כיסויים — סמן ✓ על הכיסויים הקיימים ומלא פרטים</p>
+                  <p className="label mb-1">{t('coverages_fill_label')}</p>
                   <CoverageTable catCoverages={coverages} editable={true} />
                 </div>
               </div>
