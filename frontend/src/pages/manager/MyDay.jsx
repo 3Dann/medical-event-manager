@@ -464,8 +464,8 @@ export default function MyDay() {
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">✅</div>
-          <p className="text-slate-700 font-semibold text-lg">אין משימות פתוחות</p>
-          <p className="text-slate-500 mt-1">כל הכבוד — הכל מטופל!</p>
+          <p className="text-slate-700 font-semibold text-lg">{t('no_open_tasks')}</p>
+          <p className="text-slate-500 mt-1">{t('all_done')}</p>
         </div>
       ) : (
         <div className="space-y-7">
