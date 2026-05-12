@@ -471,7 +471,13 @@ def disable_2fa(data: Confirm2FARequest, current_user: models.User = Depends(aut
 
 @router.get("/2fa/status")
 def get_2fa_status(current_user: models.User = Depends(auth_utils.get_current_user)):
-    return {"totp_enabled": bool(current_user.totp_enabled), "totp_method": current_user.totp_method or "totp"}
+    phone = current_user.phone_2fa
+    masked = f"****{phone[-4:]}" if phone and len(phone) >= 4 else None
+    return {
+        "totp_enabled": bool(current_user.totp_enabled),
+        "totp_method": current_user.totp_method or "totp",
+        "phone_masked": masked,
+    }
 
 
 @router.put("/profile/password")
