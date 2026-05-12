@@ -34,7 +34,7 @@ i18n
   .init({
     resources: { he, en, ar, ru, fr, de, es, it, pt, am },
     defaultNS: 'common',
-    ns: ['common', 'lang', 'nav', 'auth', 'landing', 'dashboard', 'diagnosis', 'claim_status', 'patient_portal', 'intake'],
+    ns: ['common', 'lang', 'nav', 'auth', 'landing', 'dashboard', 'diagnosis', 'claim_status', 'patient_portal', 'intake', 'strategy', 'patients', 'claims', 'insurance', 'documents', 'medications', 'meetings', 'myday', 'admin', 'doctors', 'workflows', 'feedback', 'profile', 'responsiveness'],
     fallbackLng: 'he',
     detection: {
       order: ['localStorage', 'navigator'],
