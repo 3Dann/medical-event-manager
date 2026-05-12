@@ -71,13 +71,15 @@ export default function FeedbackInbox() {
   const { showToast } = useToast()
 
   useEffect(() => {
-    axios.get('/api/public/feedback')
+    const ctrl = new AbortController()
+    axios.get('/api/public/feedback', { signal: ctrl.signal })
       .then(r => {
         setFeedback(r.data)
         axios.put('/api/public/feedback/mark-read').catch(() => {})
       })
-      .catch(() => showToast('שגיאה בטעינת משובים'))
+      .catch(e => { if (!axios.isCancel(e)) showToast('שגיאה בטעינת משובים') })
       .finally(() => setLoading(false))
+    return () => ctrl.abort()
   }, [])
 
   const toggleHandled = async (id) => {
