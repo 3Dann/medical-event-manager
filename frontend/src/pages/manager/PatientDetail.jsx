@@ -697,7 +697,7 @@ export default function PatientDetail() {
                       {applyingTemplate === selectedTplPreview.key && (
                         <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       )}
-                      החל מסע זה על המטופל
+                      {t('apply_journey_btn')}
                     </button>
                   )}
                 </div>
