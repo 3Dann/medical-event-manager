@@ -271,7 +271,7 @@ export default function PatientDetail() {
                 />
               </div>
               <div>
-                <label className="label">שלב טיפולי</label>
+                <label className="label">{t('medical_stage_label')}</label>
                 <select className="input" value={editForm.medical_stage || ''} onChange={e => setEditForm({...editForm, medical_stage: e.target.value})}>
                   {MEDICAL_STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
