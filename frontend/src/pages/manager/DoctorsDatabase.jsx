@@ -805,17 +805,17 @@ export default function DoctorsDatabase() {
               disabled={currentPage === 1}
               className="px-3 py-1.5 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              הקודם
+              {t('prev_page')}
             </button>
             <span className="text-sm text-slate-600 font-medium px-2">
-              עמוד {currentPage} / {Math.ceil(totalDoctors / PAGE_SIZE)}
+              {t('page_of_pages', { page: currentPage, total: Math.ceil(totalDoctors / PAGE_SIZE) })}
             </span>
             <button
               onClick={() => goToPage(Math.min(Math.ceil(totalDoctors / PAGE_SIZE), currentPage + 1))}
               disabled={currentPage >= Math.ceil(totalDoctors / PAGE_SIZE)}
               className="px-3 py-1.5 text-sm rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              הבא
+              {t('next_page')}
             </button>
           </div>
         </div>
