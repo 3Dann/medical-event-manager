@@ -469,11 +469,11 @@ export default function MyDay() {
         </div>
       ) : (
         <div className="space-y-7">
-          <Section title="באיחור"       color="bg-red-500"    tasks={overdue}  onComplete={complete} onDelete={deleteTask} completing={completing} />
-          <Section title="היום"         color="bg-amber-400"  tasks={today}    onComplete={complete} onDelete={deleteTask} completing={completing} />
-          <Section title="השבוע"        color="bg-blue-500"   tasks={thisWeek} onComplete={complete} onDelete={deleteTask} completing={completing} />
-          <Section title="בהמשך"        color="bg-slate-300"  tasks={later}    onComplete={complete} onDelete={deleteTask} completing={completing} />
-          <Section title="הושלמו"       color="bg-green-500"  tasks={done}     onComplete={complete} onDelete={deleteTask} completing={completing} />
+          <Section title={t('overdue')}    color="bg-red-500"    tasks={overdue}  onComplete={complete} onDelete={deleteTask} completing={completing} />
+          <Section title={t('today')}     color="bg-amber-400"  tasks={today}    onComplete={complete} onDelete={deleteTask} completing={completing} />
+          <Section title={t('this_week')} color="bg-blue-500"   tasks={thisWeek} onComplete={complete} onDelete={deleteTask} completing={completing} />
+          <Section title={t('later')}     color="bg-slate-300"  tasks={later}    onComplete={complete} onDelete={deleteTask} completing={completing} />
+          <Section title={t('done')}      color="bg-green-500"  tasks={done}     onComplete={complete} onDelete={deleteTask} completing={completing} />
         </div>
       )}
     </div>
