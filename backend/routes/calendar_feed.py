@@ -188,7 +188,8 @@ def _build_ics(user: models.User, db: Session) -> str:
 # ── Public endpoint ───────────────────────────────────────────────────────────
 
 @router.get("/api/calendar/{token}.ics")
-def get_calendar_feed(token: str, db: Session = Depends(get_db)):
+@limiter.limit("30/minute")
+def get_calendar_feed(request: Request, token: str, db: Session = Depends(get_db)):
     cal_token = db.query(models.CalendarToken).filter(
         models.CalendarToken.token == token
     ).first()
