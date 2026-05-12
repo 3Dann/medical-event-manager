@@ -126,7 +126,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl my-8">
         <div className="flex items-center justify-between p-6 border-b border-slate-200">
           <h2 className="text-xl font-bold text-slate-800">
-            {template ? `עריכת תבנית${template.is_builtin ? ' — גיבוי נשמר אוטומטית' : ''}` : 'תבנית חדשה'}
+            {template ? `${t('edit_template')}${template.is_builtin ? ` — ${t('builtin_backup_note')}` : ''}` : t('new_template')}
           </h2>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-2xl leading-none p-2 -m-2 rounded-lg">&times;</button>
         </div>
