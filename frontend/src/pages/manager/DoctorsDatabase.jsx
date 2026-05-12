@@ -313,12 +313,12 @@ export default function DoctorsDatabase() {
     return () => ctrl.abort()
   }, [])
 
-  const fetchFilterOptions = async () => {
-    try { const res = await axios.get('/api/doctors/filter-options'); setFilterOptions(res.data) }
-    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
+  const fetchFilterOptions = async (signal) => {
+    try { const res = await axios.get('/api/doctors/filter-options', { signal }); setFilterOptions(res.data) }
+    catch (e) { if (!axios.isCancel(e)) showToast('שגיאת שרת. נסה שוב.') }
   }
 
-  const fetchDoctors = async (page = currentPage, searchOverride = null) => {
+  const fetchDoctors = async (page = currentPage, searchOverride = null, signal = null) => {
     setLoading(true)
     try {
       const activeSearch = searchOverride !== null ? searchOverride : search
