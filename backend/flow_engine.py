@@ -47,13 +47,13 @@ def _activate_step(db: Session, step: models.WorkflowStep,
         if patient and patient.insurance_sources:
             compute_step_coverage(db, step, patient)
     except Exception:
-        pass  # coverage is advisory — never block the workflow
+        logger.exception("Coverage computation failed for step %s", step.id)
 
     # Auto-create draft claim for financial steps on activation
     try:
         _auto_create_draft_claim(db, step, instance)
     except Exception:
-        pass
+        logger.exception("Draft claim creation failed for step %s", step.id)
 
 
 def _sync_journey_node(db: Session, step: models.WorkflowStep,
