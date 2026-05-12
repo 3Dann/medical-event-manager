@@ -40,7 +40,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
   const PRIORITY_LABELS = {
     urgent: { label: t('priority_urgent'), color: 'text-red-600'    },
     high:   { label: t('priority_high'),   color: 'text-orange-500' },
-    normal: { label: 'רגיל',               color: 'text-slate-500'  },
+    normal: { label: t('priority_normal'),   color: 'text-slate-500'  },
     low:    { label: t('priority_low'),    color: 'text-slate-400'  },
   }
   const src = SOURCE_LABELS[task.source_type] || SOURCE_LABELS.manual
