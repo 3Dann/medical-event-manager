@@ -500,6 +500,7 @@ const DRAFT_KEY = 'intake_wizard_draft'
 export default function IntakeWizard() {
   const navigate = useNavigate()
   const { isDemoMode } = useDemoMode()
+  const { showToast } = useToast()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     try {
