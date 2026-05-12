@@ -1015,6 +1015,7 @@ export default function DoctorsDatabase() {
           </div>
         </div>
       )}
+      {ConfirmUI}
     </div>
   )
 }
