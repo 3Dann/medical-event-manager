@@ -244,14 +244,14 @@ export default function AdminPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="text-xs text-slate-500">תפקיד:</label>
+                      <label className="text-xs text-slate-500">{t('role_label')}:</label>
                       <select
                         className="input text-sm py-1 w-36"
                         value={user.role}
                         onChange={e => handleRoleChange(user, e.target.value)}
                       >
-                        <option value="manager">מנהל אירוע</option>
-                        <option value="patient">מטופל</option>
+                        <option value="manager">{t('role_manager')}</option>
+                        <option value="patient">{t('role_patient')}</option>
                       </select>
                     </div>
 
