@@ -4,13 +4,15 @@ import axios from 'axios'
 import App from './App'
 import './index.css'
 
-// Global axios interceptor — shows Hebrew error for unexpected server failures
+// Global axios interceptor — handles auth expiry and server errors
 axios.interceptors.response.use(
   res => res,
   err => {
     const status = err?.response?.status
-    // Only alert for unexpected server errors (5xx), not auth/permission/validation
-    if (status >= 500) {
+    if (status === 401) {
+      localStorage.clear()
+      window.location.href = '/login'
+    } else if (status >= 500) {
       window.dispatchEvent(new CustomEvent('api-server-error', {
         detail: 'אירעה שגיאת שרת. נסה שנית בעוד מספר שניות.'
       }))
