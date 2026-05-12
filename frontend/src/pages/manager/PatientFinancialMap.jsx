@@ -18,10 +18,12 @@ export default function PatientFinancialMap() {
   const [activeTab, setActiveTab] = useState('map') // map | priority | alerts
 
   useEffect(() => {
+    const ctrl = new AbortController()
     setLoading(true)
-    axios.get(`/api/patients/${id}/financial-map`)
+    axios.get(`/api/patients/${id}/financial-map`, { signal: ctrl.signal })
       .then(r => { setData(r.data); setLoading(false) })
-      .catch(e => { setError(e.response?.data?.detail || 'שגיאה בטעינה'); setLoading(false) })
+      .catch(e => { if (!axios.isCancel(e)) { setError(e.response?.data?.detail || 'שגיאה בטעינה'); setLoading(false) } })
+    return () => ctrl.abort()
   }, [id])
 
   if (loading) return (
