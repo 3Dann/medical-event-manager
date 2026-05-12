@@ -290,9 +290,9 @@ export default function PatientDetail() {
                   </select>
                 </div>
                 <div>
-                  <label className="label">ביטוח משלים</label>
+                  <label className="label">{t('hmo_supplement_label')}</label>
                   <select className="input" value={editForm.hmo_level || ''} onChange={e => setEditForm({...editForm, hmo_level: e.target.value})}>
-                    <option value="">— בחר תוכנית —</option>
+                    <option value="">{t('select_plan_option')}</option>
                     {hmoPlans.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}
                   </select>
                 </div>
