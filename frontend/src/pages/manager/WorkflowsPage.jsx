@@ -5,22 +5,15 @@ import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
 import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
+
 const CATEGORY_COLORS = {
-  claim: 'bg-blue-100 text-blue-700',
-  appeal: 'bg-amber-100 text-amber-700',
-  treatment: 'bg-green-100 text-green-700',
-  hospitalization: 'bg-purple-100 text-purple-700',
+  claim: 'bg-blue-100 text-blue-700', appeal: 'bg-amber-100 text-amber-700',
+  treatment: 'bg-green-100 text-green-700', hospitalization: 'bg-purple-100 text-purple-700',
   general: 'bg-slate-100 text-slate-600',
 }
-const STATUS_LABELS = {
-  active: 'פעיל', completed: 'הושלם', paused: 'מושהה',
-  cancelled: 'בוטל', draft: 'טיוטה',
-}
 const STATUS_COLORS = {
-  active: 'bg-green-100 text-green-700',
-  completed: 'bg-blue-100 text-blue-700',
-  paused: 'bg-amber-100 text-amber-700',
-  cancelled: 'bg-red-100 text-red-700',
+  active: 'bg-green-100 text-green-700', completed: 'bg-blue-100 text-blue-700',
+  paused: 'bg-amber-100 text-amber-700', cancelled: 'bg-red-100 text-red-700',
   draft: 'bg-slate-100 text-slate-500',
 }
 
