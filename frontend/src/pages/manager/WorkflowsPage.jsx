@@ -155,7 +155,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">תיאור</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('description_label')}</label>
               <input
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                 value={form.description}
