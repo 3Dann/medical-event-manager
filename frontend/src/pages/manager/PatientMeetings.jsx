@@ -20,8 +20,6 @@ function PatientRequestsPanel({ patientId }) {
   const [note, setNote]         = useState('')
   const [saving, setSaving]     = useState(false)
 
-  const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('he-IL', { day:'2-digit', month:'2-digit', year:'numeric' }) : ''
-
   const load = useCallback(() => {
     axios.get(`/api/patients/${patientId}/requests`)
       .then(r => setRequests(r.data))
