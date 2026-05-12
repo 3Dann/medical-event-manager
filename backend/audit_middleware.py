@@ -13,6 +13,9 @@ ALGORITHM = "HS256"
 # (method, pattern, action_type, resource_type, resource_id_group)
 _ROUTES = [
     ("POST",   r"^/api/auth/login$",                                 "login",             None,        None),
+    ("POST",   r"^/api/auth/verify-2fa$",                           "verify_2fa",        None,        None),
+    ("POST",   r"^/api/auth/forgot-password$",                      "forgot_password",   None,        None),
+    ("POST",   r"^/api/auth/reset-password$",                       "reset_password",    None,        None),
     ("GET",    r"^/api/patients/(\d+)$",                             "view_patient",      "patient",   1),
     ("POST",   r"^/api/patients$",                                   "create_patient",    "patient",   None),
     ("PUT",    r"^/api/patients/(\d+)$",                             "edit_patient",      "patient",   1),
