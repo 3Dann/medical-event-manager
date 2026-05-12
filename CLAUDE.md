@@ -315,6 +315,19 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 - **boto3** — `boto3==1.38.7` ב-requirements.txt לגיבוי R2 (R2 env vars טרם הוגדרו)
 - **FIELD_ENCRYPTION_KEY** — ב-Railway. מפתח Fernet ל-field-level encryption. אסור לאבד!
 
+### תיקוני סבב 4 — סיום כל הממצאים הפתוחים (2026-05-12)
+- **AbortController** — כל 18+ דפים שטענו נתונים ב-useEffect קיבלו cleanup עם AbortController (מניעת memory leaks)
+- **window.confirm → ConfirmDialog** — כל 8 מקומות בקוד (WorkflowPanel, PatientDocuments, WorkflowsPage, PatientInsurancePolicies, PatientDetail ×2, DoctorsDatabase, PatientMeetings)
+- **PatientStrategy decomposition** — 3 טאבים הוצאו לsub-components: StrategyTab, MatrixTab, InsightsTab
+- **IntakeWizard decomposition** — 2 שלבים הוצאו לsub-components: FunctionalStep (ADL/IADL/MMSE), SignaturesStep (3 מסמכים לחתימה). IntakeCtx הורחב ל-FormCtx+StepCtx.
+- **useMemo** — חישובי adlScore/iadlScore/mmseScore ב-IntakeWizard, journeyInstance/active/paused ב-PatientStrategy
+- **Help button RTL** — כפתור עזרה בפורטל מטופל הועבר מ-left-4 ל-right-4 (RTL נכון)
+- **Patient portal load error** — מצב שגיאה ייעודי כשה-API נכשל בטעינה (במקום "אין תיק")
+- **Task complete button** — min-h-[44px] על כפתור ✓ ב-MyDay (WCAG 44px tap target)
+- **Israeli ID uniqueness** — בדיקת ייחודיות מספר ת"ז ב-create_patient (application-level בגלל הצפנה)
+- **Pydantic v1 API** — `body.dict()` → `body.model_dump()` ב-routes/medications.py
+- **PatientDetail+PatientMeetings import** — תוקנו imports כפולים מגירוסים קודמים
+
 ### תיקוני סבב 3 — ממצאים מ-5 סוכנים, עגול שני (2026-05-12)
 - **Password strength** — `_validate_password()` ב-routes/auth.py: 8 תווים מינימום, upper+lower+digit
 - **404 page** — `NotFoundPage.jsx` — `*` route כבר לא מפנה ל-/ בשקט
