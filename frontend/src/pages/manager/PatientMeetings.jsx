@@ -420,7 +420,8 @@ export default function PatientMeetings() {
   }, [load])
 
   const deleteMeeting = async (mid) => {
-    if (!confirm('למחוק פגישה זו?')) return
+    const ok = await confirm({ title: 'מחיקת פגישה', message: 'למחוק פגישה זו?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/meetings/${mid}`)
     load()
   }
