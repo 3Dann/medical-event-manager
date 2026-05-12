@@ -83,10 +83,6 @@ export default function PasskeySection() {
     }
   }
 
-  function fmtDate(iso) {
-    if (!iso) return '—'
-    return new Date(iso).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })
-  }
 
   // ── render ──────────────────────────────────────────────────────────────────
 
