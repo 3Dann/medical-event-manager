@@ -4,11 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
 import { useConfirm } from '../../components/ConfirmDialog'
-
-const CATEGORY_LABELS = {
-  claim: 'תביעה', appeal: 'ערר', treatment: 'טיפול',
-  hospitalization: 'אשפוז', general: 'כללי',
-}
+import { useTranslation } from 'react-i18next'
 const CATEGORY_COLORS = {
   claim: 'bg-blue-100 text-blue-700',
   appeal: 'bg-amber-100 text-amber-700',
