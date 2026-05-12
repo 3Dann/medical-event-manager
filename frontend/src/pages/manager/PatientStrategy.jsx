@@ -375,7 +375,7 @@ export default function PatientStrategy() {
             {label}
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* ── WORKFLOWS TAB ──────────────────────────────────────────────────── */}
       {tab === 'workflows' && (
