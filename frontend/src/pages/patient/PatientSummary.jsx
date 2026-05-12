@@ -627,7 +627,8 @@ function FamilyShareButton() {
   }
 
   const revoke = async () => {
-    if (!window.confirm('לבטל את הקישור לבן המשפחה?')) return
+    const ok = await confirmRevoke({ title: 'ביטול גישת בן משפחה', message: 'הקישור יבוטל ובן המשפחה לא יוכל לצפות בנתונים.', confirmLabel: 'בטל גישה', danger: true })
+    if (!ok) return
     await axios.delete('/api/patient/family-share').catch(() => {})
     setStatus({ active: false })
     setOpen(false)
