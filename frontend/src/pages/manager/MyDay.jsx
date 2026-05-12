@@ -437,7 +437,7 @@ export default function MyDay() {
           value={filters.patient_id}
           onChange={e => setFilters(f => ({...f, patient_id: e.target.value}))}
         >
-          <option value="">כל המטופלים</option>
+          <option value="">{t('all_patients')}</option>
           {patients.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}
         </select>
 
