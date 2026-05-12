@@ -200,6 +200,29 @@ def get_me(current_user: models.User = Depends(auth_utils.get_current_user)):
     return {"id": current_user.id, "full_name": current_user.full_name, "email": current_user.email, "role": current_user.role, "is_admin": current_user.is_admin, "demo_mode_allowed": getattr(current_user, 'demo_mode_allowed', False)}
 
 
+@router.post("/logout")
+def logout(
+    request: Request,
+    token: str = Depends(auth_utils.oauth2_scheme),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Revoke the current JWT by adding its jti to the blacklist."""
+    try:
+        payload = auth_utils.decode_token(token)
+        jti = payload.get("jti")
+        exp = payload.get("exp")
+        if jti and exp:
+            from datetime import timezone
+            expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
+            if not db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first():
+                db.add(models.RevokedToken(jti=jti, expires_at=expires_at))
+                db.commit()
+    except Exception:
+        pass  # Even if revocation fails, return success — token will expire naturally
+    return {"ok": True}
+
+
 @router.post("/forgot-password")
 @limiter.limit("3/15minutes")
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
