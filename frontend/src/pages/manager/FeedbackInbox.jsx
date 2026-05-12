@@ -133,9 +133,9 @@ export default function FeedbackInbox() {
       {/* Filter */}
       <div className="flex gap-2">
         {[
-          { key: 'all',     label: 'הכל' },
-          { key: 'bug',     label: '🐛 באגים' },
-          { key: 'feature', label: '💡 רעיונות' },
+          { key: 'all',     label: t('filter_all') },
+          { key: 'bug',     label: `🐛 ${t('stat_bugs')}` },
+          { key: 'feature', label: `💡 ${t('stat_ideas')}` },
         ].map(f => (
           <button key={f.key} onClick={() => setFilter(f.key)}
             className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${
