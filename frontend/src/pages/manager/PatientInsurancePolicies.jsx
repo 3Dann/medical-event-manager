@@ -731,6 +731,7 @@ export default function PatientInsurancePolicies() {
           )}
         </div>
       </div>
+      {ConfirmUI}
     </div>
   )
 }
