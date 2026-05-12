@@ -367,8 +367,8 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
               {meeting.meeting_cost > 0 && (
                 <span className="text-xs text-slate-500">
                   ₪{meeting.meeting_cost.toLocaleString('he-IL')}
-                  {meeting.receipt_received ? ' · קבלה ✓' : ' · ❌ קבלה'}
-                  {meeting.reimbursement_submitted ? ' · הוגש ✓' : ''}
+                  {meeting.receipt_received ? ` · ${t('receipt_yes')} ✓` : ` · ❌ ${t('receipt_no')}`}
+                  {meeting.reimbursement_submitted ? ` · ${t('reimbursement_submitted_short')} ✓` : ''}
                 </span>
               )}
             </div>
