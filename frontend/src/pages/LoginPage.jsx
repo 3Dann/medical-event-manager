@@ -133,7 +133,37 @@ export default function LoginPage() {
         {success && <p className="text-green-700 text-sm bg-green-50 p-3 rounded-lg mb-4">{success}</p>}
 
         {/* 2FA Step */}
-        {twoFAStep && (
+        {twoFAStep && twoFAMethod === 'setup_required' && (
+          <div className="space-y-4 text-center">
+            <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+              <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-slate-800">נדרש אימות דו-שלבי</h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              חשבון מנהל חייב להיות מאובטח עם אימות דו-שלבי.<br />
+              יש להגדיר 2FA לפני ההתחברות.
+            </p>
+            <a
+              href="/manager/profile"
+              onClick={e => {
+                e.preventDefault()
+                // Store temp token so profile page can auto-open 2FA setup
+                sessionStorage.setItem('setup_2fa_token', tempToken)
+                window.location.href = '/manager/profile?setup_2fa=1'
+              }}
+              className="block w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium min-h-[44px] leading-[44px] text-center"
+            >
+              הגדר אימות דו-שלבי עכשיו
+            </a>
+            <button onClick={() => { setTwoFAStep(false); setError('') }} className="text-sm text-slate-500 hover:text-slate-700 min-h-[44px]">
+              חזרה
+            </button>
+          </div>
+        )}
+
+        {twoFAStep && twoFAMethod !== 'setup_required' && (
           <div className="space-y-4">
             <div className="text-center mb-2">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
