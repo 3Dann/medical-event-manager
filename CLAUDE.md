@@ -313,6 +313,21 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 - **boto3** — `boto3==1.38.7` ב-requirements.txt לגיבוי R2 (R2 env vars טרם הוגדרו)
 - **FIELD_ENCRYPTION_KEY** — ב-Railway. מפתח Fernet ל-field-level encryption. אסור לאבד!
 
+### תיקוני סבב 3 — ממצאים מ-5 סוכנים, עגול שני (2026-05-12)
+- **Password strength** — `_validate_password()` ב-routes/auth.py: 8 תווים מינימום, upper+lower+digit
+- **404 page** — `NotFoundPage.jsx` — `*` route כבר לא מפנה ל-/ בשקט
+- **Accessibility statement** — `AccessibilityPage.jsx` ב-route `/negishot`
+- **Skip-to-content** — `<a href="#main-content">` ב-App.jsx, `<main id="main-content">`
+- **React.lazy** — כל 27 דפי manager/patient lazy loaded. Bundle ראשי ירד מ-1221kb ל-390kb.
+- **API service layer** — `frontend/src/services/api.js` עם axios instance + auth interceptor + entity methods
+- **Patient card → button** — ManagerDashboard card הוחלף ל-`<button>` עם aria-label
+- **Semantic landmarks** — `<header>` ב-ManagerDashboard, `<nav>` ב-PatientStrategy tabs
+- **ADL/IADL radio accessibility** — `<fieldset>/<legend>`, `role="radiogroup"`, `sr-only` במקום `hidden`, `name` attribute
+- **DateSegment keyboard nav** — `role="listbox/option"`, `aria-selected`, `tabIndex`, Enter/Space/Escape handlers
+- **i18n IntakeWizard** — `useTranslation` + שמות שלבים מ-locale, כותרת מתורגמת
+- **i18n PatientStrategy** — `useTranslation` + `<nav>` עם aria-label על טאבים
+- **patient god-object** — נדחה לסבב נפרד (שינוי schema ב-DB דורש migration ייעודי)
+
 ### תיקוני סבב 2 — ממצאים חדשים מ-5 סוכנים (2026-05-12)
 - **Admin temp password** → נשלח במייל בלבד (`send_temp_password`). לא ב-response.
 - **CSP header** → `Content-Security-Policy` ב-SecurityHeadersMiddleware
