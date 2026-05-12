@@ -415,14 +415,14 @@ export default function PatientDetail() {
         {/* Add node form */}
         {showAddForm && (
           <form onSubmit={handleAddNode} className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 space-y-3">
-            <p className="text-sm font-medium text-slate-700">צומת החלטה חדש</p>
+            <p className="text-sm font-medium text-slate-700">{t('new_node_title')}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="col-span-1 sm:col-span-2">
-                <label className="label">תיאור</label>
-                <input className="input" value={addForm.description} onChange={e => setAddForm({...addForm, description: e.target.value})} placeholder="תאר את נקודת ההחלטה..." />
+                <label className="label">{t('node_description_label')}</label>
+                <input className="input" value={addForm.description} onChange={e => setAddForm({...addForm, description: e.target.value})} placeholder={t('node_description_placeholder')} />
               </div>
               <div>
-                <label className="label">מיקום בציר הזמן</label>
+                <label className="label">{t('node_position_label')}</label>
                 <select className="input" value={addForm.stage_order} onChange={e => setAddForm({...addForm, stage_order: Number(e.target.value)})}>
                   {INSERT_SLOTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </select>
