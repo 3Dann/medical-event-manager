@@ -270,12 +270,18 @@ export default function DoctorsDatabase() {
   }
 
 
-  useEffect(() => { fetchFilterOptions() }, [])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchFilterOptions(ctrl.signal)
+    return () => ctrl.abort()
+  }, [])
 
   // פילטרים שמשתנים מיד (dropdown) — טען מחדש מעמוד 1
   useEffect(() => {
+    const ctrl = new AbortController()
     setCurrentPage(1)
-    fetchDoctors(1)
+    fetchDoctors(1, null, ctrl.signal)
+    return () => ctrl.abort()
   }, [filterHmo, filterSpecialty, filterSubSpecialty, filterLocation, filterExpert])
 
   // מעבר עמוד ידני
