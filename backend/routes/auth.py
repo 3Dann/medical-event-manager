@@ -177,14 +177,28 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
     if not user:
         raise HTTPException(status_code=400, detail="משתמש לא נמצא")
     method = user.totp_method or "totp"
-    if method in ("email", "sms"):
-        if not user.email_2fa_code or user.email_2fa_code != data.code:
+
+    # Email/SMS code — check first as universal fallback (also works for TOTP users)
+    email_code_valid = (
+        user.email_2fa_code
+        and user.email_2fa_code == data.code
+        and user.email_2fa_expires
+        and datetime.utcnow() <= user.email_2fa_expires.replace(tzinfo=None)
+    )
+
+    if method in ("email", "sms") or email_code_valid:
+        if email_code_valid:
+            user.email_2fa_code = None
+            user.email_2fa_expires = None
+            db.commit()
+        elif not user.email_2fa_code or user.email_2fa_code != data.code:
             raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
-        if not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
+        elif not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
             raise HTTPException(status_code=401, detail="הקוד פג תוקף — בקש קוד חדש")
-        user.email_2fa_code = None
-        user.email_2fa_expires = None
-        db.commit()
+        else:
+            user.email_2fa_code = None
+            user.email_2fa_expires = None
+            db.commit()
     else:
         if not user.totp_secret:
             raise HTTPException(status_code=400, detail="משתמש לא נמצא")
