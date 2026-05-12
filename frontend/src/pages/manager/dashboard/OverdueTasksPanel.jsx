@@ -17,10 +17,12 @@ export default function OverdueTasksPanel() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    axios.get('/api/admin/tasks?overdue_only=true&status=pending')
+    const ctrl = new AbortController()
+    axios.get('/api/admin/tasks?overdue_only=true&status=pending', { signal: ctrl.signal })
       .then(r => setTasks(r.data))
-      .catch(() => {})
+      .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
+    return () => ctrl.abort()
   }, [])
 
   if (loading) return <div className="py-6 text-center text-slate-600 text-sm">טוען...</div>
