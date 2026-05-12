@@ -698,7 +698,7 @@ export default function DoctorsDatabase() {
           </button>
         </div>
         <FilterButton
-          label="התמחות"
+          label={t('filter_specialty')}
           value={filterSpecialty}
           valueLabel={filterSpecialty}
           options={filterOptions.specialties.map(s => ({ value: s, label: s }))}
