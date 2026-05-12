@@ -432,7 +432,7 @@ def apply_suggest(
     if not patient:
         raise HTTPException(404, "Patient not found")
     from workflow_suggest import apply_suggestions
-    resolutions = [r.dict() for r in (data.conflict_resolutions or [])]
+    resolutions = [r.model_dump() for r in (data.conflict_resolutions or [])]
     return apply_suggestions(
         db=db,
         patient=patient,
