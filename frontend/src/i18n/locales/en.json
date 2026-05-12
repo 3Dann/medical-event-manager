@@ -70,7 +70,8 @@
     "demo_mode_on": "Turn On Demo",
     "demo_mode_banner": "Demo Mode Active — Data Not Saved",
     "meetings": "Meetings",
-    "reports": "Reports"
+    "reports": "Reports",
+    "my_day": "My Day"
   },
   "auth": {
     "login": "Sign In",
