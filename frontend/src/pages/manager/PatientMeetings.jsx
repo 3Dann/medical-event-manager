@@ -143,7 +143,8 @@ const TYPES_STATIC = [
 
 const TYPE_ICONS = { oncologist: '👨‍⚕️', insurance_agent: '📋', social_worker: '🤝', pain_doctor: '💊', hmo: '🏥', other: '📝' }
 
-const REIMBURSE = [
+// REIMBURSE is now built inside MeetingForm with t()
+const REIMBURSE_STATIC = [
   { value: '',             label: '— לא רלוונטי —' },
   { value: 'kupat_holim', label: 'קופת חולים' },
   { value: 'private',     label: 'ביטוח פרטי' },
