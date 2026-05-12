@@ -60,7 +60,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
             ? 'bg-green-500 border-green-500 text-white'
             : 'border-slate-300 hover:border-green-500 hover:bg-green-50'
         }`}
-        title={task.status === 'done' ? 'הושלמה' : 'סמן כהושלמה'}
+        title={task.status === 'done' ? t('completed_label') : t('complete_task')}
       >
         {(task.status === 'done' || completing === task.id) && (
           <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
