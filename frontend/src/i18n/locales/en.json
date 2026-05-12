@@ -318,6 +318,7 @@
   },
   "claims": {
     "title": "Claims",
+    "claims_tracker_title": "Claims Tracker",
     "new_claim": "New Claim",
     "cat_second_opinion": "Second Opinion",
     "cat_surgery": "Surgery",
