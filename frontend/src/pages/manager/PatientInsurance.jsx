@@ -816,12 +816,12 @@ export default function PatientInsurance() {
                   {Object.entries(ENTITLEMENT_TYPES).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
               </div>
-              <div><label className="label">כותרת</label><input className="input" value={entForm.title} onChange={e => setEntForm({...entForm, title:e.target.value})} /></div>
-              <div className="col-span-1 sm:col-span-2"><label className="label">תיאור</label><textarea className="input" rows={2} value={entForm.description} onChange={e => setEntForm({...entForm, description:e.target.value})} /></div>
-              <div><label className="label">סכום (₪)</label><input type="number" className="input" value={entForm.amount} onChange={e => setEntForm({...entForm, amount:e.target.value})} /></div>
+              <div><label className="label">{t('entitlement_title_label')}</label><input className="input" value={entForm.title} onChange={e => setEntForm({...entForm, title:e.target.value})} /></div>
+              <div className="col-span-1 sm:col-span-2"><label className="label">{t('entitlement_desc_label')}</label><textarea className="input" rows={2} value={entForm.description} onChange={e => setEntForm({...entForm, description:e.target.value})} /></div>
+              <div><label className="label">{t('entitlement_amount_label')}</label><input type="number" className="input" value={entForm.amount} onChange={e => setEntForm({...entForm, amount:e.target.value})} /></div>
               <div className="flex items-center gap-2 mt-6">
                 <input type="checkbox" id="approved" checked={entForm.is_approved} onChange={e => setEntForm({...entForm, is_approved:e.target.checked})} />
-                <label htmlFor="approved" className="text-sm text-slate-700">מאושרת</label>
+                <label htmlFor="approved" className="text-sm text-slate-700">{t('entitlement_approved_label')}</label>
               </div>
             </div>
             <div className="flex gap-2 justify-end">
