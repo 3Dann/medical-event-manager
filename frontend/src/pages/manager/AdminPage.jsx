@@ -209,9 +209,9 @@ export default function AdminPage() {
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-amber-800 text-sm">סיסמה זמנית עבור {resetResult.name}</p>
+                  <p className="font-semibold text-amber-800 text-sm">{t('temp_password_for', { name: resetResult.name })}</p>
                   <p className="text-2xl font-mono font-bold text-amber-900 mt-1 tracking-wider">{resetResult.tempPassword}</p>
-                  <p className="text-xs text-amber-600 mt-1">מסור למשתמש ובקש ממנו לשנות בהקדם</p>
+                  <p className="text-xs text-amber-600 mt-1">{t('temp_password_hint')}</p>
                 </div>
                 <button onClick={() => setResetResult(null)} className="text-amber-500 hover:text-amber-700 text-xl font-bold p-2 -m-2 rounded-lg">✕</button>
               </div>
