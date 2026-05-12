@@ -909,6 +909,15 @@ export default function PatientSummary() {
     </div>
   )
 
+  if (loadError) return (
+    <div className="text-center py-24 space-y-4">
+      <div className="text-6xl">⚠️</div>
+      <p className="text-slate-700 font-bold text-xl">שגיאה בטעינת הנתונים</p>
+      <p className="text-slate-500">אירעה בעיה בחיבור לשרת. אנא נסה לרענן את הדף.</p>
+      <button onClick={() => window.location.reload()} className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors min-h-[44px]">רענן דף</button>
+    </div>
+  )
+
   if (!data?.patient) return (
     <div className="text-center py-24 space-y-4">
       <div className="text-6xl">🏥</div>
