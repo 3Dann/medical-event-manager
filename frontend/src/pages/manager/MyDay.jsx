@@ -61,6 +61,20 @@ const FILTER_DEFS = [
 
 // ── TaskCard ──────────────────────────────────────────────────────────────────
 function TaskCard({ task, onComplete, onDelete, completing }) {
+  const { t } = useTranslation('myday')
+  const SOURCE_LABELS = {
+    manual:          { label: t('source_manual'),   bg: 'bg-slate-100',  text: 'text-slate-700' },
+    meeting_action:  { label: t('source_meeting'),  bg: 'bg-blue-100',   text: 'text-blue-700'  },
+    workflow_step:   { label: t('source_workflow'), bg: 'bg-violet-100', text: 'text-violet-700'},
+    patient_request: { label: t('source_request'),  bg: 'bg-amber-100',  text: 'text-amber-700' },
+    red_flag:        { label: t('source_flag'),     bg: 'bg-red-100',    text: 'text-red-700'   },
+  }
+  const PRIORITY_LABELS = {
+    urgent: { label: t('priority_urgent'), color: 'text-red-600'    },
+    high:   { label: t('priority_high'),   color: 'text-orange-500' },
+    normal: { label: 'רגיל',               color: 'text-slate-500'  },
+    low:    { label: t('priority_low'),    color: 'text-slate-400'  },
+  }
   const src = SOURCE_LABELS[task.source_type] || SOURCE_LABELS.manual
   const pri = PRIORITY_LABELS[task.priority]  || PRIORITY_LABELS.normal
   const overdue = isOverdue(task.due_date) && task.status !== 'done'
