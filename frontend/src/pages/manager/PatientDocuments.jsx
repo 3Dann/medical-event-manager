@@ -39,7 +39,7 @@ export default function PatientDocuments() {
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ category: 'רפואי', notes: '' })
+  const [form, setForm] = useState({ category: '', notes: '' })
   const [selectedFile, setSelectedFile] = useState(null)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
