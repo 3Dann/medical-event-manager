@@ -498,7 +498,8 @@
     "entitlement_approved_label": "מאושרת",
     "auto_save_hint": "שינויים נשמרים אוטומטית עם יציאה מהשדה",
     "add_coverage_type": "הוסף סוג כיסוי",
-    "coverage_type_placeholder": "שם סוג הכיסוי (לדוג׳: כיסוי נסיעות לחו״ל)"
+    "coverage_type_placeholder": "שם סוג הכיסוי (לדוג׳: כיסוי נסיעות לחו״ל)",
+    "coverages_imported": "כיסויים יובאו"
   },
   "documents": {
     "title": "מסמכים",
