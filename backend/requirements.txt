@@ -21,3 +21,4 @@ resend==2.10.0
 reportlab==4.2.5
 python-bidi==0.6.6
 sentry-sdk[fastapi]==2.27.0
+boto3==1.38.7
