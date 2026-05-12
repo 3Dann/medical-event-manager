@@ -320,6 +320,13 @@ def get_my_patient(db: Session = Depends(get_db), current_user: models.User = De
 
 @router.post("")
 def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    if data.id_number:
+        existing = (db.query(models.Patient)
+                    .filter(models.Patient.manager_id == current_user.id,
+                            models.Patient.id_number.isnot(None))
+                    .all())
+        if any(p.id_number == data.id_number for p in existing):
+            raise HTTPException(status_code=400, detail="מטופל עם מספר זהות זה כבר קיים")
     patient = models.Patient(**data.model_dump(), manager_id=current_user.id)
     db.add(patient)
     db.flush()
