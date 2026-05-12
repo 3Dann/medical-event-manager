@@ -661,7 +661,7 @@ export default function IntakeWizard() {
           dosage: med.dosage || null,
           frequency: med.frequency || null,
           indication: med.indication || null,
-        }).catch(() => {}) // non-blocking — don't fail the whole intake for a medication
+        }).catch(() => showToast(`שגיאה בשמירת תרופה: ${med.name}`))
       }
       await axios.post(`/api/patients/${patientId}/signatures`, {
         consent_agreed: form.consent_agreed,
