@@ -379,12 +379,13 @@ JOURNEY_STAGES = [
 
 
 def seed_journey_stages():
-    """
-    Idempotent: ensures all patients have exactly the 5 journey stages.
-    Migrates old stage_orders (1-4) → (10-40) and splits stage 4 into 40+50.
-    """
+    """Idempotent: ensures all patients have exactly the 5 journey stages."""
     db = SessionLocal()
     try:
+        # Quick-exit: if no patients exist, nothing to do
+        if db.query(models.Patient).count() == 0:
+            logger.info("seed_journey_stages: no patients, skipping")
+            return
         # ── Migrate old integer orders 1-4 → 10-40 ──────────────────────────
         old_map = {1: 10, 2: 20, 3: 30, 4: 40}
         for old, new in old_map.items():
