@@ -1291,7 +1291,8 @@ export default function IntakeWizard() {
   // ── Layout ──────────────────────────────────────────────────────────────────
   return (
     <ErrorCtx.Provider value={errors}>
-    <FormCtx.Provider value={form}>
+    <FormCtx.Provider value={{ form, set, inp, setErrors }}>
+    <StepCtx.Provider value={{ triggerSuggest, suggestLoading, specialtyAutoFilled, setSpecialtyAutoFilled, subSpecialtyAutoFilled, setSubSpecialtyAutoFilled }}>
       <div className="min-h-full bg-slate-50 p-4 md:p-6" dir="rtl">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
