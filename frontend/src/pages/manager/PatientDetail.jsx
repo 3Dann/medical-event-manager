@@ -8,6 +8,7 @@ import ConditionTagsSelector from '../../components/ConditionTagsSelector'
 import CareTeamSection from '../../components/CareTeamSection'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 const MEDICAL_STAGES = [
   { value: '',                 label: '— לא מוגדר —' },
