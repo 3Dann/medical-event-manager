@@ -904,7 +904,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">עיר</label>
+                  <label className="label">{t('form_city_label')}</label>
                   <input
                     className="input"
                     placeholder="תל אביב"
