@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useToast } from '../../hooks/useToast'
-
-const TYPE_META = {
-  bug:     { label: 'באג',         cls: 'bg-red-100 text-red-700' },
-  feature: { label: 'תכונה חדשה', cls: 'bg-blue-100 text-blue-700' },
-  general: { label: 'כללי',        cls: 'bg-slate-100 text-slate-600' },
-}
+import { useTranslation } from 'react-i18next'
 
 function FeedbackCard({ item, onToggle }) {
+  const { t } = useTranslation('feedback')
+  const TYPE_META = {
+    bug:     { label: t('type_bug'),     cls: 'bg-red-100 text-red-700' },
+    feature: { label: t('type_feature'), cls: 'bg-blue-100 text-blue-700' },
+    general: { label: t('type_general'), cls: 'bg-slate-100 text-slate-600' },
+  }
   const type = TYPE_META[item.feedback_type] || TYPE_META.general
   const date = item.created_at
     ? new Date(item.created_at).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })
