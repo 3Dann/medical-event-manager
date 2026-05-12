@@ -555,14 +555,18 @@ function DrugDatabasePanel() {
   const [updating, setUpdating] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const fetchStatus = useCallback(async () => {
+  const fetchStatus = useCallback(async (signal) => {
     try {
-      const res = await axios.get('/api/drugs/status')
+      const res = await axios.get('/api/drugs/status', { signal })
       setStatus(res.data)
-    } catch {}
+    } catch (e) { if (axios.isCancel(e)) return }
   }, [])
 
-  useEffect(() => { fetchStatus() }, [fetchStatus])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchStatus(ctrl.signal)
+    return () => ctrl.abort()
+  }, [fetchStatus])
 
   const triggerUpdate = async () => {
     setUpdating(true); setMsg('')
