@@ -120,7 +120,7 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
         <div className="space-y-4">
           <div className="text-center">
             <img src={qrCode} alt="QR Code" className="mx-auto w-48 h-48 border rounded-lg p-2 bg-white" />
-            <p className="text-xs text-slate-500 mt-2">סרוק עם Google Authenticator / Authy</p>
+            <p className="text-xs text-slate-500 mt-2">{t('tfa_scan_hint')}</p>
             <p className="text-xs text-slate-400 mt-1 font-mono break-all">{secret}</p>
           </div>
           <form onSubmit={confirmTOTP} className="space-y-3">
