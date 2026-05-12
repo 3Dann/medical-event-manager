@@ -412,15 +412,19 @@ function RequestsSection({ patientId, onBack }) {
   const [sentOk, setSentOk]     = useState(false)
   const draftTimer              = useRef(null)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal) => {
     try {
-      const r = await axios.get('/api/patient/requests')
+      const r = await axios.get('/api/patient/requests', { signal })
       setRequests(r.data)
-    } catch (_) {}
+    } catch (e) { if (axios.isCancel(e)) return }
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [load])
 
   useEffect(() => {
     clearTimeout(draftTimer.current)
