@@ -514,11 +514,11 @@ def _fetch_openfda_drug(name: str) -> dict | None:
     """Fetch label data for a single drug from openFDA. Returns None on failure."""
     for search_field in ("openfda.brand_name", "openfda.generic_name"):
         try:
-            resp = http_requests.get(
-                _OPENFDA_LABEL_URL,
-                params={"search": f'{search_field}:"{name}"', "limit": 1},
-                timeout=8,
-            )
+            with httpx.Client(timeout=8.0) as client:
+                resp = client.get(
+                    _OPENFDA_LABEL_URL,
+                    params={"search": f'{search_field}:"{name}"', "limit": 1},
+                )
             if resp.status_code != 200:
                 continue
             results = resp.json().get("results", [])
