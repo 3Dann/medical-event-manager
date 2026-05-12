@@ -65,50 +65,54 @@ function ProtectedRoute({ children, role, adminOnly }) {
   return children
 }
 
+const ADMIN_ROLE = 'manager'
+
 function AppRoutes() {
-  const { user } = useAuth()
   return (
-    <Routes>
-      <Route path="/login" element={<Navigate to="/" state={{ openLogin: true }} replace />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<Navigate to="/" state={{ openLogin: true }} replace />} />
+        <Route path="/negishot" element={<AccessibilityPage />} />
 
-      {/* Manager routes */}
-      <Route path="/manager" element={<ProtectedRoute role="manager"><ManagerLayout /></ProtectedRoute>}>
-        <Route index element={<ManagerDashboard />} />
-        <Route path="patients/:id" element={<ManagerPatientLayout />}>
-          <Route index element={<PatientDetail />} />
-          <Route path="insurance"     element={<PatientInsurancePolicies />} />
-          <Route path="claims"        element={<PatientClaims />} />
-          <Route path="strategy"      element={<PatientStrategy />} />
-          <Route path="documents"     element={<PatientDocuments />} />
-          <Route path="medications"   element={<PatientMedications />} />
-          <Route path="financial-map" element={<PatientFinancialMap />} />
-          <Route path="meetings"      element={<PatientMeetings />} />
+        {/* Manager routes */}
+        <Route path="/manager" element={<ProtectedRoute role={ADMIN_ROLE}><ManagerLayout /></ProtectedRoute>}>
+          <Route index element={<ManagerDashboard />} />
+          <Route path="patients/:id" element={<ManagerPatientLayout />}>
+            <Route index element={<PatientDetail />} />
+            <Route path="insurance"     element={<PatientInsurancePolicies />} />
+            <Route path="claims"        element={<PatientClaims />} />
+            <Route path="strategy"      element={<PatientStrategy />} />
+            <Route path="documents"     element={<PatientDocuments />} />
+            <Route path="medications"   element={<PatientMedications />} />
+            <Route path="financial-map" element={<PatientFinancialMap />} />
+            <Route path="meetings"      element={<PatientMeetings />} />
+          </Route>
+          <Route path="doctors" element={<DoctorsDatabase />} />
+          <Route path="responsiveness" element={<ResponsivenessPage />} />
+          <Route path="feedback" element={<FeedbackInbox />} />
+          <Route path="feedback/submit" element={<FeedbackSubmitPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="workflows" element={<WorkflowsPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="my-day"       element={<MyDay />} />
+          <Route path="patients/new" element={<IntakeWizard />} />
+          <Route path="demo/patient" element={<DemoPatientPortal />} />
+          <Route path="demo/broker"  element={<DemoBrokerPortal />} />
+          <Route path="admin" element={<ProtectedRoute role={ADMIN_ROLE} adminOnly><AdminPage /></ProtectedRoute>} />
+          <Route path="admin-dashboard" element={<ProtectedRoute role={ADMIN_ROLE} adminOnly><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="landing-editor" element={<ProtectedRoute role={ADMIN_ROLE} adminOnly><LandingEditorPage /></ProtectedRoute>} />
         </Route>
-        <Route path="doctors" element={<DoctorsDatabase />} />
-        <Route path="responsiveness" element={<ResponsivenessPage />} />
-        <Route path="feedback" element={<FeedbackInbox />} />
-        <Route path="feedback/submit" element={<FeedbackSubmitPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="workflows" element={<WorkflowsPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="my-day"       element={<MyDay />} />
-        <Route path="patients/new" element={<IntakeWizard />} />
-        <Route path="demo/patient" element={<DemoPatientPortal />} />
-        <Route path="demo/broker"  element={<DemoBrokerPortal />} />
-        <Route path="admin" element={<ProtectedRoute role="manager" adminOnly><AdminPage /></ProtectedRoute>} />
-        <Route path="admin-dashboard" element={<ProtectedRoute role="manager" adminOnly><AdminDashboardPage /></ProtectedRoute>} />
-        <Route path="landing-editor" element={<ProtectedRoute role="manager" adminOnly><LandingEditorPage /></ProtectedRoute>} />
-      </Route>
 
-      {/* Patient routes */}
-      <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
-        <Route index element={<PatientSummary />} />
-      </Route>
+        {/* Patient routes */}
+        <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
+          <Route index element={<PatientSummary />} />
+        </Route>
 
-      <Route path="/progress" element={<ProgressPage />} />
-      <Route path="/" element={<LandingPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
   )
 }
 
