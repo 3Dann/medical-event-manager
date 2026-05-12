@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import DocViewerModal, { canView } from '../../components/DocViewerModal'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 const CATEGORIES = ['רפואי', 'ביטוחי', 'משפטי', 'פיננסי', 'אחר']
 
