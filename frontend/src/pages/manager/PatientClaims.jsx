@@ -146,7 +146,7 @@ export default function PatientClaims() {
       {pendingFeedback?.scoreUpdated && (
         <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
           <span className="text-green-600">✓</span>
-          <p className="text-sm text-green-700">ציון ההיענות של {pendingFeedback.companyName} עודכן בהצלחה</p>
+          <p className="text-sm text-green-700">{t('feedback_score_updated', { company: pendingFeedback.companyName })}</p>
         </div>
       )}
 
