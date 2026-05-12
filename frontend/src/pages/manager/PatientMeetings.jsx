@@ -387,7 +387,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
         <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
           {hasActions && (
             <div>
-              <p className="text-xs font-medium text-slate-500 mb-1">משימות</p>
+              <p className="text-xs font-medium text-slate-500 mb-1">{t('tasks_label')}</p>
               {meeting.action_items.map((t, i) => (
                 <div key={i} className={`text-sm flex items-center gap-2 ${t.done ? 'line-through text-slate-500' : 'text-slate-700'}`}>
                   <span>{t.done ? '✅' : '☐'}</span>
