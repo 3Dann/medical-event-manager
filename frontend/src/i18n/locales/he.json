@@ -396,7 +396,7 @@
   },
   "documents": {
     "title": "מסמכים",
-    "upload": "העלה מסמך",
+    "upload": "העלאת מסמך",
     "uploading": "מעלה...",
     "category": "קטגוריה",
     "cat_medical": "רפואי",
@@ -405,11 +405,19 @@
     "cat_financial": "פיננסי",
     "cat_other": "אחר",
     "notes": "הערות",
+    "notes_placeholder": "הערה קצרה (אופציונלי)",
+    "file_label": "קובץ *",
+    "file_types_hint": "PDF, תמונות, Word, Excel — עד 20MB",
     "no_documents": "אין מסמכים עדיין",
     "delete_confirm": "למחוק את המסמך? פעולה זו בלתי הפיכה.",
-    "view": "צפה",
-    "download": "הורד",
-    "uploaded_by": "הועלה על ידי"
+    "delete_title": "מחיקת מסמך",
+    "view": "צפייה",
+    "download": "הורדה",
+    "uploaded_by": "הועלה על ידי",
+    "load_error": "שגיאה בטעינת מסמכים",
+    "upload_error": "שגיאה בהעלאה",
+    "download_error": "שגיאה בהורדת הקובץ",
+    "delete_error": "שגיאה במחיקה"
   },
   "medications": {
     "title": "תרופות",
