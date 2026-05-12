@@ -301,7 +301,7 @@ export default function PatientMedications() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" dir="rtl">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h3 className="font-bold text-slate-800">{editId ? 'עריכת תרופה' : 'הוספת תרופה'}</h3>
+              <h3 className="font-bold text-slate-800">{editId ? t('edit') : t('add')}</h3>
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-slate-700 text-xl leading-none p-2 -m-2 rounded-lg">✕</button>
             </div>
             <form onSubmit={handleSave} autoComplete="off" className="p-6">
