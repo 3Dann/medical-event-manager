@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 from typing import Optional
+import os
 import secrets
 import pyotp
 import field_encrypt as fe
