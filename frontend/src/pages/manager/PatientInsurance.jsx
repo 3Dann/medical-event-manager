@@ -800,12 +800,12 @@ export default function PatientInsurance() {
       {/* ביטוח לאומי */}
       <div className="card">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-semibold text-slate-800">ביטוח לאומי — זכאויות</h2>
+          <h2 className="font-semibold text-slate-800">{t('leumi_entitlements_title')}</h2>
           <div className="flex gap-2">
             <button onClick={handleImportBituchLeumi} disabled={importingBL} className="btn-secondary text-sm">
-              {importingBL ? 'מייבא...' : '🏛️ ייבוא אוטומטי'}
+              {importingBL ? t('importing') : `🏛️ ${t('auto_import')}`}
             </button>
-            <button onClick={() => setShowEntitlementForm(true)} className="btn-primary text-sm">+ זכאות</button>
+            <button onClick={() => setShowEntitlementForm(true)} className="btn-primary text-sm">+ {t('add_entitlement_btn')}</button>
           </div>
         </div>
         {showEntitlementForm && (
