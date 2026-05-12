@@ -57,7 +57,7 @@ function PatientRequestsPanel({ patientId }) {
             <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{pending}</span>
           )}
         </div>
-        <span className="font-semibold text-slate-800">פניות מהמטופל</span>
+        <span className="font-semibold text-slate-800">{t('requests_title')}</span>
       </button>
 
       {open && (
