@@ -359,7 +359,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
             )}
             <div className="flex gap-3 mt-1 flex-wrap">
               {hasActions && (
-                <span className="text-xs text-slate-500">{doneTasks}/{meeting.action_items.length} משימות</span>
+                <span className="text-xs text-slate-500">{doneTasks}/{meeting.action_items.length} {t('tasks_label')}</span>
               )}
               {docs.length > 0 && (
                 <span className="text-xs text-emerald-600">✓ {docs.join(', ')}</span>
