@@ -59,7 +59,6 @@ function TwoFASection() {
     setMsg(null); setCode('')
     try {
       const r = await axios.post('/api/auth/2fa/setup-email')
-      // r.data.code is only set in dev mode (no SMTP configured)
       setEmailCode(r.data.code ? `DEV: ${r.data.code}` : r.data.message)
       setView('confirm-email')
     } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'שגיאה' }) }
@@ -71,6 +70,33 @@ function TwoFASection() {
       await axios.post('/api/auth/2fa/confirm-email', { code })
       setMsg({ ok: true, text: tfa_email_activated })
       setView('idle'); setCode(''); setEmailCode('')
+      load()
+    } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'קוד שגוי' }) }
+  }
+
+  const startSMS = async (e) => {
+    e.preventDefault(); setMsg(null); setCode('')
+    if (!smsPhone.number || smsPhone.number.length < 7) {
+      setMsg({ ok: false, text: 'יש להזין מספר טלפון תקין' }); return
+    }
+    try {
+      const r = await axios.post('/api/auth/2fa/setup-sms', {
+        phone_prefix: smsPhone.prefix,
+        phone: smsPhone.number,
+      })
+      setSmsMasked(r.data.phone_masked)
+      if (r.data.code) setEmailCode(`DEV: ${r.data.code}`)
+      else setEmailCode(r.data.message)
+      setView('confirm-sms')
+    } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'שגיאה בשליחת SMS' }) }
+  }
+
+  const confirmSMS = async (e) => {
+    e.preventDefault(); setMsg(null)
+    try {
+      await axios.post('/api/auth/2fa/confirm-sms', { code })
+      setMsg({ ok: true, text: 'אימות דו-שלבי ב-SMS הופעל בהצלחה' })
+      setView('idle'); setCode('')
       load()
     } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'קוד שגוי' }) }
   }
