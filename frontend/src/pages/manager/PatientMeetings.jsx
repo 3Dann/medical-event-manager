@@ -102,10 +102,10 @@ function PatientRequestsPanel({ patientId }) {
                       />
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => { setReplyId(null); setNote('') }}
-                          className="text-xs text-slate-500 px-3 py-1.5 hover:text-slate-700">ביטול</button>
+                          className="text-xs text-slate-500 px-3 py-1.5 hover:text-slate-700">{t('common:cancel', { ns: 'common' })}</button>
                         <button onClick={() => resolve(r, 'resolved')} disabled={saving}
                           className="text-xs font-medium bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg disabled:opacity-40">
-                          {saving ? 'שומר...' : 'סמן כטופל'}
+                          {saving ? t('common:saving', { ns: 'common' }) : t('resolve')}
                         </button>
                       </div>
                     </div>
