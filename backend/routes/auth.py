@@ -254,6 +254,37 @@ def request_sms_code(request: Request, data: RequestEmailCodeRequest, db: Sessio
     }
 
 
+@router.post("/2fa/setup-totp-login")
+def setup_totp_during_login(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
+    """Generate TOTP secret during login flow (uses temp_token, no full auth needed)."""
+    from jwt import PyJWTError as JWTError
+    try:
+        payload = auth_utils.decode_token(data.temp_token)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="טוקן פג תוקף — התחבר מחדש")
+    if not payload.get("2fa_pending"):
+        raise HTTPException(status_code=400, detail="טוקן לא תקין")
+    user_id = int(payload["sub"])
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="משתמש לא נמצא")
+    if user.totp_secret:
+        secret = fe.decrypt(user.totp_secret)
+    else:
+        secret = pyotp.random_base32()
+        user.totp_secret = fe.encrypt(secret)
+        user.totp_enabled = False
+        user.totp_method = "totp"
+        db.commit()
+    totp_obj = pyotp.TOTP(secret)
+    uri = totp_obj.provisioning_uri(name=user.email, issuer_name="Orly Medical")
+    img = qrcode.make(uri)
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    qr_b64 = base64.b64encode(buf.getvalue()).decode()
+    return {"qr_code": f"data:image/png;base64,{qr_b64}", "secret": secret}
+
+
 @router.post("/2fa/request-email-code")
 def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
     """Generate an email 2FA code for the login flow (displayed in UI since no mail server)."""
