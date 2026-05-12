@@ -494,15 +494,15 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">מתאריך</label>
+          <label className="block text-xs text-slate-500 mb-1">{t('date_from')}</label>
           <input type="date" className="input text-sm py-1.5" value={dateFrom} onChange={e => onDateFrom(e.target.value)} />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">עד תאריך</label>
+          <label className="block text-xs text-slate-500 mb-1">{t('date_to')}</label>
           <input type="date" className="input text-sm py-1.5" value={dateTo} onChange={e => onDateTo(e.target.value)} />
         </div>
-        <button onClick={onSearch} className="btn-primary text-sm px-4 py-1.5">חפש</button>
-        <button onClick={onClear} className="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100">נקה</button>
+        <button onClick={onSearch} className="btn-primary text-sm px-4 py-1.5">{t('common:search', { ns: 'common' })}</button>
+        <button onClick={onClear} className="text-sm text-slate-500 hover:text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-100">{t('common:clear', { ns: 'common' })}</button>
       </div>
 
       <p className="text-xs text-slate-600 mb-3">{total.toLocaleString()} רשומות</p>
