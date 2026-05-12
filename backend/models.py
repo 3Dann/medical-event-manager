@@ -649,8 +649,11 @@ class WorkflowStepTask(Base):
 class WorkflowStepCoverage(Base):
     """Auto-computed coverage analysis for each active workflow step."""
     __tablename__ = "workflow_step_coverages"
+    __table_args__ = (
+        Index("ix_step_coverage_unique", "step_id", "insurance_source_id", unique=True),
+    )
     id                  = Column(Integer, primary_key=True, index=True)
-    step_id             = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False)
+    step_id             = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False, index=True)
     insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id"), nullable=False)
     coverage_id         = Column(Integer, ForeignKey("coverages.id"), nullable=True)
     coverage_category   = Column(String, nullable=True)   # which CoverageCategory was matched
