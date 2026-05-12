@@ -80,6 +80,7 @@ class ChangePasswordRequest(BaseModel):
 @limiter.limit("3/hour")
 def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db),
              current_user: Optional[models.User] = Depends(auth_utils.get_optional_current_user)):
+    _validate_password(user_data.password)
     existing = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
