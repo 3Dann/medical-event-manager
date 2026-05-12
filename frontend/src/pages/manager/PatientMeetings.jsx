@@ -443,11 +443,11 @@ export default function PatientMeetings() {
     <div className="p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">מעקב פגישות</h2>
-          <p className="text-sm text-slate-500">תיעוד כל פגישה עם גורם רפואי, ביטוחי או סוציאלי</p>
+          <h2 className="text-xl font-bold text-slate-800">{t('title')}</h2>
+          <p className="text-sm text-slate-500">{t('subtitle')}</p>
         </div>
         <button onClick={() => { setEditing(null); setShowForm(true) }} className="btn-primary">
-          + תיעוד פגישה
+          + {t('new_meeting')}
         </button>
       </div>
 
