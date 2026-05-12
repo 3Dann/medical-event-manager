@@ -200,6 +200,10 @@ def get_calendar_feed(request: Request, token: str, db: Session = Depends(get_db
     if cal_token.expires_at and datetime.now(timezone.utc) > cal_token.expires_at:
         return Response(status_code=403)
 
+    logger.info("Calendar feed accessed: token_user=%s ip=%s",
+                cal_token.user_id,
+                request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown"))
+
     user = db.query(models.User).filter(
         models.User.id == cal_token.user_id
     ).first()
