@@ -231,14 +231,14 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
 
         <div className="flex gap-3 p-6 border-t border-slate-200 justify-end">
           <button onClick={onClose} className="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 text-sm">
-            ביטול
+            {t('common:cancel', { ns: 'common' })}
           </button>
           <button
             onClick={save}
             disabled={saving}
             className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium disabled:opacity-60"
           >
-            {saving ? 'שומר...' : 'שמור תבנית'}
+            {saving ? t('common:saving', { ns: 'common' }) : t('save_template')}
           </button>
         </div>
       </div>
