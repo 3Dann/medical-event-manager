@@ -66,6 +66,7 @@ export default function ManagerDashboard() {
   return (
     <div className="p-4 md:p-8">
       {toast && <AppToast toast={toast} onDismiss={dismissToast} />}
+      {ConfirmUI}
       {/* Header */}
       <header className="flex flex-wrap items-center justify-between gap-3 mb-6 md:mb-8">
         <div className="min-w-0">
