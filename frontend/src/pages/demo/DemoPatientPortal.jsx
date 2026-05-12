@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { fmtDate } from '../../utils/formatters'
 
 const fmt = n => n != null ? `₪${Math.round(n).toLocaleString('he-IL')}` : '—'
-const fmtDate = iso => new Date(iso).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
 const D = {
   patient: { full_name: 'שרה כהן', diagnosis_details: 'סרטן שד שלב II — טיפול פעיל', hmo_name: 'מכבי', hmo_level: 'זהב' },
