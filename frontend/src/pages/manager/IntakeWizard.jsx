@@ -515,6 +515,7 @@ export default function IntakeWizard() {
   const { isDemoMode } = useDemoMode()
   const { showToast } = useToast()
   const { t } = useTranslation(['intake', 'common'])
+  const STEPS = STEP_KEYS.map(s => ({ ...s, label: t(`intake:${s.key}`) }))
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     try {
