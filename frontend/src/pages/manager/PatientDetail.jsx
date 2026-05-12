@@ -231,9 +231,9 @@ export default function PatientDetail() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="card">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="font-semibold text-slate-800">נתונים בסיסיים</h2>
+            <h2 className="font-semibold text-slate-800">{t('basic_data')}</h2>
             <button onClick={() => setEditingInfo(!editingInfo)} className="text-sm text-blue-600 hover:underline">
-              {editingInfo ? 'ביטול' : 'עריכה'}
+              {editingInfo ? t('common:cancel', { ns: 'common' }) : t('common:edit', { ns: 'common' })}
             </button>
           </div>
           {editingInfo ? (
