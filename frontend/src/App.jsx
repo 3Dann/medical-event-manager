@@ -1,6 +1,7 @@
-import React, { useEffect, useState, lazy, Suspense } from 'react'
+import React, { useEffect, useState, lazy, Suspense, useCallback } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { useIdleTimeout } from './hooks/useIdleTimeout'
 import { DevProvider } from './context/DevContext'
 import { DemoModeProvider } from './context/DemoModeContext'
 import DevGate from './components/DevGate'
