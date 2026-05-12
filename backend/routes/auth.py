@@ -177,7 +177,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
     if not user:
         raise HTTPException(status_code=400, detail="משתמש לא נמצא")
     method = user.totp_method or "totp"
-    if method == "email":
+    if method in ("email", "sms"):
         if not user.email_2fa_code or user.email_2fa_code != data.code:
             raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
         if not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
