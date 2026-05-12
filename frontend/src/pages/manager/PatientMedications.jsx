@@ -239,7 +239,7 @@ export default function PatientMedications() {
               disabled={!extractDocId || extracting}
               className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 hover:bg-blue-700"
             >
-              {extracting ? 'מזהה...' : 'זהה תרופות'}
+              {extracting ? t('extracting') : t('extract_btn')}
             </button>
           </div>
           {documents.length === 0 && (
