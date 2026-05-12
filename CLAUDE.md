@@ -270,7 +270,9 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 
 ## ביקורת מערכת — מה בוצע (2026-05-12)
 
-36 מתוך 38 ממצאים טופלו. שניים פתוחים: PostgreSQL (נדחה בכוונה), screen reader audit מלא.
+**סבב 1 (2026-05-12):** 36 מתוך 38 ממצאים טופלו.
+**סבב 2 (2026-05-12):** 13 ממצאים חדשים מביקורת 5 סוכנים תוקנו (ראה רשימה למטה).
+פתוח: PostgreSQL migration (נדחה בכוונה), i18n expansion (נדחה — עבודה של שבוע), screen reader audit.
 
 ### Backend
 - **Sentry** — `sentry-sdk[fastapi]==2.27.0`, `SENTRY_DSN` ב-Railway, FastAPI/SQLAlchemy/Logging integrations
