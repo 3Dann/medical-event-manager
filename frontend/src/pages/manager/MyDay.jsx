@@ -313,6 +313,8 @@ export default function MyDay() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
+      // sync first (POST — writes), then fetch (GET — read-only)
+      await axios.post('/api/tasks/sync').catch(() => {})
       const [tasksRes, patientsRes] = await Promise.all([
         axios.get('/api/tasks/my'),
         axios.get('/api/patients'),
