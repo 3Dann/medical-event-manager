@@ -33,12 +33,24 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None, e
     to_encode = data.copy()
     mins = expires_minutes or ACCESS_TOKEN_EXPIRE_MINUTES
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=mins))
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "jti": secrets.token_hex(16)})
     return pyjwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token(token: str) -> dict:
     return pyjwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+
+def is_token_revoked(jti: str, db: Session) -> bool:
+    from datetime import timezone
+    entry = db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first()
+    if not entry:
+        return False
+    if entry.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        db.delete(entry)
+        db.commit()
+        return False
+    return True
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
