@@ -8,6 +8,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from database import engine, SessionLocal
 import models
+import auth as auth_module
 from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes, medications as medications_routes, policy_ai as policy_ai_routes, audit as audit_routes, financial_map as financial_map_routes, care_team as care_team_routes, meetings as meetings_routes, form17 as form17_routes, red_flags as red_flags_routes, reports as reports_routes, patient_portal as patient_portal_routes, family_share as family_share_routes, tasks as tasks_routes, calendar_feed as calendar_feed_routes
 from audit_middleware import AuditMiddleware
 from data.seed_data import RESPONSIVENESS_DEFAULTS
