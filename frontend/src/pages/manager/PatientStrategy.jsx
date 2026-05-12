@@ -255,7 +255,7 @@ export default function PatientStrategy() {
       if (sg) setSuggest(sg.data)
       setInstances(inst.data)
       setDraftClaims(cl.data.filter(c => c.status === 'draft'))
-    } catch (e) { console.error(e) }
+    } catch (e) { showToast('שגיאה בטעינת נתוני אסטרטגיה') }
     finally { setLoading(false) }
   }, [id])
 
