@@ -307,7 +307,7 @@ export default function DoctorsDatabase() {
 
   const fetchFilterOptions = async () => {
     try { const res = await axios.get('/api/doctors/filter-options'); setFilterOptions(res.data) }
-    catch (e) { console.error(e) }
+    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
   }
 
   const fetchDoctors = async (page = currentPage, searchOverride = null) => {
