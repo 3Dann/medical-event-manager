@@ -542,7 +542,7 @@ export default function PatientInsurance() {
       {salResult && (
         <div className={`rounded-xl p-3 text-sm ${salResult.success?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200'}`}>
           {salResult.success
-            ? `✅ ${salResult.message} — ${salResult.count} כיסויים יובאו`
+            ? `✅ ${salResult.message} — ${salResult.count} ${t('coverages_imported')}`
             : `❌ ${salResult.message}`}
           <button onClick={() => setSalResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
