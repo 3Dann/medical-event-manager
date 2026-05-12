@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { fmtDate } from '../../utils/formatters'
 
 // ── Patient Requests Panel ─────────────────────────────────────────────────────
 const REQ_STATUS_COLORS = {
