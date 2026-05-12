@@ -7,7 +7,7 @@ from starlette.requests import Request
 
 logger = logging.getLogger("audit")
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "medical-event-manager-secret-key-poc-2026")
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
 ALGORITHM = "HS256"
 
 # (method, pattern, action_type, resource_type, resource_id_group)
