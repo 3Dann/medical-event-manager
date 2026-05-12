@@ -1008,9 +1008,9 @@ export default function DoctorsDatabase() {
               )}
 
               <div className="flex gap-3 justify-end pt-2">
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
                 <button type="submit" className="btn-primary">
-                  {editingId ? 'שמור שינויים' : 'הוספת רופא'}
+                  {editingId ? t('save_changes_btn') : t('add_doctor')}
                 </button>
               </div>
             </form>
