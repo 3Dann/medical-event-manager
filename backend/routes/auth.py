@@ -203,7 +203,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         if not user.totp_secret:
             raise HTTPException(status_code=400, detail="משתמש לא נמצא")
         totp = pyotp.TOTP(fe.decrypt(user.totp_secret))
-        if not totp.verify(data.code, valid_window=1):
+        if not totp.verify(data.code, valid_window=2):
             raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
     token = auth_utils.create_access_token({"sub": str(user.id)})
     is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
