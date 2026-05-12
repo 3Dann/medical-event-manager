@@ -113,11 +113,11 @@ function PatientRequestsPanel({ patientId }) {
                     <div className="flex gap-2 justify-end">
                       <button onClick={() => setReplyId(r.id)}
                         className="text-xs text-blue-600 hover:text-blue-700 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-                        הגב וסגור
+                        {t('reply_and_close')}
                       </button>
                       <button onClick={() => resolve(r, 'resolved')} disabled={saving}
                         className="text-xs font-medium text-green-700 hover:text-green-800 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
-                        טפול ✓
+                        {t('resolve')} ✓
                       </button>
                     </div>
                   )
