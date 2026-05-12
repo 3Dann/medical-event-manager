@@ -383,7 +383,7 @@ export default function PatientDetail() {
         {/* Applied templates bar */}
         {appliedTemplateKeys.size > 0 && (
           <div className="mb-4 p-3 bg-violet-50 rounded-xl border border-violet-100">
-            <p className="text-xs font-medium text-violet-600 mb-2">מסעות מוחלים</p>
+            <p className="text-xs font-medium text-violet-600 mb-2">{t('applied_journeys')}</p>
             <div className="flex flex-wrap gap-2">
               {[...appliedTemplateKeys].map(key => {
                 const tpl = journeyTemplates.find(t => t.key === key)
