@@ -642,6 +642,8 @@ function FamilyShareButton() {
   }
 
   return (
+    <>
+    {ConfirmRevokeUI}
     <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-5">
       <div className="flex items-center gap-3 mb-3">
         <span className="text-3xl">👨‍👩‍👧</span>
