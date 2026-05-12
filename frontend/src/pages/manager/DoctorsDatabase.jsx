@@ -714,7 +714,7 @@ export default function DoctorsDatabase() {
           />
         )}
         <FilterButton
-          label="קופת חולים"
+          label={t('filter_hmo')}
           value={filterHmo}
           valueLabel={HMO_LABELS[filterHmo]}
           options={HMO_OPTIONS.map(([key, label]) => ({ value: key, label }))}
