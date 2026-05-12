@@ -122,11 +122,20 @@ async def lifespan(app: FastAPI):
     logger.info("Scheduler stopped")
 
 
+_TRUSTED_PROXIES = {"100.64.0.0/10"}  # Railway's internal network range
+
 def _get_real_ip(request: Request) -> str:
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    client_host = request.client.host if request.client else None
+    # Only trust X-Forwarded-For if the direct connection is from a trusted proxy
+    # (Railway's internal network). Otherwise the header can be spoofed by end users.
+    if client_host and any(
+        client_host.startswith("100.64.") or client_host == "127.0.0.1"
+        for _ in [1]  # single iteration to allow the condition
+    ):
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+    return client_host or "unknown"
 
 limiter = Limiter(key_func=_get_real_ip)
 
