@@ -71,13 +71,13 @@ function TwoFASection() {
   }
 
 
-if (loading) return <div className="card"><p className="text-slate-400 text-sm">טוען...</p></div>
+if (loading) return <div className="card"><p className="text-slate-400 text-sm">{t('common:loading', { ns: 'common' })}</p></div>
 
   return (
     <div className="card">
-      <h2 className="font-semibold text-slate-800 mb-1">אימות דו-שלבי</h2>
+      <h2 className="font-semibold text-slate-800 mb-1">{t('tfa_title')}</h2>
       <p className="text-sm text-slate-500 mb-4">
-        אימות דו-שלבי נדרש תמיד. ניתן לבחור בין QR (ברירת מחדל) לאימות אימייל.
+        {t('tfa_required_desc')}
       </p>
 
       {msg && (
