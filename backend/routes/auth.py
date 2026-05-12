@@ -133,7 +133,7 @@ class Verify2FARequest(BaseModel):
 @router.post("/verify-2fa", response_model=Token)
 @limiter.limit("10/minute")
 def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(get_db)):
-    from jose import JWTError
+    from jwt import PyJWTError as JWTError
     try:
         payload = auth_utils.decode_token(data.temp_token)
     except JWTError:
@@ -170,7 +170,7 @@ class RequestEmailCodeRequest(BaseModel):
 @router.post("/2fa/request-email-code")
 def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
     """Generate an email 2FA code for the login flow (displayed in UI since no mail server)."""
-    from jose import JWTError
+    from jwt import PyJWTError as JWTError
     try:
         payload = auth_utils.decode_token(data.temp_token)
     except JWTError:
