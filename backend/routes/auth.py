@@ -256,6 +256,7 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
 
 @router.post("/reset-password")
 def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    _validate_password(data.new_password)
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user or user.reset_token != data.token:
         raise HTTPException(status_code=400, detail="קוד איפוס שגוי")
