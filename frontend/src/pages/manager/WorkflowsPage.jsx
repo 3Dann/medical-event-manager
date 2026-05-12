@@ -314,7 +314,7 @@ export default function WorkflowsPage() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center h-64 text-slate-600">טוען...</div>
+    <div className="flex items-center justify-center h-64 text-slate-600">{t('common:loading', { ns: 'common' })}</div>
   )
 
   return (
