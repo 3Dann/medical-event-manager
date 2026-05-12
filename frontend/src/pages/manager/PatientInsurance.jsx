@@ -65,14 +65,20 @@ export default function PatientInsurance() {
   const [coverages, setCoverages] = useState(emptyCoverages())
   const [entForm, setEntForm] = useState({ entitlement_type:'existing', title:'', description:'', amount:'', is_approved:false, notes:'' })
 
-  useEffect(() => { fetchAll() }, [id])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    return () => ctrl.abort()
+  }, [id])
 
-  const fetchAll = async () => {
-    const [s, e] = await Promise.all([
-      axios.get(`/api/patients/${id}/insurance`),
-      axios.get(`/api/patients/${id}/entitlements`),
-    ])
-    setSources(s.data); setEntitlements(e.data)
+  const fetchAll = async (signal) => {
+    try {
+      const [s, e] = await Promise.all([
+        axios.get(`/api/patients/${id}/insurance`, { signal }),
+        axios.get(`/api/patients/${id}/entitlements`, { signal }),
+      ])
+      setSources(s.data); setEntitlements(e.data)
+    } catch (e) { if (!axios.isCancel(e)) throw e }
   }
 
   const isDuplicate = () => sources.some(s => {
