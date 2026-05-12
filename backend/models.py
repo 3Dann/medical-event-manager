@@ -92,6 +92,8 @@ class User(Base):
     totp_method = Column(String, nullable=True, default="totp")  # "totp" or "email"
     email_2fa_code = Column(String, nullable=True)
     email_2fa_expires = Column(DateTime(timezone=True), nullable=True)
+    failed_login_attempts = Column(Integer, default=0, nullable=False)
+    locked_until = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
     webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
