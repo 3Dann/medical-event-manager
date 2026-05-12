@@ -37,6 +37,15 @@ if _sentry_dsn:
     )
     logger.info("Sentry initialized")
 
+def _daily_backup():
+    from backup import run_backup
+    result = run_backup()
+    if result["error"]:
+        logger.error(f"Daily backup failed: {result}")
+    else:
+        logger.info(f"Daily backup OK — local={result['local']} cloud={result['cloud']}")
+
+
 def _seed_drugs_on_startup():
     from drug_updater import seed_drugs
     db = SessionLocal()
