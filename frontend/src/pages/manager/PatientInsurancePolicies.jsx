@@ -588,7 +588,8 @@ export default function PatientInsurancePolicies() {
   }
 
   const deleteSource = async (srcId) => {
-    if (!window.confirm('למחוק מקור ביטוח זה?')) return
+    const ok = await confirm({ title: 'מחיקת מקור ביטוח', message: 'למחוק מקור ביטוח זה? כל הכיסויים הקשורים אליו יימחקו.', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/insurance/${srcId}`)
     fetchAll()
   }
