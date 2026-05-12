@@ -170,6 +170,12 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
     { value: 'hmo',             label: t('type_hmo') },
     { value: 'other',           label: t('type_other') },
   ]
+  const REIMBURSE = [
+    { value: '',             label: t('reimburse_na') },
+    { value: 'kupat_holim', label: t('reimburse_hmo') },
+    { value: 'private',     label: t('reimburse_private') },
+    { value: 'both',        label: t('reimburse_both') },
+  ]
   const [form, setForm] = useState(meeting ? {
     ...meeting,
     action_items: meeting.action_items || [],
