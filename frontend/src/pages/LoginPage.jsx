@@ -41,7 +41,12 @@ export default function LoginPage() {
       if (res.data.requires_2fa) {
         setTempToken(res.data.temp_token)
         setPendingUser(res.data)
-        setTwoFAMethod(res.data.tfa_method || 'totp')
+        if (res.data.tfa_required_setup) {
+          // Manager/admin without 2FA — must set it up before proceeding
+          setTwoFAMethod('setup_required')
+        } else {
+          setTwoFAMethod(res.data.tfa_method || 'totp')
+        }
         setTwoFAStep(true)
         setLoading(false)
         return
