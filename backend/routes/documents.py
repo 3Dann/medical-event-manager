@@ -94,7 +94,9 @@ def list_documents(
 
 
 @router.post("/{patient_id}/documents")
+@limiter.limit("20/minute")
 async def upload_document(
+    request: Request,
     patient_id: int,
     file: UploadFile = File(...),
     category: Optional[str] = Form(None),
