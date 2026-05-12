@@ -811,7 +811,7 @@ export default function PatientInsurance() {
         {showEntitlementForm && (
           <form onSubmit={handleAddEntitlement} className="bg-slate-50 rounded-xl p-4 mb-4 space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div><label className="label">סוג זכאות</label>
+              <div><label className="label">{t('entitlement_type_label')}</label>
                 <select className="input" value={entForm.entitlement_type} onChange={e => setEntForm({...entForm, entitlement_type:e.target.value})}>
                   {Object.entries(ENTITLEMENT_TYPES).map(([k,v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
