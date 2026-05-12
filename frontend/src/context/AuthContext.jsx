@@ -39,7 +39,12 @@ export function AuthProvider({ children }) {
     setUser(userData)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await axios.post('/api/auth/logout')
+    } catch (_) {
+      // best-effort server-side revocation — always clear client state
+    }
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     delete axios.defaults.headers.common['Authorization']
