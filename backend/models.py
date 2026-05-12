@@ -189,9 +189,9 @@ class Patient(Base):
     postal_code = Column(String, nullable=True)
 
     # ── Intake — Emergency contact ────────────────────────────────────────
-    ec_name = Column(String, nullable=True)
+    ec_name = Column(EncryptedText, nullable=True)          # PHI — encrypted
     ec_phone_prefix = Column(String, nullable=True)
-    ec_phone = Column(String, nullable=True)
+    ec_phone = Column(EncryptedText, nullable=True)         # PHI — encrypted
     ec_relation = Column(String, nullable=True)
 
     # ── Intake — Medications ──────────────────────────────────────────────
