@@ -566,8 +566,8 @@ export default function PatientDetail() {
                           </div>
                         )}
                         <div className="flex gap-2 justify-end">
-                          <button type="button" onClick={() => setEditingNode(null)} className="btn-secondary text-xs py-2 px-3">ביטול</button>
-                          <button type="button" onClick={() => saveEditNode(node)} className="btn-primary text-xs py-2 px-3">שמור</button>
+                          <button type="button" onClick={() => setEditingNode(null)} className="btn-secondary text-xs py-2 px-3">{t('common:cancel', { ns: 'common' })}</button>
+                          <button type="button" onClick={() => saveEditNode(node)} className="btn-primary text-xs py-2 px-3">{t('common:save', { ns: 'common' })}</button>
                         </div>
                       </div>
                     )}
