@@ -333,7 +333,7 @@ export default function PatientDetail() {
               })()}
               {patient.medical_stage && (
                 <div>
-                  <dt className="text-slate-500">שלב טיפולי</dt>
+                  <dt className="text-slate-500">{t('medical_stage_label')}</dt>
                   <dd className="font-medium">
                     {MEDICAL_STAGES.find(s => s.value === patient.medical_stage)?.label || patient.medical_stage}
                   </dd>
