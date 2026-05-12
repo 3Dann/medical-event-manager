@@ -23,41 +23,9 @@ const isThisWeek = (due) => {
 }
 
 // Labels defined inside TaskCard to support i18n
+// FILTER_DEFS built inside MyDay component to support i18n
 
 const PRIORITY_ORDER = { urgent: 0, high: 1, normal: 2, low: 3 }
-
-// ── Filter config — extensible array ─────────────────────────────────────────
-const FILTER_DEFS = [
-  {
-    key: 'source_type', label: 'סוג',
-    options: [
-      { value: '', label: 'הכל' },
-      { value: 'manual',          label: 'ידנית' },
-      { value: 'meeting_action',  label: 'פגישה' },
-      { value: 'workflow_step',   label: 'זרימה' },
-      { value: 'patient_request', label: 'פנייה ממטופל' },
-      { value: 'red_flag',        label: 'נורה אדומה' },
-    ],
-  },
-  {
-    key: 'priority', label: 'עדיפות',
-    options: [
-      { value: '', label: 'הכל' },
-      { value: 'urgent', label: 'דחוף' },
-      { value: 'high',   label: 'גבוה' },
-      { value: 'normal', label: 'רגיל' },
-      { value: 'low',    label: 'נמוך' },
-    ],
-  },
-  {
-    key: 'status', label: 'סטטוס',
-    options: [
-      { value: 'open', label: 'פתוחות' },
-      { value: '',     label: 'הכל' },
-      { value: 'done', label: 'הושלמו' },
-    ],
-  },
-]
 
 // ── TaskCard ──────────────────────────────────────────────────────────────────
 function TaskCard({ task, onComplete, onDelete, completing }) {
