@@ -129,6 +129,7 @@ medical-event-manager/
 - [x] **נורות אדומות** — בוצע (2026-05-05): PatientRedFlag model, routes/red_flags.py, RedFlagsBanner.jsx מעל תוכן הטאב — רפואי/פיננסי/שחיקת מטפל.
 - [x] **מערכת דוחות — דוח מפה פיננסית** — בוצע (2026-05-08): routes/reports.py (PDF ב-ReportLab + RTL + שמירה כמסמך), ReportsPage.jsx + כפתור ב-FinancialMapTab, Dockerfile עם fonts-dejavu-core, requirements: reportlab+python-bidi, symlink pdf_builder.py בbackend. 3 endpoints: GET /api/patients/{id}/reports/financial-map, /reports, /api/reports/recent.
 - [x] **פורטל מטופל** — בוצע (2026-05-08): PatientRequest model + routes/patient_portal.py, PatientSummary.jsx בנוי מחדש — 5 טאבים (ציר זמן, תביעות, מסמכים+הורדה, מצב כספי, פניות), PatientRequestsPanel ב-PatientMeetings למנהל
+- [x] **ביקורת אבטחה ותיקונים (2026-05-12)** — 36 מתוך 38 ממצאים טופלו. ראה פירוט בסעיף "ביקורת מערכת" למטה.
 - [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה (עדיפות עליונה)
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
 - [ ] **מערכת בקרת משתמשים (User Activity & Permissions)** — ראה פירוט למטה
