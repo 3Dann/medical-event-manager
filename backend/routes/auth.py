@@ -187,7 +187,7 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
         return {"message": _GENERIC, "reset_token": None, "email_configured": False}
-    token = secrets.token_hex(3).upper()  # 6 chars
+    token = secrets.token_urlsafe(16)  # 22 chars, 128-bit entropy
     user.reset_token = token
     user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
     db.commit()
