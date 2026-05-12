@@ -10,14 +10,11 @@ from database import get_db
 import models
 import auth as auth_utils
 
-# In-memory view token store: {token: (expires_at, patient_id, doc_id)}
-_VIEW_TOKENS: dict = {}
-
-def _cleanup_view_tokens():
-    now = datetime.now(timezone.utc)
-    expired = [k for k, v in _VIEW_TOKENS.items() if v[0] < now]
-    for k in expired:
-        del _VIEW_TOKENS[k]
+def _cleanup_view_tokens(db: Session):
+    db.query(models.DocumentViewToken).filter(
+        models.DocumentViewToken.expires_at < datetime.now(timezone.utc)
+    ).delete()
+    db.commit()
 
 router = APIRouter(prefix="/api/patients", tags=["documents"])
 
