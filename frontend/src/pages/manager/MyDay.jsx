@@ -85,7 +85,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
       <button
         onClick={() => onComplete(task.id)}
         disabled={completing === task.id || task.status === 'done'}
-        className={`mt-0.5 w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+        className={`mt-0.5 min-w-[44px] min-h-[44px] w-11 h-11 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
           task.status === 'done'
             ? 'bg-green-500 border-green-500 text-white'
             : 'border-slate-300 hover:border-green-500 hover:bg-green-50'
