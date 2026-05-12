@@ -186,9 +186,9 @@ function NewTaskModal({ patients, onClose, onCreated }) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">מטופל</label>
+              <label className="label">{t('link_patient')}</label>
               <select className="input" value={form.patient_id} onChange={e => setForm(f => ({...f, patient_id: e.target.value}))}>
-                <option value="">— כללי —</option>
+                <option value="">{t('general_option')}</option>
                 {patients.map(p => <option key={p.id} value={p.id}>{p.full_name}</option>)}
               </select>
             </div>
