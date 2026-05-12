@@ -883,7 +883,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">וואטסאפ</label>
+                  <label className="label">{t('form_whatsapp_label')}</label>
                   <input
                     className="input"
                     placeholder="05X-XXXXXXX"
