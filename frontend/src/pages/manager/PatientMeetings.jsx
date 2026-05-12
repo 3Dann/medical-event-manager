@@ -287,12 +287,12 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
           {/* Financial */}
           <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-4">
             <div>
-              <label className="label">עלות הפגישה (₪)</label>
+              <label className="label">{t('meeting_cost_label')}</label>
               <input type="number" className="input" value={form.meeting_cost}
                 onChange={e => set('meeting_cost', e.target.value)} />
             </div>
             <div>
-              <label className="label">גוף לתביעת החזר</label>
+              <label className="label">{t('reimbursement_entity_label')}</label>
               <select className="input" value={form.reimbursement_entity}
                 onChange={e => set('reimbursement_entity', e.target.value)}>
                 {REIMBURSE.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
