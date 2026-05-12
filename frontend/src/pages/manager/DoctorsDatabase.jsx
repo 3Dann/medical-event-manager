@@ -935,7 +935,7 @@ export default function DoctorsDatabase() {
 
                 {/* Insurance agreements — multi-select + add custom */}
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="label">הסדרי ביטוח</label>
+                  <label className="label">{t('form_insurance_label')}</label>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {[...new Set([...Object.keys(HMO_LABELS), ...(form.hmo_acceptance || [])])].map(key => (
                       <label key={key} className="flex items-center gap-1.5 cursor-pointer bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 hover:bg-slate-100 transition-colors">
