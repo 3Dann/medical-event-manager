@@ -816,10 +816,14 @@ FRONTEND_DIST = os.path.join(os.path.dirname(__file__), "../frontend/dist")
 
 if os.path.exists(FRONTEND_DIST):
     @app.get("/{full_path:path}", include_in_schema=False)
-    async def serve_spa(full_path: str):
+    async def serve_spa(full_path: str, request: Request):
         file_path = os.path.join(FRONTEND_DIST, full_path)
         if full_path and os.path.isfile(file_path):
+            # Hashed assets (JS/CSS with content hash in filename) — cache 1 year
+            if "/assets/" in full_path and (full_path.endswith(".js") or full_path.endswith(".css")):
+                return FileResponse(file_path, headers={"Cache-Control": "public, max-age=31536000, immutable"})
             return FileResponse(file_path)
+        # SPA fallback — always revalidate so new deploys take effect immediately
         return FileResponse(
             os.path.join(FRONTEND_DIST, "index.html"),
             headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
