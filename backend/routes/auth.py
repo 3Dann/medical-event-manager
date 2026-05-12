@@ -141,7 +141,19 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
                      temp_token=auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=30))
 
     token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
+    is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
+    response = JSONResponse(content={
+        "access_token": token, "token_type": "bearer",
+        "user_id": user.id, "full_name": user.full_name,
+        "email": user.email, "role": user.role,
+        "is_admin": user.is_admin,
+    })
+    response.set_cookie(
+        key="access_token", value=token,
+        httponly=True, secure=is_secure, samesite="strict",
+        max_age=auth_utils.ACCESS_TOKEN_EXPIRE_MINUTES * 60, path="/",
+    )
+    return response
 
 
 class Verify2FARequest(BaseModel):
