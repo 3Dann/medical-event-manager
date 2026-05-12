@@ -768,7 +768,7 @@ export default function DoctorsDatabase() {
                     {c.label}
                   </th>
                 ))}
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">פעולות</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider">{t('common:actions', { ns: 'common' })}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
