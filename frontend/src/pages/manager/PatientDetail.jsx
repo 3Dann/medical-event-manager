@@ -428,30 +428,30 @@ export default function PatientDetail() {
                 </select>
               </div>
               <div>
-                <label className="label">סוג</label>
+                <label className="label">{t('node_type_label')}</label>
                 <select className="input" value={addForm.node_type} onChange={e => setAddForm({...addForm, node_type: e.target.value})}>
-                  <option value="medical">טיפולי</option>
-                  <option value="financial">פיננסי</option>
+                  <option value="medical">{t('node_type_medical')}</option>
+                  <option value="financial">{t('node_type_financial')}</option>
                 </select>
               </div>
               <div>
-                <label className="label">תאריך מתוכנן</label>
+                <label className="label">{t('planned_date_label')}</label>
                 <input type="date" className="input" value={addForm.planned_date} onChange={e => setAddForm({...addForm, planned_date: e.target.value})} />
               </div>
               <div>
-                <label className="label">סטטוס</label>
+                <label className="label">{t('node_status_label')}</label>
                 <select className="input" value={addForm.status} onChange={e => setAddForm({...addForm, status: e.target.value})}>
-                  <option value="future">עתידי</option><option value="active">פעיל</option><option value="completed">הושלם</option>
+                  <option value="future">{t('node_status_future')}</option><option value="active">{t('node_status_active')}</option><option value="completed">{t('node_status_completed')}</option>
                 </select>
               </div>
               <div className="col-span-1 sm:col-span-2">
-                <label className="label">הערות</label>
-                <input className="input" value={addForm.notes} onChange={e => setAddForm({...addForm, notes: e.target.value})} placeholder="פרטים נוספים..." />
+                <label className="label">{t('notes_label')}</label>
+                <input className="input" value={addForm.notes} onChange={e => setAddForm({...addForm, notes: e.target.value})} placeholder={t('notes_additional_placeholder')} />
               </div>
             </div>
             <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary text-sm py-1.5">ביטול</button>
-              <button type="submit" className="btn-primary text-sm py-1.5">הוסף לציר</button>
+              <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary text-sm py-1.5">{t('common:cancel', { ns: 'common' })}</button>
+              <button type="submit" className="btn-primary text-sm py-1.5">{t('add_to_timeline')}</button>
             </div>
           </form>
         )}
