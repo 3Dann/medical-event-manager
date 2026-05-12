@@ -607,11 +607,11 @@ function DrugDatabasePanel() {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-slate-50 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-blue-700">{status.total_drugs.toLocaleString()}</p>
-            <p className="text-xs text-slate-500 mt-0.5">תרופות במאגר</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('drug_total')}</p>
           </div>
           <div className="bg-slate-50 rounded-xl p-3 text-center">
             <p className="text-lg font-bold text-slate-700">{status.by_source?.openfda ?? 0}</p>
-            <p className="text-xs text-slate-500 mt-0.5">נוספו מ-openFDA</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('drug_added_from_openfda')}</p>
           </div>
         </div>
       )}
