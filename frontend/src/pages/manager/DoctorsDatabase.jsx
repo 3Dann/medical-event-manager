@@ -831,13 +831,13 @@ export default function DoctorsDatabase() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">תואר</label>
+                  <label className="label">{t('form_title_label')}</label>
                   <select className="input" value={form.title || ''} onChange={e => setForm({ ...form, title: e.target.value })}>
-                    {TITLE_OPTIONS.map(t => <option key={t} value={t}>{t || '— ללא תואר —'}</option>)}
+                    {TITLE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || t('no_title_option')}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="label">שם הרופא *</label>
+                  <label className="label">{t('form_name_label')}</label>
                   <input
                     className="input"
                     value={form.name}
@@ -845,25 +845,25 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">מומחיות</label>
+                  <label className="label">{t('specialty')}</label>
                   <input
                     className="input"
-                    placeholder="לדוגמה: אורתופדיה"
+                    placeholder={t('specialty_placeholder')}
                     value={form.specialty}
                     onChange={e => setForm({ ...form, specialty: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="label">תת-התמחות</label>
+                  <label className="label">{t('sub_specialty')}</label>
                   <input
                     className="input"
-                    placeholder="לדוגמה: כירורגיית כתף"
+                    placeholder={t('sub_specialty_placeholder')}
                     value={form.sub_specialty}
                     onChange={e => setForm({ ...form, sub_specialty: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="label">טלפון ראשי</label>
+                  <label className="label">{t('form_phone_main')}</label>
                   <input
                     className="input"
                     placeholder="03-1234567"
