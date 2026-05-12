@@ -46,11 +46,11 @@ export default function ResponsivenessPage() {
     <div className="p-4 md:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-800">{t('title')}</h1>
-        <p className="text-slate-500 mt-1">ניהול ציוני מהירות תגובה ורמת בירוקרטיה לכל חברת ביטוח</p>
+        <p className="text-slate-500 mt-1">{t('subtitle')}</p>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 text-sm text-blue-700">
-        <strong>כיצד זה משפיע על האסטרטגיה:</strong> כשלשני מקורות ביטוח יש כיסוי דומה, המערכת תעדיף את המקור עם ציון הרספונסיביות הגבוה יותר. ניתן לערוך את הציונים לפי ניסיון אישי.
+        <strong>{t('strategy_impact_title')}:</strong> {t('strategy_impact_desc')}
       </div>
 
       {Object.entries(grouped).map(([type, items]) => (
