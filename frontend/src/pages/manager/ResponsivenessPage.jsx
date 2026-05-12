@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-
-const TYPE_LABELS = { hmo: 'קופת חולים', private: 'ביטוח פרטי', sal_habriut: 'סל בריאות', bituch_leumi: 'ביטוח לאומי' }
+import { useTranslation } from 'react-i18next'
 
 export default function ResponsivenessPage() {
+  const { t } = useTranslation('responsiveness')
+  const TYPE_LABELS = {
+    hmo: t('type_hmo'), private: t('type_private'),
+    sal_habriut: t('type_sal'), bituch_leumi: t('type_leumi'),
+  }
   const [scores, setScores] = useState([])
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({})
