@@ -286,7 +286,7 @@ export default function PatientMedications() {
             onClick={() => setShowInactive(v => !v)}
             className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-2"
           >
-            {showInactive ? '▾' : '▸'} תרופות לא פעילות / היסטוריה ({inactive.length})
+            {showInactive ? '▾' : '▸'} {t('inactive_history')} ({inactive.length})
           </button>
           {showInactive && (
             <div className="space-y-2 opacity-70">
