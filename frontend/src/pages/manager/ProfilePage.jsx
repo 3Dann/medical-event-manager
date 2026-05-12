@@ -194,7 +194,7 @@ export default function ProfilePage() {
     e.preventDefault()
     setStatus(null)
     if (form.new_password !== form.confirm) {
-      setStatus({ ok: false, msg: 'הסיסמאות החדשות אינן תואמות' })
+      setStatus({ ok: false, msg: t('passwords_mismatch') })
       return
     }
     setLoading(true)
