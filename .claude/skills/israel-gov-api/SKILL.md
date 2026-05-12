@@ -1,0 +1,176 @@
+---
+name: israel-gov-api
+description: Discover, query, and analyze Israeli government open data from data.gov.il (CKAN API). Use when user asks about Israeli government data, "data.gov.il", government datasets, CBS statistics, or needs data about Israeli transportation, education, health, geography, economy, or environment. Supports dataset search, tabular data queries, and analysis guidance. Enhances existing datagov-mcp and data-gov-il-mcp servers with workflow best practices. Do NOT use for classified government data or data requiring security clearance.
+license: MIT
+allowed-tools: Bash(python:*) WebFetch
+compatibility: Requires network access for data.gov.il API. Enhanced by datagov-mcp or data-gov-il-mcp servers.
+---
+
+# Israel Government API
+
+## Instructions
+
+### Step 1: Understand the Data Need
+Ask the user:
+- **What topic?** (transportation, health, education, economy, etc.)
+- **What geography?** (national, specific city/region, specific address)
+- **What time period?** (current, historical, time series)
+- **What format?** (raw data, summary statistics, visualization)
+
+### Step 2: Search for Datasets
+Use the data.gov.il CKAN API to find relevant datasets:
+
+**Search by keyword:**
+```
+GET https://data.gov.il/api/3/action/package_search?q=KEYWORD&rows=10
+```
+
+**Search by organization (ministry):**
+```
+GET https://data.gov.il/api/3/action/package_search?fq=organization:MINISTRY_ID
+```
+
+**Common organization IDs:**
+| Ministry | ID | Hebrew |
+|----------|-----|--------|
+| Central Bureau of Statistics | lamas | halishka hamerkazit listatistika |
+| Ministry of Transportation | ministry_of_transport | misrad hatahaburah |
+| Ministry of Health | ministry-health | misrad habriut |
+| Ministry of Education | ministry_of_education | misrad hachinuch |
+| Israel Tax Authority | taxes-authority | rashut hamisim |
+| Israel Land Authority | the_israel_lands_administration | rashut mekarkei yisrael |
+| Ministry of Interior | interior_affairs | misrad hapnim |
+
+### Step 3: Retrieve and Query Data
+Once a dataset is found:
+
+**Get dataset details:**
+```
+GET https://data.gov.il/api/3/action/package_show?id=DATASET_ID
+```
+
+**Query tabular data (datastore):**
+```
+GET https://data.gov.il/api/3/action/datastore_search?resource_id=RESOURCE_ID&limit=100
+```
+
+**Filter by field values:**
+```
+GET https://data.gov.il/api/3/action/datastore_search?resource_id=RESOURCE_ID&filters={"field_name":"value"}&limit=100
+```
+
+**Select specific fields and sort:**
+```
+GET https://data.gov.il/api/3/action/datastore_search?resource_id=RESOURCE_ID&fields=field1,field2&sort=field1 desc&limit=100
+```
+
+**Full-text search within a resource:**
+```
+GET https://data.gov.il/api/3/action/datastore_search?resource_id=RESOURCE_ID&q=search+term&limit=100
+```
+
+**Important:** The `datastore_search_sql` endpoint may be disabled on data.gov.il (often returns 403 Forbidden). Use `datastore_search` with `filters`, `fields`, `sort`, `q`, `limit`, and `offset` parameters instead.
+
+**Tips:**
+- Field names are often in Hebrew -- use `datastore_search` with `limit=1` first to see field names
+- Use `filters` parameter with a JSON object for exact field matching (e.g., `filters={"city_code":"5000"}`)
+- Use `q` parameter for full-text search across all fields
+- Large datasets: use `limit` and `offset` for pagination
+- Date fields may be in various formats -- check dataset documentation
+
+### Step 4: Analyze and Present
+For the retrieved data:
+1. Summarize key findings in plain language
+2. Calculate basic statistics if requested (mean, median, trends)
+3. Suggest visualizations (bar chart, line graph, map) appropriate to the data
+4. Note data freshness (last update date) and any caveats
+5. Provide the direct link to the dataset on data.gov.il for reference
+
+### Step 5: Cross-Reference (Advanced)
+When combining multiple datasets:
+1. Identify common keys (city code, date, category code)
+2. Use Israeli administrative codes (CBS city codes) for geographic joins
+3. Note that field names across datasets may differ -- match by content not name
+4. Document data lineage: which datasets contributed to the analysis
+
+## Commonly Requested Datasets
+
+| Dataset | Resource ID | Updated | Description |
+|---------|------------|---------|-------------|
+| GTFS transit data | various | Daily | Bus/train schedules and routes |
+| School list | various | Annual | All schools with details |
+| Hospital quality | various | Quarterly | Ministry of Health quality indicators |
+| Real estate prices | various | Monthly | Tax Authority transaction prices |
+| Business registry | various | Daily | Active businesses |
+| Air quality | various | Hourly | Environmental monitoring stations |
+
+## Examples
+
+### Example 1: Find School Data
+User says: "I need data about schools in Tel Aviv"
+Actions:
+1. Search: `package_search?q=schools+tel+aviv`
+2. Find education dataset, get resource ID
+3. Query: Filter by city code for Tel Aviv (5000)
+4. Present: School count, types, sizes
+Result: Structured school data for Tel Aviv
+
+### Example 2: Analyze Housing Prices
+User says: "Show me housing price trends in Haifa"
+Actions:
+1. Find Tax Authority real estate transactions dataset
+2. Filter by Haifa city code, last 12 months
+3. Calculate median price per square meter by month
+4. Present trend with percentage change
+Result: Monthly price trend for Haifa with analysis
+
+### Example 3: Municipal Data Comparison
+User says: "Compare education spending across Israeli cities"
+Actions:
+1. Search for municipal budget datasets
+2. Filter by education category
+3. Normalize per capita
+4. Present comparison table
+Result: Ranked comparison of education spending per student across major Israeli municipalities with data source and year.
+
+## Bundled Resources
+
+### Scripts
+- `scripts/query_datagov.py` — Search datasets, inspect resources, and run datastore queries against the data.gov.il CKAN API directly from the command line. Supports subcommands: `search`, `dataset`, `query`, `orgs`. Run: `python scripts/query_datagov.py --help`
+
+### References
+- `references/ckan-api-reference.md` — Complete endpoint catalog for the data.gov.il CKAN API including search parameters, datastore query syntax, and common organization IDs. Consult when constructing API calls or debugging query syntax.
+
+## Gotchas
+- Israeli government data APIs (data.gov.il) frequently change URLs and endpoint structures without notice. Agents may hardcode endpoints that worked last month but now return 404.
+- The data.gov.il API returns data with Hebrew column headers by default. Agents may fail to parse responses that contain non-ASCII header names in JSON or CSV output.
+- Rate limiting on gov.il APIs is strict and undocumented. Agents that make rapid sequential requests will be blocked. Always add delays between API calls.
+- Many government datasets have date fields in DD/MM/YYYY format (Israeli convention), not ISO 8601. Agents may parse "01/02/2026" as February 1st instead of January 2nd.
+
+## Reference Links
+
+| Source | URL | What to Check |
+|--------|-----|---------------|
+| data.gov.il portal | https://data.gov.il | Browse Israeli open data catalog, organizations, datasets |
+| CKAN API reference | https://docs.ckan.org/en/latest/api/ | `package_search`, `package_show`, `datastore_search` signatures |
+| data.gov.il dataset list | https://data.gov.il/dataset | Discover available datasets by organization and tag |
+| Central Bureau of Statistics | https://www.cbs.gov.il | Upstream source for many data.gov.il statistics |
+| Bank of Israel data | https://www.boi.org.il | Financial and monetary datasets not on data.gov.il |
+
+## Troubleshooting
+
+### Error: "Dataset not found"
+Cause: Search terms too specific or in wrong language
+Solution: Try broader Hebrew keywords. Government data is primarily in Hebrew.
+
+### Error: "Datastore not available"
+Cause: Not all resources have the datastore (queryable) API enabled
+Solution: Download the CSV/Excel resource directly and process locally.
+
+### Error: "403 Forbidden" on SQL queries
+Cause: The `datastore_search_sql` endpoint may be disabled by data.gov.il
+Solution: Use `datastore_search` with `filters`, `fields`, `sort`, and `q` parameters instead. For example: `datastore_search?resource_id=ID&filters={"city":"Haifa"}&fields=field1,field2&sort=field1 desc&limit=100`
+
+### Error: "Hebrew field names"
+Cause: Most government datasets have Hebrew column names
+Solution: First query with limit=1 to see all field names, then construct targeted queries.

@@ -6,10 +6,45 @@
       "sourceType": "github",
       "computedHash": "f418a156122b6a7e3200545106b4fbdcb535c018dac4b23691f69a6ef8b2f2a3"
     },
+    "hebrew-nlp-toolkit": {
+      "source": "skills-il/localization",
+      "sourceType": "github",
+      "computedHash": "33a8721d4728f4cd8e04f0fcf5e64f4b7fc4142c29fba6dbe3d29b7b532d6448"
+    },
+    "hebrew-ocr-forms": {
+      "source": "skills-il/localization",
+      "sourceType": "github",
+      "computedHash": "dd224a1cdf02f1e00f89aaa3b0628ec7810f2beaa717d1f907d355476a76ef28"
+    },
     "hebrew-rtl-best-practices": {
       "source": "skills-il/localization",
       "sourceType": "github",
       "computedHash": "2a6a019a917014329ddd3a5746396895633f9b91e1e623cb580e1d36576536ba"
+    },
+    "israel-gov-api": {
+      "source": "skills-il/government-services",
+      "sourceType": "github",
+      "computedHash": "ae982d23ab8c9e6eccbcaace725a57c3f8a96f4e64a1202a2e3361bf1da1b151"
+    },
+    "israeli-address-autocomplete": {
+      "source": "skills-il/government-services",
+      "sourceType": "github",
+      "computedHash": "b4fbbece6a0f63fb22b732df5364fbc738264b805860998db6befa735f43d96c"
+    },
+    "israeli-appsec-scanner": {
+      "source": "skills-il/security-compliance",
+      "sourceType": "github",
+      "computedHash": "7d604c27c4b979929a6001c5090e9bc26c4dff83bb85c10370ae7e292847924a"
+    },
+    "israeli-bituach-leumi": {
+      "source": "skills-il/government-services",
+      "sourceType": "github",
+      "computedHash": "77241ae07cee49de24801e436af70111ed9715df885ac097dccfa704ace36736"
+    },
+    "israeli-drug-database": {
+      "source": "skills-il/government-services",
+      "sourceType": "github",
+      "computedHash": "0b6b20e5ef7887d4ab4384f8e1190d3449773ecdb4d230992c6729b43577295d"
     }
   }
 }
