@@ -519,7 +519,7 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
                 <span className="text-slate-600 text-xs font-mono w-36 flex-shrink-0">
                   {log.created_at ? new Date(log.created_at).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                 </span>
-                <span className="font-medium text-slate-800 w-32 flex-shrink-0 truncate">{log.user_name || <span className="text-slate-600">אנונימי</span>}</span>
+                <span className="font-medium text-slate-800 w-32 flex-shrink-0 truncate">{log.user_name || <span className="text-slate-600">{t('anonymous')}</span>}</span>
                 <span className="text-slate-700 flex-1 min-w-28">{ACTION_LABELS[log.action_type] || log.action_type}</span>
                 {log.resource_type && (
                   <span className="text-xs text-slate-500 bg-slate-50 px-2 py-0.5 rounded">
