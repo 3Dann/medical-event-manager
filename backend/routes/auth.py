@@ -191,7 +191,18 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         if not totp.verify(data.code, valid_window=1):
             raise HTTPException(status_code=401, detail="קוד שגוי — נסה שוב")
     token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
+    is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
+    response = JSONResponse(content={
+        "access_token": token, "token_type": "bearer",
+        "user_id": user.id, "full_name": user.full_name,
+        "email": user.email, "role": user.role, "is_admin": user.is_admin,
+    })
+    response.set_cookie(
+        key="access_token", value=token,
+        httponly=True, secure=is_secure, samesite="strict",
+        max_age=auth_utils.ACCESS_TOKEN_EXPIRE_MINUTES * 60, path="/",
+    )
+    return response
 
 
 class RequestEmailCodeRequest(BaseModel):
