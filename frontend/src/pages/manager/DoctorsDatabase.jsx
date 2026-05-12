@@ -978,7 +978,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="label">מקור (URL)</label>
+                  <label className="label">{t('form_source_url_label')}</label>
                   <input
                     className="input"
                     placeholder="https://..."
