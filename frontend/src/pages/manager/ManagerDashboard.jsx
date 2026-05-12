@@ -19,6 +19,7 @@ export default function ManagerDashboard() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { toast, showToast, dismissToast } = useToast()
+  const [confirmDelete, ConfirmUI] = useConfirm()
 
   const handleImportSal = async (e) => {
     e.preventDefault()
