@@ -432,6 +432,12 @@ def reset_users_once():
     flag = "/data/.users_reset_v1" if os.path.isdir("/data") else "./.users_reset_v1"
     if os.path.exists(flag):
         return
+    # Safety guard: only delete if ALLOW_USER_RESET=1 is explicitly set in the environment.
+    # This prevents accidental wipe if the flag file is lost from the Railway volume.
+    if os.environ.get("ALLOW_USER_RESET") != "1":
+        logger.warning("reset_users_once: flag file missing but ALLOW_USER_RESET not set — skipping wipe")
+        open(flag, "w").close()
+        return
     db = SessionLocal()
     try:
         count = db.query(models.User).count()
