@@ -170,7 +170,11 @@ export default function ProfilePage() {
   const [showTfaField, setShowTfaField] = useState(false)
 
   useEffect(() => {
-    axios.get('/api/auth/2fa/status').then(r => setTfaStatus(r.data)).catch(() => {})
+    const ctrl = new AbortController()
+    axios.get('/api/auth/2fa/status', { signal: ctrl.signal })
+      .then(r => setTfaStatus(r.data))
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => ctrl.abort()
   }, [])
 
   const requestEmailCode = async () => {
