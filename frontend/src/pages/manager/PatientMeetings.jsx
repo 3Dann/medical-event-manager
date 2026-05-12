@@ -399,7 +399,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
           )}
           {meeting.caregiver_notes && (
             <div>
-              <p className="text-xs font-medium text-slate-500 mb-1">הערות אישיות</p>
+              <p className="text-xs font-medium text-slate-500 mb-1">{t('caregiver_notes_label')}</p>
               <p className="text-sm text-slate-600 italic">{meeting.caregiver_notes}</p>
             </div>
           )}
