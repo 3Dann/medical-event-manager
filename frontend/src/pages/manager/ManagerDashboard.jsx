@@ -31,7 +31,7 @@ export default function ManagerDashboard() {
 
   const fetchPatients = async () => {
     try { const res = await axios.get('/api/patients'); setPatients(res.data) }
-    catch (e) { console.error(e) }
+    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
     finally { setLoading(false) }
   }
 
@@ -45,7 +45,7 @@ export default function ManagerDashboard() {
   const handleDelete = async (id) => {
     if (!confirm(t('dashboard:delete_confirm'))) return
     try { await axios.delete(`/api/patients/${id}`); fetchPatients() }
-    catch (e) { console.error(e) }
+    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
   }
 
   const topInsurer = globalInsights?.approval_rates?.[0]
