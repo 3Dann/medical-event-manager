@@ -218,7 +218,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col" dir="rtl"
            onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h3 className="font-bold text-slate-800 text-lg">{meeting ? 'עריכת פגישה' : 'תיעוד פגישה חדשה'}</h3>
+          <h3 className="font-bold text-slate-800 text-lg">{meeting ? t('edit_meeting') : t('new_meeting_record')}</h3>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl p-2 -m-2 rounded-lg">✕</button>
         </div>
 
