@@ -329,9 +329,9 @@ export default function PatientMedications() {
             rel="noopener noreferrer"
             className="text-xs text-slate-600 hover:text-blue-600 underline"
           >
-            בדוק אינטראקציות מלאות ב-Drugs.com ↗
+            {t('check_interactions_link')} ↗
           </a>
-          <p className="text-xs text-slate-500 mt-0.5">למידע בלבד — אינו תחליף לייעוץ רפואי</p>
+          <p className="text-xs text-slate-500 mt-0.5">{t('info_only_disclaimer')}</p>
         </div>
       )}
     </div>
