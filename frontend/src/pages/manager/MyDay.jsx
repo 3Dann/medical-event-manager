@@ -345,7 +345,8 @@ export default function MyDay() {
   }
 
   const deleteTask = async (id) => {
-    if (!confirm('למחוק משימה זו?')) return
+    const ok = await confirmDelete({ title: 'מחיקת משימה', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     try {
       await axios.delete(`/api/tasks/${id}`)
       setTasks(prev => prev.filter(t => t.id !== id))
