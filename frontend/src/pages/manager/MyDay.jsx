@@ -208,9 +208,9 @@ function NewTaskModal({ patients, onClose, onCreated }) {
           </div>
         </div>
         <div className="flex gap-3 justify-end mt-5">
-          <button onClick={onClose} className="btn-secondary">ביטול</button>
+          <button onClick={onClose} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
           <button onClick={save} disabled={saving || !form.title.trim()} className="btn-primary disabled:opacity-40">
-            {saving ? 'שומר...' : 'צור משימה'}
+            {saving ? t('common:saving', { ns: 'common' }) : t('create_task')}
           </button>
         </div>
       </div>
