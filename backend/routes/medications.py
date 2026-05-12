@@ -334,7 +334,7 @@ def add_medication(
     patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
     if not patient:
         raise HTTPException(status_code=404, detail="מטופל לא נמצא")
-    med = models.PatientMedication(patient_id=patient_id, **body.dict())
+    med = models.PatientMedication(patient_id=patient_id, **body.model_dump())
     db.add(med)
     db.commit()
     db.refresh(med)
