@@ -180,7 +180,7 @@ def create_view_token(
     _cleanup_view_tokens()
     vt = secrets.token_urlsafe(32)
     _VIEW_TOKENS[vt] = (
-        datetime.now(timezone.utc) + timedelta(seconds=90),
+        datetime.now(timezone.utc) + timedelta(seconds=300),
         patient_id,
         doc_id,
     )
