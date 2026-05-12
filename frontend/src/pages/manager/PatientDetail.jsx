@@ -238,9 +238,9 @@ export default function PatientDetail() {
           </div>
           {editingInfo ? (
             <div className="space-y-3">
-              <div><label className="label">שם מלא</label><input className="input" value={editForm.full_name || ''} onChange={e => setEditForm({...editForm, full_name: e.target.value})} /></div>
+              <div><label className="label">{t('full_name_label')}</label><input className="input" value={editForm.full_name || ''} onChange={e => setEditForm({...editForm, full_name: e.target.value})} /></div>
               <div>
-                <label className="label">ת.ז.</label>
+                <label className="label">{t('id_number_label')}</label>
                 <input
                   className={`input ${editForm.id_number && idValid === false ? 'border-red-400 focus:ring-red-300' : editForm.id_number && idValid === true ? 'border-green-400 focus:ring-green-300' : ''}`}
                   value={editForm.id_number || ''}
