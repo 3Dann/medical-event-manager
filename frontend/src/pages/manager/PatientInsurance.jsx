@@ -668,8 +668,8 @@ export default function PatientInsurance() {
                     {form.source_type==='private' && (
                       <div><label className="label">סוג פוליסה</label>
                         <select className="input" value={form.policy_type} onChange={e => setForm({...form, policy_type: e.target.value})}>
-                          <option value="regular">ביטוח רפואי</option>
-                          <option value="disability">אובדן כושר עבודה</option>
+                          <option value="regular">{t('policy_type_regular')}</option>
+                          <option value="disability">{t('policy_type_disability')}</option>
                         </select>
                       </div>
                     )}
