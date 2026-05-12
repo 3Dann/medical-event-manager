@@ -166,7 +166,7 @@ export default function LoginPage() {
                 >
                   <span className="text-2xl">✉️</span>
                   <div className="text-right flex-1">
-                    <p className="font-medium text-slate-800 text-sm">שלח קוד לאימייל</p>
+                    <p className="font-medium text-slate-800 text-sm">שלח קוד לאימייל ✓</p>
                     <p className="text-xs text-slate-500">קוד חד-פעמי ישלח לכתובת המייל שלך</p>
                   </div>
                 </button>
