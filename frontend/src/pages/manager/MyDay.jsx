@@ -244,7 +244,7 @@ function CalendarModal({ onClose }) {
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" dir="rtl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-slate-800 text-lg">הירשם ליומן חי</h3>
+          <h3 className="font-bold text-slate-800 text-lg">{t('calendar_subscribe_title')}</h3>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
         </div>
         <p className="text-slate-600 mb-4">הוסף את הכתובת הזו ליומן שלך — המשימות, הפגישות והדדליינים יתעדכנו אוטומטית.</p>
