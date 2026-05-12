@@ -221,8 +221,8 @@ export default function PatientMedications() {
       {/* Document extraction panel */}
       {showExtract && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-3">
-          <p className="text-sm font-medium text-blue-800">זיהוי תרופות ממסמך PDF</p>
-          <p className="text-xs text-blue-600">המערכת תנסה לזהות שמות תרופות מתוך מסמך רפואי. יש לאשר ידנית כל תרופה שזוהתה.</p>
+          <p className="text-sm font-medium text-blue-800">{t('extract_panel_title')}</p>
+          <p className="text-xs text-blue-600">{t('extract_panel_desc')}</p>
           <div className="flex gap-2">
             <select
               className="flex-1 border border-blue-300 rounded-lg px-3 py-2 text-sm bg-white"
