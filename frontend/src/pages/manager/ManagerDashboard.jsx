@@ -151,7 +151,12 @@ export default function ManagerDashboard() {
       ) : (
         <div className="grid gap-4">
           {patients.map(p => (
-            <div key={p.id} className="card hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate(`/manager/patients/${p.id}`)}>
+            <button
+              key={p.id}
+              className="card hover:shadow-md transition-shadow text-right w-full"
+              onClick={() => navigate(`/manager/patients/${p.id}`)}
+              aria-label={`פתח תיק מטופל: ${p.full_name}`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
