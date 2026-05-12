@@ -173,21 +173,21 @@ export default function LoginPage() {
               </div>
               <h2 className="text-lg font-semibold text-slate-800">אימות דו-שלבי</h2>
               <p className="text-sm text-slate-500 mt-1">
-                {twoFAMethod === 'email' ? 'אימות באמצעות אימייל' : 'אימות באמצעות אפליקציית אימות'}
+                {twoFAMethod === 'sms'   ? '💬 אימות באמצעות SMS'
+                 : twoFAMethod === 'email' ? '✉️ אימות באמצעות אימייל'
+                 : '📱 אימות באמצעות אפליקציית אימות'}
               </p>
             </div>
+
+            {/* Email — request code button */}
             {twoFAMethod === 'email' && !emailCodeReady && (
               <button type="button" onClick={async () => {
                 setLoading(true); setError('')
                 try {
                   const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
                   setEmailCodeReady(true)
-                  if (r.data.code) {
-                    setEmailCodeDisplay(r.data.code) // dev fallback
-                    setEmailSentMsg('מצב פיתוח — קוד מוצג כאן')
-                  } else {
-                    setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
-                  }
+                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
+                  else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
                 } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
                 finally { setLoading(false) }
               }} disabled={loading} className="btn-primary w-full py-3">
@@ -197,33 +197,59 @@ export default function LoginPage() {
             {twoFAMethod === 'email' && emailCodeReady && (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
                 {emailCodeDisplay ? (
-                  <>
-                    <p className="text-xs text-blue-600 mb-1">קוד האימות (מצב פיתוח):</p>
-                    <p className="text-2xl font-bold text-blue-800 tracking-widest">{emailCodeDisplay}</p>
-                  </>
-                ) : (
-                  <p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>
-                )}
+                  <><p className="text-xs text-blue-600 mb-1">קוד (מצב פיתוח):</p>
+                    <p className="text-2xl font-bold text-blue-800 tracking-widest">{emailCodeDisplay}</p></>
+                ) : (<p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>)}
                 <p className="text-xs text-blue-500 mt-1">תוקף: 10 דקות</p>
               </div>
             )}
+
+            {/* SMS — request code button */}
+            {twoFAMethod === 'sms' && !emailCodeReady && (
+              <button type="button" onClick={async () => {
+                setLoading(true); setError('')
+                try {
+                  const r = await axios.post('/api/auth/2fa/request-sms-code', { temp_token: tempToken })
+                  setEmailCodeReady(true)
+                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
+                  else setEmailSentMsg(r.data.message || `קוד נשלח ל-${r.data.phone_masked}`)
+                } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
+                finally { setLoading(false) }
+              }} disabled={loading} className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors">
+                {loading ? 'שולח...' : '💬 שלח קוד ב-SMS'}
+              </button>
+            )}
+            {twoFAMethod === 'sms' && emailCodeReady && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                {emailCodeDisplay ? (
+                  <><p className="text-xs text-green-600 mb-1">קוד SMS (מצב פיתוח):</p>
+                    <p className="text-2xl font-bold text-green-800 tracking-widest">{emailCodeDisplay}</p></>
+                ) : (<p className="text-sm font-medium text-green-800">✓ {emailSentMsg}</p>)}
+                <p className="text-xs text-green-500 mt-1">תוקף: 10 דקות</p>
+              </div>
+            )}
+
             <form onSubmit={handle2FAVerify} className="space-y-4">
               <div>
                 <label className="label">
-                  {twoFAMethod === 'email' ? 'הזן קוד מהאימייל' : 'קוד מאפליקציית האימות'}
+                  {twoFAMethod === 'sms'   ? 'הזן קוד מה-SMS'
+                   : twoFAMethod === 'email' ? 'הזן קוד מהאימייל'
+                   : 'קוד מאפליקציית האימות'}
                 </label>
                 <input
                   className="input text-center tracking-widest text-xl"
-                  maxLength={6}
+                  maxLength={8}
                   value={twoFACode}
                   onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                  placeholder="000000"
+                  placeholder={twoFAMethod === 'totp' ? '000000' : 'XXXXXXXX'}
                   autoFocus={twoFAMethod === 'totp' || !!emailCodeDisplay}
                   required
                 />
               </div>
               {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-              <button type="submit" disabled={loading || twoFACode.length !== 6 || (twoFAMethod === 'email' && !emailCodeReady)} className="btn-primary w-full py-3">
+              <button type="submit"
+                disabled={loading || twoFACode.length < 6 || (['email','sms'].includes(twoFAMethod) && !emailCodeReady)}
+                className="btn-primary w-full py-3">
                 {loading ? 'מאמת...' : 'אמת קוד'}
               </button>
               <button type="button" onClick={() => { setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError('') }}
