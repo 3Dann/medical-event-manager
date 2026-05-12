@@ -348,7 +348,8 @@ export default function DoctorsDatabase() {
   }
 
   const handleDeleteAll = async () => {
-    if (!window.confirm(`למחוק את כל ${totalDoctors.toLocaleString()} הרופאים מהמאגר? פעולה זו בלתי הפיכה.`)) return
+    const ok = await confirm({ title: 'מחיקת כל הרופאים', message: `למחוק את כל ${totalDoctors.toLocaleString()} הרופאים מהמאגר? פעולה זו בלתי הפיכה.`, confirmLabel: 'מחק הכל', danger: true })
+    if (!ok) return
     try {
       const res = await axios.delete('/api/doctors/all')
       setCurrentPage(1)
