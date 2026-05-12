@@ -185,7 +185,11 @@ function TimelineSection({ workflows, redFlags, onBack }) {
               <div className="space-y-3">
                 {wf.steps.map((step, idx) => (
                   <div key={idx} className="flex items-start gap-4">
-                    <div className={`w-4 h-4 rounded-full mt-1 flex-shrink-0 ${STEP_DOT[step.status] || 'bg-slate-200'}`} />
+                    <div
+                      className={`w-4 h-4 rounded-full mt-1 flex-shrink-0 ${STEP_DOT[step.status] || 'bg-slate-200'}`}
+                      role="img"
+                      aria-label={STEP_DOT_LABEL[step.status] || step.status}
+                    />
                     <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
                       <p className={`leading-relaxed ${
                         step.status === 'completed' ? 'line-through text-slate-400' :
