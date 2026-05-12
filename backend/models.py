@@ -155,10 +155,10 @@ class Patient(Base):
     __tablename__ = "patients"
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String, nullable=False)
-    id_number = Column(String, nullable=True)
+    id_number = Column(EncryptedText, nullable=True)       # Israeli ID — encrypted
     diagnosis_status = Column(String, default=DiagnosisStatus.no)
-    diagnosis_details = Column(Text, nullable=True)
-    notes = Column(Text, nullable=True)
+    diagnosis_details = Column(EncryptedText, nullable=True)  # PHI — encrypted
+    notes = Column(EncryptedText, nullable=True)               # PHI — encrypted
     hmo_name = Column(String, nullable=True)
     hmo_level = Column(String, nullable=True)
     condition_tags = Column(Text, nullable=True)
