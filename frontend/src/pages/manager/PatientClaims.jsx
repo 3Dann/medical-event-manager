@@ -100,10 +100,10 @@ export default function PatientClaims() {
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'סה"כ תביעות', value: claims.length, color: 'text-slate-800' },
-          { label: 'סה"כ נתבע', value: `₪${totalRequested.toLocaleString()}`, color: 'text-blue-600' },
-          { label: 'סה"כ אושר', value: `₪${totalApproved.toLocaleString()}`, color: 'text-green-600' },
-          { label: 'תביעות פתוחות', value: claims.filter(c => c.status === 'pending' || c.status === 'submitted').length, color: 'text-yellow-600' },
+          { label: t('stat_total_claims'), value: claims.length, color: 'text-slate-800' },
+          { label: t('stat_total_requested'), value: `₪${totalRequested.toLocaleString()}`, color: 'text-blue-600' },
+          { label: t('stat_total_approved'), value: `₪${totalApproved.toLocaleString()}`, color: 'text-green-600' },
+          { label: t('stat_open_claims'), value: claims.filter(c => c.status === 'pending' || c.status === 'submitted').length, color: 'text-yellow-600' },
         ].map(stat => (
           <div key={stat.label} className="card py-4">
             <p className="text-xs text-slate-500">{stat.label}</p>
