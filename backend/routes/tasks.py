@@ -143,7 +143,7 @@ def _upsert_task(manager_id: int, patient: models.Patient,
 
 def _sync_meeting_actions(manager_id: int, patient: models.Patient, db: Session, meeting=None):
     try:
-        items = json.loads(meeting.action_items) if meeting.action_items else []
+        items = safe_json_loads(meeting.action_items, default=[])
     except Exception:
         items = []
     for i, item in enumerate(items):
