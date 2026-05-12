@@ -680,12 +680,12 @@ export default function PatientDetail() {
                   {/* Action */}
                   {appliedTemplateKeys.has(selectedTplPreview.key) ? (
                     <div className="flex items-center gap-4 p-4 bg-green-50 rounded-xl border border-green-100">
-                      <span className="text-sm font-medium text-green-700">✓ מסע זה מוחל על ציר הזמן</span>
+                      <span className="text-sm font-medium text-green-700">✓ {t('journey_already_applied')}</span>
                       <button
                         onClick={() => { removeTemplate(selectedTplPreview.key); setShowJourneyModal(false); setSelectedTplPreview(null) }}
                         className="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
                       >
-                        הסר מסע
+                        {t('remove_journey')}
                       </button>
                     </div>
                   ) : (
