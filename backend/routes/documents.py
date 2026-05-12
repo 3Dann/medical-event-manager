@@ -2,13 +2,17 @@ import os
 import uuid
 import secrets
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query, Request
 from fastapi.responses import FileResponse, Response
 from sqlalchemy.orm import Session
 from typing import Optional
 from database import get_db
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import models
 import auth as auth_utils
+
+limiter = Limiter(key_func=get_remote_address)
 
 def _cleanup_view_tokens(db: Session):
     db.query(models.DocumentViewToken).filter(
