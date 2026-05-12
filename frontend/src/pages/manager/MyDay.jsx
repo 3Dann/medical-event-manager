@@ -141,6 +141,7 @@ function Section({ title, color, tasks, onComplete, onDelete, completing }) {
 
 // ── New task modal ────────────────────────────────────────────────────────────
 function NewTaskModal({ patients, onClose, onCreated }) {
+  const { t } = useTranslation('myday')
   const [form, setForm] = useState({ title: '', description: '', patient_id: '', due_date: '', priority: 'normal' })
   const [saving, setSaving] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
