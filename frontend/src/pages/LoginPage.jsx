@@ -18,8 +18,9 @@ export default function LoginPage() {
   const [twoFAStep, setTwoFAStep] = useState(false)
   const [tempToken, setTempToken] = useState('')
   const [twoFACode, setTwoFACode] = useState('')
-  const [twoFAMethod, setTwoFAMethod] = useState('totp')
-  const [emailCodeDisplay, setEmailCodeDisplay] = useState('') // only set in dev mode (no real email)
+  const [twoFAMethod, setTwoFAMethod] = useState(null)   // null = choice screen | 'email' | 'totp'
+  const [totpConfigured, setTotpConfigured] = useState(false)  // has Google Authenticator
+  const [emailCodeDisplay, setEmailCodeDisplay] = useState('')
   const [emailSentMsg, setEmailSentMsg] = useState('')
   const [emailCodeReady, setEmailCodeReady] = useState(false)
   const [pendingUser, setPendingUser] = useState(null)
