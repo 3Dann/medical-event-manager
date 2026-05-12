@@ -584,7 +584,7 @@ export default function PatientInsurance() {
           ) : (
             <p className="text-red-700">❌ {privateUploadResult.error}</p>
           )}
-          <button onClick={() => setPrivateUploadResult(null)} className="text-xs text-slate-600 mt-2 block hover:underline">סגור</button>
+          <button onClick={() => setPrivateUploadResult(null)} className="text-xs text-slate-600 mt-2 block hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
       )}
 
