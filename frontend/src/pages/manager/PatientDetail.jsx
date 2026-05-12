@@ -345,12 +345,12 @@ export default function PatientDetail() {
         </div>
 
         <div className="card">
-          <h2 className="font-semibold text-slate-800 mb-4">ניווט מהיר</h2>
+          <h2 className="font-semibold text-slate-800 mb-4">{t('quick_nav')}</h2>
           <div className="grid grid-cols-1 gap-2">
             {[
-              { path: 'insurance', label: 'ניהול ביטוחים',    desc: 'הוסף וערוך פוליסות',        color: 'bg-green-50 text-green-700' },
-              { path: 'claims',    label: 'מעקב תביעות',       desc: 'סטטוס תביעות ועדכונים',     color: 'bg-blue-50 text-blue-700' },
-              { path: 'strategy',  label: 'אסטרטגיה פיננסית', desc: 'המלצות ומיפוי כיסויים',     color: 'bg-purple-50 text-purple-700' },
+              { path: 'insurance', label: t('nav_insurance'),    desc: t('nav_insurance_desc'),        color: 'bg-green-50 text-green-700' },
+              { path: 'claims',    label: t('nav_claims'),       desc: t('nav_claims_desc'),     color: 'bg-blue-50 text-blue-700' },
+              { path: 'strategy',  label: t('nav_strategy'), desc: t('nav_strategy_desc'),     color: 'bg-purple-50 text-purple-700' },
             ].map(item => (
               <button key={item.path} onClick={() => navigate(`/manager/patients/${id}/${item.path}`)}
                 className={`${item.color} rounded-lg p-3 text-right hover:opacity-90 transition-opacity`}>
