@@ -62,7 +62,7 @@ def _resolve_token(bearer_token: Optional[str], request) -> Optional[str]:
 
 def get_current_user(
     request: Request,
-    bearer: Optional[str] = Depends(oauth2_scheme_optional if False else OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)),
+    bearer: Optional[str] = Depends(OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)),
     db: Session = Depends(get_db),
 ):
     credentials_exception = HTTPException(
