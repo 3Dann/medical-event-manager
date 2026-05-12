@@ -763,7 +763,7 @@ export default function PatientInsurance() {
                     {s.policy_type==='disability' && <span className="badge-yellow text-xs">{t('policy_type_disability')}</span>}
                   </div>
                   <h3 className="font-semibold text-slate-800">{sourceLabel(s)}</h3>
-                  {s.policy_number && <p className="text-xs text-slate-500 mt-0.5">פוליסה: {s.policy_number}</p>}
+                  {s.policy_number && <p className="text-xs text-slate-500 mt-0.5">{t('policy_number_label')}: {s.policy_number}</p>}
                 </div>
                 <div className="flex gap-2">
                   <button onClick={() => setExpandedSource(expandedSource===s.id ? null : s.id)}
