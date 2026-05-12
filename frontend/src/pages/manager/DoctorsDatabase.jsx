@@ -991,7 +991,7 @@ export default function DoctorsDatabase() {
 
               {extraColDefs.length > 0 && (
                 <div className="border-t border-slate-100 pt-4 mt-2">
-                  <p className="text-xs font-semibold text-slate-500 mb-3">שדות מותאמים</p>
+                  <p className="text-xs font-semibold text-slate-500 mb-3">{t('custom_fields_label')}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {extraColDefs.map(col => (
                       <div key={col.key}>
