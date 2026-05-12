@@ -215,7 +215,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                         checked={step.is_optional}
                         onChange={e => updateStep(idx, 'is_optional', e.target.checked)}
                       />
-                      אופציונלי
+                      {t('common:optional', { ns: 'common' })}
                     </label>
                   </div>
                 </div>
