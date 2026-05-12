@@ -465,6 +465,7 @@ const RESOURCE_LABELS = {
 
 function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actionFilter, dateFrom, dateTo,
   onUserFilter, onActionFilter, onDateFrom, onDateTo, onSearch, onClear, onPage }) {
+  const { t } = useTranslation('admin')
 
   const totalPages = Math.ceil(total / 50)
 
