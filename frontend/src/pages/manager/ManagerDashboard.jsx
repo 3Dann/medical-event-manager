@@ -59,7 +59,7 @@ export default function ManagerDashboard() {
     <div className="p-4 md:p-8">
       {toast && <AppToast toast={toast} onDismiss={dismissToast} />}
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 md:mb-8">
+      <header className="flex flex-wrap items-center justify-between gap-3 mb-6 md:mb-8">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold text-slate-800">{t('dashboard:title')}</h1>
           <p className="text-slate-500 mt-1">{t('dashboard:subtitle')}</p>
