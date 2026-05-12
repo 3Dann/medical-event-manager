@@ -41,6 +41,7 @@ export default function PatientDocuments() {
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
   const [viewingDoc, setViewingDoc] = useState(null)
+  const [confirm, ConfirmUI] = useConfirm()
   const fileRef = useRef()
 
   useEffect(() => {
