@@ -338,14 +338,14 @@ export default function AdminPage() {
 
                 {/* Grant access */}
                 <div className="mb-5 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                  <p className="text-xs font-medium text-slate-600 mb-2">הענק גישה למנהל אירוע</p>
+                  <p className="text-xs font-medium text-slate-600 mb-2">{t('grant_to_manager')}</p>
                   <div className="flex gap-2">
                     <select
                       className="input flex-1 text-sm"
                       value={grantManagerId}
                       onChange={e => setGrantManagerId(e.target.value)}
                     >
-                      <option value="">בחר מנהל...</option>
+                      <option value="">{t('select_manager_placeholder')}</option>
                       {managers
                         .filter(m => m.id !== selectedPatient.manager_id && !permissions.some(p => p.manager_id === m.id))
                         .map(m => (
