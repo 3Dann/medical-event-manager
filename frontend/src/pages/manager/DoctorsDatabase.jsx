@@ -329,7 +329,7 @@ export default function DoctorsDatabase() {
       if (filterSubSpecialty) params.sub_specialty  = filterSubSpecialty
       if (filterLocation)     params.location       = filterLocation
       if (filterExpert !== '') params.expert_opinion = filterExpert === 'yes'
-      const res = await axios.get('/api/doctors', { params })
+      const res = await axios.get('/api/doctors', { params, signal })
       setDoctors(res.data.items ?? res.data)
       setTotalDoctors(res.data.total ?? (res.data.items ?? res.data).length)
     } catch (e) {
