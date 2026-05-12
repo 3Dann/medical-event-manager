@@ -922,7 +922,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">מחיר ביקור פרטי (₪)</label>
+                  <label className="label">{t('form_private_price_label')}</label>
                   <input
                     type="number"
                     className="input"
