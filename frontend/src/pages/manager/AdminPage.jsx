@@ -383,7 +383,7 @@ export default function AdminPage() {
                             onClick={() => handleRevoke(perm.manager_id)}
                             className="text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded"
                           >
-                            בטל גישה
+                            {t('revoke_permission')}
                           </button>
                         </div>
                       ))}
