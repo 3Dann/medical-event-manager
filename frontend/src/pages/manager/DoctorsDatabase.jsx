@@ -564,23 +564,23 @@ export default function DoctorsDatabase() {
           <button
             onClick={() => setShowColPicker(v => !v)}
             className={`px-3 py-2 text-sm rounded-lg border transition-colors ${showColPicker ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
-            title="ניהול עמודות"
+            title={t('manage_columns_title')}
           >
-            ⚙️ עמודות
+            ⚙️ {t('columns_btn')}
           </button>
           <button onClick={openCreate} className="btn-primary flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            הוספת רופא
+            {t('add_doctor')}
           </button>
           {totalDoctors > 0 && (
             <button
               onClick={handleDeleteAll}
               className="px-3 py-2 text-sm rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
-              title="נקה את כל המאגר"
+              title={t('clear_db_title')}
             >
-              🗑️ נקה מאגר
+              🗑️ {t('clear_db_btn')}
             </button>
           )}
         </div>
