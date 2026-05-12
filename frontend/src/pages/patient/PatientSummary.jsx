@@ -853,7 +853,7 @@ function BottomNav({ view, onNavigate }) {
           }`}
         >
           <span className="text-2xl">{item.icon}</span>
-          <span className="text-xs font-medium">{item.label}</span>
+          <span className="text-sm font-medium">{item.label}</span>
           {view === item.key && (
             <span className="absolute top-0 w-8 h-0.5 bg-blue-600 rounded-full" />
           )}
