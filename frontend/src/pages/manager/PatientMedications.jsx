@@ -310,9 +310,9 @@ export default function PatientMedications() {
                 onChange={updated => setForm(f => ({ ...f, ...updated }))}
               />
               <div className="flex gap-3 justify-end border-t pt-4 mt-4">
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
                 <button type="submit" disabled={saving || !form.name.trim()} className="btn-primary disabled:opacity-50">
-                  {saving ? 'שומר...' : 'שמור'}
+                  {saving ? t('common:saving', { ns: 'common' }) : t('common:save', { ns: 'common' })}
                 </button>
               </div>
             </form>
