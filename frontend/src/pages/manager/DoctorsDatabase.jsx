@@ -964,7 +964,7 @@ export default function DoctorsDatabase() {
                       onChange={e => setForm({ ...form, gives_expert_opinion: e.target.checked })}
                       className="w-4 h-4 rounded border-slate-300 text-blue-600"
                     />
-                    <span className="text-sm text-slate-700 font-medium">נותן חוות דעת מקצועית לוועדות</span>
+                    <span className="text-sm text-slate-700 font-medium">{t('form_expert_opinion_label')}</span>
                   </label>
                 </div>
 
