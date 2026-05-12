@@ -783,7 +783,10 @@ def patch_journey_intake_step():
         db.close()
 
 
-patch_journey_intake_step()
+_INTAKE_PATCH_FLAG = "/data/.intake_step_patched_v1" if os.path.isdir("/data") else "./.intake_step_patched_v1"
+if not os.path.exists(_INTAKE_PATCH_FLAG):
+    patch_journey_intake_step()
+    open(_INTAKE_PATCH_FLAG, "w").close()
 
 
 @app.get("/api/health")
