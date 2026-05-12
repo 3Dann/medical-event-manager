@@ -247,7 +247,7 @@ function CalendarModal({ onClose }) {
           <h3 className="font-bold text-slate-800 text-lg">{t('calendar_subscribe_title')}</h3>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
         </div>
-        <p className="text-slate-600 mb-4">הוסף את הכתובת הזו ליומן שלך — המשימות, הפגישות והדדליינים יתעדכנו אוטומטית.</p>
+        <p className="text-slate-600 mb-4">{t('calendar_subscribe_desc')}</p>
 
         {token ? (
           <>
