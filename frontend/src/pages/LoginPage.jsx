@@ -252,7 +252,28 @@ export default function LoginPage() {
                 className="btn-primary w-full py-3">
                 {loading ? 'מאמת...' : 'אמת קוד'}
               </button>
-              <button type="button" onClick={() => { setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError('') }}
+
+              {/* Email fallback for TOTP users */}
+              {twoFAMethod === 'totp' && !emailCodeReady && (
+                <button type="button"
+                  onClick={async () => {
+                    setLoading(true); setError('')
+                    try {
+                      const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
+                      setTwoFAMethod('email')
+                      setEmailCodeReady(true)
+                      if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
+                      else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
+                    } catch(e) { setError(e.response?.data?.detail || 'שגיאה בשליחת מייל') }
+                    finally { setLoading(false) }
+                  }}
+                  disabled={loading}
+                  className="w-full py-2 text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                  {loading ? '...' : 'אין גישה לאפליקציה? שלח קוד למייל'}
+                </button>
+              )}
+
+              <button type="button" onClick={() => { setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError(''); setTwoFAMethod('totp') }}
                 className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
                 חזור להתחברות
               </button>
