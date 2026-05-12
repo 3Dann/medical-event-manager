@@ -258,6 +258,50 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 
 ---
 
+## ביקורת מערכת — מה בוצע (2026-05-12)
+
+36 מתוך 38 ממצאים טופלו. שניים פתוחים: PostgreSQL (נדחה בכוונה), screen reader audit מלא.
+
+### Backend
+- **Sentry** — `sentry-sdk[fastapi]==2.27.0`, `SENTRY_DSN` ב-Railway, FastAPI/SQLAlchemy/Logging integrations
+- **JWT RuntimeError** — `auth.py` קורס בהפעלה אם `SECRET_KEY` חסר מה-env
+- **Account lockout** — `failed_login_attempts` + `locked_until` ב-User model; 5 כשלונות → נעילה 15 דקות
+- **2FA codes** — `token_hex(3)` → `token_hex(4)` (8 תווים, 32-bit); reset token → `token_urlsafe(16)` (128-bit)
+- **View tokens → DB** — `DocumentViewToken` model חדש; `_VIEW_TOKENS` dict הוסר לחלוטין
+- **Family share revocation** — `revoked_at` + `revoked_by` ב-FamilyShareToken
+- **CORS explicit** — `allow_methods` + `allow_headers` מפורשים (לא wildcard)
+- **Audit log 2FA** — verify-2fa, forgot-password, reset-password נוספו ל-`_ROUTES`
+- **MIME None rejection** — upload נדחה אם `content_type is None` (HTTP 400)
+- **Cascade delete** — `Claim.insurance_source_id` עם `ondelete="SET NULL"`, `nullable=True`
+- **User audit fields** — `last_login` + `last_activity`; מעודכנים ב-login ובכל request מאומת
+- **Health check** — `/api/health` מריץ `SELECT 1`, מחזיר `{"status":"ok","db":"ok|error"}` תמיד HTTP 200
+- **Rate limits** — document upload: 20/min; doctors Excel export: 10/min (slowapi)
+- **N+1 → batch** — `_sync_tasks_for_manager` — 5 IN-clause queries במקום N×4
+- **Drug search** — `ilike()` DB pre-filter + LIMIT 100
+- **flow_engine errors** — `except: pass` → `logger.exception()`
+- **APScheduler** — `max_instances=1` על כל 3 jobs
+- **WAL mode** — database.py: WAL + synchronous=NORMAL + busy_timeout=5000
+- **Backup** — `backup.py`: sqlite3.backup → gzip → R2 (אם מוגדר) + /data/backups/ מקומי, שומר 7 גיבויים. `POST /api/admin/backup` לטריגר ידני. Job יומי 03:00 UTC.
+- **schema_versions** — טבלת מעקב migrations נוספה
+- **railway.toml** — numReplicas=1, healthcheckPath, restartPolicy
+
+### Frontend
+- **ErrorBoundary.jsx** — class component עם Hebrew fallback UI, עוטף את AppRoutes
+- **401 interceptor** — main.jsx: localStorage.clear() + redirect ל-/login על 401 (עם guard למניעת loop)
+- **console.error → toast** — 0 silent catch blocks נשארו
+- **IntakeWizard silent save** — `.catch(() => {})` → `showToast` עם שם התרופה
+- **fmtDate → formatters.js** — `frontend/src/utils/formatters.js` עם `fmtDate` + `fmtDateShort`; 7 הגדרות כפולות הוסרו
+- **Skeleton.jsx** — SkeletonLine, SkeletonCard, SkeletonTable עם animate-pulse + aria-busy
+- **RTL modals** — 12 modal overlays קיבלו `dir="rtl"`
+- **PatientSummary UX** — text-slate-500 → text-slate-700; כפתור חזרה min-h-[44px]; nav text-xs → text-sm
+- **IntakeWizard aria-label** — FIELD_LABELS map; כל `inp()` מוסיף `aria-label` + `aria-invalid` אוטומטית
+
+### שירותים חיצוניים שנוספו
+- **Sentry** — `SENTRY_DSN` ב-Railway (free tier, 5K events/month)
+- **boto3** — `boto3==1.38.7` ב-requirements.txt לגיבוי R2 (R2 env vars טרם הוגדרו)
+
+---
+
 ## סנכרון זיכרון בין מכונות
 
 CLAUDE.md הוא מנגנון הזיכרון הבין-מכונתי. בסוף כל שיחה:
