@@ -4,12 +4,7 @@ import axios from 'axios'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
 import { useAuth } from '../../context/AuthContext'
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-const fmtDate = (iso) => {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
+import { fmtDate } from '../../utils/formatters'
 
 const isOverdue = (due) => due && new Date(due) < new Date()
 const isToday   = (due) => {
