@@ -41,7 +41,7 @@ function TwoFASection() {
     e.preventDefault(); setMsg(null)
     try {
       await axios.post('/api/auth/2fa/confirm', { code })
-      setMsg({ ok: true, text: 'אימות דו-שלבי (QR) הופעל' })
+      setMsg({ ok: true, text: tfa_totp_activated })
       setView('idle'); setCode('')
       load()
     } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'קוד שגוי' }) }
@@ -61,7 +61,7 @@ function TwoFASection() {
     e.preventDefault(); setMsg(null)
     try {
       await axios.post('/api/auth/2fa/confirm-email', { code })
-      setMsg({ ok: true, text: 'אימות דו-שלבי (אימייל) הופעל' })
+      setMsg({ ok: true, text: tfa_email_activated })
       setView('idle'); setCode(''); setEmailCode('')
       load()
     } catch (e) { setMsg({ ok: false, text: e.response?.data?.detail || 'קוד שגוי' }) }
