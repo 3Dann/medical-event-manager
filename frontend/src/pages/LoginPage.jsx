@@ -224,7 +224,7 @@ export default function LoginPage() {
                   </div>
                   {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
                   <button type="submit"
-                    disabled={loading || twoFACode.length < 6}
+                    disabled={loading || twoFACode.length < 8}
                     className="btn-primary w-full py-3">
                     {loading ? 'מאמת...' : 'אמת קוד'}
                   </button>
