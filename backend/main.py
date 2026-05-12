@@ -736,9 +736,7 @@ def health():
 
 
 @app.post("/api/admin/backup")
-def trigger_backup(current_user=Depends(auth.get_current_user)):
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Admin only")
+def trigger_backup(current_user=Depends(auth_module.require_admin)):
     from backup import run_backup
     result = run_backup()
     return result
