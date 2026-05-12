@@ -4,6 +4,9 @@ Handles creation, advancement, and lifecycle of WorkflowInstances.
 When a step becomes active, automatically computes coverage via coverage_advisor.
 """
 import json
+import logging
+
+logger = logging.getLogger("flow_engine")
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.orm import Session
