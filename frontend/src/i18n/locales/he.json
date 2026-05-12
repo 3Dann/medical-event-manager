@@ -563,6 +563,7 @@
   },
   "feedback": {
     "title": "תיבת משוב",
+    "subtitle": "כל המשובים שנשלחו — ממתינים לטיפול ושטופלו",
     "type_bug": "באג",
     "type_feature": "תכונה חדשה",
     "type_general": "כללי",
@@ -571,7 +572,17 @@
     "filter_handled": "טופלו",
     "mark_handled": "סמן כטופל",
     "mark_pending": "החזר לממתינים",
-    "no_feedback": "אין משובים עדיין"
+    "no_feedback": "אין משובים עדיין",
+    "no_feedback_hint": "משובים יישלחו דרך כפתור \"שלח משוב\" בסיידבר",
+    "stat_total": "סה\"כ",
+    "stat_pending": "ממתינים",
+    "stat_bugs": "באגים",
+    "stat_ideas": "רעיונות",
+    "section_pending": "ממתינים לטיפול",
+    "section_pending_empty": "אין פריטים הממתינים לטיפול",
+    "section_handled": "טופלו",
+    "section_handled_empty": "אין פריטים שטופלו עדיין",
+    "load_error": "שגיאה בטעינת משובים"
   },
   "profile": {
     "title": "הפרופיל שלי",
