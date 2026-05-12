@@ -96,7 +96,7 @@ function PatientRequestsPanel({ patientId }) {
                       <textarea
                         className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm text-right resize-none focus:outline-none focus:border-blue-400"
                         rows={2}
-                        placeholder="כתוב תגובה למטופל (אופציונלי)..."
+                        placeholder={t('reply_placeholder')}
                         value={note}
                         onChange={e => setNote(e.target.value)}
                       />
