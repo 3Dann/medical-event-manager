@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { DevProvider } from './context/DevContext'
@@ -6,46 +6,54 @@ import { DemoModeProvider } from './context/DemoModeContext'
 import DevGate from './components/DevGate'
 import ErrorBoundary from './components/ErrorBoundary'
 import './i18n/index.js'
-import { RTL_LANGS } from './i18n/index.js'
 import i18n from './i18n/index.js'
 
-// Auth
-import LoginPage from './pages/LoginPage'
-
-// Public
-import ProgressPage from './pages/ProgressPage'
+// Always-loaded (critical path)
 import LandingPage from './pages/LandingPage'
+import NotFoundPage from './pages/NotFoundPage'
+import AccessibilityPage from './pages/AccessibilityPage'
 
-// Manager pages
-import ManagerLayout from './pages/manager/ManagerLayout'
-import ManagerDashboard from './pages/manager/ManagerDashboard'
-import ManagerPatientLayout from './pages/manager/PatientLayout'
-import PatientDetail from './pages/manager/PatientDetail'
-import PatientClaims from './pages/manager/PatientClaims'
-import PatientStrategy from './pages/manager/PatientStrategy'
-import PatientDocuments from './pages/manager/PatientDocuments'
-import PatientMedications from './pages/manager/PatientMedications'
-import PatientInsurancePolicies from './pages/manager/PatientInsurancePolicies'
-import PatientFinancialMap from './pages/manager/PatientFinancialMap'
-import PatientMeetings from './pages/manager/PatientMeetings'
-import ResponsivenessPage from './pages/manager/ResponsivenessPage'
-import FeedbackInbox from './pages/manager/FeedbackInbox'
-import DoctorsDatabase from './pages/manager/DoctorsDatabase'
-import ProfilePage from './pages/manager/ProfilePage'
-import AdminPage from './pages/manager/AdminPage'
-import WorkflowsPage from './pages/manager/WorkflowsPage'
-import ReportsPage from './pages/manager/ReportsPage'
-import IntakeWizard from './pages/manager/IntakeWizard'
-import LandingEditorPage from './pages/manager/LandingEditorPage'
-import FeedbackSubmitPage from './pages/manager/FeedbackSubmitPage'
-import AdminDashboardPage from './pages/manager/AdminDashboardPage'
-import MyDay from './pages/manager/MyDay'
-import DemoPatientPortal from './pages/demo/DemoPatientPortal'
-import DemoBrokerPortal from './pages/demo/DemoBrokerPortal'
+// Lazy-loaded pages (loaded only when navigated to)
+const LoginPage          = lazy(() => import('./pages/LoginPage'))
+const ProgressPage       = lazy(() => import('./pages/ProgressPage'))
+const ManagerLayout      = lazy(() => import('./pages/manager/ManagerLayout'))
+const ManagerDashboard   = lazy(() => import('./pages/manager/ManagerDashboard'))
+const ManagerPatientLayout = lazy(() => import('./pages/manager/PatientLayout'))
+const PatientDetail      = lazy(() => import('./pages/manager/PatientDetail'))
+const PatientClaims      = lazy(() => import('./pages/manager/PatientClaims'))
+const PatientStrategy    = lazy(() => import('./pages/manager/PatientStrategy'))
+const PatientDocuments   = lazy(() => import('./pages/manager/PatientDocuments'))
+const PatientMedications = lazy(() => import('./pages/manager/PatientMedications'))
+const PatientInsurancePolicies = lazy(() => import('./pages/manager/PatientInsurancePolicies'))
+const PatientFinancialMap = lazy(() => import('./pages/manager/PatientFinancialMap'))
+const PatientMeetings    = lazy(() => import('./pages/manager/PatientMeetings'))
+const ResponsivenessPage = lazy(() => import('./pages/manager/ResponsivenessPage'))
+const FeedbackInbox      = lazy(() => import('./pages/manager/FeedbackInbox'))
+const DoctorsDatabase    = lazy(() => import('./pages/manager/DoctorsDatabase'))
+const ProfilePage        = lazy(() => import('./pages/manager/ProfilePage'))
+const AdminPage          = lazy(() => import('./pages/manager/AdminPage'))
+const WorkflowsPage      = lazy(() => import('./pages/manager/WorkflowsPage'))
+const ReportsPage        = lazy(() => import('./pages/manager/ReportsPage'))
+const IntakeWizard       = lazy(() => import('./pages/manager/IntakeWizard'))
+const LandingEditorPage  = lazy(() => import('./pages/manager/LandingEditorPage'))
+const FeedbackSubmitPage = lazy(() => import('./pages/manager/FeedbackSubmitPage'))
+const AdminDashboardPage = lazy(() => import('./pages/manager/AdminDashboardPage'))
+const MyDay              = lazy(() => import('./pages/manager/MyDay'))
+const DemoPatientPortal  = lazy(() => import('./pages/demo/DemoPatientPortal'))
+const DemoBrokerPortal   = lazy(() => import('./pages/demo/DemoBrokerPortal'))
+const PatientLayout      = lazy(() => import('./pages/patient/PatientLayout'))
+const PatientSummary     = lazy(() => import('./pages/patient/PatientSummary'))
 
-// Patient pages
-import PatientLayout from './pages/patient/PatientLayout'
-import PatientSummary from './pages/patient/PatientSummary'
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-screen text-slate-400" aria-live="polite" aria-busy="true">
+      <div className="text-center">
+        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <span className="text-sm">טוען...</span>
+      </div>
+    </div>
+  )
+}
 
 function ProtectedRoute({ children, role, adminOnly }) {
   const { user, loading } = useAuth()
