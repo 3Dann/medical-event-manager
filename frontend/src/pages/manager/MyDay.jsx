@@ -276,6 +276,37 @@ function CalendarModal({ onClose }) {
 export default function MyDay() {
   const { t } = useTranslation('myday')
   const { user } = useAuth()
+  const FILTER_DEFS = [
+    {
+      key: 'source_type', label: t('filter_source_label'),
+      options: [
+        { value: '', label: t('filter_all') },
+        { value: 'manual',          label: t('source_manual') },
+        { value: 'meeting_action',  label: t('source_meeting') },
+        { value: 'workflow_step',   label: t('source_workflow') },
+        { value: 'patient_request', label: t('source_request') },
+        { value: 'red_flag',        label: t('source_flag') },
+      ],
+    },
+    {
+      key: 'priority', label: t('filter_priority_label'),
+      options: [
+        { value: '', label: t('filter_all') },
+        { value: 'urgent', label: t('priority_urgent') },
+        { value: 'high',   label: t('priority_high') },
+        { value: 'normal', label: t('priority_normal') },
+        { value: 'low',    label: t('priority_low') },
+      ],
+    },
+    {
+      key: 'status', label: t('filter_status_label'),
+      options: [
+        { value: 'open', label: t('filter_open') },
+        { value: '',     label: t('filter_all') },
+        { value: 'done', label: t('done') },
+      ],
+    },
+  ]
   const { toast, showToast, dismissToast } = useToast()
   const [confirmDelete, ConfirmUI] = useConfirm()
 
