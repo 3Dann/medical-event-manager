@@ -194,7 +194,7 @@ def view_document_inline(
     token: str = Query(...),
     db: Session = Depends(get_db),
 ):
-    """הגשת מסמך inline. מקבל view_token קצר-חיים (90 שניות) במקום JWT."""
+    """הגשת מסמך inline. מקבל view_token קצר-חיים (300 שניות) במקום JWT."""
     _cleanup_view_tokens()
     entry = _VIEW_TOKENS.get(token)
     if not entry:
