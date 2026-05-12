@@ -760,7 +760,7 @@ export default function PatientInsurance() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="badge-blue text-xs">{SOURCE_TYPE_LABELS[s.source_type]}</span>
-                    {s.policy_type==='disability' && <span className="badge-yellow text-xs">אובדן כושר עבודה</span>}
+                    {s.policy_type==='disability' && <span className="badge-yellow text-xs">{t('policy_type_disability')}</span>}
                   </div>
                   <h3 className="font-semibold text-slate-800">{sourceLabel(s)}</h3>
                   {s.policy_number && <p className="text-xs text-slate-500 mt-0.5">פוליסה: {s.policy_number}</p>}
