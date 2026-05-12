@@ -553,45 +553,7 @@ export default function PatientStrategy() {
 
       {/* ── MATRIX TAB ─────────────────────────────────────────────────────── */}
       {tab === 'matrix' && matrix && (
-        <div className="card overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-800 text-white">
-                <tr>
-                  <th className="p-3 text-right font-medium sticky right-0 bg-slate-800">קטגוריה</th>
-                  {matrix.sources.map(s => (
-                    <th key={s.id} className="p-3 text-center font-medium min-w-[130px]">{s.label}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {matrix.matrix.map((row, ri) => (
-                  <tr key={row.category} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                    <td className="p-3 font-medium text-slate-800 sticky right-0 bg-inherit border-l">{row.category_label}</td>
-                    {row.sources.map(s => (
-                      <td key={s.source_id} className="p-3 text-center">
-                        {s.is_covered ? (
-                          <div>
-                            <span className="text-green-500 text-lg">✓</span>
-                            {s.percentage && <p className="text-xs text-slate-500">{s.percentage}%</p>}
-                            {s.amount && <p className="text-xs text-slate-500">₪{s.amount?.toLocaleString()}</p>}
-                            {s.copay && <p className="text-xs text-orange-500">השת"ע ₪{s.copay}</p>}
-                            {s.abroad && <p className="text-xs text-blue-500">+חו"ל</p>}
-                          </div>
-                        ) : (
-                          <span className="text-red-400 text-lg">✗</span>
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {matrix.sources.length === 0 && (
-            <div className="text-center py-10 text-slate-600">אין מקורות ביטוח. הוסף ביטוחים כדי לראות את המטריצה.</div>
-          )}
-        </div>
+        <MatrixTab matrix={matrix} />
       )}
 
       {/* ── INSIGHTS TAB ───────────────────────────────────────────────────── */}
