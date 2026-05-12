@@ -243,10 +243,10 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
 
           {/* Status summary */}
           <div>
-            <label className="label">סיכום סטטוס (2 משפטים)</label>
+            <label className="label">{t('status_summary_label')}</label>
             <textarea className="input resize-none" rows={3} value={form.status_summary}
               onChange={e => set('status_summary', e.target.value)}
-              placeholder="מה המצב לפי דברי איש המקצוע?" />
+              placeholder={t('status_summary_placeholder')} />
           </div>
 
           {/* Action items */}
