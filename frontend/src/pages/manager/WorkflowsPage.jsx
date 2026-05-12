@@ -331,7 +331,7 @@ export default function WorkflowsPage() {
             onClick={() => openEditor(null)}
             className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700"
           >
-            + תבנית חדשה
+            + {t('new_template')}
           </button>
         )}
       </div>
