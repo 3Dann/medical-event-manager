@@ -221,7 +221,9 @@ def get_my_tasks(
     if current_user.role != models.UserRole.manager:
         raise HTTPException(403, "נגיש למנהלי אירוע בלבד")
 
-    q = db.query(models.Task).filter(models.Task.assigned_to == current_user.id)
+    q = db.query(models.Task).options(joinedload(models.Task.patient)).filter(
+        models.Task.assigned_to == current_user.id
+    )
     if status:
         q = q.filter(models.Task.status == status)
     total = q.count()
