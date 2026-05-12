@@ -321,10 +321,10 @@ export default function PatientStrategy() {
 
   if (loading) return <div className="p-8 text-slate-500">{t('strategy:loading')}</div>
 
-  const journeyInstance   = instances.find(i => i.title === 'מסע המטופל')
-  const activeInstances   = instances.filter(i => i.status === 'active' && i.title !== 'מסע המטופל')
-  const pausedInstances   = instances.filter(i => i.status === 'paused')
-  const finishedInstances = instances.filter(i => ['completed','cancelled'].includes(i.status))
+  const journeyInstance   = useMemo(() => instances.find(i => i.title === 'מסע המטופל'), [instances])
+  const activeInstances   = useMemo(() => instances.filter(i => i.status === 'active' && i.title !== 'מסע המטופל'), [instances])
+  const pausedInstances   = useMemo(() => instances.filter(i => i.status === 'paused'), [instances])
+  const finishedInstances = useMemo(() => instances.filter(i => ['completed','cancelled'].includes(i.status)), [instances])
 
   return (
     <div className="p-4 md:p-6 space-y-6" dir="rtl">
