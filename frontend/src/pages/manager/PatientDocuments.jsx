@@ -102,7 +102,7 @@ export default function PatientDocuments() {
       a.click()
       window.URL.revokeObjectURL(url)
     } catch {
-      setError('שגיאה בהורדת הקובץ')
+      setError(t('download_error'))
     }
   }
 
