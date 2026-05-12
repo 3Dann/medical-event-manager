@@ -218,21 +218,32 @@ def get_my_tasks(
     if current_user.role != models.UserRole.manager:
         raise HTTPException(403, "נגיש למנהלי אירוע בלבד")
 
+    tasks = db.query(models.Task).filter(
+        models.Task.assigned_to == current_user.id,
+    ).order_by(models.Task.created_at.desc()).all()
+
+    return [_task_dict(t) for t in tasks]
+
+
+@router.post("/api/tasks/sync")
+def sync_my_tasks(
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Trigger task sync from source records. Separate from GET to keep reads safe."""
+    if current_user.role != models.UserRole.manager:
+        raise HTTPException(403, "נגיש למנהלי אירוע בלבד")
+
     _sync_tasks_for_manager(current_user.id, db)
     db.commit()
 
-    # סימון is_new=False לכל המשימות החדשות שנצפו
     db.query(models.Task).filter(
         models.Task.assigned_to == current_user.id,
         models.Task.is_new == True,
     ).update({"is_new": False})
     db.commit()
 
-    tasks = db.query(models.Task).filter(
-        models.Task.assigned_to == current_user.id,
-    ).order_by(models.Task.created_at.desc()).all()
-
-    return [_task_dict(t) for t in tasks]
+    return {"synced": True}
 
 
 @router.get("/api/tasks/new-count")
