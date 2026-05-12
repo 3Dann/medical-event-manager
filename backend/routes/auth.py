@@ -30,6 +30,16 @@ def _get_real_ip(request: Request) -> str:
 limiter = Limiter(key_func=_get_real_ip)
 
 
+def _validate_password(password: str) -> None:
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="הסיסמה חייבת להכיל לפחות 8 תווים")
+    has_upper = any(c.isupper() for c in password)
+    has_lower = any(c.islower() for c in password)
+    has_digit = any(c.isdigit() for c in password)
+    if not (has_upper and has_lower and has_digit):
+        raise HTTPException(status_code=400, detail="הסיסמה חייבת להכיל אותיות גדולות, קטנות וספרה")
+
+
 class UserCreate(BaseModel):
     full_name: str
     email: str
