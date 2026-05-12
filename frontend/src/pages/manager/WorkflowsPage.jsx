@@ -198,7 +198,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                   <div className="grid grid-cols-3 gap-2">
                     <input
                       className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
-                      placeholder="הוראות"
+                      placeholder={t('instructions_placeholder')}
                       value={step.instructions}
                       onChange={e => updateStep(idx, 'instructions', e.target.value)}
                     />
