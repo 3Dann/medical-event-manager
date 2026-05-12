@@ -265,7 +265,8 @@ export default function WorkflowsPage() {
   const [loading, setLoading] = useState(true)
   const [editorOpen, setEditorOpen] = useState(false)
   const [editTarget, setEditTarget] = useState(null)
-  const { toast, showToast, dismissToast } = useToast() // null = new template
+  const { toast, showToast, dismissToast } = useToast()
+  const [confirm, ConfirmUI] = useConfirm()
 
   const loadTemplates = useCallback((signal) => {
     return axios.get('/api/workflows/templates', { signal }).then(r => {
