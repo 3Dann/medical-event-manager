@@ -553,8 +553,8 @@ export default function PatientDetail() {
                             <input type="date" className="input text-xs py-1" value={editNodeData.planned_date} onChange={e => setEditNodeData({...editNodeData, planned_date: e.target.value})} />
                           </div>
                           <div>
-                            <label className="label text-xs">הערות</label>
-                            <input className="input text-xs py-1" value={editNodeData.notes} onChange={e => setEditNodeData({...editNodeData, notes: e.target.value})} placeholder="הוסף הערה..." />
+                            <label className="label text-xs">{t('notes_label')}</label>
+                            <input className="input text-xs py-1" value={editNodeData.notes} onChange={e => setEditNodeData({...editNodeData, notes: e.target.value})} placeholder={t('add_note_placeholder')} />
                           </div>
                         </div>
                         {!isFixed && (
