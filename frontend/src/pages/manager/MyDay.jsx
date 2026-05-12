@@ -109,7 +109,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
         <button
           onClick={() => onDelete(task.id)}
           className="text-slate-400 hover:text-red-500 p-1 -m-1 rounded transition-colors flex-shrink-0"
-          title="מחק משימה"
+          title={t('delete_task_title')}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
