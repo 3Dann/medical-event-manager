@@ -49,30 +49,63 @@ class TaskUpdate(BaseModel):
 # ── Sync helpers ──────────────────────────────────────────────────────────────
 
 def _sync_tasks_for_manager(manager_user_id: int, db: Session):
-    """סנכרון אוטומטי של משימות ממקורות קיימים."""
+    """סנכרון אוטומטי של משימות ממקורות קיימים — batch loading, no N+1."""
+    from sqlalchemy import or_
 
-    # מציא את כל המטופלים של המנהל
-    patients = db.query(models.Patient).filter(
-        models.Patient.manager_id == manager_user_id
-    ).all()
-
-    # הרשאות גישה נוספות
+    # ── Batch-load all patients ───────────────────────────────────────────────
     granted_ids = [
-        g.patient_id for g in db.query(models.PatientPermission).filter(
+        g.patient_id for g in db.query(models.PatientPermission.patient_id).filter(
             models.PatientPermission.manager_id == manager_user_id
         ).all()
     ]
-    granted_patients = db.query(models.Patient).filter(
-        models.Patient.id.in_(granted_ids)
-    ).all() if granted_ids else []
+    all_patients = db.query(models.Patient).filter(
+        or_(
+            models.Patient.manager_id == manager_user_id,
+            models.Patient.id.in_(granted_ids) if granted_ids else False,
+        )
+    ).all()
+    if not all_patients:
+        return
 
-    all_patients = patients + granted_patients
+    pid_map = {p.id: p for p in all_patients}
+    pids = list(pid_map.keys())
 
-    for patient in all_patients:
-        _sync_meeting_actions(manager_user_id, patient, db)
-        _sync_workflow_steps(manager_user_id, patient, db)
-        _sync_patient_requests(manager_user_id, patient, db)
-        _sync_red_flags(manager_user_id, patient, db)
+    # ── Batch-load all related data in 5 queries total ────────────────────────
+    meetings   = db.query(models.PatientMeeting).filter(
+        models.PatientMeeting.patient_id.in_(pids)).all()
+    instances  = db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.patient_id.in_(pids),
+        models.WorkflowInstance.status == "active").all()
+    inst_ids   = [i.id for i in instances]
+    steps      = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.instance_id.in_(inst_ids),
+        models.WorkflowStep.status == "active").all() if inst_ids else []
+    requests   = db.query(models.PatientRequest).filter(
+        models.PatientRequest.patient_id.in_(pids),
+        models.PatientRequest.status == "pending").all()
+    red_flags  = db.query(models.PatientRedFlag).filter(
+        models.PatientRedFlag.patient_id.in_(pids),
+        models.PatientRedFlag.is_active == True).all()
+
+    inst_map = {i.id: i for i in instances}
+
+    for meeting in meetings:
+        patient = pid_map.get(meeting.patient_id)
+        if patient:
+            _sync_meeting_actions(manager_user_id, patient, db, meeting=meeting)
+    for step in steps:
+        inst    = inst_map.get(step.instance_id)
+        patient = pid_map.get(inst.patient_id) if inst else None
+        if patient and inst:
+            _sync_workflow_steps(manager_user_id, patient, db, instance=inst, step=step)
+    for req in requests:
+        patient = pid_map.get(req.patient_id)
+        if patient:
+            _sync_patient_requests(manager_user_id, patient, db, request=req)
+    for flag in red_flags:
+        patient = pid_map.get(flag.patient_id)
+        if patient:
+            _sync_red_flags(manager_user_id, patient, db, flag=flag)
 
 
 def _upsert_task(manager_id: int, patient: models.Patient,
