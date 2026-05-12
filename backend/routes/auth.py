@@ -130,17 +130,20 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
     user.locked_until = None
     user.last_login = datetime.now(tz.utc)
     db.commit()
+    # All managers/admins go through 2FA — email always available, TOTP if configured
     if user.totp_enabled and user.totp_secret:
         temp = auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=5)
         method = user.totp_method or "totp"
         return Token(access_token="", token_type="bearer", user_id=user.id, full_name=user.full_name,
-                     role=user.role, is_admin=user.is_admin, requires_2fa=True, temp_token=temp, tfa_method=method)
+                     role=user.role, is_admin=user.is_admin, requires_2fa=True, temp_token=temp,
+                     tfa_method=method, totp_configured=True)
 
-    # Admin and manager accounts must have 2FA enabled
     if user.is_admin or user.role == "manager":
+        # No TOTP configured — email 2FA available by default, no setup required
+        temp = auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=30)
         return Token(access_token="", token_type="bearer", user_id=user.id, full_name=user.full_name,
-                     role=user.role, is_admin=user.is_admin, requires_2fa=True, tfa_required_setup=True,
-                     temp_token=auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=30))
+                     role=user.role, is_admin=user.is_admin, requires_2fa=True,
+                     tfa_method="email", totp_configured=False, temp_token=temp)
 
     token = auth_utils.create_access_token({"sub": str(user.id)})
     is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
