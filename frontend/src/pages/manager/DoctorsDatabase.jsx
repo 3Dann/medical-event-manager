@@ -589,7 +589,7 @@ export default function DoctorsDatabase() {
       {/* Column picker panel */}
       {showColPicker && (
         <div className="mb-4 p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
-          <p className="text-sm font-semibold text-slate-700 mb-3">בחר עמודות להצגה</p>
+          <p className="text-sm font-semibold text-slate-700 mb-3">{t('select_columns')}</p>
           <div className="flex flex-wrap gap-2 mb-4">
             {allColDefs.map(col => (
               <label key={col.key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition-colors ${
