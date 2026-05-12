@@ -418,7 +418,7 @@ export default function MyDay() {
             onClick={() => setShowCal(true)}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 px-3 py-2 rounded-xl transition-colors"
           >
-            📅 הירשם ליומן
+            📅 {t('calendar_subscribe')}
           </button>
           <button
             onClick={() => setShowNew(true)}
