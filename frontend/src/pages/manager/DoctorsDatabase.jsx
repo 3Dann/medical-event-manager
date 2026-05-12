@@ -721,10 +721,10 @@ export default function DoctorsDatabase() {
           onChange={setFilterHmo}
         />
         <FilterButton
-          label="חוות דעת"
+          label={t('filter_expert')}
           value={filterExpert}
-          valueLabel={filterExpert === 'yes' ? 'נותן חוות דעת' : 'לא נותן'}
-          options={[{ value: 'yes', label: 'נותן חוות דעת' }, { value: 'no', label: 'לא נותן חוות דעת' }]}
+          valueLabel={filterExpert === 'yes' ? t('expert_gives') : t('expert_not_gives')}
+          options={[{ value: 'yes', label: t('expert_gives') }, { value: 'no', label: t('expert_not_gives') }]}
           onChange={setFilterExpert}
         />
         {(search || filterSpecialty || filterSubSpecialty || filterHmo || filterExpert) && (
