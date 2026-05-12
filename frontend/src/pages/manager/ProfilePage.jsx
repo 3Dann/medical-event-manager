@@ -126,22 +126,48 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
                 <p className="text-xs text-amber-700 mt-1">{t('tfa_choose_method')}</p>
               </div>
               <button onClick={startTOTP} className="btn-primary w-full py-2 text-sm">
-                {t('tfa_enable_qr')}
+                📱 {t('tfa_enable_qr')}
               </button>
-              <button onClick={startEmail} className="w-full py-2 text-sm border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">
-                {t('tfa_enable_email')}
+              <button onClick={startEmail}
+                className="w-full py-2 text-sm border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">
+                ✉️ {t('tfa_enable_email')}
+              </button>
+              <button onClick={() => { setMsg(null); setCode(''); setView('setup-sms') }}
+                className="w-full py-2 text-sm border border-green-300 text-green-700 rounded-lg hover:bg-green-50">
+                💬 קוד ב-SMS לטלפון
               </button>
             </div>
           ) : (
             <div className="space-y-2">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-1">
                 <p className="text-sm text-green-800 font-medium">✓ {t('tfa_active')}</p>
-                <p className="text-xs text-green-700 mt-1">{t('tfa_method_label')}: {status.totp_method === 'email' ? t('tfa_method_email') : t('tfa_method_qr')}</p>
+                <p className="text-xs text-green-700 mt-1">
+                  {t('tfa_method_label')}:{' '}
+                  {status.totp_method === 'email' ? t('tfa_method_email')
+                   : status.totp_method === 'sms' ? `SMS ${status.phone_masked || ''}`
+                   : t('tfa_method_qr')}
+                </p>
               </div>
-              <button onClick={() => { setMsg(null); setCode(''); status.totp_method === 'email' ? startTOTP() : startEmail() }}
-                className="w-full py-2 text-sm border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50">
-                {t('tfa_switch_to')} {status.totp_method === 'email' ? 'QR (TOTP)' : t('tfa_method_email')}
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                {status.totp_method !== 'totp' && (
+                  <button onClick={() => { setMsg(null); setCode(''); startTOTP() }}
+                    className="flex-1 py-2 text-xs border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50">
+                    עבור ל-QR
+                  </button>
+                )}
+                {status.totp_method !== 'email' && (
+                  <button onClick={() => { setMsg(null); setCode(''); startEmail() }}
+                    className="flex-1 py-2 text-xs border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50">
+                    עבור למייל
+                  </button>
+                )}
+                {status.totp_method !== 'sms' && (
+                  <button onClick={() => { setMsg(null); setCode(''); setView('setup-sms') }}
+                    className="flex-1 py-2 text-xs border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50">
+                    עבור ל-SMS
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
