@@ -321,7 +321,7 @@ def confirm_2fa(data: Confirm2FARequest, current_user: models.User = Depends(aut
     """Activate 2FA after user scans QR and confirms a valid code."""
     if not current_user.totp_secret:
         raise HTTPException(status_code=400, detail="יש להפעיל תחילה את הגדרת 2FA")
-    totp = pyotp.TOTP(current_user.totp_secret)
+    totp = pyotp.TOTP(fe.decrypt(current_user.totp_secret))
     if not totp.verify(data.code, valid_window=1):
         raise HTTPException(status_code=400, detail="קוד שגוי — נסה שוב")
     current_user.totp_enabled = True
@@ -334,7 +334,7 @@ def disable_2fa(data: Confirm2FARequest, current_user: models.User = Depends(aut
     """Disable 2FA — requires current TOTP code to confirm."""
     if not current_user.totp_enabled or not current_user.totp_secret:
         raise HTTPException(status_code=400, detail="אימות דו-שלבי אינו מופעל")
-    totp = pyotp.TOTP(current_user.totp_secret)
+    totp = pyotp.TOTP(fe.decrypt(current_user.totp_secret))
     if not totp.verify(data.code, valid_window=1):
         raise HTTPException(status_code=400, detail="קוד שגוי")
     current_user.totp_secret = None
@@ -365,7 +365,7 @@ def change_own_password(data: ChangePasswordRequest, db: Session = Depends(get_d
             current_user.email_2fa_code = None
             current_user.email_2fa_expires = None
         else:
-            totp = pyotp.TOTP(current_user.totp_secret)
+            totp = pyotp.TOTP(fe.decrypt(current_user.totp_secret))
             if not totp.verify(data.tfa_code, valid_window=1):
                 raise HTTPException(status_code=400, detail="קוד אימות שגוי")
     current_user.hashed_password = auth_utils.get_password_hash(data.new_password)
