@@ -40,25 +40,33 @@ export default function PatientMedications() {
   const [candidates, setCandidates] = useState([])
   const [showExtract, setShowExtract] = useState(false)
 
-  const fetchAll = async () => {
-    const res = await axios.get(`/api/patients/${id}/medications`)
-    setMedications(res.data.medications)
-    setInteractions(res.data.interactions)
+  const fetchAll = async (signal) => {
+    try {
+      const res = await axios.get(`/api/patients/${id}/medications`, { signal })
+      setMedications(res.data.medications)
+      setInteractions(res.data.interactions)
+    } catch (e) { if (axios.isCancel(e)) return }
     setCheckingInteractions(false)
   }
 
-  // Background interaction check — keeps old interactions visible while loading
   const checkInBackground = () => {
     setCheckingInteractions(true)
-    fetchAll()   // fetchAll sets checkingInteractions false when done
+    fetchAll()
   }
 
-  const fetchDocuments = async () => {
-    const res = await axios.get(`/api/patients/${id}/documents`)
-    setDocuments(res.data.filter(d => d.file_type?.includes('pdf') || d.original_name?.endsWith('.pdf')))
+  const fetchDocuments = async (signal) => {
+    try {
+      const res = await axios.get(`/api/patients/${id}/documents`, { signal })
+      setDocuments(res.data.filter(d => d.file_type?.includes('pdf') || d.original_name?.endsWith('.pdf')))
+    } catch (e) { if (axios.isCancel(e)) return }
   }
 
-  useEffect(() => { fetchAll(); fetchDocuments() }, [id])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    fetchDocuments(ctrl.signal)
+    return () => ctrl.abort()
+  }, [id])
 
   const openAdd = () => { setForm(emptyForm()); setEditId(null); setShowForm(true) }
   const openEdit = (m) => {
