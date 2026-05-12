@@ -167,12 +167,12 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
           {/* Steps */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="font-semibold text-slate-700">שלבים ({form.steps.length})</span>
+              <span className="font-semibold text-slate-700">{t('steps_label')} ({form.steps.length})</span>
               <button
                 onClick={addStep}
                 className="text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-medium"
               >
-                + הוסף שלב
+                + {t('add_step')}
               </button>
             </div>
             <div className="space-y-3 max-h-80 overflow-y-auto pl-1">
