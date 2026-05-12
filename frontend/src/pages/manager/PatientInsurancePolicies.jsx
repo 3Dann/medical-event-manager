@@ -548,24 +548,28 @@ export default function PatientInsurancePolicies() {
   const [uploading, setUploading] = useState(false)
   const [gaps, setGaps] = useState([])
 
-  const fetchAll = useCallback(async () => {
-    const [p, s] = await Promise.all([
-      axios.get(`/api/patients/${id}`),
-      axios.get(`/api/patients/${id}/insurance`),
-    ])
-    setPatient(p.data)
-    setSources(s.data)
-
-    // compute gaps
-    const allCovKeys = Object.keys(COVERAGE_LABELS)
-    const coveredKeys = new Set(
-      s.data.flatMap(src => (src.coverages || []).filter(c => c.is_covered).map(c => c.category))
-    )
-    setGaps(allCovKeys.filter(k => !coveredKeys.has(k) && ['nursing_care', 'disability_monthly', 'critical_illness'].includes(k))
-      .map(k => COVERAGE_LABELS[k]))
+  const fetchAll = useCallback(async (signal) => {
+    try {
+      const [p, s] = await Promise.all([
+        axios.get(`/api/patients/${id}`, { signal }),
+        axios.get(`/api/patients/${id}/insurance`, { signal }),
+      ])
+      setPatient(p.data)
+      setSources(s.data)
+      const allCovKeys = Object.keys(COVERAGE_LABELS)
+      const coveredKeys = new Set(
+        s.data.flatMap(src => (src.coverages || []).filter(c => c.is_covered).map(c => c.category))
+      )
+      setGaps(allCovKeys.filter(k => !coveredKeys.has(k) && ['nursing_care', 'disability_monthly', 'critical_illness'].includes(k))
+        .map(k => COVERAGE_LABELS[k]))
+    } catch (e) { if (axios.isCancel(e)) return }
   }, [id])
 
-  useEffect(() => { fetchAll() }, [fetchAll])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    return () => ctrl.abort()
+  }, [fetchAll])
 
   const toggle = (key) => setExpanded(prev => prev === key ? null : key)
 
