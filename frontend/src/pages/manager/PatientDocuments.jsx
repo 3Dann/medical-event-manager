@@ -60,7 +60,7 @@ export default function PatientDocuments() {
       setDocs(res.data)
     } catch (e) {
       if (axios.isCancel(e)) return
-      setError('שגיאה בטעינת מסמכים')
+      setError(t('load_error'))
     } finally {
       setLoading(false)
     }
