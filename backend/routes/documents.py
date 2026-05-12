@@ -174,13 +174,16 @@ def create_view_token(
     ).first()
     if not doc:
         raise HTTPException(status_code=404)
-    _cleanup_view_tokens()
+    _cleanup_view_tokens(db)
     vt = secrets.token_urlsafe(32)
-    _VIEW_TOKENS[vt] = (
-        datetime.now(timezone.utc) + timedelta(seconds=300),
-        patient_id,
-        doc_id,
-    )
+    db.add(models.DocumentViewToken(
+        token=vt,
+        patient_id=patient_id,
+        doc_id=doc_id,
+        expires_at=datetime.now(timezone.utc) + timedelta(seconds=300),
+        created_by=current_user.id,
+    ))
+    db.commit()
     return {"view_token": vt}
 
 
