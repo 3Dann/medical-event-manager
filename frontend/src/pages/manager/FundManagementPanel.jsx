@@ -172,15 +172,19 @@ export default function FundManagementPanel() {
   const [editing, setEditing] = useState(null)   // fund object or {} for new
   const [showInactive, setShowInactive] = useState(false)
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (signal) => {
     setLoading(true)
     try {
-      const res = await axios.get('/api/admin/financial-funds')
+      const res = await axios.get('/api/admin/financial-funds', { signal })
       setFunds(res.data)
-    } catch {} finally { setLoading(false) }
+    } catch (e) { if (axios.isCancel(e)) return } finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [load])
 
   const toggle = async (fund) => {
     try {
