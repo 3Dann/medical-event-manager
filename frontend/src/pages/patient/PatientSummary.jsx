@@ -619,7 +619,11 @@ function FamilyShareButton() {
   const [confirmRevoke, ConfirmRevokeUI] = useConfirm()
 
   useEffect(() => {
-    axios.get('/api/patient/family-share/status').then(r => setStatus(r.data)).catch(() => {})
+    const ctrl = new AbortController()
+    axios.get('/api/patient/family-share/status', { signal: ctrl.signal })
+      .then(r => setStatus(r.data))
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => ctrl.abort()
   }, [])
 
   const shareUrl = status?.token
