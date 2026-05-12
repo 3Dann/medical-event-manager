@@ -746,7 +746,7 @@ export default function DoctorsDatabase() {
 
       {/* Table */}
       {loading ? (
-        <div className="text-center py-16 text-slate-500">טוען...</div>
+        <div className="text-center py-16 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
       ) : doctors.length === 0 ? (
         <div className="card text-center py-16">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -754,8 +754,8 @@ export default function DoctorsDatabase() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
           </div>
-          <p className="text-slate-600 font-medium">אין רופאים במאגר</p>
-          <p className="text-slate-600 text-sm mt-1">הוסף רופאים ידנית באמצעות כפתור "הוספת רופא"</p>
+          <p className="text-slate-600 font-medium">{t('no_doctors')}</p>
+          <p className="text-slate-600 text-sm mt-1">{t('no_doctors_hint')}</p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
