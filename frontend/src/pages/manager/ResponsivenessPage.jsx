@@ -70,24 +70,24 @@ export default function ResponsivenessPage() {
                     {editing === score.id ? (
                       <div className="space-y-3">
                         <div>
-                          <label className="text-xs text-slate-500 mb-1 block">מהירות תגובה: {editForm.response_speed}/10</label>
+                          <label className="text-xs text-slate-500 mb-1 block">{t('speed_label')}: {editForm.response_speed}/10</label>
                           <input type="range" min="1" max="10" step="0.5" value={editForm.response_speed}
                             onChange={e => setEditForm({...editForm, response_speed: parseFloat(e.target.value)})}
                             className="w-full accent-blue-600" />
                         </div>
                         <div>
-                          <label className="text-xs text-slate-500 mb-1 block">מינימום בירוקרטיה: {editForm.bureaucracy_level}/10</label>
+                          <label className="text-xs text-slate-500 mb-1 block">{t('bureaucracy_min_label')}: {editForm.bureaucracy_level}/10</label>
                           <input type="range" min="1" max="10" step="0.5" value={editForm.bureaucracy_level}
                             onChange={e => setEditForm({...editForm, bureaucracy_level: parseFloat(e.target.value)})}
                             className="w-full accent-green-600" />
                         </div>
                         <div>
-                          <label className="text-xs text-slate-500 mb-1 block">הערה</label>
-                          <input className="input text-sm" value={editForm.notes} onChange={e => setEditForm({...editForm, notes: e.target.value})} placeholder="הסבר לציון..." />
+                          <label className="text-xs text-slate-500 mb-1 block">{t('notes')}</label>
+                          <input className="input text-sm" value={editForm.notes} onChange={e => setEditForm({...editForm, notes: e.target.value})} placeholder={t('score_explanation_placeholder')} />
                         </div>
                         <div className="flex gap-2">
-                          <button onClick={() => handleSave(score.id)} className="btn-primary text-sm py-1.5">שמור</button>
-                          <button onClick={() => setEditing(null)} className="btn-secondary text-sm py-1.5">ביטול</button>
+                          <button onClick={() => handleSave(score.id)} className="btn-primary text-sm py-1.5">{t('save')}</button>
+                          <button onClick={() => setEditing(null)} className="btn-secondary text-sm py-1.5">{t('common:cancel', { ns: 'common' })}</button>
                         </div>
                       </div>
                     ) : (
