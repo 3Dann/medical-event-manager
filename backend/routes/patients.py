@@ -1,8 +1,16 @@
+import re
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from database import get_db
+
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+def _validate_iso_date(v: Optional[str]) -> Optional[str]:
+    if v and not _ISO_DATE_RE.match(v):
+        raise ValueError(f"תאריך חייב להיות בפורמט YYYY-MM-DD, התקבל: {v!r}")
+    return v
 import models
 import auth as auth_utils
 from data.seed_data import HMO_COVERAGES
