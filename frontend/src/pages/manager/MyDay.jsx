@@ -253,7 +253,11 @@ function CalendarModal({ onClose }) {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    axios.get('/api/tasks/calendar-token').then(r => setToken(r.data.token)).catch(() => {})
+    const ctrl = new AbortController()
+    axios.get('/api/tasks/calendar-token', { signal: ctrl.signal })
+      .then(r => setToken(r.data.token))
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => ctrl.abort()
   }, [])
 
   const url = token ? `${window.location.origin}/api/calendar/${token}.ics` : ''
