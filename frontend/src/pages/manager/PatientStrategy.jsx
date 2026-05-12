@@ -238,6 +238,7 @@ export default function PatientStrategy() {
   const [approvingId,  setApprovingId]  = useState(null)
   const [deletingId,   setDeletingId]   = useState(null)
   const { toast, showToast, dismissToast } = useToast()
+  const { t } = useTranslation(['common'])
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
