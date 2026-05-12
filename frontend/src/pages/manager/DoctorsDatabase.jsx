@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
 import { useConfirm } from '../../components/ConfirmDialog'
+import { useTranslation } from 'react-i18next'
 
 // ── InsuranceCell — inline multi-select in table cell ─────────────────────────
 function InsuranceCell({ doc, allOptions, onSave }) {
@@ -222,6 +223,7 @@ const EMPTY_FORM = {
 }
 
 export default function DoctorsDatabase() {
+  const { t } = useTranslation('doctors')
   const { user: currentUser } = useAuth()
   const { toast, showToast, dismissToast } = useToast()
   const [confirm, ConfirmUI] = useConfirm()

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { fmtDate } from '../../utils/formatters'
 import { useConfirm } from '../../components/ConfirmDialog'
+import { useTranslation } from 'react-i18next'
 
 // ── Patient Requests Panel ─────────────────────────────────────────────────────
 const REQ_STATUS_COLORS = {
@@ -398,6 +399,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
 }
 
 export default function PatientMeetings() {
+  const { t } = useTranslation('meetings')
   const { id } = useParams()
   const [meetings, setMeetings] = useState([])
   const [showForm, setShowForm] = useState(false)

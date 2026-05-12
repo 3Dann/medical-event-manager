@@ -2,18 +2,23 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import Form17Section from '../../components/Form17Section'
+import { useTranslation } from 'react-i18next'
 
-const STATUS_LABELS = { pending: 'ממתין', submitted: 'הוגש', approved: 'אושר', partial: 'אושר חלקית', rejected: 'נדחה' }
 const STATUS_COLORS = { pending: 'badge-gray', submitted: 'badge-blue', approved: 'badge-green', partial: 'badge-yellow', rejected: 'badge-red' }
-const CATEGORY_LABELS = {
-  second_opinion: 'חוות דעת', surgery: 'ניתוחים', transplant: 'השתלות',
-  hospitalization: 'אישפוזים', rehabilitation: 'שיקום', advanced_tech: 'טכנולוגיות',
-  critical_illness: 'מחלה קשה', diagnostics: 'בדיקות',
-}
-
 const FEEDBACK_STATUSES = ['approved', 'partial', 'rejected']
 
 export default function PatientClaims() {
+  const { t } = useTranslation(['claims', 'claim_status'])
+  const STATUS_LABELS = {
+    pending: t('claim_status:pending'), submitted: t('claim_status:submitted'),
+    approved: t('claim_status:approved'), partial: t('claim_status:partial'), rejected: t('claim_status:rejected'),
+  }
+  const CATEGORY_LABELS = {
+    second_opinion: t('cat_second_opinion'), surgery: t('cat_surgery'),
+    transplant: t('cat_transplant'), hospitalization: t('cat_hospitalization'),
+    rehabilitation: t('cat_rehabilitation'), advanced_tech: t('cat_advanced_tech'),
+    critical_illness: t('cat_critical_illness'), diagnostics: t('cat_diagnostics'),
+  }
   const { id } = useParams()
   const [claims, setClaims] = useState([])
   const [sources, setSources] = useState([])

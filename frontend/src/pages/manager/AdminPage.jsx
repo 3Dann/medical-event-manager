@@ -3,11 +3,13 @@ import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import FundManagementPanel from './FundManagementPanel'
+import { useTranslation } from 'react-i18next'
 
 const DEV_EMAIL = 'da.tzalik@gmail.com'
 
 
 export default function AdminPage() {
+  const { t } = useTranslation('admin')
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const isDev = currentUser?.email === DEV_EMAIL

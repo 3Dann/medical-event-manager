@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { fmtDate } from '../../utils/formatters'
 import { SkeletonCard } from '../../components/Skeleton'
 import { useConfirm } from '../../components/ConfirmDialog'
+import { useTranslation } from 'react-i18next'
 
 const isOverdue = (due) => due && new Date(due) < new Date()
 const isToday   = (due) => {
@@ -302,6 +303,7 @@ function CalendarModal({ onClose }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function MyDay() {
+  const { t } = useTranslation('myday')
   const { user } = useAuth()
   const { toast, showToast, dismissToast } = useToast()
   const [confirmDelete, ConfirmUI] = useConfirm()

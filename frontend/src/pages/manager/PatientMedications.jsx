@@ -6,6 +6,7 @@ import {
 } from '../../components/DrugFormComponents'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useTranslation } from 'react-i18next'
 
 const SEVERITY_COLORS = {
   high:   { bg: 'bg-red-50',    border: 'border-red-300',    text: 'text-red-700',    badge: 'bg-red-100 text-red-700',   icon: '🔴' },
@@ -23,6 +24,7 @@ const emptyForm = () => ({
 })
 
 export default function PatientMedications() {
+  const { t } = useTranslation('medications')
   const { id } = useParams()
   const { toast, showToast, dismissToast } = useToast()
   const [medications, setMedications] = useState([])

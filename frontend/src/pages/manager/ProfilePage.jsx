@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import PasskeySection from '../../components/PasskeySection'
+import { useTranslation } from 'react-i18next'
 
 function TwoFASection() {
   const [status, setStatus] = useState(null) // {totp_enabled, totp_method}
@@ -161,6 +162,7 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
 }
 
 export default function ProfilePage() {
+  const { t } = useTranslation('profile')
   const { user } = useAuth()
   const [form, setForm] = useState({ current_password: '', new_password: '', confirm: '', tfa_code: '' })
   const [status, setStatus] = useState(null)

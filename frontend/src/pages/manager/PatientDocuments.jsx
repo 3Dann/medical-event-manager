@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import DocViewerModal, { canView } from '../../components/DocViewerModal'
 import { useConfirm } from '../../components/ConfirmDialog'
+import { useTranslation } from 'react-i18next'
 
 const CATEGORIES = ['רפואי', 'ביטוחי', 'משפטי', 'פיננסי', 'אחר']
 
@@ -31,6 +32,7 @@ function formatDate(iso) {
 }
 
 export default function PatientDocuments() {
+  const { t } = useTranslation('documents')
   const { id } = useParams()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)

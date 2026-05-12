@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 
 const SEVERITY_COLORS = {
   warning: 'bg-amber-50 border-amber-200 text-amber-800',
@@ -11,6 +12,7 @@ const SEVERITY_COLORS = {
 const fmt = (n) => n ? `₪${Number(n).toLocaleString('he-IL', { maximumFractionDigits: 0 })}` : '—'
 
 export default function PatientFinancialMap() {
+  const { t } = useTranslation('common')
   const { id } = useParams()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)

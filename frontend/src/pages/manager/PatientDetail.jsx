@@ -9,6 +9,7 @@ import CareTeamSection from '../../components/CareTeamSection'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
 import { useConfirm } from '../../components/ConfirmDialog'
+import { useTranslation } from 'react-i18next'
 
 const MEDICAL_STAGES = [
   { value: '',                 label: '— לא מוגדר —' },
@@ -52,6 +53,7 @@ function sortNodes(nodes) {
 }
 
 export default function PatientDetail() {
+  const { t } = useTranslation('patients')
   const { id }   = useParams()
   const navigate = useNavigate()
   const { toast, showToast, dismissToast } = useToast()

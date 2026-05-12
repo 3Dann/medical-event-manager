@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 
 const SOURCE_TYPE_LABELS = {
   sal_habriut: 'סל הבריאות', kupat_holim: 'קופת חולים',
@@ -40,6 +41,7 @@ function sourceLabel(s) {
 }
 
 export default function PatientInsurance() {
+  const { t } = useTranslation('insurance')
   const { id } = useParams()
   const [sources, setSources]         = useState([])
   const [entitlements, setEntitlements] = useState([])
