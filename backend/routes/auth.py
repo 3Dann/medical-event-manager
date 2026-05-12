@@ -10,7 +10,7 @@ import field_encrypt as fe
 import qrcode
 import io
 import base64
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from database import get_db
