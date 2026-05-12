@@ -588,8 +588,8 @@ export default function PatientDetail() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
             <div>
-              <h3 className="font-bold text-slate-800 text-lg">מסעות מחלה</h3>
-              <p className="text-xs text-slate-500 mt-0.5">בחר תבנית לתצוגה מקדימה ולהחלה על ציר הזמן</p>
+              <h3 className="font-bold text-slate-800 text-lg">{t('journey_templates')}</h3>
+              <p className="text-xs text-slate-500 mt-0.5">{t('journey_templates_hint')}</p>
             </div>
             <button onClick={() => { setShowJourneyModal(false); setSelectedTplPreview(null) }}
               className="text-slate-500 hover:text-slate-700 text-xl w-11 h-11 flex items-center justify-center rounded-lg hover:bg-slate-100">✕</button>
