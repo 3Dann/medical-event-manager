@@ -125,12 +125,12 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
           </div>
           <form onSubmit={confirmTOTP} className="space-y-3">
             <div>
-              <label className="label">הזן קוד מהאפליקציה לאישור</label>
+              <label className="label">{t('tfa_enter_app_code')}</label>
               <input className="input text-center tracking-widest" maxLength={6} value={code}
                 onChange={e => setCode(e.target.value.replace(/\D/g, ''))} required autoFocus />
             </div>
-            <button type="submit" disabled={code.length !== 6} className="btn-primary w-full py-2">אשר והפעל</button>
-            <button type="button" onClick={() => setView('idle')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">ביטול</button>
+            <button type="submit" disabled={code.length !== 6} className="btn-primary w-full py-2">{t('tfa_confirm_activate')}</button>
+            <button type="button" onClick={() => setView('idle')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">{t('common:cancel', { ns: 'common' })}</button>
           </form>
         </div>
       )}
