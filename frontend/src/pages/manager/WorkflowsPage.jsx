@@ -359,24 +359,24 @@ export default function WorkflowsPage() {
         <div className="flex gap-6">
           {/* Sidebar */}
           <div className="w-72 flex-shrink-0 space-y-2 overflow-y-auto max-h-[70vh]">
-            {templates.map(t => (
+            {templates.map(tmpl => (
               <button
-                key={t.id}
-                onClick={() => setSelected(t)}
+                key={tmpl.id}
+                onClick={() => setSelected(tmpl)}
                 className={`w-full text-right p-4 rounded-xl border-2 transition-all ${
-                  selected?.id === t.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-blue-300'
+                  selected?.id === tmpl.id ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-blue-300'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${CATEGORY_COLORS[t.category] || 'bg-slate-100 text-slate-500'}`}>
-                    {CATEGORY_LABELS[t.category] || t.category}
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${CATEGORY_COLORS[tmpl.category] || 'bg-slate-100 text-slate-500'}`}>
+                    {CATEGORY_LABELS[tmpl.category] || tmpl.category}
                   </span>
                   <div className="min-w-0">
-                    <div className="font-semibold text-slate-800 text-sm truncate">{t.name}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">{t.steps.length} {t('steps_count_label')}</div>
+                    <div className="font-semibold text-slate-800 text-sm truncate">{tmpl.name}</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{tmpl.steps.length} {t('steps_count_label')}</div>
                   </div>
                 </div>
-                {t.is_builtin && (
+                {tmpl.is_builtin && (
                   <div className="mt-2 text-xs text-slate-600">🔒 {t('builtin_label')}</div>
                 )}
               </button>
