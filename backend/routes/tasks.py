@@ -13,6 +13,7 @@ GET  /api/tasks/calendar-token      — get/create ICS token
 
 import json
 import secrets
+from json_field import safe_json_dumps, safe_json_loads
 from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
