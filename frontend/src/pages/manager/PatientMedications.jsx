@@ -207,13 +207,13 @@ export default function PatientMedications() {
             onClick={() => setShowExtract(v => !v)}
             className="text-sm border border-slate-300 text-slate-600 hover:bg-slate-50 px-3 py-2 rounded-xl font-medium"
           >
-            📄 זיהוי ממסמך
+            📄 {t('extract_from_doc')}
           </button>
           <button
             onClick={openAdd}
             className="text-sm bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-xl font-medium"
           >
-            + הוסף תרופה
+            + {t('add')}
           </button>
         </div>
       </div>
