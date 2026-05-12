@@ -40,10 +40,12 @@ COMPILED_ROUTES = [
 
 
 def _get_ip(request: Request):
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else None
+    client_host = request.client.host if request.client else None
+    if client_host and (client_host.startswith("100.64.") or client_host == "127.0.0.1"):
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+    return client_host
 
 
 def _decode_user_id(token: str):
