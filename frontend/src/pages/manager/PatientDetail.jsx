@@ -257,12 +257,12 @@ export default function PatientDetail() {
                 )}
               </div>
               <div>
-                <label className="label">סטטוס אבחנה</label>
+                <label className="label">{t('diagnosis_status_label')}</label>
                 <select className="input" value={editForm.diagnosis_status || 'no'} onChange={e => setEditForm({...editForm, diagnosis_status: e.target.value})}>
-                  <option value="no">ללא אבחנה</option><option value="yes">אבחנה קיימת</option><option value="pending">בבירור</option>
+                  <option value="no">{t('diagnosis_no')}</option><option value="yes">{t('diagnosis_yes')}</option><option value="pending">{t('diagnosis_pending')}</option>
                 </select>
               </div>
-              <div><label className="label">פירוט אבחנה</label><textarea className="input" rows={2} value={editForm.diagnosis_details || ''} onChange={e => setEditForm({...editForm, diagnosis_details: e.target.value})} /></div>
+              <div><label className="label">{t('diagnosis_details_label')}</label><textarea className="input" rows={2} value={editForm.diagnosis_details || ''} onChange={e => setEditForm({...editForm, diagnosis_details: e.target.value})} /></div>
               <div>
                 <label className="label">אבחנות ותגיות רפואיות</label>
                 <ConditionTagsSelector
