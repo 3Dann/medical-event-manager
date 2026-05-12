@@ -173,19 +173,19 @@ export default function AdminPage() {
 
   return (
     <div className="p-4 md:p-8" dir="rtl">
-      <h1 className="text-2xl font-bold text-slate-800 mb-1">ניהול מערכת</h1>
+      <h1 className="text-2xl font-bold text-slate-800 mb-1">{t('title')}</h1>
 
       {/* Tab bar */}
       <div className="flex gap-2 mb-6 mt-4 border-b border-slate-200 flex-wrap items-end">
         {[
-          { key: 'users',       label: 'משתמשים' },
-          { key: 'permissions', label: 'הרשאות גישה לתיקים' },
-          { key: 'activity',    label: 'לוג פעילות' },
+          { key: 'users',       label: t('tab_users') },
+          { key: 'permissions', label: t('tab_permissions') },
+          { key: 'activity',    label: t('tab_activity') },
           { key: 'funds',       label: 'קרנות מימון' },
-        ].map(t => (
-          <button key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors ${tab === t.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        ].map(tb => (
+          <button key={tb.key}
+            onClick={() => setTab(tb.key)}
+            className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors ${tab === tb.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
           >
             {t.label}
           </button>
