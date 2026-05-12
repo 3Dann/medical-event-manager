@@ -913,10 +913,10 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">מיקום קבלה (קליניקה / בית חולים)</label>
+                  <label className="label">{t('form_location_label')}</label>
                   <input
                     className="input"
-                    placeholder="שם קליניקה / כתובת"
+                    placeholder={t('form_location_placeholder')}
                     value={form.location}
                     onChange={e => setForm({ ...form, location: e.target.value })}
                   />
