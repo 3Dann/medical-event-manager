@@ -132,12 +132,12 @@ export default function PatientDocuments() {
         />
       )}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-slate-800">מסמכים</h2>
+        <h2 className="text-xl font-bold text-slate-800">{t('title')}</h2>
         <button
           onClick={() => setShowForm(v => !v)}
           className="btn-primary text-sm"
         >
-          {showForm ? 'ביטול' : '+ העלאת מסמך'}
+          {showForm ? t('common:cancel', { ns: 'common' }) : `+ ${t('upload')}`}
         </button>
       </div>
 
