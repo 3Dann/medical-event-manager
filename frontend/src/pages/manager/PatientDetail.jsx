@@ -669,7 +669,7 @@ export default function PatientDetail() {
                               </li>
                             ))}
                             {node.sub_items.length > 5 && (
-                              <li className="text-[11px] text-violet-400 font-medium">ועוד {node.sub_items.length - 5} סעיפים...</li>
+                              <li className="text-[11px] text-violet-400 font-medium">{t('and_more_items', { count: node.sub_items.length - 5 })}</li>
                             )}
                           </ul>
                         )}
