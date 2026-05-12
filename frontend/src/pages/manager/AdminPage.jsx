@@ -219,7 +219,7 @@ export default function AdminPage() {
           )}
 
           {loading ? (
-            <div className="text-center py-16 text-slate-500">טוען...</div>
+            <div className="text-center py-16 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
           ) : (
             <div className="space-y-3">
               {users.map(user => (
