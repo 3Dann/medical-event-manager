@@ -656,7 +656,7 @@ export default function DoctorsDatabase() {
                 }
               </div>
               {importProgress.skipped_duplicates > 0 && (
-                <p className="text-xs text-blue-600 mt-1">{importProgress.skipped_duplicates.toLocaleString()} כפילויות דולגו</p>
+                <p className="text-xs text-blue-600 mt-1">{importProgress.skipped_duplicates.toLocaleString()} {t('duplicates_skipped')}</p>
               )}
             </div>
           )}
