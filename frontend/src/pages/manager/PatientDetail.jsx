@@ -309,7 +309,7 @@ export default function PatientDetail() {
               {patient.diagnosis_details && <div><dt className="text-slate-500">{t('details_label')}</dt><dd>{patient.diagnosis_details}</dd></div>}
               {patient.hmo_name && (
                 <div>
-                  <dt className="text-slate-500">קופת חולים</dt>
+                  <dt className="text-slate-500">{t('hmo_label')}</dt>
                   <dd className="font-medium">
                     {{ clalit:'כללית', maccabi:'מכבי', meuhedet:'מאוחדת', leumit:'לאומית' }[patient.hmo_name]}
                     {patient.hmo_level && <span className="text-slate-500 font-normal mr-1">— {hmoPlans.find(p => p.key === patient.hmo_level)?.label || patient.hmo_level}</span>}
