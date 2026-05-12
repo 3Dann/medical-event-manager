@@ -356,7 +356,7 @@ def update_medication(
     )
     if not med:
         raise HTTPException(status_code=404, detail="תרופה לא נמצאה")
-    for field, val in body.dict(exclude_unset=True).items():
+    for field, val in body.model_dump(exclude_unset=True).items():
         setattr(med, field, val)
     db.commit()
     db.refresh(med)
