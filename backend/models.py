@@ -130,7 +130,7 @@ class DocumentViewToken(Base):
     __tablename__ = "document_view_tokens"
     id         = Column(Integer, primary_key=True)
     token      = Column(String(64), unique=True, nullable=False, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     doc_id     = Column(Integer, ForeignKey("patient_documents.id"), nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     is_used    = Column(Boolean, default=False)
@@ -276,7 +276,7 @@ class DrugUpdateLog(Base):
 class PatientMedication(Base):
     __tablename__ = "patient_medications"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     name = Column(String, nullable=False)           # trade/brand name as entered
     generic_name = Column(String, nullable=True)    # INN from MOH registry
     dosage = Column(String, nullable=True)          # e.g. "10mg"
@@ -294,7 +294,7 @@ class PatientMedication(Base):
 class PatientDocument(Base):
     __tablename__ = "patient_documents"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     filename = Column(String, nullable=False)        # stored filename (uuid-based)
     original_name = Column(String, nullable=False)   # original upload name
@@ -311,7 +311,7 @@ class PatientDocument(Base):
 class Node(Base):
     __tablename__ = "nodes"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
     node_type = Column(String, nullable=False)   # medical / financial / stage
     description = Column(Text, nullable=False)
     planned_date = Column(String, nullable=True)
@@ -344,7 +344,7 @@ class NodeSubItem(Base):
 class InsuranceSource(Base):
     __tablename__ = "insurance_sources"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
     source_type = Column(String, nullable=False)
     # קופת חולים
     hmo_name = Column(String, nullable=True)
@@ -381,7 +381,7 @@ class Coverage(Base):
 class Claim(Base):
     __tablename__ = "claims"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
     insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id", ondelete="SET NULL"), nullable=True)
     category = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -402,7 +402,7 @@ class Claim(Base):
 class Entitlement(Base):
     __tablename__ = "entitlements"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"))
+    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
     entitlement_type = Column(String, nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
@@ -417,7 +417,7 @@ class PatientPermission(Base):
     """Explicit access grants: admin gives manager_id access to a patient they don't own."""
     __tablename__ = "patient_permissions"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     granted_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -568,7 +568,7 @@ class WorkflowInstance(Base):
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
     id                    = Column(Integer, primary_key=True, index=True)
-    instance_id           = Column(Integer, ForeignKey("workflow_instances.id"))
+    instance_id = Column(Integer, ForeignKey("workflow_instances.id"), index=True)
     step_key              = Column(String, nullable=False)
     name                  = Column(String, nullable=False)
     step_order            = Column(Integer, nullable=False)
@@ -899,9 +899,9 @@ class Task(Base):
     description = Column(Text, nullable=True)
 
     # שיוך
-    assigned_to = Column(Integer, ForeignKey("users.id"), nullable=False)   # מנהל אירוע
-    created_by  = Column(Integer, ForeignKey("users.id"), nullable=False)   # מי יצר
-    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=True) # מטופל קשור
+    assigned_to = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_by  = Column(Integer, ForeignKey("users.id"), nullable=False)
+    patient_id  = Column(Integer, ForeignKey("patients.id"), nullable=True, index=True)
 
     # מקור
     source_type = Column(String, default="manual")  # manual|meeting_action|workflow_step|patient_request|red_flag
