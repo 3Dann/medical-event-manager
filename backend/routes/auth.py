@@ -245,24 +245,28 @@ def get_me(current_user: models.User = Depends(auth_utils.get_current_user)):
 @router.post("/logout")
 def logout(
     request: Request,
-    token: str = Depends(auth_utils.oauth2_scheme),
     current_user: models.User = Depends(auth_utils.get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Revoke the current JWT by adding its jti to the blacklist."""
+    """Revoke JWT (blacklist jti) and clear HttpOnly cookie."""
+    raw_token = request.cookies.get("access_token") or \
+                request.headers.get("Authorization", "").removeprefix("Bearer ").strip() or None
     try:
-        payload = auth_utils.decode_token(token)
-        jti = payload.get("jti")
-        exp = payload.get("exp")
-        if jti and exp:
-            from datetime import timezone
-            expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
-            if not db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first():
-                db.add(models.RevokedToken(jti=jti, expires_at=expires_at))
-                db.commit()
+        if raw_token:
+            payload = auth_utils.decode_token(raw_token)
+            jti = payload.get("jti")
+            exp = payload.get("exp")
+            if jti and exp:
+                from datetime import timezone
+                expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
+                if not db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first():
+                    db.add(models.RevokedToken(jti=jti, expires_at=expires_at))
+                    db.commit()
     except Exception:
-        pass  # Even if revocation fails, return success — token will expire naturally
-    return {"ok": True}
+        pass
+    response = JSONResponse(content={"ok": True})
+    response.delete_cookie(key="access_token", path="/")
+    return response
 
 
 @router.post("/forgot-password")
