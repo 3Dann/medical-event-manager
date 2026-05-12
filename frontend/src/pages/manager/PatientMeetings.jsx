@@ -331,15 +331,16 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
 }
 
 function MeetingCard({ meeting, onEdit, onDelete }) {
+  const { t } = useTranslation('meetings')
   const [expanded, setExpanded] = useState(false)
   const hasActions = meeting.action_items?.length > 0
-  const doneTasks = meeting.action_items?.filter(t => t.done).length || 0
+  const doneTasks = meeting.action_items?.filter(task => task.done).length || 0
   const docs = [
-    [meeting.has_visit_summary, 'סיכום ביקור'],
-    [meeting.has_referrals, 'הפניות'],
-    [meeting.has_prescriptions, 'מרשמים'],
-    [meeting.has_lab_results, 'תוצאות'],
-    [meeting.has_insurance_approval, 'אישור ביטוח'],
+    [meeting.has_visit_summary, t('doc_visit_summary_short')],
+    [meeting.has_referrals, t('doc_referrals_short')],
+    [meeting.has_prescriptions, t('doc_prescriptions_short')],
+    [meeting.has_lab_results, t('doc_lab_results_short')],
+    [meeting.has_insurance_approval, t('doc_insurance_approval_short')],
   ].filter(([v]) => v).map(([, l]) => l)
 
   return (
