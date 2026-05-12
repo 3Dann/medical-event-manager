@@ -229,7 +229,7 @@ export default function PatientMedications() {
               value={extractDocId}
               onChange={e => setExtractDocId(e.target.value)}
             >
-              <option value="">— בחר מסמך PDF —</option>
+              <option value="">{t('select_pdf_doc')}</option>
               {documents.map(d => (
                 <option key={d.id} value={d.id}>{d.original_name}</option>
               ))}
