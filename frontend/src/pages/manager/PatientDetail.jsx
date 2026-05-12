@@ -54,6 +54,11 @@ function sortNodes(nodes) {
 
 export default function PatientDetail() {
   const { t } = useTranslation('patients')
+  const STATUS_LABELS = {
+    future: t('node_status_future'),
+    active: t('node_status_active'),
+    completed: t('node_status_completed'),
+  }
   const { id }   = useParams()
   const navigate = useNavigate()
   const { toast, showToast, dismissToast } = useToast()
