@@ -431,7 +431,7 @@ export default function PatientInsurance() {
 
   // ── הר הביטוח guide modal ────────────────────────────────────────────
   const HarBituaGuide = () => (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto" dir="rtl">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl my-4" dir="rtl">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b">
@@ -603,7 +603,7 @@ export default function PatientInsurance() {
 
       {/* Add source modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto" dir="rtl">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl my-4">
             <div className="p-6 border-b flex justify-between items-center">
               <h3 className="font-semibold text-lg">הוספת מקור ביטוח</h3>
