@@ -172,7 +172,7 @@ function NewTaskModal({ patients, onClose, onCreated }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" dir="rtl" onClick={e => e.stopPropagation()}>
         <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
         <div className="flex items-center justify-between mb-5">
-          <h3 className="font-bold text-slate-800 text-lg">משימה חדשה</h3>
+          <h3 className="font-bold text-slate-800 text-lg">{t('new_task')}</h3>
           <button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
         </div>
         <div className="space-y-3">
