@@ -243,5 +243,15 @@
     "select_city": "اكتب اسم المدينة...",
     "select_street": "اكتب اسم الشارع...",
     "select_city_first": "اختر مدينة أولاً"
+  },
+  "strategy": {
+    "title": "אסטרטגיה רפואית וביטוחית",
+    "tab_workflows": "זרימות מנוע",
+    "tab_financial_map": "מפה פיננסית",
+    "tab_strategy": "המלצות תביעות",
+    "tab_matrix": "מטריצת כיסויים",
+    "tab_insights": "תובנות",
+    "active_workflows": "זרימות פעילות",
+    "loading": "מחשב אסטרטגיה..."
   }
 }

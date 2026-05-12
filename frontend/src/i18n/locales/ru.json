@@ -243,5 +243,15 @@
     "select_city": "Введите название города...",
     "select_street": "Введите название улицы...",
     "select_city_first": "Сначала выберите город"
+  },
+  "strategy": {
+    "title": "אסטרטגיה רפואית וביטוחית",
+    "tab_workflows": "זרימות מנוע",
+    "tab_financial_map": "מפה פיננסית",
+    "tab_strategy": "המלצות תביעות",
+    "tab_matrix": "מטריצת כיסויים",
+    "tab_insights": "תובנות",
+    "active_workflows": "זרימות פעילות",
+    "loading": "מחשב אסטרטגיה..."
   }
 }

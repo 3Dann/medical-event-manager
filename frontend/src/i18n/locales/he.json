@@ -311,5 +311,15 @@
     "select_city": "הקלד שם עיר...",
     "select_street": "הקלד שם רחוב...",
     "select_city_first": "בחר עיר תחילה"
+  },
+  "strategy": {
+    "title": "אסטרטגיה רפואית וביטוחית",
+    "tab_workflows": "זרימות מנוע",
+    "tab_financial_map": "מפה פיננסית",
+    "tab_strategy": "המלצות תביעות",
+    "tab_matrix": "מטריצת כיסויים",
+    "tab_insights": "תובנות",
+    "active_workflows": "זרימות פעילות",
+    "loading": "מחשב אסטרטגיה..."
   }
 }

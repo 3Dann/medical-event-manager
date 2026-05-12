@@ -281,5 +281,15 @@
     "select_city": "Type city name...",
     "select_street": "Type street name...",
     "select_city_first": "Select city first"
+  },
+  "strategy": {
+    "title": "Medical & Insurance Strategy",
+    "tab_workflows": "Workflows",
+    "tab_financial_map": "Financial Map",
+    "tab_strategy": "Claim Recommendations",
+    "tab_matrix": "Coverage Matrix",
+    "tab_insights": "Insights",
+    "active_workflows": "Active Workflows",
+    "loading": "Computing strategy..."
   }
 }
