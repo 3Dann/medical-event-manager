@@ -641,7 +641,7 @@ export default function DoctorsDatabase() {
             <div className="mt-3 p-3 bg-blue-50 rounded-xl border border-blue-100">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-blue-800">
-                  {importProgress.status === 'running' ? '⏳ מייבא...' : '✓ הסתיים'}
+                  {importProgress.status === 'running' ? `⏳ ${t('importing')}` : `✓ ${t('import_done')}`}
                 </span>
                 <span className="text-sm text-blue-700 font-mono">
                   {(importProgress.imported ?? 0).toLocaleString()}
