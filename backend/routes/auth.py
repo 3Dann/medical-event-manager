@@ -165,6 +165,7 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
 class Verify2FARequest(BaseModel):
     temp_token: str
     code: str
+    method: Optional[str] = None  # 'email' or 'totp' — chosen by user in UI
 
 
 @router.post("/verify-2fa", response_model=Token)
