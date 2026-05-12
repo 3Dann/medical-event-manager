@@ -375,11 +375,19 @@
     "cat_financial": "Financial",
     "cat_other": "Other",
     "notes": "Notes",
+    "notes_placeholder": "Short note (optional)",
+    "file_label": "File *",
+    "file_types_hint": "PDF, images, Word, Excel — up to 20MB",
     "no_documents": "No documents yet",
     "delete_confirm": "Delete this document? This cannot be undone.",
+    "delete_title": "Delete Document",
     "view": "View",
     "download": "Download",
-    "uploaded_by": "Uploaded by"
+    "uploaded_by": "Uploaded by",
+    "load_error": "Error loading documents",
+    "upload_error": "Upload error",
+    "download_error": "Error downloading file",
+    "delete_error": "Error deleting"
   },
   "medications": {
     "title": "Medications",
