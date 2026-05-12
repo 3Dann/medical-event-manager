@@ -95,6 +95,18 @@ class User(Base):
     failed_login_attempts = Column(Integer, default=0, nullable=False)
     locked_until = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class DocumentViewToken(Base):
+    __tablename__ = "document_view_tokens"
+    id         = Column(Integer, primary_key=True)
+    token      = Column(String(64), unique=True, nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    doc_id     = Column(Integer, ForeignKey("patient_documents.id"), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_used    = Column(Boolean, default=False)
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     patients = relationship("Patient", foreign_keys="Patient.manager_id", back_populates="manager")
     webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
 
