@@ -683,10 +683,22 @@ export default function IntakeWizard() {
   }
 
   // ── Field helper (NOT a component — just returns className + value + onChange)
+  const FIELD_LABELS = {
+    full_name: 'שם מלא', id_number: 'מספר זהות', birth_date: 'תאריך לידה',
+    gender: 'מין', marital_status: 'מצב משפחתי', num_children: 'מספר ילדים',
+    referral_goal: 'מטרת פניה', referral_source: 'מקור הפניה',
+    phone: 'טלפון', email: 'אימייל', street: 'רחוב', house_number: 'מספר בית',
+    city: 'עיר', zip_code: 'מיקוד', diagnosis: 'אבחנה', diagnosis_details: 'פרטי אבחנה',
+    hmo_name: 'קופת חולים', hmo_level: 'רמת ביטוח',
+  }
+
   const inp = (name, extra = {}) => ({
     className: `w-full border rounded-lg px-3 py-2 text-sm ${errors[name] ? 'border-red-400' : 'border-slate-300'}`,
     value: form[name],
     onChange: e => set(name, e.target.value),
+    'aria-label': FIELD_LABELS[name] || name,
+    'aria-invalid': errors[name] ? 'true' : undefined,
+    id: `field-${name}`,
     ...extra,
   })
 
