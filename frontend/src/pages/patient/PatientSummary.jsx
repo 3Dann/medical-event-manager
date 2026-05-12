@@ -365,7 +365,7 @@ function FinancialSection({ financial, onBack }) {
               <div key={i} className={`rounded-2xl border p-5 ${c.bg} ${c.border}`}>
                 <p className="text-slate-600 font-medium mb-2">{c.label}</p>
                 <p className={`text-3xl font-bold ${c.val}`}>{c.value}</p>
-                {c.desc && <p className="text-slate-500 mt-2 leading-relaxed">{c.desc}</p>}
+                {c.desc && <p className="text-slate-700 mt-2 leading-relaxed">{c.desc}</p>}
               </div>
             ))}
           </div>
