@@ -650,7 +650,7 @@ export default function PatientInsurance() {
                               if (e.target.value === '__other__') { setCustomCompany(true); setForm({...form, company_name: ''}) }
                               else setForm({...form, company_name: e.target.value})
                             }}>
-                            <option value="">— בחר חברה —</option>
+                            <option value="">{t('select_company_placeholder')}</option>
                             {PRIVATE_COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
                             <option value="__other__">אחר (הקלד ידנית)</option>
                           </select>
