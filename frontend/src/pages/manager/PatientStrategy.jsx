@@ -240,16 +240,17 @@ export default function PatientStrategy() {
   const { toast, showToast, dismissToast } = useToast()
   const { t } = useTranslation(['common', 'strategy'])
 
-  const fetchAll = useCallback(async () => {
+  const fetchAll = useCallback(async (signal) => {
     setLoading(true)
     try {
+      const cfg = signal ? { signal } : {}
       const [s, m, i, sg, inst, cl] = await Promise.all([
-        axios.get(`/api/patients/${id}/strategy`),
-        axios.get(`/api/patients/${id}/strategy/matrix`),
-        axios.get(`/api/learning/patients/${id}/insights`),
-        axios.get(`/api/workflows/suggest?patient_id=${id}`).catch(() => null),
-        axios.get(`/api/workflows/instances?patient_id=${id}`).catch(() => ({ data: [] })),
-        axios.get(`/api/patients/${id}/claims`).catch(() => ({ data: [] })),
+        axios.get(`/api/patients/${id}/strategy`, cfg),
+        axios.get(`/api/patients/${id}/strategy/matrix`, cfg),
+        axios.get(`/api/learning/patients/${id}/insights`, cfg),
+        axios.get(`/api/workflows/suggest?patient_id=${id}`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : null),
+        axios.get(`/api/workflows/instances?patient_id=${id}`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : { data: [] }),
+        axios.get(`/api/patients/${id}/claims`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : { data: [] }),
       ])
       setStrategy(s.data)
       setMatrix(m.data)
@@ -257,7 +258,7 @@ export default function PatientStrategy() {
       if (sg) setSuggest(sg.data)
       setInstances(inst.data)
       setDraftClaims(cl.data.filter(c => c.status === 'draft'))
-    } catch (e) { showToast('שגיאה בטעינת נתוני אסטרטגיה') }
+    } catch (e) { if (!axios.isCancel(e)) showToast('שגיאה בטעינת נתוני אסטרטגיה') }
     finally { setLoading(false) }
   }, [id])
 
