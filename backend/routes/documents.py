@@ -195,17 +195,19 @@ def view_document_inline(
     db: Session = Depends(get_db),
 ):
     """הגשת מסמך inline. מקבל view_token קצר-חיים (300 שניות) במקום JWT."""
-    _cleanup_view_tokens()
-    entry = _VIEW_TOKENS.get(token)
+    entry = db.query(models.DocumentViewToken).filter(
+        models.DocumentViewToken.token == token,
+        models.DocumentViewToken.is_used == False,
+    ).first()
     if not entry:
         raise HTTPException(status_code=401, detail="קישור לא תקין או פג תוקף")
-    expires_at, allowed_patient, allowed_doc = entry
+    expires_at = entry.expires_at.replace(tzinfo=timezone.utc) if entry.expires_at.tzinfo is None else entry.expires_at
     if datetime.now(timezone.utc) > expires_at:
-        del _VIEW_TOKENS[token]
         raise HTTPException(status_code=401, detail="קישור פג תוקף")
-    if allowed_patient != patient_id or allowed_doc != doc_id:
+    if entry.patient_id != patient_id or entry.doc_id != doc_id:
         raise HTTPException(status_code=403)
-    del _VIEW_TOKENS[token]  # one-time use
+    entry.is_used = True
+    db.commit()
 
     doc = db.query(models.PatientDocument).filter(
         models.PatientDocument.id == doc_id,
