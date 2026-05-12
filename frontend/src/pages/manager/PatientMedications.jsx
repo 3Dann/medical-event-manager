@@ -155,7 +155,7 @@ export default function PatientMedications() {
                     <span className="inline-block w-3 h-3 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                     בודק אינטראקציות...
                   </span>
-                : <>⚠️ התנגשויות תרופות שזוהו ({interactions.length})</>
+                : <>{t('interaction_warning')} ({interactions.length})</>
               }
             </h3>
             {drugsComNames.length > 1 && interactions.length > 0 && (
