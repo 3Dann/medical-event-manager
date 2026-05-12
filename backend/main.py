@@ -317,6 +317,8 @@ def run_migrations():
         # Family share revocation audit
         ("family_share_tokens", "revoked_at", "DATETIME"),
         ("family_share_tokens", "revoked_by", "INTEGER"),
+        # Calendar token mandatory TTL
+        ("calendar_tokens", "expires_at_v2", "DATETIME"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
