@@ -741,8 +741,8 @@ export default function PatientInsurance() {
               )}
 
               <div className="p-6 border-t flex gap-3 justify-end">
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">ביטול</button>
-                <button type="submit" disabled={isDuplicate()} className="btn-primary disabled:opacity-50">שמור מקור ביטוח</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
+                <button type="submit" disabled={isDuplicate()} className="btn-primary disabled:opacity-50">{t('save_source_btn')}</button>
               </div>
             </form>
           </div>
