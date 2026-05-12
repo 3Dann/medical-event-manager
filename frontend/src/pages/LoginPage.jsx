@@ -66,7 +66,7 @@ export default function LoginPage() {
       login(res.data)
       navigate(res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
-      setError(err.response?.data?.detail || 'קוד שגוי')
+      setError(err.response?.data?.detail || 'חוסר התאמה בזיהוי — נסה שוב')
     } finally {
       setLoading(false)
     }
