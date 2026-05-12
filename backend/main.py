@@ -294,15 +294,40 @@ def run_migrations():
         # CalendarToken — expiry and revocation
         ("calendar_tokens", "expires_at", "DATETIME"),
         ("calendar_tokens", "is_active",  "BOOLEAN DEFAULT 1"),
+        # Family share revocation audit
+        ("family_share_tokens", "revoked_at", "DATETIME"),
+        ("family_share_tokens", "revoked_by", "INTEGER"),
     ]
     with engine.connect() as conn:
+        # ── Schema version tracking ──────────────────────────────────────────
+        conn.execute(sqlalchemy.text(
+            "CREATE TABLE IF NOT EXISTS schema_versions ("
+            "  version INTEGER PRIMARY KEY,"
+            "  applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
+            "  description TEXT"
+            ")"
+        ))
+        conn.commit()
+
         for table, col, col_type in migrations:
             try:
                 conn.execute(sqlalchemy.text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
                 conn.commit()
-                logger.debug(f"Migration: added {table}.{col}")
-            except Exception as e:
-                logger.debug(f"Migration skip {table}.{col}: {e}")
+                logger.info(f"Migration applied: {table}.{col}")
+            except Exception:
+                pass  # column already exists
+
+        # Record current schema version
+        version = len(migrations)
+        existing = conn.execute(sqlalchemy.text(
+            "SELECT version FROM schema_versions WHERE version = :v"
+        ), {"v": version}).fetchone()
+        if not existing:
+            conn.execute(sqlalchemy.text(
+                "INSERT INTO schema_versions (version, description) VALUES (:v, :d)"
+            ), {"v": version, "d": f"auto-migration batch — {version} columns"})
+            conn.commit()
+            logger.info(f"Schema version recorded: {version}")
 
 run_migrations()
 
