@@ -175,8 +175,8 @@ export default function PatientClaims() {
                     {Object.entries(STATUS_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </div>
-                <div><label className="label">תאריך הגשה</label><input type="date" className="input" value={form.submission_date} onChange={e => setForm({...form, submission_date: e.target.value})} /></div>
-                <div><label className="label">דדליין</label><input type="date" className="input" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} /></div>
+                <div><label className="label">{t('submission_date')}</label><input type="date" className="input" value={form.submission_date} onChange={e => setForm({...form, submission_date: e.target.value})} /></div>
+                <div><label className="label">{t('deadline')}</label><input type="date" className="input" value={form.deadline} onChange={e => setForm({...form, deadline: e.target.value})} /></div>
               </div>
               <div><label className="label">תיאור</label><input className="input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} /></div>
               <div><label className="label">הערות</label><textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
