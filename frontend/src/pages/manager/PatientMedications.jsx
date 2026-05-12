@@ -256,7 +256,7 @@ export default function PatientMedications() {
                     disabled={addingCandidate === c.name}
                     className="text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-lg hover:bg-green-100 disabled:opacity-50"
                   >
-                    {addingCandidate === c.name ? 'מוסיף...' : '✓ הוסף'}
+                    {addingCandidate === c.name ? t('adding') : `✓ ${t('common:add', { ns: 'common' })}`}
                   </button>
                 </div>
               ))}
