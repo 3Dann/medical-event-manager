@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { useToast } from '../../hooks/useToast'
 
 const TYPE_META = {
   bug:     { label: 'באג',         cls: 'bg-red-100 text-red-700' },
