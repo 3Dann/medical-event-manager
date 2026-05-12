@@ -72,28 +72,35 @@ export default function PatientDetail() {
     planned_date: '', notes: '', stage_order: 15,
   })
 
-  useEffect(() => { fetchAll() }, [id])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
+    return () => ctrl.abort()
+  }, [id])
 
-  const fetchAll = async () => {
-    const [p, n, tpls] = await Promise.all([
-      axios.get(`/api/patients/${id}`),
-      axios.get(`/api/patients/${id}/nodes`),
-      axios.get(`/api/patients/${id}/journey-templates`),
-    ])
-    setPatient(p.data)
-    const patientData = {
-      ...p.data,
-      condition_tags: typeof p.data.condition_tags === 'string'
-        ? JSON.parse(p.data.condition_tags || '[]')
-        : (p.data.condition_tags || []),
-    }
-    setEditForm(patientData)
-    setNodes(n.data)
-    setJourneyTemplates(tpls.data)
-    if (p.data.hmo_name) {
-      const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`)
-      setHmoPlans(plans.data)
-    }
+  const fetchAll = async (signal) => {
+    try {
+      const cfg = signal ? { signal } : {}
+      const [p, n, tpls] = await Promise.all([
+        axios.get(`/api/patients/${id}`, cfg),
+        axios.get(`/api/patients/${id}/nodes`, cfg),
+        axios.get(`/api/patients/${id}/journey-templates`, cfg),
+      ])
+      setPatient(p.data)
+      const patientData = {
+        ...p.data,
+        condition_tags: typeof p.data.condition_tags === 'string'
+          ? JSON.parse(p.data.condition_tags || '[]')
+          : (p.data.condition_tags || []),
+      }
+      setEditForm(patientData)
+      setNodes(n.data)
+      setJourneyTemplates(tpls.data)
+      if (p.data.hmo_name) {
+        const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`, cfg)
+        setHmoPlans(plans.data)
+      }
+    } catch (e) { if (axios.isCancel(e)) return }
   }
 
   const handleSavePatient = async () => {
