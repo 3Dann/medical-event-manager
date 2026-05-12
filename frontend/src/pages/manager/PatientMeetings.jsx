@@ -206,11 +206,11 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
   }
 
   const DOCS = [
-    ['has_visit_summary', 'סיכום ביקור חתום'],
-    ['has_referrals', 'הפניות לבדיקות / טפסי 17'],
-    ['has_prescriptions', 'מרשמים (כולל תרופות תופעות לוואי)'],
-    ['has_lab_results', 'תוצאות מעבדה / דימות'],
-    ['has_insurance_approval', 'אישור ביטוחי'],
+    ['has_visit_summary', t('doc_visit_summary')],
+    ['has_referrals', t('doc_referrals')],
+    ['has_prescriptions', t('doc_prescriptions')],
+    ['has_lab_results', t('doc_lab_results')],
+    ['has_insurance_approval', t('doc_insurance_approval')],
   ]
 
   return (
