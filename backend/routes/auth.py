@@ -161,7 +161,7 @@ def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="משתמש לא נמצא")
-    code = secrets.token_hex(3).upper()  # 6 chars
+    code = secrets.token_hex(4).upper()  # 8 chars, 32-bit entropy
     user.email_2fa_code = code
     user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
     db.commit()
