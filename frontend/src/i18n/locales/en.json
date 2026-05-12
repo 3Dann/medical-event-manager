@@ -469,7 +469,8 @@
     "entitlement_approved_label": "Approved",
     "auto_save_hint": "Changes are saved automatically when leaving the field",
     "add_coverage_type": "Add Coverage Type",
-    "coverage_type_placeholder": "Coverage type name (e.g. Travel abroad coverage)"
+    "coverage_type_placeholder": "Coverage type name (e.g. Travel abroad coverage)",
+    "coverages_imported": "coverages imported"
   },
   "documents": {
     "title": "Documents",
