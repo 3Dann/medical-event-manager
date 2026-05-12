@@ -56,6 +56,7 @@ class Token(BaseModel):
     role: str
     is_admin: bool = False
     requires_2fa: bool = False
+    tfa_required_setup: bool = False
     temp_token: str = None
     tfa_method: str = None
 
