@@ -969,7 +969,7 @@ export default function DoctorsDatabase() {
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
-                  <label className="label">הערות</label>
+                  <label className="label">{t('notes')}</label>
                   <textarea
                     className="input"
                     rows={3}
