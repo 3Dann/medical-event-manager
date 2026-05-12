@@ -797,7 +797,7 @@ export default function DoctorsDatabase() {
       {totalDoctors > PAGE_SIZE && (
         <div className="flex items-center justify-between mt-4 px-1" dir="rtl">
           <span className="text-sm text-slate-500">
-            מציג {((currentPage - 1) * PAGE_SIZE + 1).toLocaleString()}–{Math.min(currentPage * PAGE_SIZE, totalDoctors).toLocaleString()} מתוך {totalDoctors.toLocaleString()} רופאים
+            {t('pagination_showing', { from: ((currentPage - 1) * PAGE_SIZE + 1).toLocaleString(), to: Math.min(currentPage * PAGE_SIZE, totalDoctors).toLocaleString(), total: totalDoctors.toLocaleString() })}
           </span>
           <div className="flex items-center gap-2">
             <button
