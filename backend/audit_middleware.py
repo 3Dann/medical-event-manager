@@ -83,6 +83,10 @@ def _write_log(user_id, action_type, resource_type, resource_id, ip, user_agent,
                 user = db.query(models.User).filter(models.User.id == user_id).first()
                 if user:
                     user_name = user.full_name
+            from datetime import datetime, timezone
+            now = datetime.now(timezone.utc)
+            if user_id and user:
+                user.last_activity = now
             entry = models.UserActivityLog(
                 user_id=user_id,
                 user_name=user_name,
