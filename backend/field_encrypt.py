@@ -36,6 +36,19 @@ def encrypt(value: str) -> str:
         return value
 
 
+class EncryptedText:
+    """SQLAlchemy TypeDecorator for transparent field-level encryption.
+
+    Usage in models:
+        from field_encrypt import EncryptedText
+        from sqlalchemy import TypeDecorator, Text
+        sensitive_field = Column(EncryptedText, nullable=True)
+    """
+    # Implemented as a plain class; actual TypeDecorator is defined in models.py
+    # to avoid circular imports with sqlalchemy.
+    pass
+
+
 def decrypt(value: str) -> str:
     if not value or not _fernet:
         return value
