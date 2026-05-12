@@ -362,6 +362,7 @@ def get_2fa_status(current_user: models.User = Depends(auth_utils.get_current_us
 
 @router.put("/profile/password")
 def change_own_password(data: ChangePasswordRequest, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    _validate_password(data.new_password)
     if not auth_utils.verify_password(data.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="הסיסמה הנוכחית שגויה")
     # If 2FA is enabled, verify the code
