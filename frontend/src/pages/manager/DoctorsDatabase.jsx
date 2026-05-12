@@ -537,8 +537,8 @@ export default function DoctorsDatabase() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-slate-800">מאגר רופאים מומחים</h1>
-          <p className="text-slate-500 mt-1">{totalDoctors} רופאים במאגר</p>
+          <h1 className="text-2xl font-bold text-slate-800">{t('title')}</h1>
+          <p className="text-slate-500 mt-1">{totalDoctors} {t('doctors_in_db')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button
