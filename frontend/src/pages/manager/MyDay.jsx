@@ -254,7 +254,7 @@ function CalendarModal({ onClose }) {
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 mb-4">
               <span className="text-xs text-slate-600 flex-1 truncate font-mono">{url}</span>
               <button onClick={copy} className={`shrink-0 px-3 py-1.5 rounded-lg font-medium text-sm transition-colors ${copied ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}>
-                {copied ? '✓ הועתק!' : 'העתק'}
+                {copied ? `✓ ${t('copied')}` : t('copy')}
               </button>
             </div>
             <div className="space-y-2 text-sm text-slate-600">
