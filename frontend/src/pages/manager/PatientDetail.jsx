@@ -646,7 +646,7 @@ export default function PatientDetail() {
                     <span className="text-4xl">{selectedTplPreview.icon}</span>
                     <div>
                       <h4 className="font-bold text-slate-800 text-xl">{selectedTplPreview.label}</h4>
-                      <p className="text-sm text-slate-500">{selectedTplPreview.category} · {selectedTplPreview.nodes.length} צמתים</p>
+                      <p className="text-sm text-slate-500">{selectedTplPreview.category} · {selectedTplPreview.nodes.length} {t('nodes_label')}</p>
                     </div>
                   </div>
 
