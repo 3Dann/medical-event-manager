@@ -675,7 +675,7 @@ export default function DoctorsDatabase() {
           <input
             className="input text-sm w-full"
             style={{ paddingRight: '2.4rem' }}
-            placeholder="שם, התמחות, מספר רישיון..."
+            placeholder={t('search_placeholder')}
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submitSearch()}
