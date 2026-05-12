@@ -103,7 +103,9 @@ async def upload_document(
     content = await file.read()
     if len(content) > MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large (max 20MB)")
-    if file.content_type and file.content_type not in ALLOWED_TYPES:
+    if not file.content_type:
+        raise HTTPException(status_code=400, detail="סוג הקובץ חסר — לא ניתן להעלות")
+    if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="File type not allowed")
     if not _validate_magic(content):
         raise HTTPException(status_code=415, detail="סוג הקובץ אינו נתמך")
