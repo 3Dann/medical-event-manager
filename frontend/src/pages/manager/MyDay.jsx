@@ -22,20 +22,7 @@ const isThisWeek = (due) => {
   return d > now && d <= week
 }
 
-const SOURCE_LABELS = {
-  manual:          { label: 'ידנית',    bg: 'bg-slate-100',  text: 'text-slate-700' },
-  meeting_action:  { label: 'פגישה',    bg: 'bg-blue-100',   text: 'text-blue-700'  },
-  workflow_step:   { label: 'זרימה',    bg: 'bg-violet-100', text: 'text-violet-700'},
-  patient_request: { label: 'פנייה',    bg: 'bg-amber-100',  text: 'text-amber-700' },
-  red_flag:        { label: 'נורה🔴',  bg: 'bg-red-100',    text: 'text-red-700'   },
-}
-
-const PRIORITY_LABELS = {
-  urgent: { label: 'דחוף',   color: 'text-red-600'    },
-  high:   { label: 'גבוה',   color: 'text-orange-500' },
-  normal: { label: 'רגיל',   color: 'text-slate-500'  },
-  low:    { label: 'נמוך',   color: 'text-slate-400'  },
-}
+// Labels defined inside TaskCard to support i18n
 
 const PRIORITY_ORDER = { urgent: 0, high: 1, normal: 2, low: 3 }
 
