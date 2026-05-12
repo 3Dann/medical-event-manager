@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
-const fmtDate = (iso) => iso ? new Date(iso).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' }) : ''
+import { fmtDateShort as fmtDate } from '../../../utils/formatters'
 
 const SOURCE_LABELS = {
   manual:          'ידנית',
