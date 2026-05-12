@@ -612,7 +612,7 @@ export default function DoctorsDatabase() {
           <div className="flex gap-2 items-center border-t border-slate-100 pt-3">
             <input
               className="input text-sm py-1.5 flex-1 max-w-48"
-              placeholder="שם עמודה חדשה..."
+              placeholder={t('new_column_name_placeholder')}
               value={newColName}
               onChange={e => setNewColName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addCustomCol()}
