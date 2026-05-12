@@ -11,13 +11,7 @@ import { useToast } from '../../hooks/useToast'
 import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 
-const MEDICAL_STAGES = [
-  { value: '',                 label: '— לא מוגדר —' },
-  { value: 'pre_diagnosis',    label: 'לפני אבחנה' },
-  { value: 'active_treatment', label: 'טיפול פעיל' },
-  { value: 'recovery',         label: 'החלמה' },
-  { value: 'monitoring',       label: 'מעקב' },
-]
+// MEDICAL_STAGES built inside PatientDetail component to support i18n
 
 // tabs are built inside the component using t()
 
