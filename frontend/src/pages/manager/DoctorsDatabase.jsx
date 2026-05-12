@@ -873,7 +873,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">טלפון 2 (מזכירה / קליניקה)</label>
+                  <label className="label">{t('form_phone2_label')}</label>
                   <input
                     className="input"
                     placeholder="03-7654321"
