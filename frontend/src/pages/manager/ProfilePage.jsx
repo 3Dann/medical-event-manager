@@ -104,12 +104,12 @@ if (loading) return <div className="card"><p className="text-slate-400 text-sm">
           ) : (
             <div className="space-y-2">
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-1">
-                <p className="text-sm text-green-800 font-medium">✓ אימות דו-שלבי פעיל</p>
-                <p className="text-xs text-green-700 mt-1">שיטה: {status.totp_method === 'email' ? 'אימייל' : 'אפליקציית QR (TOTP)'}</p>
+                <p className="text-sm text-green-800 font-medium">✓ {t('tfa_active')}</p>
+                <p className="text-xs text-green-700 mt-1">{t('tfa_method_label')}: {status.totp_method === 'email' ? t('tfa_method_email') : t('tfa_method_qr')}</p>
               </div>
               <button onClick={() => { setMsg(null); setCode(''); status.totp_method === 'email' ? startTOTP() : startEmail() }}
                 className="w-full py-2 text-sm border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50">
-                החלף שיטה ל-{status.totp_method === 'email' ? 'QR (TOTP)' : 'אימייל'}
+                {t('tfa_switch_to')} {status.totp_method === 'email' ? 'QR (TOTP)' : t('tfa_method_email')}
               </button>
             </div>
           )}
