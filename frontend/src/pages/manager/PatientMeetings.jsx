@@ -266,8 +266,8 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
               <input className="input flex-1 text-sm" value={newTask}
                 onChange={e => setNewTask(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && addTask()}
-                placeholder="הוסף משימה..." />
-              <button onClick={addTask} className="btn-secondary text-sm px-3">הוסף</button>
+                placeholder={t('add_task_placeholder')} />
+              <button onClick={addTask} className="btn-secondary text-sm px-3">{t('common:add', { ns: 'common' })}</button>
             </div>
           </div>
 
