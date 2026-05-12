@@ -79,7 +79,7 @@ export default function FeedbackInbox() {
         setFeedback(r.data)
         axios.put('/api/public/feedback/mark-read').catch(() => {})
       })
-      .catch(e => { if (!axios.isCancel(e)) showToast('שגיאה בטעינת משובים') })
+      .catch(e => { if (!axios.isCancel(e)) showToast(t('load_error')) })
       .finally(() => setLoading(false))
     return () => ctrl.abort()
   }, [])
