@@ -17,6 +17,7 @@ export default function ManagerDashboard() {
   const [globalInsights, setGlobalInsights] = useState(null)
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { toast, showToast, dismissToast } = useToast()
 
   const handleImportSal = async (e) => {
     e.preventDefault()
