@@ -17,6 +17,7 @@ from database import get_db
 import models
 import auth as auth_utils
 import email_utils
+import sms_utils
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
