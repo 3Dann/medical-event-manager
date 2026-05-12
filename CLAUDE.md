@@ -245,6 +245,9 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Tasks pagination** — GET /api/tasks/my מחזיר `{"total": N, "items": [...]}` עם limit/offset params.
 - **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
 - **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
+- **IntakeWizard contexts** — `FormCtx` מספק `{form, set, inp, setErrors}`. `ErrorCtx` מספק `errors`. `StepCtx` מספק handlers לשלב 4 (medical). `FunctionalStep` ו-`SignaturesStep` הם sub-components בסוף הקובץ שמשתמשים בcontexts.
+- **AbortController pattern** — כל useEffect עם axios.get: `const ctrl = new AbortController()` → `axios.get(url, {signal: ctrl.signal})` → `return () => ctrl.abort()`. לבדוק cancellation: `if (axios.isCancel(e)) return`.
+- **ConfirmDialog pattern** — `import { useConfirm } from '../../components/ConfirmDialog'`. בcomponent: `const [confirm, ConfirmUI] = useConfirm()`. שימוש: `const ok = await confirm({title, message, confirmLabel, danger: true})`. ב-JSX: `{ConfirmUI}`.
 - **DNS** — דומיין `ormed.co.il` מנוהל ב-Cloudflare (הועבר מ-LiveDNS ב-2026-04-28). לכניסה: dash.cloudflare.com
 - **מייל** — Resend API (לא SMTP). `email_utils.py` משתמש ב-`resend` Python library עם API key ב-`SMTP_PASS`. שולח מ-`noreply@ormed.co.il`. דומיין מאומת ב-Resend כולל DKIM, SPF, MX ו-DMARC.
 - **i18n** — כל תוכן דף הנחיתה מתורגם לפי שפה נבחרת. עורך דף הנחיתה תומך ב-10 שפות + כפתור "תרגם הכל מעברית" שמשתמש ב-Claude Haiku API. נתוני עורך שמורים ב-`{ by_lang: { he: {...}, en: {...}, ... } }`. כיוון תמיד RTL — רק תוכן משתנה לפי שפה.
