@@ -193,12 +193,12 @@ function NewTaskModal({ patients, onClose, onCreated }) {
               </select>
             </div>
             <div>
-              <label className="label">עדיפות</label>
+              <label className="label">{t('filter_priority_label')}</label>
               <select className="input" value={form.priority} onChange={e => setForm(f => ({...f, priority: e.target.value}))}>
-                <option value="urgent">דחוף</option>
-                <option value="high">גבוה</option>
-                <option value="normal">רגיל</option>
-                <option value="low">נמוך</option>
+                <option value="urgent">{t('priority_urgent')}</option>
+                <option value="high">{t('priority_high')}</option>
+                <option value="normal">{t('priority_normal')}</option>
+                <option value="low">{t('priority_low')}</option>
               </select>
             </div>
           </div>
