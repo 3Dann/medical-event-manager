@@ -53,12 +53,26 @@ def is_token_revoked(jti: str, db: Session) -> bool:
     return True
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def _resolve_token(bearer_token: Optional[str], request) -> Optional[str]:
+    """Prefer Authorization header; fall back to HttpOnly cookie."""
+    if bearer_token:
+        return bearer_token
+    return request.cookies.get("access_token")
+
+
+def get_current_user(
+    request: Request,
+    bearer: Optional[str] = Depends(oauth2_scheme_optional if False else OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)),
+    db: Session = Depends(get_db),
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    token = _resolve_token(bearer, request)
+    if not token:
+        raise credentials_exception
     try:
         payload = decode_token(token)
         user_id: int = payload.get("sub")
