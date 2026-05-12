@@ -4,17 +4,22 @@ import { useAuth } from '../../context/AuthContext'
 import PasskeySection from '../../components/PasskeySection'
 import { useTranslation } from 'react-i18next'
 
+const PHONE_PREFIXES_IL = ['050','051','052','053','054','055','056','057','058','072','073','074','076','077','078','079']
+
 function TwoFASection() {
   const { t } = useTranslation('profile')
   const tfa_totp_activated = t('tfa_totp_activated')
   const tfa_email_activated = t('tfa_email_activated')
-  const [status, setStatus] = useState(null) // {totp_enabled, totp_method}
+  const [status, setStatus] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState('idle') // idle | setup-totp | setup-email | confirm-totp | confirm-email
+  // idle | confirm-totp | confirm-email | setup-sms | confirm-sms
+  const [view, setView] = useState('idle')
   const [qrCode, setQrCode] = useState('')
   const [secret, setSecret] = useState('')
   const [code, setCode] = useState('')
   const [emailCode, setEmailCode] = useState('')
+  const [smsPhone, setSmsPhone] = useState({ prefix: '050', number: '' })
+  const [smsMasked, setSmsMasked] = useState('')
   const [msg, setMsg] = useState(null)
 
   const load = async (signal) => {
