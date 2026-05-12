@@ -361,7 +361,7 @@ def _complete_source(task: models.Task, db: Session):
                 models.PatientMeeting.id == meta["meeting_id"]
             ).first()
             if meeting and meeting.action_items:
-                items = json.loads(meeting.action_items)
+                items = safe_json_loads(meeting.action_items, default=[])
                 idx   = meta.get("item_index", 0)
                 if 0 <= idx < len(items):
                     items[idx]["done"] = True
