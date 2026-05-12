@@ -573,14 +573,20 @@
   },
   "responsiveness": {
     "title": "Responsiveness Scores",
+    "subtitle": "Manage response speed and bureaucracy scores for each insurer",
+    "strategy_impact_title": "How this affects strategy",
+    "strategy_impact_desc": "When two insurance sources have similar coverage, the system prioritizes the one with a higher responsiveness score. Scores can be edited based on personal experience.",
     "type_hmo": "Health Fund",
     "type_private": "Private Insurance",
     "type_sal": "Health Basket",
     "type_leumi": "National Insurance",
     "speed_label": "Response Speed",
     "bureaucracy_label": "Bureaucracy Level",
+    "bureaucracy_min_label": "Minimum Bureaucracy",
     "notes": "Notes",
     "edit": "Edit Score",
-    "save": "Save"
+    "save": "Save",
+    "default_score": "Default",
+    "score_explanation_placeholder": "Explain the score..."
   }
 }
