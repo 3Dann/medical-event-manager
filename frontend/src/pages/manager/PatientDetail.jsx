@@ -658,7 +658,7 @@ export default function PatientDetail() {
                           <div className="w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] flex items-center justify-center font-bold flex-shrink-0">{i + 1}</div>
                           <span className="text-sm font-semibold text-slate-800">{node.description}</span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${node.node_type === 'medical' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                            {node.node_type === 'medical' ? 'טיפולי' : 'פיננסי'}
+                            {node.node_type === 'medical' ? t('node_type_medical') : t('node_type_financial')}
                           </span>
                         </div>
                         {node.sub_items?.length > 0 && (
