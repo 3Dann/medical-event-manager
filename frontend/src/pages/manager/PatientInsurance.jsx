@@ -652,7 +652,7 @@ export default function PatientInsurance() {
                             }}>
                             <option value="">{t('select_company_placeholder')}</option>
                             {PRIVATE_COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
-                            <option value="__other__">אחר (הקלד ידנית)</option>
+                            <option value="__other__">{t('other_type_manually')}</option>
                           </select>
                         </div>
                       ) : (
