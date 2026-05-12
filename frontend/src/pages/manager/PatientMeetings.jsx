@@ -63,9 +63,9 @@ function PatientRequestsPanel({ patientId }) {
       {open && (
         <div className="divide-y divide-slate-100">
           {loading ? (
-            <div className="py-6 text-center text-slate-600 text-sm">טוען...</div>
+            <div className="py-6 text-center text-slate-600 text-sm">{t('common:loading', { ns: 'common' })}</div>
           ) : requests.length === 0 ? (
-            <div className="py-8 text-center text-slate-600 text-sm">אין פניות ממטופל זה</div>
+            <div className="py-8 text-center text-slate-600 text-sm">{t('no_requests')}</div>
           ) : (
             requests.map(r => (
               <div key={r.id} className="p-4 space-y-2">
