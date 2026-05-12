@@ -245,6 +245,14 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
 
 export default function WorkflowsPage() {
   const { t } = useTranslation('workflows')
+  const CATEGORY_LABELS = {
+    claim: t('cat_claim'), appeal: t('cat_appeal'), treatment: t('cat_treatment'),
+    hospitalization: t('cat_hospitalization'), general: t('cat_general'),
+  }
+  const STATUS_LABELS = {
+    active: t('status_active'), completed: t('status_completed'),
+    paused: t('status_paused'), cancelled: t('status_cancelled'), draft: t('status_cancelled'),
+  }
   const { user } = useAuth()
   const isAdmin = user?.is_admin
 
