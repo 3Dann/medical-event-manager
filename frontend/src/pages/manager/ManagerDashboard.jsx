@@ -131,7 +131,9 @@ export default function ManagerDashboard() {
 
       {/* Patients list */}
       {loading ? (
-        <div className="text-center py-12 text-slate-500">{t('common:loading')}</div>
+        <div className="space-y-3 mt-4">
+          {[1,2,3].map(i => <SkeletonCard key={i} lines={2} />)}
+        </div>
       ) : patients.length === 0 ? (
         <div className="card text-center py-16">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
