@@ -53,6 +53,13 @@ export default function PatientDetail() {
     active: t('node_status_active'),
     completed: t('node_status_completed'),
   }
+  const MEDICAL_STAGES = [
+    { value: '',                 label: t('not_defined_option') },
+    { value: 'pre_diagnosis',    label: t('medical_stage_pre_diagnosis') },
+    { value: 'active_treatment', label: t('medical_stage_active_treatment') },
+    { value: 'recovery',         label: t('medical_stage_recovery') },
+    { value: 'monitoring',       label: t('medical_stage_monitoring') },
+  ]
   const { id }   = useParams()
   const navigate = useNavigate()
   const { toast, showToast, dismissToast } = useToast()
