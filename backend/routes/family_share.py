@@ -1,8 +1,14 @@
 import secrets
+import logging
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from database import get_db
+from slowapi import Limiter
+from slowapi.util import get_ipaddr
+
+logger = logging.getLogger("family_share")
+limiter = Limiter(key_func=get_ipaddr)
 import models
 from auth import get_current_user
 
