@@ -388,6 +388,56 @@ def confirm_email_2fa(data: Confirm2FAEmailRequest, current_user: models.User = 
     return {"message": "אימות דו-שלבי באמצעות אימייל הופעל"}
 
 
+class SetupSMS2FARequest(BaseModel):
+    phone_prefix: str   # e.g. "050"
+    phone: str          # e.g. "1234567"
+
+
+@router.post("/2fa/setup-sms")
+def setup_sms_2fa(
+    data: SetupSMS2FARequest,
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Save phone number, send verification SMS."""
+    e164 = sms_utils.normalize_il_phone(data.phone_prefix, data.phone)
+    code = secrets.token_hex(4).upper()
+    current_user.phone_2fa = e164
+    current_user.phone_2fa_prefix = data.phone_prefix
+    current_user.email_2fa_code = code
+    current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    current_user.totp_method = "sms"
+    current_user.totp_enabled = False
+    db.commit()
+    sent = sms_utils.send_2fa_sms(e164, code)
+    masked = e164[-4:]
+    return {
+        "message": f"קוד אימות נשלח ל-****{masked}" if sent else "קוד אימות נוצר",
+        "phone_masked": f"****{masked}",
+        "code": None if sent else code,
+        "sms_configured": sent,
+    }
+
+
+@router.post("/2fa/confirm-sms")
+def confirm_sms_2fa(
+    data: Confirm2FAEmailRequest,
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Activate SMS 2FA after user confirms the code."""
+    if not current_user.email_2fa_code or current_user.email_2fa_code != data.code:
+        raise HTTPException(status_code=400, detail="קוד שגוי")
+    if not current_user.email_2fa_expires or datetime.utcnow() > current_user.email_2fa_expires.replace(tzinfo=None):
+        raise HTTPException(status_code=400, detail="הקוד פג תוקף")
+    current_user.totp_enabled = True
+    current_user.totp_method = "sms"
+    current_user.email_2fa_code = None
+    current_user.email_2fa_expires = None
+    db.commit()
+    return {"message": "אימות דו-שלבי ב-SMS הופעל"}
+
+
 class Confirm2FARequest(BaseModel):
     code: str
 
