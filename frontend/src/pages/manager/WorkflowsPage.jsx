@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 const CATEGORY_LABELS = {
   claim: 'תביעה', appeal: 'ערר', treatment: 'טיפול',
