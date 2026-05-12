@@ -203,7 +203,7 @@ export default function AdminPage() {
       {/* ── Users tab ── */}
       {tab === 'users' && (
         <>
-          <p className="text-slate-500 text-sm mb-6">{users.length} משתמשים רשומים</p>
+          <p className="text-slate-500 text-sm mb-6">{t('users_registered', { count: users.length })}</p>
 
           {resetResult && (
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
