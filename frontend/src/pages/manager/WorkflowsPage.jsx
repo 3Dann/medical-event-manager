@@ -403,14 +403,14 @@ export default function WorkflowsPage() {
                       onClick={() => openEditor(selected)}
                       className="text-sm px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
                     >
-                      ✏️ עריכה
+                      ✏️ {t('common:edit', { ns: 'common' })}
                     </button>
                     {!selected.is_builtin && (
                       <button
                         onClick={() => deleteTemplate(selected)}
                         className="text-sm px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600"
                       >
-                        מחיקה
+                        {t('common:delete', { ns: 'common' })}
                       </button>
                     )}
                   </div>
