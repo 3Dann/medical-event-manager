@@ -113,19 +113,19 @@ export default function FeedbackInbox() {
         <div className="grid grid-cols-4 gap-3">
           <div className="bg-white border border-slate-200 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-slate-800">{feedback.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">סה"כ</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('stat_total')}</p>
           </div>
           <div className="bg-white border border-orange-200 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-orange-500">{pending.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">ממתינים</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('stat_pending')}</p>
           </div>
           <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center cursor-pointer hover:border-red-300 transition-colors" onClick={() => setFilter(f => f === 'bug' ? 'all' : 'bug')}>
             <p className="text-2xl font-bold text-red-500">{bugs}</p>
-            <p className="text-xs text-slate-500 mt-0.5">באגים</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('stat_bugs')}</p>
           </div>
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center cursor-pointer hover:border-blue-300 transition-colors" onClick={() => setFilter(f => f === 'feature' ? 'all' : 'feature')}>
             <p className="text-2xl font-bold text-blue-500">{features}</p>
-            <p className="text-xs text-slate-500 mt-0.5">רעיונות</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('stat_ideas')}</p>
           </div>
         </div>
       )}
