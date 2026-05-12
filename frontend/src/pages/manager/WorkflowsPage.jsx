@@ -452,17 +452,17 @@ export default function WorkflowsPage() {
       {activeTab === 'instances' && (
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
           {instances.length === 0 ? (
-            <div className="text-center py-16 text-slate-600">אין הרצות פעילות</div>
+            <div className="text-center py-16 text-slate-600">{t('no_instances')}</div>
           ) : (
             <div className="overflow-x-auto">
             <table className="w-full text-sm" dir="rtl">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50 text-right">
-                  <th className="px-5 py-3 font-semibold text-slate-600">מטופל</th>
-                  <th className="px-5 py-3 font-semibold text-slate-600">אבחנה</th>
-                  <th className="px-5 py-3 font-semibold text-slate-600">סטטוס</th>
-                  <th className="px-5 py-3 font-semibold text-slate-600">תבנית</th>
-                  <th className="px-5 py-3 font-semibold text-slate-600">התקדמות</th>
+                  <th className="px-5 py-3 font-semibold text-slate-600">{t('col_patient')}</th>
+                  <th className="px-5 py-3 font-semibold text-slate-600">{t('col_diagnosis')}</th>
+                  <th className="px-5 py-3 font-semibold text-slate-600">{t('col_status')}</th>
+                  <th className="px-5 py-3 font-semibold text-slate-600">{t('col_template')}</th>
+                  <th className="px-5 py-3 font-semibold text-slate-600">{t('col_progress')}</th>
                 </tr>
               </thead>
               <tbody>
