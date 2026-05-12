@@ -373,7 +373,7 @@ export default function WorkflowsPage() {
                   </span>
                   <div className="min-w-0">
                     <div className="font-semibold text-slate-800 text-sm truncate">{t.name}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">{t.steps.length} שלבים</div>
+                    <div className="text-xs text-slate-500 mt-0.5">{t.steps.length} {t_fn('steps_count_label')}</div>
                   </div>
                 </div>
                 {t.is_builtin && (
