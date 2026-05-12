@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import FinancialMapTab from './FinancialMapTab'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
