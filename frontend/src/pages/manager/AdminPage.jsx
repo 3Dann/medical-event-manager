@@ -554,6 +554,7 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
 }
 
 function DrugDatabasePanel() {
+  const { t } = useTranslation('admin')
   const [status, setStatus] = useState(null)
   const [updating, setUpdating] = useState(false)
   const [msg, setMsg] = useState('')
