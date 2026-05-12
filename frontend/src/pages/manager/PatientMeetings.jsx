@@ -232,11 +232,11 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
               </select>
             </div>
             <div>
-              <label className="label">תאריך</label>
+              <label className="label">{t('date')}</label>
               <input type="date" className="input" value={form.meeting_date} onChange={e => set('meeting_date', e.target.value)} />
             </div>
             <div>
-              <label className="label">שם איש המקצוע</label>
+              <label className="label">{t('professional_name_label')}</label>
               <input className="input" value={form.professional_name} onChange={e => set('professional_name', e.target.value)} placeholder="ד״ר / גב׳ ..." />
             </div>
           </div>
