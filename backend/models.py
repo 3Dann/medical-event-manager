@@ -163,8 +163,8 @@ class Patient(Base):
     hmo_level = Column(String, nullable=True)
     condition_tags = Column(Text, nullable=True)
     medical_stage = Column(String, nullable=True)
-    manager_id = Column(Integer, ForeignKey("users.id"))
-    patient_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    manager_id = Column(Integer, ForeignKey("users.id"), index=True)
+    patient_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
