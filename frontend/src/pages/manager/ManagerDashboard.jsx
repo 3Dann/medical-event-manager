@@ -49,7 +49,13 @@ export default function ManagerDashboard() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm(t('dashboard:delete_confirm'))) return
+    const ok = await confirmDelete({
+      title: 'מחיקת מטופל',
+      message: 'פעולה זו בלתי הפיכה. כל הנתונים, המסמכים והתביעות של המטופל יימחקו לצמיתות.',
+      confirmLabel: 'מחק',
+      danger: true,
+    })
+    if (!ok) return
     try { await axios.delete(`/api/patients/${id}`); fetchPatients() }
     catch (e) { showToast('שגיאת שרת. נסה שוב.') }
   }
