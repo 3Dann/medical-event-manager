@@ -338,7 +338,7 @@ export default function WorkflowsPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-slate-100 p-1 rounded-xl w-fit">
-        {[['templates', 'תבניות'], ['instances', 'הרצות']].map(([key, label]) => (
+        {[['templates', t('templates')], ['instances', t('instances')]].map(([key, label]) => (
           <button
             key={key}
             onClick={() => setActiveTab(key)}
