@@ -160,6 +160,15 @@ const EMPTY_MEETING = {
 }
 
 function MeetingForm({ patientId, meeting, onClose, onSaved }) {
+  const { t } = useTranslation('meetings')
+  const TYPES = [
+    { value: 'oncologist',      label: t('type_oncologist') },
+    { value: 'insurance_agent', label: t('type_insurance_agent') },
+    { value: 'social_worker',   label: t('type_social_worker') },
+    { value: 'pain_doctor',     label: t('type_pain_doctor') },
+    { value: 'hmo',             label: t('type_hmo') },
+    { value: 'other',           label: t('type_other') },
+  ]
   const [form, setForm] = useState(meeting ? {
     ...meeting,
     action_items: meeting.action_items || [],
