@@ -4,6 +4,7 @@ import DocViewerModal, { canView } from '../../components/DocViewerModal'
 import { useSimple } from '../../context/SimpleContext'
 import { useSpeech } from '../../hooks/useSpeech'
 import { fmtDate } from '../../utils/formatters'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const fmt = (n) => n != null ? `₪${Math.round(n).toLocaleString('he-IL')}` : '—'
