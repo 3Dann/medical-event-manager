@@ -544,7 +544,7 @@ export default function PatientInsurance() {
           {salResult.success
             ? `✅ ${salResult.message} — ${salResult.count} כיסויים יובאו`
             : `❌ ${salResult.message}`}
-          <button onClick={() => setSalResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setSalResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
       )}
 
@@ -554,7 +554,7 @@ export default function PatientInsurance() {
           {hmoResult.success
             ? `✅ ${hmoResult.message}`
             : `❌ ${hmoResult.message}`}
-          <button onClick={() => setHmoResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setHmoResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
       )}
 
@@ -562,9 +562,9 @@ export default function PatientInsurance() {
       {blResult && (
         <div className={`rounded-xl p-3 text-sm ${blResult.success?'bg-green-50 border border-green-200':'bg-red-50 border border-red-200'}`}>
           {blResult.success
-            ? `✅ ${blResult.message} — ${blResult.count} זכאויות יובאו`
+            ? `✅ ${blResult.message} — ${blResult.count} ${t('entitlements_imported')}`
             : `❌ ${blResult.message}`}
-          <button onClick={() => setBlResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">סגור</button>
+          <button onClick={() => setBlResult(null)} className="text-xs text-slate-600 mr-3 hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
       )}
 
