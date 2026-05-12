@@ -181,7 +181,7 @@ export default function ManagerDashboard() {
                   </button>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}
