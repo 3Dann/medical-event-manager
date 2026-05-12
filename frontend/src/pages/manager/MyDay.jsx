@@ -406,10 +406,10 @@ export default function MyDay() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">היום שלי</h1>
+          <h1 className="text-2xl font-bold text-slate-800">{t('title')}</h1>
           {newCount > 0 && (
             <p className="text-sm text-purple-700 mt-0.5 font-medium">
-              {newCount} משימות חדשות מהאדמין
+              {newCount} {t('new_tasks_from_admin')}
             </p>
           )}
         </div>
