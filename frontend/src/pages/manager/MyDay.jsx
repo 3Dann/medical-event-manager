@@ -441,7 +441,9 @@ export default function MyDay() {
 
       {/* Content */}
       {loading ? (
-        <div className="text-center py-16 text-slate-500">טוען משימות...</div>
+        <div className="space-y-3 p-4">
+          {[1,2,3,4].map(i => <SkeletonCard key={i} lines={2} />)}
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">✅</div>
