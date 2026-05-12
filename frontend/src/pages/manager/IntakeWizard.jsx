@@ -146,14 +146,25 @@ function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, 
         >▾</button>
       </div>
       {open && (
-        <ul className="absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg mt-0.5 max-h-44 overflow-y-auto w-full min-w-max">
+        <ul
+          role="listbox"
+          aria-label={itemLabel || placeholder}
+          className="absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg mt-0.5 max-h-44 overflow-y-auto w-full min-w-max"
+          onKeyDown={e => {
+            if (e.key === 'Escape') setOpen(false)
+          }}
+        >
           {items.options.map(item => {
             const v = String(item.v).padStart(items.maxLen, '0')
             const active = value === v || value === String(item.v)
             return (
               <li
                 key={item.v}
+                role="option"
+                aria-selected={active}
+                tabIndex={0}
                 onMouseDown={() => select(v)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(v) } }}
                 className={`px-3 py-1.5 text-sm cursor-pointer ${active ? 'bg-blue-100 font-semibold text-blue-700' : 'hover:bg-slate-50'}`}
               >
                 {item.label ?? item.v}
