@@ -166,7 +166,8 @@ export default function PatientDetail() {
   }
 
   const removeTemplate = async (key) => {
-    if (!window.confirm('להסיר את כל הצמתים של מסע זה מציר הזמן?')) return
+    const ok = await confirm({ title: 'הסרת מסע', message: 'להסיר את כל הצמתים של מסע זה מציר הזמן?', confirmLabel: 'הסר', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/journey-templates/${key}`)
     await fetchAll()
     setSelectedTplPreview(prev => prev?.key === key ? null : prev)
