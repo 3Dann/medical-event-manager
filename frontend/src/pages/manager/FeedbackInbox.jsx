@@ -147,26 +147,26 @@ export default function FeedbackInbox() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-slate-400">טוען...</div>
+        <div className="text-center py-16 text-slate-400">{t('common:loading', { ns: 'common' })}</div>
       ) : feedback.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl text-center py-16">
           <p className="text-4xl mb-3">📭</p>
-          <p className="font-medium text-slate-600">אין משובים עדיין</p>
-          <p className="text-sm text-slate-400 mt-1">משובים יישלחו דרך כפתור "שלח משוב" בסיידבר</p>
+          <p className="font-medium text-slate-600">{t('no_feedback')}</p>
+          <p className="text-sm text-slate-400 mt-1">{t('no_feedback_hint')}</p>
         </div>
       ) : (
         <div className="space-y-8">
           <Section
-            title="ממתינים לטיפול"
+            title={t('section_pending')}
             items={pending}
-            emptyText="אין פריטים הממתינים לטיפול"
+            emptyText={t('section_pending_empty')}
             onToggle={toggleHandled}
             accent="bg-orange-400"
           />
           <Section
-            title="טופלו"
+            title={t('section_handled')}
             items={handled}
-            emptyText="אין פריטים שטופלו עדיין"
+            emptyText={t('section_handled_empty')}
             onToggle={toggleHandled}
             accent="bg-green-400"
           />
