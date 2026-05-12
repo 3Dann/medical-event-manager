@@ -84,7 +84,7 @@ export default function PatientDocuments() {
       setForm({ category: t('cat_medical'), notes: '' })
       fetchDocs()
     } catch (err) {
-      setError(err.response?.data?.detail || 'שגיאה בהעלאה')
+      setError(err.response?.data?.detail || t('upload_error'))
     } finally {
       setUploading(false)
     }
