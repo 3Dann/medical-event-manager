@@ -320,9 +320,9 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
         </div>
 
         <div className="flex gap-3 justify-end px-6 py-4 border-t border-slate-100">
-          <button onClick={onClose} className="btn-secondary">ביטול</button>
+          <button onClick={onClose} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
           <button onClick={save} disabled={saving} className="btn-primary disabled:opacity-40">
-            {saving ? 'שומר...' : 'שמור פגישה'}
+            {saving ? t('common:saving', { ns: 'common' }) : t('save_meeting')}
           </button>
         </div>
       </div>
