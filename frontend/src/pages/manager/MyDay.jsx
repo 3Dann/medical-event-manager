@@ -319,7 +319,7 @@ export default function MyDay() {
         axios.get('/api/tasks/my'),
         axios.get('/api/patients'),
       ])
-      setTasks(tasksRes.data)
+      setTasks(tasksRes.data?.items ?? tasksRes.data)
       setPatients(patientsRes.data)
     } catch {
       showToast('שגיאה בטעינת המשימות')
