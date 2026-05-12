@@ -70,7 +70,8 @@ export default function WorkflowPanel({ patientId }) {
       if (action === 'pause')  await axios.post(`/api/workflows/instances/${instanceId}/pause`,  { reason: '' })
       if (action === 'resume') await axios.post(`/api/workflows/instances/${instanceId}/resume`)
       if (action === 'cancel') {
-        if (!window.confirm('לבטל את הזרימה?')) return
+        const ok = await confirm({ title: 'ביטול זרימה', message: 'לבטל את הזרימה?', confirmLabel: 'בטל זרימה', danger: true })
+        if (!ok) return
         await axios.post(`/api/workflows/instances/${instanceId}/cancel`, { reason: '' })
       }
       if (action === 'delete') {
