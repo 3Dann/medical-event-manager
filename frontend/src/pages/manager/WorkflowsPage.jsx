@@ -205,7 +205,7 @@ function TemplateEditorModal({ template, onClose, onSaved }) {
                     <input
                       type="number"
                       className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm"
-                      placeholder="ימים משוערים"
+                      placeholder={t('days_placeholder')}
                       value={step.duration_days}
                       onChange={e => updateStep(idx, 'duration_days', e.target.value)}
                     />
