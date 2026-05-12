@@ -212,17 +212,22 @@ def _task_dict(task: models.Task) -> dict:
 
 @router.get("/api/tasks/my")
 def get_my_tasks(
+    limit: int = 200,
+    offset: int = 0,
+    status: Optional[str] = None,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     if current_user.role != models.UserRole.manager:
         raise HTTPException(403, "נגיש למנהלי אירוע בלבד")
 
-    tasks = db.query(models.Task).filter(
-        models.Task.assigned_to == current_user.id,
-    ).order_by(models.Task.created_at.desc()).all()
+    q = db.query(models.Task).filter(models.Task.assigned_to == current_user.id)
+    if status:
+        q = q.filter(models.Task.status == status)
+    total = q.count()
+    tasks = q.order_by(models.Task.created_at.desc()).offset(offset).limit(min(limit, 500)).all()
 
-    return [_task_dict(t) for t in tasks]
+    return {"total": total, "items": [_task_dict(t) for t in tasks]}
 
 
 @router.post("/api/tasks/sync")
