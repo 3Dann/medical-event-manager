@@ -606,7 +606,7 @@ export default function PatientInsurance() {
               <p className="text-red-500 text-xs mt-1">פורמט מצופה: עמודות חברה | מספר פוליסה | סוג ביטוח</p>
             </div>
           )}
-          <button onClick={() => setExcelResult(null)} className="text-xs text-slate-600 mt-2 hover:underline">סגור</button>
+          <button onClick={() => setExcelResult(null)} className="text-xs text-slate-600 mt-2 hover:underline">{t('common:close', { ns: 'common' })}</button>
         </div>
       )}
 
