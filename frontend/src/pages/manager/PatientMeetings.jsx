@@ -403,13 +403,19 @@ export default function PatientMeetings() {
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const load = () => {
+  const load = useCallback((signal) => {
     setLoading(true)
-    axios.get(`/api/patients/${id}/meetings`)
+    axios.get(`/api/patients/${id}/meetings`, { signal })
       .then(r => setMeetings(r.data))
+      .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
-  }
-  useEffect(() => { load() }, [id])
+  }, [id])
+
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [load])
 
   const deleteMeeting = async (mid) => {
     if (!confirm('למחוק פגישה זו?')) return
