@@ -388,6 +388,7 @@ export default function MyDay() {
   return (
     <div className="p-4 md:p-6 max-w-3xl" dir="rtl">
       <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
+      {ConfirmUI}
       {showNew && <NewTaskModal patients={patients} onClose={() => setShowNew(false)} onCreated={load} />}
       {showCal && <CalendarModal onClose={() => setShowCal(false)} />}
 
