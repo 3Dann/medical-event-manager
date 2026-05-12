@@ -531,7 +531,7 @@ function RequestsSection({ patientId, onBack }) {
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-slate-500">טוען...</div>
+        <div className="text-center py-8 text-slate-700">טוען...</div>
       ) : requests.length === 0 ? (
         <EmptyState icon="💬" text="לא שלחת בקשות עדיין" />
       ) : (
