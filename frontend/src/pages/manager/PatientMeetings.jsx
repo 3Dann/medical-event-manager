@@ -251,7 +251,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
 
           {/* Action items */}
           <div>
-            <label className="label">פעולות נדרשות (Action Items)</label>
+            <label className="label">{t('action_items')}</label>
             <div className="space-y-1 mb-2">
               {form.action_items.map((item, i) => (
                 <div key={i} className="flex items-center gap-2">
