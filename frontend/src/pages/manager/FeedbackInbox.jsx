@@ -68,6 +68,7 @@ export default function FeedbackInbox() {
   const [feedback, setFeedback] = useState([])
   const [loading, setLoading]   = useState(true)
   const [filter, setFilter]     = useState('all')
+  const { showToast } = useToast()
 
   useEffect(() => {
     axios.get('/api/public/feedback')
