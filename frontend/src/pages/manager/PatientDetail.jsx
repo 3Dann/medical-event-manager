@@ -213,7 +213,7 @@ export default function PatientDetail() {
 
   const idValid = validateIsraeliId(editForm.id_number)
 
-  if (!patient) return <div className="p-8 text-slate-500">טוען...</div>
+  if (!patient) return <div className="p-8 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
 
   const sorted = sortNodes(nodes)
   const appliedTemplateKeys = new Set(nodes.filter(n => n.source_template_key).map(n => n.source_template_key))
