@@ -137,6 +137,15 @@ function GlobalErrorToast() {
   )
 }
 
+function IdleWatcher() {
+  const { user, logout } = useAuth()
+  const handleIdle = useCallback(() => {
+    if (user) logout()
+  }, [user, logout])
+  useIdleTimeout(handleIdle)
+  return null
+}
+
 function LangDirectionSync() {
   useEffect(() => {
     // Direction is ALWAYS RTL — the system layout is Hebrew/RTL regardless of content language
