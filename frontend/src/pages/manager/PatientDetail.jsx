@@ -35,7 +35,7 @@ const INSERT_SLOTS = [
   { label: 'אחרי מעקב',                   value: 55 },
 ]
 
-const STATUS_LABELS = { future: 'עתידי', active: 'פעיל', completed: 'הושלם' }
+// STATUS_LABELS built inside PatientDetail component to support i18n
 const STATUS_STYLES = {
   future:    { ring: 'ring-slate-200',  bg: 'bg-slate-50',   text: 'text-slate-500',  badge: 'bg-slate-100 text-slate-500',  connector: 'bg-slate-200' },
   active:    { ring: 'ring-blue-400',   bg: 'bg-blue-50',    text: 'text-blue-700',   badge: 'bg-blue-100 text-blue-700',    connector: 'bg-blue-300'  },
