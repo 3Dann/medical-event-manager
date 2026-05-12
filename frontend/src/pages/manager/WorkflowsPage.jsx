@@ -431,10 +431,10 @@ export default function WorkflowsPage() {
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="font-semibold text-slate-800">{step.name}</span>
                           {step.is_optional && (
-                            <span className="text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">אופציונלי</span>
+                            <span className="text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">{t('common:optional', { ns: 'common' })}</span>
                           )}
                           {step.duration_days && (
-                            <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">~{step.duration_days} ימים</span>
+                            <span className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">~{step.duration_days} {t('days_label')}</span>
                           )}
                         </div>
                         {step.instructions && <p className="text-sm text-slate-500">{step.instructions}</p>}
