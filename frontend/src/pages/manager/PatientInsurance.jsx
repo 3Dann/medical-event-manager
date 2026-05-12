@@ -660,7 +660,7 @@ export default function PatientInsurance() {
                           <input className="input flex-1" placeholder={t('type_company_name')}
                             value={form.company_name} onChange={e => setForm({...form, company_name: e.target.value})} autoFocus />
                           <button type="button" onClick={() => { setCustomCompany(false); setForm({...form, company_name: ''}) }}
-                            className="text-xs text-slate-600 hover:text-slate-800 px-2">↩ רשימה</button>
+                            className="text-xs text-slate-600 hover:text-slate-800 px-2">↩ {t('back_to_list')}</button>
                         </div>
                       )}
                     </div>
