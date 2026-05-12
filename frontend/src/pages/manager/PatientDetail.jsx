@@ -306,7 +306,7 @@ export default function PatientDetail() {
           ) : (
             <dl className="space-y-3 text-sm">
               <div><dt className="text-slate-500">{t('diagnosis_label')}</dt><dd className="font-medium">{patient.diagnosis_status === 'yes' ? t('diagnosis_yes') : patient.diagnosis_status === 'pending' ? t('diagnosis_pending') : t('diagnosis_no_short')}</dd></div>
-              {patient.diagnosis_details && <div><dt className="text-slate-500">פירוט</dt><dd>{patient.diagnosis_details}</dd></div>}
+              {patient.diagnosis_details && <div><dt className="text-slate-500">{t('details_label')}</dt><dd>{patient.diagnosis_details}</dd></div>}
               {patient.hmo_name && (
                 <div>
                   <dt className="text-slate-500">קופת חולים</dt>
