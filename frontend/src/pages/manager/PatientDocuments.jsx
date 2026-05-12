@@ -5,7 +5,7 @@ import DocViewerModal, { canView } from '../../components/DocViewerModal'
 import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 
-const CATEGORIES = ['רפואי', 'ביטוחי', 'משפטי', 'פיננסי', 'אחר']
+// Categories defined inside component to support i18n
 
 const FILE_ICONS = {
   'application/pdf': '📄',
