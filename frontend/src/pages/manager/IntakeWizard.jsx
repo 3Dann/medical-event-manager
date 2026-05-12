@@ -78,14 +78,14 @@ const MMSE_SECTIONS = [
 ]
 
 // ── Contexts ──────────────────────────────────────────────────────────────────
-const ErrorCtx = createContext({})
-const FormCtx  = createContext({})
+const ErrorCtx  = createContext({})
+const FormCtx   = createContext({ form: {}, set: () => {}, inp: () => ({}), setErrors: () => {} })
+const StepCtx   = createContext({})  // per-step handlers (triggerSuggest, etc.)
 
 function F({ label, name, required, children, valid: validOverride }) {
   const errors = useContext(ErrorCtx)
-  const form   = useContext(FormCtx)
+  const { form } = useContext(FormCtx)
   const hasError = !!errors[name]
-  // Determine validity: use override if provided, otherwise field has a non-empty value
   const val = form[name]
   const isValid = validOverride !== undefined
     ? validOverride
