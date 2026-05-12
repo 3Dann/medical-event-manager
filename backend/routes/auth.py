@@ -188,10 +188,15 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
 
     if chosen_method == "totp":
         if not user.totp_secret:
-            raise HTTPException(status_code=400, detail="גוגל אותנטיקייטור לא מוגדר בחשבון זה — השתמש באימות אימייל")
+            raise HTTPException(status_code=400, detail="יש להגדיר תחילה את גוגל אותנטיקייטור")
         totp = pyotp.TOTP(fe.decrypt(user.totp_secret))
         if not totp.verify(data.code, valid_window=2):
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
+        # Auto-enable on first successful TOTP use during login
+        if not user.totp_enabled:
+            user.totp_enabled = True
+            user.totp_method = "totp"
+            db.commit()
     else:
         # email or sms
         if not user.email_2fa_code or user.email_2fa_code != data.code:
