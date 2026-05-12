@@ -7,7 +7,7 @@ import re
 import io
 import json
 import threading
-import requests as http_requests
+import httpx
 from database import get_db, SessionLocal
 import models
 import auth as auth_utils
