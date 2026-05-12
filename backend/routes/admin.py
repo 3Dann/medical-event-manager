@@ -83,9 +83,14 @@ def reset_user_account(
     user.reset_token_expires = None
     db.commit()
 
+    sent = email_utils.send_temp_password(user.email, temp_password)
+    if not sent:
+        logger.warning("Admin reset: email not sent for user %s — temp password NOT returned in response", user_id)
+
     return {
-        "message": "הסיסמה אופסה בהצלחה",
-        "temp_password": temp_password,
+        "message": "הסיסמה אופסה. הסיסמה הזמנית נשלחה לאימייל המשתמש." if sent
+                   else "הסיסמה אופסה. שירות המייל אינו מוגדר — שלח ידנית ל-" + user.email,
+        "email_sent": sent,
         "preserve_data": user.preserve_data,
     }
 
