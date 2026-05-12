@@ -177,11 +177,11 @@ function NewTaskModal({ patients, onClose, onCreated }) {
         </div>
         <div className="space-y-3">
           <div>
-            <label className="label">כותרת *</label>
-            <input className="input" value={form.title} onChange={e => setForm(f => ({...f, title: e.target.value}))} placeholder="מה צריך לעשות?" autoFocus />
+            <label className="label">{t('task_title')} *</label>
+            <input className="input" value={form.title} onChange={e => setForm(f => ({...f, title: e.target.value}))} placeholder={t('task_title_placeholder')} autoFocus />
           </div>
           <div>
-            <label className="label">פירוט</label>
+            <label className="label">{t('task_description_label')}</label>
             <textarea className="input resize-none" rows={2} value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} />
           </div>
           <div className="grid grid-cols-2 gap-3">
