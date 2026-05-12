@@ -403,6 +403,7 @@ export default function PatientMeetings() {
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [confirm, ConfirmUI] = useConfirm()
 
   const load = useCallback((signal) => {
     setLoading(true)
