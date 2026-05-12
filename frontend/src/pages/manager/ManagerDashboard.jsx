@@ -11,27 +11,11 @@ const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-
 export default function ManagerDashboard() {
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showImportSal, setShowImportSal] = useState(false)
-  const [importIdNumber, setImportIdNumber] = useState('')
-  const [importResult, setImportResult] = useState(null)
-  const [importing, setImporting] = useState(false)
   const [globalInsights, setGlobalInsights] = useState(null)
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { toast, showToast, dismissToast } = useToast()
   const [confirmDelete, ConfirmUI] = useConfirm()
-
-  const handleImportSal = async (e) => {
-    e.preventDefault()
-    setImporting(true); setImportResult(null)
-    try {
-      const res = await axios.post('/api/import/sal-habriut', { id_number: importIdNumber })
-      setImportResult({ success: true, message: res.data.message, name: res.data.patient_name, count: res.data.coverages_imported })
-      setImportIdNumber('')
-    } catch (err) {
-      setImportResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
-    } finally { setImporting(false) }
-  }
 
   useEffect(() => {
     const controller = new AbortController()
