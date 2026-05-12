@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { fmtDate } from '../../utils/formatters'
