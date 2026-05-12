@@ -82,6 +82,7 @@ async def lifespan(app: FastAPI):
         weeks=1,
         id="weekly_drug_update",
         replace_existing=True,
+        max_instances=1,
     )
     scheduler.add_job(
         _daily_overdue_check,
@@ -90,6 +91,7 @@ async def lifespan(app: FastAPI):
         minute=0,
         id="daily_overdue_check",
         replace_existing=True,
+        max_instances=1,
     )
     scheduler.start()
     app.state.scheduler = scheduler
