@@ -146,7 +146,9 @@ export default function App() {
             <BrowserRouter>
               <LangDirectionSync />
               <GlobalErrorToast />
-              <AppRoutes />
+              <ErrorBoundary>
+                <AppRoutes />
+              </ErrorBoundary>
             </BrowserRouter>
           </DemoModeProvider>
         </AuthProvider>
