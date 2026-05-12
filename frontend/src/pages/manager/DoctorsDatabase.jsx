@@ -893,7 +893,7 @@ export default function DoctorsDatabase() {
                   />
                 </div>
                 <div>
-                  <label className="label">אימייל</label>
+                  <label className="label">{t('form_email_label')}</label>
                   <input
                     type="email"
                     className="input"
