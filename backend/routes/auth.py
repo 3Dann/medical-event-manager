@@ -89,11 +89,27 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
 
 
+_LOCKOUT_ATTEMPTS = 5
+_LOCKOUT_MINUTES  = 15
+
 @router.post("/login", response_model=Token)
 @limiter.limit("5/minute")
 def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    from datetime import timezone as tz
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
+
+    if user and user.locked_until:
+        locked_until = user.locked_until.replace(tzinfo=tz.utc) if user.locked_until.tzinfo is None else user.locked_until
+        if datetime.now(tz.utc) < locked_until:
+            raise HTTPException(status_code=429, detail="חשבון נעול זמנית. נסה שנית בעוד 15 דקות.")
+
     if not user or not auth_utils.verify_password(form_data.password, user.hashed_password):
+        if user:
+            user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+            if user.failed_login_attempts >= _LOCKOUT_ATTEMPTS:
+                user.locked_until = datetime.now(tz.utc) + timedelta(minutes=_LOCKOUT_MINUTES)
+                user.failed_login_attempts = 0
+            db.commit()
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if user.totp_enabled and user.totp_secret:
         # Return temp token — frontend must complete 2FA step
