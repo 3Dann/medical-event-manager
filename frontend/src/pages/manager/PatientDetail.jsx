@@ -762,7 +762,7 @@ function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
         <div className="flex gap-1 mt-1">
           <input
             className="flex-1 border border-slate-200 rounded px-2 py-0.5 text-xs"
-            placeholder="תת-סעיף חדש..."
+            placeholder={t('subitem_placeholder')}
             value={newText}
             onChange={e => setNewText(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { onAdd(newText); setNewText(''); setShowAdd(false) } }}
