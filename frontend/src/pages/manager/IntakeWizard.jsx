@@ -1288,9 +1288,9 @@ export default function IntakeWizard() {
           {/* Header */}
           <div className="mb-6">
             <button onClick={() => navigate('/manager')} className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1">
-              → חזרה ללוח בקרה
+              → {t('intake:back_to_dashboard')}
             </button>
-            <h1 className="text-2xl font-bold text-slate-800">פתיחת תיק מטופל חדש</h1>
+            <h1 className="text-2xl font-bold text-slate-800">{t('intake:title')}</h1>
             <div className="flex items-center gap-3">
               {draftSaved && (
                 <span className="text-xs text-green-600 flex items-center gap-1">
