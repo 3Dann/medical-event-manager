@@ -37,7 +37,7 @@ function FeedbackCard({ item, onToggle }) {
                 : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100'
             }`}
           >
-            {item.is_handled ? 'החזר לממתינים' : 'סמן כטופל'}
+            {item.is_handled ? t('mark_pending') : t('mark_handled')}
           </button>
         </div>
       </div>
