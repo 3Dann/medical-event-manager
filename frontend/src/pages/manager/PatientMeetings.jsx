@@ -312,10 +312,10 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
 
           {/* Caregiver notes */}
           <div>
-            <label className="label">הערות אישיות (לא מוצגות למטופל)</label>
+            <label className="label">{t('caregiver_notes_label')}</label>
             <textarea className="input resize-none" rows={2} value={form.caregiver_notes}
               onChange={e => set('caregiver_notes', e.target.value)}
-              placeholder="איך המטופל הרגיש? משהו שלא נאמר?" />
+              placeholder={t('caregiver_notes_placeholder')} />
           </div>
         </div>
 
