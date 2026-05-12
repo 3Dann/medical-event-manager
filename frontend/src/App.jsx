@@ -167,6 +167,7 @@ export default function App() {
           <DemoModeProvider>
             <BrowserRouter>
               <LangDirectionSync />
+              <IdleWatcher />
               {/* Skip to main content — IS 5568 requirement */}
               <a
                 href="#main-content"
