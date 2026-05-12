@@ -13,14 +13,18 @@ function TwoFASection() {
   const [emailCode, setEmailCode] = useState('')
   const [msg, setMsg] = useState(null)
 
-  const load = async () => {
+  const load = async (signal) => {
     try {
-      const r = await axios.get('/api/auth/2fa/status')
+      const r = await axios.get('/api/auth/2fa/status', { signal })
       setStatus(r.data)
-    } catch {}
+    } catch (e) { if (axios.isCancel(e)) return }
     setLoading(false)
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    load(ctrl.signal)
+    return () => ctrl.abort()
+  }, [])
 
   const startTOTP = async () => {
     setMsg(null); setCode('')
