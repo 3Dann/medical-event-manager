@@ -234,7 +234,7 @@ def setup_2fa(current_user: models.User = Depends(auth_utils.get_current_user), 
 @router.post("/2fa/setup-email")
 def setup_email_2fa(current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
     """Enable email-based 2FA — sends confirmation code to registered email."""
-    code = secrets.token_hex(3).upper()
+    code = secrets.token_hex(4).upper()  # 8 chars, 32-bit entropy
     current_user.email_2fa_code = code
     current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
     current_user.totp_method = "email"
@@ -334,7 +334,7 @@ def request_password_email_code(current_user: models.User = Depends(auth_utils.g
     """Send email 2FA code for password change."""
     if not current_user.totp_enabled or current_user.totp_method != "email":
         raise HTTPException(status_code=400, detail="אימות אימייל אינו מופעל")
-    code = secrets.token_hex(3).upper()
+    code = secrets.token_hex(4).upper()  # 8 chars, 32-bit entropy
     current_user.email_2fa_code = code
     current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
     db.commit()
