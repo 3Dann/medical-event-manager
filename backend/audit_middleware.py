@@ -50,8 +50,8 @@ def _get_ip(request: Request):
 
 def _decode_user_id(token: str):
     try:
-        from jose import jwt
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        import jwt as pyjwt
+        payload = pyjwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         sub = payload.get("sub")
         return int(sub) if sub else None
     except Exception:
