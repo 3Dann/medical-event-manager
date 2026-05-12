@@ -690,7 +690,7 @@ export default function DoctorsDatabase() {
           <button
             onClick={submitSearch}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-blue-600 transition-colors p-0.5"
-            title="חפש (Enter)"
+            title={t('search_enter_hint')}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
