@@ -33,6 +33,7 @@ function formatDate(iso) {
 
 export default function PatientDocuments() {
   const { t } = useTranslation('documents')
+  const CATEGORIES = [t('cat_medical'), t('cat_insurance'), t('cat_legal'), t('cat_financial'), t('cat_other')]
   const { id } = useParams()
   const [docs, setDocs] = useState([])
   const [loading, setLoading] = useState(true)
