@@ -377,7 +377,7 @@ export default function AdminPage() {
                           <div>
                             <span className="text-sm font-medium text-slate-800">{perm.manager_name}</span>
                             <span className="text-xs text-slate-600 mr-2">{perm.manager_email}</span>
-                            <div className="text-xs text-slate-600">הוענק ע"י {perm.granted_by_name}</div>
+                            <div className="text-xs text-slate-600">{t('granted_by')} {perm.granted_by_name}</div>
                           </div>
                           <button
                             onClick={() => handleRevoke(perm.manager_id)}
