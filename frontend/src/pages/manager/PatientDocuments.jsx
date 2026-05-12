@@ -176,21 +176,21 @@ export default function PatientDocuments() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">הערות</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('notes')}</label>
               <input
                 type="text"
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                 className="input-field w-full"
-                placeholder="הערה קצרה (אופציונלי)"
+                placeholder={t('notes_placeholder')}
               />
             </div>
           </div>
 
           <div className="flex gap-3 justify-end">
-            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary text-sm">ביטול</button>
+            <button type="button" onClick={() => setShowForm(false)} className="btn-secondary text-sm">{t('common:cancel', { ns: 'common' })}</button>
             <button type="submit" disabled={uploading || !selectedFile} className="btn-primary text-sm">
-              {uploading ? 'מעלה...' : 'העלאה'}
+              {uploading ? t('uploading') : t('upload')}
             </button>
           </div>
         </form>
