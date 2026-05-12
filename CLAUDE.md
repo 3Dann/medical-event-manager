@@ -311,6 +311,22 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 ### שירותים חיצוניים שנוספו
 - **Sentry** — `SENTRY_DSN` ב-Railway (free tier, 5K events/month)
 - **boto3** — `boto3==1.38.7` ב-requirements.txt לגיבוי R2 (R2 env vars טרם הוגדרו)
+- **FIELD_ENCRYPTION_KEY** — ב-Railway. מפתח Fernet ל-field-level encryption. אסור לאבד!
+
+### תיקוני סבב 2 — ממצאים חדשים מ-5 סוכנים (2026-05-12)
+- **Admin temp password** → נשלח במייל בלבד (`send_temp_password`). לא ב-response.
+- **CSP header** → `Content-Security-Policy` ב-SecurityHeadersMiddleware
+- **X-Forwarded-For** → נאמן רק מ-Railway internal (100.64.x.x)
+- **PRAGMA foreign_keys=ON** → database.py
+- **Calendar token TTL** → 365 יום כברירת מחדל + backfill לישנים
+- **GET /tasks/my read-only** → POST /tasks/sync לסנכרון
+- **reset_users_once** → דורש `ALLOW_USER_RESET=1`
+- **PyJWT** → הוחלף מ-python-jose (CVEs)
+- **Pagination** → tasks endpoint מחזיר `{total, items, limit, offset}`
+- **Logout + JWT revocation** → `RevokedToken` table + `jti` claim + `POST /api/auth/logout`
+- **TOTP encryption** → `field_encrypt.py` (Fernet). `FIELD_ENCRYPTION_KEY` ב-Railway.
+- **ManagerDashboard** → `useToast` + `AppToast` נוספו (תוקן קריסה)
+- **Tests** → `test_field_encrypt.py`, `test_backup.py`, `formatters.test.js`
 
 ---
 
