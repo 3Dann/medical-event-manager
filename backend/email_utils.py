@@ -54,6 +54,27 @@ def send_2fa_code(to: str, code: str) -> bool:
     return send_email(to, subject, body)
 
 
+def send_temp_password(to: str, temp_password: str) -> bool:
+    subject = "סיסמה זמנית — מנהל האירוע הרפואי"
+    body = f"""
+    <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <h2 style="color: #1e3a5f; margin: 0;">סיסמה זמנית</h2>
+        <p style="color: #64748b;">המנהל אפס את הסיסמה שלך</p>
+      </div>
+      <div style="background: white; border-radius: 10px; padding: 24px; text-align: center; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <p style="color: #64748b; font-size: 14px; margin: 0 0 12px;">הסיסמה הזמנית שלך:</p>
+        <div style="font-size: 24px; font-weight: 800; letter-spacing: 4px; color: #dc2626; background: #fee2e2; padding: 16px; border-radius: 8px; font-family: monospace;">
+          {temp_password}
+        </div>
+        <p style="color: #94a3b8; font-size: 12px; margin: 12px 0 0;">יש להחליף אותה מיד לאחר ההתחברות.</p>
+      </div>
+      <p style="color: #94a3b8; font-size: 12px; text-align: center;">אם לא ביקשת איפוס, פנה למנהל המערכת.</p>
+    </div>
+    """
+    return send_email(to, subject, body)
+
+
 def send_reset_code(to: str, code: str) -> bool:
     subject = "איפוס סיסמה — מנהל האירוע הרפואי"
     body = f"""
