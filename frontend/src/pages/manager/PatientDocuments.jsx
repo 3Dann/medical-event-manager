@@ -104,7 +104,8 @@ export default function PatientDocuments() {
   }
 
   async function handleDelete(docId) {
-    if (!window.confirm('למחוק את המסמך?')) return
+    const ok = await confirm({ title: 'מחיקת מסמך', message: 'למחוק את המסמך? פעולה זו בלתי הפיכה.', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     setDeletingId(docId)
     try {
       await axios.delete(`/api/patients/${id}/documents/${docId}`)
