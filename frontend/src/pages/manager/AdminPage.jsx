@@ -365,11 +365,11 @@ export default function AdminPage() {
 
                 {/* Existing permissions */}
                 <div>
-                  <p className="text-xs font-medium text-slate-600 mb-2">גישות פעילות</p>
+                  <p className="text-xs font-medium text-slate-600 mb-2">{t('active_permissions')}</p>
                   {permsLoading ? (
-                    <p className="text-sm text-slate-600">טוען...</p>
+                    <p className="text-sm text-slate-600">{t('common:loading', { ns: 'common' })}</p>
                   ) : permissions.length === 0 ? (
-                    <p className="text-sm text-slate-600 py-3">אין הרשאות נוספות — רק הבעלים ניגש לתיק זה</p>
+                    <p className="text-sm text-slate-600 py-3">{t('no_additional_permissions')}</p>
                   ) : (
                     <div className="space-y-2">
                       {permissions.map(perm => (
