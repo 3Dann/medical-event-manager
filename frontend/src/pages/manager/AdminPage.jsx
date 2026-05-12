@@ -358,7 +358,7 @@ export default function AdminPage() {
                       disabled={!grantManagerId}
                       className="btn-primary text-sm px-4 disabled:opacity-40"
                     >
-                      הענק
+                      {t('grant_btn')}
                     </button>
                   </div>
                 </div>
