@@ -273,7 +273,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
 
           {/* Documents checklist */}
           <div>
-            <label className="label">מסמכים שהתקבלו / יש לבקש</label>
+            <label className="label">{t('docs_checklist_label')}</label>
             <div className="grid grid-cols-2 gap-2">
               {DOCS.map(([key, label]) => (
                 <label key={key} className="flex items-center gap-2 cursor-pointer">
