@@ -618,9 +618,9 @@ function DrugDatabasePanel() {
 
       {last && (
         <div className={`text-xs rounded-lg px-3 py-2 ${last.status === 'success' ? 'bg-green-50 text-green-700' : last.status === 'failed' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
-          עדכון אחרון: {last.status === 'success' ? '✓' : last.status === 'failed' ? '✗' : '⏳'}
+          {t('last_update_label')}: {last.status === 'success' ? '✓' : last.status === 'failed' ? '✗' : '⏳'}
           {' '}{last.started_at ? new Date(last.started_at).toLocaleString('he-IL') : '—'}
-          {last.drugs_added > 0 && <span className="mr-2">· +{last.drugs_added} תרופות חדשות</span>}
+          {last.drugs_added > 0 && <span className="mr-2">· +{last.drugs_added} {t('new_drugs_added')}</span>}
           {last.message && <span className="mr-2">· {last.message}</span>}
         </div>
       )}
