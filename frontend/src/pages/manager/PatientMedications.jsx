@@ -190,7 +190,7 @@ export default function PatientMedications() {
           })}
           {interactions.length > 0 && (
             <p className="text-xs text-slate-500 italic border-t border-red-200 pt-2">
-              ⚕️ מידע זה הוא לצורך מידע בלבד ואינו מהווה תחליף לייעוץ רפואי מקצועי. יש להתייעץ עם רופא או רוקח לפני כל שינוי בטיפול התרופתי.
+              ⚕️ {t('interactions_disclaimer')}
             </p>
           )}
         </div>
