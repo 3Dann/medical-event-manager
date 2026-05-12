@@ -416,6 +416,9 @@ class Entitlement(Base):
 class PatientPermission(Base):
     """Explicit access grants: admin gives manager_id access to a patient they don't own."""
     __tablename__ = "patient_permissions"
+    __table_args__ = (
+        Index("ix_patient_perm_unique", "patient_id", "manager_id", unique=True),
+    )
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
