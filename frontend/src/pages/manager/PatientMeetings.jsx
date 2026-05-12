@@ -131,14 +131,12 @@ function PatientRequestsPanel({ patientId }) {
   )
 }
 
-const TYPES = [
-  { value: 'oncologist',      label: 'אונקולוג' },
-  { value: 'insurance_agent', label: 'סוכן ביטוח' },
-  { value: 'social_worker',   label: 'עו״ס / מתאמת' },
-  { value: 'pain_doctor',     label: 'רופא כאב' },
-  { value: 'hmo',             label: 'קופת חולים' },
-  { value: 'other',           label: 'אחר' },
-]
+// TYPES is now built inside MeetingForm using t()
+const TYPES_KEYS = ['oncologist', 'insurance_agent', 'social_worker', 'pain_doctor', 'hmo', 'other']
+const TYPES_STATIC_LABELS = {
+  oncologist: 'אונקולוג', insurance_agent: 'סוכן ביטוח', social_worker: 'עו״ס / מתאמת',
+  pain_doctor: 'רופא כאב', hmo: 'קופת חולים', other: 'אחר',
+}
 
 const TYPE_ICONS = { oncologist: '👨‍⚕️', insurance_agent: '📋', social_worker: '🤝', pain_doctor: '💊', hmo: '🏥', other: '📝' }
 
