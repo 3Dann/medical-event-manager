@@ -210,6 +210,35 @@ class RequestEmailCodeRequest(BaseModel):
     temp_token: str
 
 
+@router.post("/2fa/request-sms-code")
+@limiter.limit("5/minute")
+def request_sms_code(request: Request, data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
+    """Generate an SMS 2FA code for the login flow."""
+    from jwt import PyJWTError as JWTError
+    try:
+        payload = auth_utils.decode_token(data.temp_token)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="טוקן פג תוקף — התחבר מחדש")
+    if not payload.get("2fa_pending"):
+        raise HTTPException(status_code=400, detail="טוקן לא תקין")
+    user_id = int(payload["sub"])
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user or not user.phone_2fa:
+        raise HTTPException(status_code=404, detail="מספר טלפון לא מוגדר")
+    code = secrets.token_hex(4).upper()
+    user.email_2fa_code = code
+    user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    db.commit()
+    sent = sms_utils.send_2fa_sms(user.phone_2fa, code)
+    masked = user.phone_2fa[-4:] if user.phone_2fa else "****"
+    return {
+        "message": f"קוד נשלח ל-****{masked}" if sent else "קוד נוצר (מצב פיתוח)",
+        "phone_masked": f"****{masked}",
+        "code": None if sent else code,
+        "sms_configured": sent,
+    }
+
+
 @router.post("/2fa/request-email-code")
 def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
     """Generate an email 2FA code for the login flow (displayed in UI since no mail server)."""
