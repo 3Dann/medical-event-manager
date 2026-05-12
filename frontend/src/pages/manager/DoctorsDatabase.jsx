@@ -626,9 +626,9 @@ export default function DoctorsDatabase() {
       {/* Excel Import Panel */}
       {importOpen && (
         <div className="card mb-4 max-w-lg">
-          <p className="text-sm font-medium text-slate-700 mb-1">ייבוא מקובץ Excel</p>
+          <p className="text-sm font-medium text-slate-700 mb-1">{t('import_from_excel')}</p>
           <p className="text-xs text-slate-500 mb-3">
-            עמודות נתמכות: שם, מומחיות, תת-התמחות, מספר רישיון, טלפון, מיקום, קופות חולים, שפות, הערות ועוד
+            {t('import_columns_desc')}
           </p>
           <input
             type="file"
