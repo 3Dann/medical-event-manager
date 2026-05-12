@@ -129,152 +129,142 @@ export default function LoginPage() {
 
         {success && <p className="text-green-700 text-sm bg-green-50 p-3 rounded-lg mb-4">{success}</p>}
 
-        {/* 2FA Step */}
-        {twoFAStep && twoFAMethod === 'setup_required' && (
-          <div className="space-y-4 text-center">
-            <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
-              </svg>
-            </div>
-            <h2 className="text-lg font-semibold text-slate-800">נדרש אימות דו-שלבי</h2>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              חשבון מנהל חייב להיות מאובטח עם אימות דו-שלבי.<br />
-              יש להגדיר 2FA לפני ההתחברות.
-            </p>
-            <a
-              href="/manager/profile"
-              onClick={e => {
-                e.preventDefault()
-                // Store temp token so profile page can auto-open 2FA setup
-                sessionStorage.setItem('setup_2fa_token', tempToken)
-                window.location.href = '/manager/profile?setup_2fa=1'
-              }}
-              className="block w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-medium min-h-[44px] leading-[44px] text-center"
-            >
-              הגדר אימות דו-שלבי עכשיו
-            </a>
-            <button onClick={() => { setTwoFAStep(false); setError('') }} className="text-sm text-slate-500 hover:text-slate-700 min-h-[44px]">
-              חזרה
-            </button>
-          </div>
-        )}
-
-        {twoFAStep && twoFAMethod !== 'setup_required' && (
+        {/* ── 2FA Step ─────────────────────────────────────────────────────── */}
+        {twoFAStep && (
           <div className="space-y-4">
-            <div className="text-center mb-2">
+            <div className="text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <h2 className="text-lg font-semibold text-slate-800">אימות דו-שלבי</h2>
-              <p className="text-sm text-slate-500 mt-1">
-                {twoFAMethod === 'sms'   ? '💬 אימות באמצעות SMS'
-                 : twoFAMethod === 'email' ? '✉️ אימות באמצעות אימייל'
-                 : '📱 אימות באמצעות אפליקציית אימות'}
-              </p>
+              <p className="text-sm text-slate-500 mt-1">בחר כיצד לאמת את זהותך</p>
             </div>
 
-            {/* Email — request code button */}
-            {twoFAMethod === 'email' && !emailCodeReady && (
-              <button type="button" onClick={async () => {
-                setLoading(true); setError('')
-                try {
-                  const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
-                  setEmailCodeReady(true)
-                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
-                  else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
-                } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
-                finally { setLoading(false) }
-              }} disabled={loading} className="btn-primary w-full py-3">
-                {loading ? 'שולח...' : 'שלח קוד לאימייל'}
-              </button>
-            )}
-            {twoFAMethod === 'email' && emailCodeReady && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                {emailCodeDisplay ? (
-                  <><p className="text-xs text-blue-600 mb-1">קוד (מצב פיתוח):</p>
-                    <p className="text-2xl font-bold text-blue-800 tracking-widest">{emailCodeDisplay}</p></>
-                ) : (<p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>)}
-                <p className="text-xs text-blue-500 mt-1">תוקף: 10 דקות</p>
-              </div>
-            )}
-
-            {/* SMS — request code button */}
-            {twoFAMethod === 'sms' && !emailCodeReady && (
-              <button type="button" onClick={async () => {
-                setLoading(true); setError('')
-                try {
-                  const r = await axios.post('/api/auth/2fa/request-sms-code', { temp_token: tempToken })
-                  setEmailCodeReady(true)
-                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
-                  else setEmailSentMsg(r.data.message || `קוד נשלח ל-${r.data.phone_masked}`)
-                } catch(e) { setError(e.response?.data?.detail || 'שגיאה') }
-                finally { setLoading(false) }
-              }} disabled={loading} className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors">
-                {loading ? 'שולח...' : '💬 שלח קוד ב-SMS'}
-              </button>
-            )}
-            {twoFAMethod === 'sms' && emailCodeReady && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                {emailCodeDisplay ? (
-                  <><p className="text-xs text-green-600 mb-1">קוד SMS (מצב פיתוח):</p>
-                    <p className="text-2xl font-bold text-green-800 tracking-widest">{emailCodeDisplay}</p></>
-                ) : (<p className="text-sm font-medium text-green-800">✓ {emailSentMsg}</p>)}
-                <p className="text-xs text-green-500 mt-1">תוקף: 10 דקות</p>
-              </div>
-            )}
-
-            <form onSubmit={handle2FAVerify} className="space-y-4">
-              <div>
-                <label className="label">
-                  {twoFAMethod === 'sms'   ? 'הזן קוד מה-SMS'
-                   : twoFAMethod === 'email' ? 'הזן קוד מהאימייל'
-                   : 'קוד מאפליקציית האימות'}
-                </label>
-                <input
-                  className="input text-center tracking-widest text-xl"
-                  maxLength={8}
-                  value={twoFACode}
-                  onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                  placeholder={twoFAMethod === 'totp' ? '000000' : 'XXXXXXXX'}
-                  autoFocus={twoFAMethod === 'totp' || !!emailCodeDisplay}
-                  required
-                />
-              </div>
-              {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-              <button type="submit"
-                disabled={loading || twoFACode.length < 6 || (['email','sms'].includes(twoFAMethod) && !emailCodeReady)}
-                className="btn-primary w-full py-3">
-                {loading ? 'מאמת...' : 'אמת קוד'}
-              </button>
-
-              {/* Email fallback for TOTP users */}
-              {twoFAMethod === 'totp' && !emailCodeReady && (
-                <button type="button"
+            {/* ── בחירת שיטה ── */}
+            {twoFAMethod === null && (
+              <div className="space-y-2 pt-2">
+                {/* Email — always available */}
+                <button
                   onClick={async () => {
                     setLoading(true); setError('')
                     try {
                       const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
                       setTwoFAMethod('email')
                       setEmailCodeReady(true)
-                      if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח — קוד מוצג כאן') }
+                      if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('מצב פיתוח') }
                       else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל ${r.data.email}`)
                     } catch(e) { setError(e.response?.data?.detail || 'שגיאה בשליחת מייל') }
                     finally { setLoading(false) }
                   }}
                   disabled={loading}
-                  className="w-full py-2 text-sm text-blue-600 hover:text-blue-800 hover:underline">
-                  {loading ? '...' : 'אין גישה לאפליקציה? שלח קוד למייל'}
+                  className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors min-h-[52px]"
+                >
+                  <span className="text-2xl">✉️</span>
+                  <div className="text-right flex-1">
+                    <p className="font-medium text-slate-800 text-sm">שלח קוד לאימייל</p>
+                    <p className="text-xs text-slate-500">קוד חד-פעמי ישלח לכתובת המייל שלך</p>
+                  </div>
                 </button>
-              )}
 
-              <button type="button" onClick={() => { setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError(''); setTwoFAMethod('totp') }}
-                className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
-                חזור להתחברות
-              </button>
-            </form>
+                {/* TOTP — only if configured */}
+                {totpConfigured && (
+                  <button
+                    onClick={() => setTwoFAMethod('totp')}
+                    className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-colors min-h-[52px]"
+                  >
+                    <span className="text-2xl">📱</span>
+                    <div className="text-right flex-1">
+                      <p className="font-medium text-slate-800 text-sm">קוד מגוגל אותנטיקייטור</p>
+                      <p className="text-xs text-slate-500">פתח את האפליקציה והזן את הקוד בן 6 הספרות</p>
+                    </div>
+                  </button>
+                )}
+
+                {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+
+                <button
+                  onClick={() => { setTwoFAStep(false); setError('') }}
+                  className="w-full py-2 text-sm text-slate-500 hover:text-slate-700"
+                >
+                  חזור להתחברות
+                </button>
+              </div>
+            )}
+
+            {/* ── מייל: הצגת קוד + הזנה ── */}
+            {twoFAMethod === 'email' && (
+              <div className="space-y-3">
+                {emailCodeReady && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                    {emailCodeDisplay ? (
+                      <>
+                        <p className="text-xs text-blue-600 mb-1">קוד אימות (מצב פיתוח):</p>
+                        <p className="text-3xl font-bold text-blue-800 tracking-widest font-mono">{emailCodeDisplay}</p>
+                      </>
+                    ) : (
+                      <p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>
+                    )}
+                    <p className="text-xs text-blue-500 mt-1.5">תוקף: 10 דקות</p>
+                  </div>
+                )}
+                <form onSubmit={handle2FAVerify} className="space-y-3">
+                  <div>
+                    <label className="label">הזן את הקוד מהאימייל</label>
+                    <input
+                      className="input text-center tracking-widest text-xl"
+                      maxLength={8}
+                      value={twoFACode}
+                      onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                      placeholder="XXXXXXXX"
+                      autoFocus
+                      required
+                    />
+                  </div>
+                  {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+                  <button type="submit"
+                    disabled={loading || twoFACode.length < 6}
+                    className="btn-primary w-full py-3">
+                    {loading ? 'מאמת...' : 'אמת קוד'}
+                  </button>
+                  <button type="button"
+                    onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError('') }}
+                    className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+                    חזור לבחירת שיטה
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* ── TOTP: הזנת קוד גוגל ── */}
+            {twoFAMethod === 'totp' && (
+              <form onSubmit={handle2FAVerify} className="space-y-3">
+                <div>
+                  <label className="label">קוד מגוגל אותנטיקייטור</label>
+                  <input
+                    className="input text-center tracking-widest text-2xl"
+                    maxLength={6}
+                    value={twoFACode}
+                    onChange={e => setTwoFACode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="000000"
+                    autoFocus
+                    required
+                  />
+                </div>
+                {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+                <button type="submit"
+                  disabled={loading || twoFACode.length !== 6}
+                  className="btn-primary w-full py-3">
+                  {loading ? 'מאמת...' : 'אמת קוד'}
+                </button>
+                <button type="button"
+                  onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setError('') }}
+                  className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+                  חזור לבחירת שיטה
+                </button>
+              </form>
+            )}
           </div>
         )}
 
