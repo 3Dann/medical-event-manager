@@ -253,9 +253,16 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* ── TOTP: הזנת קוד גוגל ── */}
+            {/* ── TOTP: הגדרה ראשונה (QR) + הזנת קוד ── */}
             {twoFAMethod === 'totp' && (
               <form onSubmit={handle2FAVerify} className="space-y-3">
+                {totpSetupQR && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center space-y-2">
+                    <p className="text-xs font-medium text-slate-700">סרוק עם גוגל אותנטיקייטור</p>
+                    <img src={totpSetupQR} alt="QR Code" className="mx-auto w-40 h-40" />
+                    <p className="text-xs text-slate-500">לאחר הסריקה הזן את הקוד בן 6 הספרות</p>
+                  </div>
+                )}
                 <div>
                   <label className="label">קוד מגוגל אותנטיקייטור</label>
                   <input
@@ -275,7 +282,7 @@ export default function LoginPage() {
                   {loading ? 'מאמת...' : 'אמת קוד'}
                 </button>
                 <button type="button"
-                  onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setError('') }}
+                  onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setTotpSetupQR(''); setError('') }}
                   className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
                   חזור לבחירת שיטה
                 </button>
