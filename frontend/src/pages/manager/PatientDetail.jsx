@@ -278,7 +278,7 @@ export default function PatientDetail() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="label">קופת חולים</label>
+                  <label className="label">{t('hmo_label')}</label>
                   <select className="input" value={editForm.hmo_name || ''} onChange={async e => {
                     const hmo = e.target.value; setEditForm({...editForm, hmo_name: hmo, hmo_level: ''})
                     if (hmo) { const r = await axios.get(`/api/patients/hmo-plans/${hmo}`); setHmoPlans(r.data) }
