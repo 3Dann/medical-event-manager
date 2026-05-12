@@ -232,6 +232,7 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Railway CLI login** — לאחר עדכון גרסה (4.44 → 4.57+) config נמחק. לאחר `railway login` צריך גם `railway link --project medical-event-manager`. גרסה נוכחית: 4.57.4.
 - **railway.toml** — קיים בשורש הפרויקט. אין לציין `builder = "NIXPACKS"` כשיש Dockerfile — גורם לבלבול. הגדרות: healthcheckPath, healthcheckTimeout=120, restartPolicyType=ON_FAILURE, numReplicas=1.
 - **SQLite WAL mode** — מופעל אוטומטית בכל חיבור ב-`database.py` (PRAGMA journal_mode=WAL + synchronous=NORMAL + busy_timeout=5000 + foreign_keys=ON)
+- **API service layer** — `frontend/src/services/api.js`. axios instance עם auth interceptor, entity methods (patients, tasks, auth, documents, medications). ייבוא: `import api, { patients, tasks } from '../../services/api'`
 - **JWT library** — PyJWT 2.10.1 (הוחלף מ-python-jose שיש לו CVEs). import: `import jwt as pyjwt; from jwt import PyJWTError as JWTError`
 - **JWT revocation** — `RevokedToken` table + `jti` claim בכל token. `POST /api/auth/logout` מוסיף jti ל-blacklist. `get_current_user` בודק revocation.
 - **Field encryption** — `field_encrypt.py` (Fernet/AES). env var: `FIELD_ENCRYPTION_KEY` (מוגדר ב-Railway). משמש ל-totp_secret. prefix `enc:` על ערכים מוצפנים; ערכים ישנים עוברים כ-plaintext (backward compat).
