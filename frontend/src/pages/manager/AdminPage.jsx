@@ -589,9 +589,9 @@ function DrugDatabasePanel() {
     <div className="card mt-6">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-bold text-slate-800">מאגר תרופות</h3>
+          <h3 className="font-bold text-slate-800">{t('drug_db_title')}</h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            עדכון אוטומטי שבועי מ-openFDA · עדכון ידני זמין
+            {t('drug_db_auto_update')}
           </p>
         </div>
         <button
@@ -599,7 +599,7 @@ function DrugDatabasePanel() {
           disabled={updating}
           className="text-sm bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 disabled:opacity-50 font-medium"
         >
-          {updating ? 'מעדכן...' : '↻ עדכן עכשיו'}
+          {updating ? t('drug_updating') : `↻ ${t('drug_update')}`}
         </button>
       </div>
 
