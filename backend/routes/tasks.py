@@ -446,12 +446,18 @@ def get_calendar_token(
     row = db.query(models.CalendarToken).filter(
         models.CalendarToken.user_id == current_user.id
     ).first()
+    from datetime import timedelta, timezone
     if not row:
         row = models.CalendarToken(
             user_id=current_user.id,
             token=secrets.token_urlsafe(32),
+            expires_at=datetime.now(timezone.utc) + timedelta(days=365),
         )
         db.add(row)
         db.commit()
         db.refresh(row)
-    return {"token": row.token}
+    elif row.expires_at is None:
+        # Backfill: existing tokens without expiry get 1 year from now
+        row.expires_at = datetime.now(timezone.utc) + timedelta(days=365)
+        db.commit()
+    return {"token": row.token, "expires_at": row.expires_at.isoformat() if row.expires_at else None}
