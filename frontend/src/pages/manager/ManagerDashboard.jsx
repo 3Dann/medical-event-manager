@@ -33,12 +33,20 @@ export default function ManagerDashboard() {
     } finally { setImporting(false) }
   }
 
-  useEffect(() => { fetchPatients(); fetchInsights() }, [])
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchPatients(controller.signal)
+    fetchInsights()
+    return () => controller.abort()
+  }, [])
 
-  const fetchPatients = async () => {
-    try { const res = await axios.get('/api/patients'); setPatients(res.data) }
-    catch (e) { showToast('שגיאת שרת. נסה שוב.') }
-    finally { setLoading(false) }
+  const fetchPatients = async (signal) => {
+    try {
+      const res = await axios.get('/api/patients', { signal })
+      setPatients(res.data)
+    } catch (e) {
+      if (!axios.isCancel(e)) showToast('שגיאת שרת. נסה שוב.')
+    } finally { setLoading(false) }
   }
 
   const fetchInsights = async () => {
