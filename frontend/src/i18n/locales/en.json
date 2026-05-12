@@ -533,6 +533,7 @@
   },
   "feedback": {
     "title": "Feedback Inbox",
+    "subtitle": "All submitted feedback — pending and handled",
     "type_bug": "Bug",
     "type_feature": "Feature Request",
     "type_general": "General",
@@ -541,7 +542,17 @@
     "filter_handled": "Handled",
     "mark_handled": "Mark as Handled",
     "mark_pending": "Return to Pending",
-    "no_feedback": "No feedback yet"
+    "no_feedback": "No feedback yet",
+    "no_feedback_hint": "Feedback is sent via the \"Send Feedback\" button in the sidebar",
+    "stat_total": "Total",
+    "stat_pending": "Pending",
+    "stat_bugs": "Bugs",
+    "stat_ideas": "Ideas",
+    "section_pending": "Pending Review",
+    "section_pending_empty": "No items pending review",
+    "section_handled": "Handled",
+    "section_handled_empty": "No items handled yet",
+    "load_error": "Error loading feedback"
   },
   "profile": {
     "title": "My Profile",
