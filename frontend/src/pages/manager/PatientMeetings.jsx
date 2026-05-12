@@ -452,11 +452,11 @@ export default function PatientMeetings() {
       </div>
 
       {loading ? (
-        <div className="py-12 text-center text-slate-600">טוען...</div>
+        <div className="py-12 text-center text-slate-600">{t('common:loading', { ns: 'common' })}</div>
       ) : meetings.length === 0 ? (
         <div className="py-16 text-center">
-          <p className="text-slate-600 mb-3">לא תועדו פגישות עדיין</p>
-          <button onClick={() => setShowForm(true)} className="btn-secondary">תעד את הפגישה הראשונה</button>
+          <p className="text-slate-600 mb-3">{t('no_meetings')}</p>
+          <button onClick={() => setShowForm(true)} className="btn-secondary">{t('record_first_meeting')}</button>
         </div>
       ) : (
         <div className="space-y-3">
