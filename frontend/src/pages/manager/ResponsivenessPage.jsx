@@ -8,11 +8,17 @@ export default function ResponsivenessPage() {
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({})
 
-  useEffect(() => { fetchScores() }, [])
+  useEffect(() => {
+    const ctrl = new AbortController()
+    fetchScores(ctrl.signal)
+    return () => ctrl.abort()
+  }, [])
 
-  const fetchScores = async () => {
-    const res = await axios.get('/api/responsiveness')
-    setScores(res.data)
+  const fetchScores = async (signal) => {
+    try {
+      const res = await axios.get('/api/responsiveness', { signal })
+      setScores(res.data)
+    } catch (e) { if (!axios.isCancel(e)) setScores([]) }
   }
 
   const handleEdit = (score) => {
