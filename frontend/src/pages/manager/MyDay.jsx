@@ -265,7 +265,7 @@ function CalendarModal({ onClose }) {
             </div>
           </>
         ) : (
-          <div className="text-center py-6 text-slate-500">טוען...</div>
+          <div className="text-center py-6 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
         )}
       </div>
     </div>
