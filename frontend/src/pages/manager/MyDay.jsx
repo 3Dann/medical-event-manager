@@ -258,10 +258,10 @@ function CalendarModal({ onClose }) {
               </button>
             </div>
             <div className="space-y-2 text-sm text-slate-600">
-              <p className="font-semibold text-slate-700">הוראות חיבור:</p>
-              <p>📅 <strong>Google Calendar:</strong> הגדרות ← לוחות שנה אחרים ← הוסף לפי URL</p>
-              <p>🍎 <strong>Apple Calendar:</strong> קובץ ← הרשמה ליומן</p>
-              <p>📧 <strong>Outlook:</strong> הוסף לוח שנה ← ממינוי ← הדבק את הכתובת</p>
+              <p className="font-semibold text-slate-700">{t('calendar_instructions_title')}</p>
+              <p>📅 <strong>Google Calendar:</strong> {t('calendar_google_steps')}</p>
+              <p>🍎 <strong>Apple Calendar:</strong> {t('calendar_apple_steps')}</p>
+              <p>📧 <strong>Outlook:</strong> {t('calendar_outlook_steps')}</p>
             </div>
           </>
         ) : (
