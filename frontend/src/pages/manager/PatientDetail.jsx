@@ -264,7 +264,7 @@ export default function PatientDetail() {
               </div>
               <div><label className="label">{t('diagnosis_details_label')}</label><textarea className="input" rows={2} value={editForm.diagnosis_details || ''} onChange={e => setEditForm({...editForm, diagnosis_details: e.target.value})} /></div>
               <div>
-                <label className="label">אבחנות ותגיות רפואיות</label>
+                <label className="label">{t('condition_tags_label')}</label>
                 <ConditionTagsSelector
                   value={editForm.condition_tags || []}
                   onChange={tags => setEditForm({ ...editForm, condition_tags: tags })}
