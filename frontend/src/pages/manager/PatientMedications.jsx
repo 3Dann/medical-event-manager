@@ -199,8 +199,8 @@ export default function PatientMedications() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-slate-800">תרופות</h2>
-          <p className="text-sm text-slate-500">{active.length} פעילות{inactive.length > 0 ? `, ${inactive.length} לא פעילות` : ''}</p>
+          <h2 className="text-lg font-bold text-slate-800">{t('title')}</h2>
+          <p className="text-sm text-slate-500">{active.length} {t('active_count')}{inactive.length > 0 ? `, ${inactive.length} ${t('inactive_count')}` : ''}</p>
         </div>
         <div className="flex gap-2">
           <button
