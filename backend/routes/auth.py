@@ -128,11 +128,17 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
     user.last_login = datetime.now(tz.utc)
     db.commit()
     if user.totp_enabled and user.totp_secret:
-        # Return temp token — frontend must complete 2FA step
         temp = auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=5)
         method = user.totp_method or "totp"
         return Token(access_token="", token_type="bearer", user_id=user.id, full_name=user.full_name,
                      role=user.role, is_admin=user.is_admin, requires_2fa=True, temp_token=temp, tfa_method=method)
+
+    # Admin and manager accounts must have 2FA enabled
+    if user.is_admin or user.role == "manager":
+        return Token(access_token="", token_type="bearer", user_id=user.id, full_name=user.full_name,
+                     role=user.role, is_admin=user.is_admin, requires_2fa=True, tfa_required_setup=True,
+                     temp_token=auth_utils.create_access_token({"sub": str(user.id), "2fa_pending": True}, expires_minutes=30))
+
     token = auth_utils.create_access_token({"sub": str(user.id)})
     return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
 
