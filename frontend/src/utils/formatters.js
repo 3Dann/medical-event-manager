@@ -6,3 +6,13 @@ export function fmtDate(iso, opts) {
 export function fmtDateShort(iso) {
   return fmtDate(iso, { day: '2-digit', month: '2-digit' })
 }
+
+export function fmtCurrency(n, fallback = '—') {
+  if (n == null) return fallback
+  return `₪${Math.round(n).toLocaleString('he-IL')}`
+}
+
+export function fmtPercent(n) {
+  if (n == null) return '—'
+  return `${Math.round(n)}%`
+}
