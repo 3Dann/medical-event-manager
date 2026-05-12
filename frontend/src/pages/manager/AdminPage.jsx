@@ -487,9 +487,9 @@ function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actio
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 mb-1">פעולה</label>
+          <label className="block text-xs text-slate-500 mb-1">{t('activity_action')}</label>
           <select className="input text-sm py-1.5 w-48" value={actionFilter} onChange={e => onActionFilter(e.target.value)}>
-            <option value="">כל הפעולות</option>
+            <option value="">{t('filter_all_actions')}</option>
             {Object.entries(ACTION_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
         </div>
