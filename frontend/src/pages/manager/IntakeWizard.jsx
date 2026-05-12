@@ -629,12 +629,12 @@ export default function IntakeWizard() {
   const back = () => { setErrors({}); setStep(s => s - 1) }
 
   // ── Scores ──────────────────────────────────────────────────────────────────
-  const adlScore  = Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0)
-  const iadlScore = Object.values(form.iadl_answers).reduce((s, v) => s + (Number(v) === 1 ? 1 : 0), 0)
-  const mmseScore = Object.entries(form.mmse_answers).reduce((s, [k, v]) => {
+  const adlScore  = useMemo(() => Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0), [form.adl_answers])
+  const iadlScore = useMemo(() => Object.values(form.iadl_answers).reduce((s, v) => s + (Number(v) === 1 ? 1 : 0), 0), [form.iadl_answers])
+  const mmseScore = useMemo(() => Object.entries(form.mmse_answers).reduce((s, [k, v]) => {
     const sec = MMSE_SECTIONS.find(x => x.key === k)
     return s + Math.min(Number(v || 0), sec?.max || 0)
-  }, 0)
+  }, 0), [form.mmse_answers])
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   const submit = async () => {
