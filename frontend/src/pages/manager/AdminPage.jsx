@@ -187,7 +187,7 @@ export default function AdminPage() {
             onClick={() => setTab(tb.key)}
             className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors ${tab === tb.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
           >
-            {t.label}
+            {tb.label}
           </button>
         ))}
         {isDev && (
