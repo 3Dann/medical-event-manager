@@ -104,8 +104,8 @@ export default function FeedbackInbox() {
   return (
     <div className="p-4 md:p-8 space-y-6" dir="rtl">
       <div>
-        <h2 className="text-xl font-bold text-slate-800">תיבת משוב</h2>
-        <p className="text-slate-500 text-sm mt-0.5">כל המשובים שנשלחו — ממתינים לטיפול ושטופלו</p>
+        <h2 className="text-xl font-bold text-slate-800">{t('title')}</h2>
+        <p className="text-slate-500 text-sm mt-0.5">{t('subtitle')}</p>
       </div>
 
       {/* Stats */}
