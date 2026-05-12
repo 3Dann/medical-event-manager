@@ -314,7 +314,7 @@ export default function PatientStrategy() {
     }
   }
 
-  if (loading) return <div className="p-8 text-slate-500">מחשב אסטרטגיה...</div>
+  if (loading) return <div className="p-8 text-slate-500">{t('strategy:loading')}</div>
 
   const journeyInstance   = instances.find(i => i.title === 'מסע המטופל')
   const activeInstances   = instances.filter(i => i.status === 'active' && i.title !== 'מסע המטופל')
