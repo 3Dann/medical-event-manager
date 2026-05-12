@@ -1064,7 +1064,7 @@ export default function IntakeWizard() {
                       </label>
                     ))}
                   </div>
-                </div>
+                </fieldset>
               ))}
             </div>
           </div>
