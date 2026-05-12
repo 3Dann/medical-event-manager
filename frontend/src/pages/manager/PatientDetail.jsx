@@ -250,10 +250,10 @@ export default function PatientDetail() {
                   inputMode="numeric"
                 />
                 {editForm.id_number && idValid === false && (
-                  <p className="text-red-500 text-xs mt-1">תעודת זהות לא תקינה</p>
+                  <p className="text-red-500 text-xs mt-1">{t('id_invalid')}</p>
                 )}
                 {editForm.id_number && idValid === true && (
-                  <p className="text-green-600 text-xs mt-1">✓ תעודת זהות תקינה</p>
+                  <p className="text-green-600 text-xs mt-1">✓ {t('id_valid')}</p>
                 )}
               </div>
               <div>
