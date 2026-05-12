@@ -169,9 +169,26 @@ export default function LoginPage() {
                   </div>
                 </button>
 
-                {/* TOTP — always available */}
+                {/* TOTP — always available; auto-setup QR if not yet configured */}
                 <button
-                  onClick={() => setTwoFAMethod('totp')}
+                  onClick={async () => {
+                    setError('')
+                    if (totpConfigured) {
+                      setTwoFAMethod('totp')
+                      return
+                    }
+                    setLoading(true)
+                    try {
+                      const r = await axios.post('/api/auth/2fa/setup-totp-login', { temp_token: tempToken })
+                      setTotpSetupQR(r.data.qr_code)
+                      setTwoFAMethod('totp')
+                    } catch (e) {
+                      setError(e.response?.data?.detail || 'שגיאה בהגדרת גוגל אותנטיקייטור')
+                    } finally {
+                      setLoading(false)
+                    }
+                  }}
+                  disabled={loading}
                   className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-colors min-h-[52px]"
                 >
                   <span className="text-2xl">📱</span>
