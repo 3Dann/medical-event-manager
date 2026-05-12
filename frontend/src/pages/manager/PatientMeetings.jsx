@@ -378,8 +378,8 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
           <button onClick={() => setExpanded(e => !e)} className="text-xs text-slate-600 hover:text-slate-800">
             {expanded ? '▲' : '▼'}
           </button>
-          <button onClick={() => onEdit(meeting)} className="text-xs text-blue-500 hover:text-blue-700">עריכה</button>
-          <button onClick={() => onDelete(meeting.id)} className="text-xs text-red-400 hover:text-red-600">מחק</button>
+          <button onClick={() => onEdit(meeting)} className="text-xs text-blue-500 hover:text-blue-700">{t('common:edit', { ns: 'common' })}</button>
+          <button onClick={() => onDelete(meeting.id)} className="text-xs text-red-400 hover:text-red-600">{t('common:delete', { ns: 'common' })}</button>
         </div>
       </div>
 
