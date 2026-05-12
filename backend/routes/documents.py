@@ -169,7 +169,7 @@ def create_view_token(
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
-    """מייצר view token חד-פעמי עם TTL של 90 שניות לצפייה במסמך."""
+    """מייצר view token חד-פעמי עם TTL של 300 שניות לצפייה במסמך."""
     _get_patient_or_403(patient_id, current_user, db)
     doc = db.query(models.PatientDocument).filter(
         models.PatientDocument.id == doc_id,
