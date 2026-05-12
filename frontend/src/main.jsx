@@ -9,7 +9,7 @@ axios.interceptors.response.use(
   res => res,
   err => {
     const status = err?.response?.status
-    if (status === 401) {
+    if (status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.clear()
       window.location.href = '/login'
     } else if (status >= 500) {
