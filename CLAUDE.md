@@ -245,6 +245,7 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Tasks pagination** — GET /api/tasks/my מחזיר `{"total": N, "items": [...]}` עם limit/offset params.
 - **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
 - **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
+- **i18n namespaces** — 13 namespaces חדשים: `patients`, `claims`, `insurance`, `documents`, `medications`, `meetings`, `myday`, `admin`, `doctors`, `workflows`, `feedback`, `profile`, `responsiveness`. כל 10 שפות מעודכנות. כל דפי המנהל משתמשים ב-`useTranslation`.
 - **IntakeWizard contexts** — `FormCtx` מספק `{form, set, inp, setErrors}`. `ErrorCtx` מספק `errors`. `StepCtx` מספק handlers לשלב 4 (medical). `FunctionalStep` ו-`SignaturesStep` הם sub-components בסוף הקובץ שמשתמשים בcontexts.
 - **AbortController pattern** — כל useEffect עם axios.get: `const ctrl = new AbortController()` → `axios.get(url, {signal: ctrl.signal})` → `return () => ctrl.abort()`. לבדוק cancellation: `if (axios.isCancel(e)) return`.
 - **ConfirmDialog pattern** — `import { useConfirm } from '../../components/ConfirmDialog'`. בcomponent: `const [confirm, ConfirmUI] = useConfirm()`. שימוש: `const ok = await confirm({title, message, confirmLabel, danger: true})`. ב-JSX: `{ConfirmUI}`.
