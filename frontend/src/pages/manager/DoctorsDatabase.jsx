@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 // ── InsuranceCell — inline multi-select in table cell ─────────────────────────
 function InsuranceCell({ doc, allOptions, onSave }) {
