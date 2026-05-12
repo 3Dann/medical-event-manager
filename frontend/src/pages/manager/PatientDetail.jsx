@@ -725,6 +725,7 @@ export default function PatientDetail() {
 
 // ── NodeChecklist ──────────────────────────────────────────────────────────────
 function NodeChecklist({ node, onToggle, onAdd, onDelete }) {
+  const { t } = useTranslation('patients')
   const [newText, setNewText] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const items = node.sub_items || []
