@@ -549,7 +549,7 @@ export default function PatientDetail() {
                       <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
                         <div className="grid grid-cols-2 gap-2">
                           <div>
-                            <label className="label text-xs">תאריך מתוכנן</label>
+                            <label className="label text-xs">{t('planned_date_label')}</label>
                             <input type="date" className="input text-xs py-1" value={editNodeData.planned_date} onChange={e => setEditNodeData({...editNodeData, planned_date: e.target.value})} />
                           </div>
                           <div>
