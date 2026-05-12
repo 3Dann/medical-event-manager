@@ -333,7 +333,7 @@ export default function DoctorsDatabase() {
       setDoctors(res.data.items ?? res.data)
       setTotalDoctors(res.data.total ?? (res.data.items ?? res.data).length)
     } catch (e) {
-      showToast('שגיאת שרת. נסה שוב.')
+      if (!axios.isCancel(e)) showToast('שגיאת שרת. נסה שוב.')
     } finally {
       setLoading(false)
     }
