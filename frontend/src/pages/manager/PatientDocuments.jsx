@@ -244,14 +244,14 @@ export default function PatientDocuments() {
                   onClick={() => handleDownload(doc)}
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
                 >
-                  הורדה
+                  {t('download')}
                 </button>
                 <button
                   onClick={() => handleDelete(doc.id)}
                   disabled={deletingId === doc.id}
                   className="text-red-500 hover:text-red-700 text-sm px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
                 >
-                  {deletingId === doc.id ? '...' : 'מחיקה'}
+                  {deletingId === doc.id ? '...' : t('common:delete', { ns: 'common' })}
                 </button>
               </div>
             </div>
