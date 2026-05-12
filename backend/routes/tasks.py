@@ -356,7 +356,7 @@ def complete_task(
 def _complete_source(task: models.Task, db: Session):
     if task.source_type == "meeting_action" and task.source_meta:
         try:
-            meta    = json.loads(task.source_meta)
+            meta    = safe_json_loads(task.source_meta, default={})
             meeting = db.query(models.PatientMeeting).filter(
                 models.PatientMeeting.id == meta["meeting_id"]
             ).first()
