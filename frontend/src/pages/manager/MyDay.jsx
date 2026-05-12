@@ -220,6 +220,7 @@ function NewTaskModal({ patients, onClose, onCreated }) {
 
 // ── Calendar subscribe modal ──────────────────────────────────────────────────
 function CalendarModal({ onClose }) {
+  const { t } = useTranslation('myday')
   const [token, setToken] = useState(null)
   const [copied, setCopied] = useState(false)
 
