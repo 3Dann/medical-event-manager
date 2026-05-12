@@ -255,6 +255,7 @@ export default function PatientDocuments() {
           ))}
         </div>
       )}
+      {ConfirmUI}
     </div>
   )
 }
