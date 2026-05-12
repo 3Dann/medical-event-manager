@@ -292,6 +292,7 @@ export default function WorkflowPanel({ patientId }) {
           }}
         />
       )}
+      {ConfirmUI}
     </div>
   )
 }
