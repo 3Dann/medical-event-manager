@@ -886,13 +886,14 @@ function BottomNav({ view, onNavigate }) {
 export default function PatientSummary() {
   const [data, setData]     = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [view, setView]     = useState('home')
 
   useEffect(() => {
     const ctrl = new AbortController()
     axios.get('/api/patient/summary', { signal: ctrl.signal })
       .then(r => setData(r.data))
-      .catch(e => { if (axios.isCancel(e)) return })
+      .catch(e => { if (!axios.isCancel(e)) setLoadError(true) })
       .finally(() => setLoading(false))
     return () => ctrl.abort()
   }, [])
