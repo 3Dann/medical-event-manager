@@ -228,6 +228,11 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Coverage Advisor** — מחשב כיסוי ביטוחי לכל שלב בזרימה
 - **Workflow Suggest** — מנוע המלצות שממפה condition_tags של מטופל לתבניות
 - **Railway deploy** — webhook GitHub שבור; להשתמש ב-`railway up --detach` ידנית עד reconnect ב-Dashboard
+- **Railway CLI login** — לאחר עדכון גרסה (4.44 → 4.57+) config נמחק. לאחר `railway login` צריך גם `railway link --project medical-event-manager`. גרסה נוכחית: 4.57.4.
+- **railway.toml** — קיים בשורש הפרויקט. אין לציין `builder = "NIXPACKS"` כשיש Dockerfile — גורם לבלבול. הגדרות: healthcheckPath, healthcheckTimeout=120, restartPolicyType=ON_FAILURE, numReplicas=1.
+- **SQLite WAL mode** — מופעל אוטומטית בכל חיבור ב-`database.py` (PRAGMA journal_mode=WAL + synchronous=NORMAL + busy_timeout=5000)
+- **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
+- **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
 - **DNS** — דומיין `ormed.co.il` מנוהל ב-Cloudflare (הועבר מ-LiveDNS ב-2026-04-28). לכניסה: dash.cloudflare.com
 - **מייל** — Resend API (לא SMTP). `email_utils.py` משתמש ב-`resend` Python library עם API key ב-`SMTP_PASS`. שולח מ-`noreply@ormed.co.il`. דומיין מאומת ב-Resend כולל DKIM, SPF, MX ו-DMARC.
 - **i18n** — כל תוכן דף הנחיתה מתורגם לפי שפה נבחרת. עורך דף הנחיתה תומך ב-10 שפות + כפתור "תרגם הכל מעברית" שמשתמש ב-Claude Haiku API. נתוני עורך שמורים ב-`{ by_lang: { he: {...}, en: {...}, ... } }`. כיוון תמיד RTL — רק תוכן משתנה לפי שפה.
