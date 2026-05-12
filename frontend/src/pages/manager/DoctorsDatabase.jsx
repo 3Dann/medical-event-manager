@@ -364,7 +364,7 @@ export default function DoctorsDatabase() {
         extra_data: JSON.stringify(doc.extra_data || {}),
       })
       fetchDoctors()
-    } catch (e) { console.error(e) }
+    } catch (e) { showToast('שגיאת שרת. נסה שוב.') }
   }
 
   const openEdit = (doc) => {
