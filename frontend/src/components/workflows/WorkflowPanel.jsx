@@ -4,6 +4,7 @@ import StepCard from './StepCard'
 import NewWorkflowModal from './NewWorkflowModal'
 import AppToast from '../AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../ConfirmDialog'
 
 const STATUS_LABELS = { active: 'פעיל', completed: 'הושלם', cancelled: 'בוטל', paused: 'מושהה' }
 const STATUS_COLORS = {
