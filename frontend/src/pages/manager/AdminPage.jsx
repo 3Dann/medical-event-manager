@@ -436,32 +436,7 @@ export default function AdminPage() {
   )
 }
 
-const ACTION_LABELS = {
-  login:             'התחברות',
-  view_patient:      'צפייה בתיק',
-  create_patient:    'יצירת תיק',
-  edit_patient:      'עדכון תיק',
-  delete_patient:    'מחיקת תיק',
-  download_document: 'הורדת מסמך',
-  upload_document:   'העלאת מסמך',
-  delete_document:   'מחיקת מסמך',
-  create_claim:      'יצירת תביעה',
-  edit_claim:        'עדכון תביעה',
-  delete_claim:      'מחיקת תביעה',
-  add_insurance:     'הוספת ביטוח',
-  admin_change_role: 'שינוי הרשאות',
-  admin_reset_user:  'איפוס סיסמה',
-  admin_delete_data: 'מחיקת נתונים',
-  view_activity_log: 'צפייה בלוג',
-}
-
-const RESOURCE_LABELS = {
-  patient:   'מטופל',
-  document:  'מסמך',
-  claim:     'תביעה',
-  insurance: 'ביטוח',
-  user:      'משתמש',
-}
+// ACTION_LABELS and RESOURCE_LABELS are now computed inside ActivityLogPanel using t()
 
 function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actionFilter, dateFrom, dateTo,
   onUserFilter, onActionFilter, onDateFrom, onDateTo, onSearch, onClear, onPage }) {
