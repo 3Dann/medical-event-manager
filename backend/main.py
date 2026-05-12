@@ -668,12 +668,11 @@ seed_financial_funds()
 
 
 def seed_journey_workflows():
-    """
-    Idempotent: ensure every patient has an active journey workflow instance.
-    Runs once after templates are seeded. Skips patients that already have one.
-    """
+    """Idempotent: ensure every patient has an active journey workflow instance."""
     db = SessionLocal()
     try:
+        if db.query(models.Patient).count() == 0:
+            return  # quick-exit if no patients
         tmpl = db.query(models.WorkflowTemplate).filter(
             models.WorkflowTemplate.is_journey == True,
             models.WorkflowTemplate.is_active == True,
