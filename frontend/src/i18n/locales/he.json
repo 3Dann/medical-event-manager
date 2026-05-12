@@ -603,14 +603,20 @@
   },
   "responsiveness": {
     "title": "ציוני רספונסיביות",
+    "subtitle": "ניהול ציוני מהירות תגובה ורמת בירוקרטיה לכל חברת ביטוח",
+    "strategy_impact_title": "כיצד זה משפיע על האסטרטגיה",
+    "strategy_impact_desc": "כשלשני מקורות ביטוח יש כיסוי דומה, המערכת תעדיף את המקור עם ציון הרספונסיביות הגבוה יותר. ניתן לערוך את הציונים לפי ניסיון אישי.",
     "type_hmo": "קופת חולים",
     "type_private": "ביטוח פרטי",
     "type_sal": "סל בריאות",
     "type_leumi": "ביטוח לאומי",
     "speed_label": "מהירות תגובה",
     "bureaucracy_label": "רמת בירוקרטיה",
+    "bureaucracy_min_label": "מינימום בירוקרטיה",
     "notes": "הערות",
     "edit": "ערוך ציון",
-    "save": "שמור"
+    "save": "שמור",
+    "default_score": "ברירת מחדל",
+    "score_explanation_placeholder": "הסבר לציון..."
   }
 }
