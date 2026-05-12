@@ -107,7 +107,7 @@ export default function PatientDocuments() {
   }
 
   async function handleDelete(docId) {
-    const ok = await confirm({ title: 'מחיקת מסמך', message: 'למחוק את המסמך? פעולה זו בלתי הפיכה.', confirmLabel: 'מחק', danger: true })
+    const ok = await confirm({ title: t('delete_title'), message: t('delete_confirm'), confirmLabel: t('common:delete', { ns: 'common' }), danger: true })
     if (!ok) return
     setDeletingId(docId)
     try {
