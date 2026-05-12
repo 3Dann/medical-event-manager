@@ -3,13 +3,10 @@ import axios from 'axios'
 import DocViewerModal, { canView } from '../../components/DocViewerModal'
 import { useSimple } from '../../context/SimpleContext'
 import { useSpeech } from '../../hooks/useSpeech'
+import { fmtDate } from '../../utils/formatters'
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const fmt = (n) => n != null ? `₪${Math.round(n).toLocaleString('he-IL')}` : '—'
-const fmtDate = (iso) => {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })
-}
 
 // שפה פשוטה — תרגומים
 const CLAIM_STATUS = {
