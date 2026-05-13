@@ -636,6 +636,11 @@ class WorkflowStep(Base):
     step_type             = Column(String, nullable=True)
     estimated_cost        = Column(Float, nullable=True)  # overrides template value if set
     required_documents    = Column(Text, nullable=True)   # JSON
+    # ── Parallel & SLA (runtime) ─────────────────────────────────────────────
+    parallel_group        = Column(String, nullable=True)  # copied from template
+    sla_deadline          = Column(DateTime(timezone=True), nullable=True)  # computed on activation
+    sla_alerted           = Column(Boolean, default=False)  # True once alert was sent
+    gate_fields           = Column(Text, nullable=True)    # JSON — clinical data for gate eval
 
     instance        = relationship("WorkflowInstance", back_populates="steps")
     assignee        = relationship("User", foreign_keys=[assignee_id])
