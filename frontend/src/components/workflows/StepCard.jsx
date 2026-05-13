@@ -102,7 +102,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
     setSaving(true)
     try {
       await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/force-gate`)
-      onUpdated({ id: instanceId })
+      onUpdated()
     } catch (e) {
       showToast('לא ניתן לעקוף את השער כרגע. נסה שוב.')
     } finally {
