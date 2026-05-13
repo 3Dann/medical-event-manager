@@ -128,6 +128,23 @@ class RevokedToken(Base):
     expires_at = Column(DateTime(timezone=True), nullable=False)
 
 
+class ActiveSession(Base):
+    """מעקב sessions פעילים — נוצר בהתחברות, מתעדכן בכל בקשה, מבוטל ב-logout."""
+    __tablename__ = "active_sessions"
+    id          = Column(Integer, primary_key=True)
+    user_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    jti         = Column(String(64), unique=True, nullable=False, index=True)
+    login_at    = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    last_seen   = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    ip_address  = Column(String(64), nullable=True)
+    user_agent  = Column(String(256), nullable=True)
+    is_active   = Column(Boolean, default=True, nullable=False)
+    revoked_at  = Column(DateTime(timezone=True), nullable=True)
+    revoked_by  = Column(Integer, nullable=True)  # user_id of admin who revoked
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
 class DocumentViewToken(Base):
     __tablename__ = "document_view_tokens"
     id         = Column(Integer, primary_key=True)
