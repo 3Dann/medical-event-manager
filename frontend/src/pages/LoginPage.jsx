@@ -131,6 +131,7 @@ export default function LoginPage() {
         </div>
 
         {success && <p className="text-green-700 text-sm bg-green-50 p-3 rounded-lg mb-4">{success}</p>}
+        <p className="text-center text-xs text-slate-300 mb-2">v2-debug</p>
 
         {/* ── 2FA Step ─────────────────────────────────────────────────────── */}
         {twoFAStep && (
