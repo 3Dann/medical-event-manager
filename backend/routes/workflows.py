@@ -866,6 +866,9 @@ def can_advance(
         return {"can_advance": True, "gate_blocked": False, "error_msg": None}
 
     patient = db.get(models.Patient, instance.patient_id)
+    if not patient:
+        return {"can_advance": False, "gate_blocked": True,
+                "error_msg": "מטופל נמחק — לא ניתן להתקדם בזרימה"}
     can_proceed, error_msg = evaluate_gate(db, next_step, patient)
     return {
         "can_advance": can_proceed,
