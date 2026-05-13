@@ -413,6 +413,13 @@ export default function DoctorsDatabase() {
         extra_data: Object.keys(form.extra_data || {}).length
           ? JSON.stringify(form.extra_data)
           : null,
+        // Enrichment fields
+        working_hours:  form.working_hours || null,
+        accessibility:  !!form.accessibility,
+        waiting_days:   form.waiting_days ? parseInt(form.waiting_days) : null,
+        is_accepting_patients: form.is_accepting_patients !== false,
+        last_verified:  form.last_verified || null,
+        active_contact: !!form.active_contact,
       }
       if (editingId) {
         await axios.put(`/api/doctors/${editingId}`, payload)
