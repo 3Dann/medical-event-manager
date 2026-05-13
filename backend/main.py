@@ -108,6 +108,10 @@ def _daily_sla_check():
             models.WorkflowStep.status == "active",
         ).all()
         for step in breached:
+            # Normalize timezone-naive deadlines (legacy data before timezone support)
+            deadline = step.sla_deadline
+            if deadline.tzinfo is None:
+                deadline = deadline.replace(tzinfo=timezone.utc)
             step.sla_alerted = True
             action = models.WorkflowAction(
                 step_id=step.id,
@@ -115,7 +119,7 @@ def _daily_sla_check():
                 action_type="sla_breached",
                 description=f"SLA עבר — שלב '{step.name}' חצה את מועד היעד",
                 data=_json.dumps({
-                    "sla_deadline": step.sla_deadline.isoformat(),
+                    "sla_deadline": deadline.isoformat(),
                     "step_key": step.step_key,
                 }),
             )
