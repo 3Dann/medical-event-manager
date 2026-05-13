@@ -67,7 +67,8 @@ function LoginModal({ onClose, initialTab = 'login' }) {
       }
       if (res.data.requires_2fa) {
         setTempToken(res.data.temp_token)
-        setTwoFAMethod(res.data.tfa_method || 'totp')
+        setTotpConfigured(!!res.data.totp_configured)
+        setTwoFAMethod(null)   // show choice screen
         setTwoFAStep(true)
         return
       }
