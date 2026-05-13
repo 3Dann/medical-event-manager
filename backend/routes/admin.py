@@ -17,6 +17,11 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
 def user_to_dict(u: models.User) -> dict:
+    import json as _uj
+    try:
+        perms = _uj.loads(u.permissions or "[]")
+    except Exception:
+        perms = []
     return {
         "id": u.id,
         "full_name": u.full_name,
@@ -25,6 +30,7 @@ def user_to_dict(u: models.User) -> dict:
         "is_admin": u.is_admin,
         "preserve_data": u.preserve_data,
         "demo_mode_allowed": getattr(u, 'demo_mode_allowed', False),
+        "permissions": perms,
         "created_at": str(u.created_at) if u.created_at else None,
     }
 
