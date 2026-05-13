@@ -76,7 +76,12 @@ export default function NSCLCPathwayTab() {
           biomarker_target: p.biomarker_target || '',
         })
       })
-      .catch(e => { if (!axios.isCancel(e)) console.error(e) })
+      .catch(e => {
+        if (!axios.isCancel(e)) {
+          console.error(e)
+          showToast('שגיאה בטעינת נתוני המטופל', 'error')
+        }
+      })
       .finally(() => setLoading(false))
     return () => ctrl.abort()
   }, [id])
