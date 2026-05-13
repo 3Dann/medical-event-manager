@@ -23,6 +23,60 @@ const STEP_STATUS = {
 
 const STEP_ICON = { pending: null, active: null, completed: '✓', skipped: '⇢' }
 
+// ── Helpers ────────────────────────────────────────────────────────────────
+
+/** Group steps by parallel_group. Steps without a group are returned as solo items. */
+function groupSteps(steps) {
+  if (!steps) return []
+  const result = []
+  const seen = new Set()
+  for (const step of steps) {
+    const g = step.parallel_group
+    if (!g) {
+      result.push({ type: 'solo', step })
+    } else if (!seen.has(g)) {
+      seen.add(g)
+      result.push({ type: 'parallel', group: g, steps: steps.filter(s => s.parallel_group === g) })
+    }
+  }
+  return result
+}
+
+/** Return true if deadline is in the past. */
+function isOverdue(deadline) {
+  if (!deadline) return false
+  return new Date(deadline) < new Date()
+}
+
+/** Format ISO date to Hebrew locale short form. */
+function fmtDate(d) {
+  if (!d) return null
+  return new Date(d).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' })
+}
+
+// ── GateBlockBadge ─────────────────────────────────────────────────────────
+function GateBlockBadge({ gate }) {
+  if (!gate || gate.fulfilled !== false) return null
+  const msg = gate.error_msg || 'שלב זה נעול'
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1 mt-1" title={msg}>
+      <span>🔒</span>
+      <span className="truncate max-w-[160px]">{msg}</span>
+    </div>
+  )
+}
+
+// ── SlaWarning ────────────────────────────────────────────────────────────
+function SlaWarning({ deadline, status }) {
+  if (!deadline || status === 'completed' || status === 'skipped') return null
+  if (!isOverdue(deadline)) return (
+    <div className="text-[10px] text-slate-500 mt-0.5">⏱ {fmtDate(deadline)}</div>
+  )
+  return (
+    <div className="text-[10px] text-red-600 font-semibold mt-0.5 animate-pulse">⚠ חריגת SLA {fmtDate(deadline)}</div>
+  )
+}
+
 export default function WorkflowPanel({ patientId }) {
   const [instances, setInstances] = useState([])
   const [selected, setSelected] = useState(null)
