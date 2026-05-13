@@ -169,6 +169,36 @@ export default function AdminPage() {
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
+  // Download permissions state
+  const [permEditorUserId, setPermEditorUserId] = useState(null)
+  const [permEditorValues, setPermEditorValues] = useState([])
+  const [permSaving, setPermSaving] = useState(false)
+
+  const PERM_OPTIONS = [
+    { key: 'download_docs', label: 'הורדת מסמכים' },
+    { key: 'export_pdf',    label: 'ייצוא PDF' },
+    { key: 'view_financials', label: 'צפייה בנתונים פיננסיים' },
+  ]
+
+  const openPermEditor = (user) => {
+    setPermEditorUserId(user.id)
+    setPermEditorValues(Array.isArray(user.permissions) ? [...user.permissions] : [])
+  }
+
+  const savePerms = async (userId) => {
+    setPermSaving(true)
+    try {
+      await axios.patch(`/api/admin/users/${userId}/permissions`, { permissions: permEditorValues })
+      setStatus(userId, true, 'הרשאות עודכנו')
+      fetchUsers()
+      setPermEditorUserId(null)
+    } catch (e) {
+      setStatus(userId, false, e.response?.data?.detail || 'שגיאה בשמירה')
+    } finally {
+      setPermSaving(false)
+    }
+  }
+
   const managers = users.filter(u => u.role === 'manager' && !u.is_admin)
 
   return (
