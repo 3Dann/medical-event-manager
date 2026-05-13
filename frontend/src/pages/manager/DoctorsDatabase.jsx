@@ -1004,6 +1004,73 @@ export default function DoctorsDatabase() {
                 </div>
               </div>
 
+              {/* ── Enrichment fields ── */}
+              <div className="border-t border-slate-100 pt-4 mt-2">
+                <p className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wide">פרטים נוספים</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="col-span-1 sm:col-span-2">
+                    <label className="label">שעות קבלה</label>
+                    <input
+                      className="input"
+                      placeholder='למשל: ראשון 08:00-13:00, שלישי 16:00-20:00'
+                      value={form.working_hours || ''}
+                      onChange={e => setForm({ ...form, working_hours: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="label">ימי המתנה ממוצע</label>
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="14"
+                      value={form.waiting_days || ''}
+                      onChange={e => setForm({ ...form, waiting_days: e.target.value ? parseInt(e.target.value) : null })}
+                      dir="ltr"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">תאריך אימות אחרון</label>
+                    <input
+                      type="date"
+                      className="input"
+                      value={form.last_verified ? form.last_verified.split('T')[0] : ''}
+                      onChange={e => setForm({ ...form, last_verified: e.target.value })}
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-3 pt-1">
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!form.accessibility}
+                        onChange={e => setForm({ ...form, accessibility: e.target.checked })}
+                        className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                      />
+                      <span className="text-sm text-slate-700 font-medium">נגישות לנכים ✓</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={form.is_accepting_patients !== false}
+                        onChange={e => setForm({ ...form, is_accepting_patients: e.target.checked })}
+                        className="w-4 h-4 rounded border-slate-300 text-blue-600"
+                      />
+                      <span className="text-sm text-slate-700 font-medium">מקבל מטופלים חדשים</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!form.active_contact}
+                        onChange={e => setForm({ ...form, active_contact: e.target.checked })}
+                        className="w-4 h-4 rounded border-slate-300 text-amber-500"
+                      />
+                      <span className="text-sm text-slate-700 font-medium">⭐ קשר פעיל עם הרופא</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               {extraColDefs.length > 0 && (
                 <div className="border-t border-slate-100 pt-4 mt-2">
                   <p className="text-xs font-semibold text-slate-500 mb-3">{t('custom_fields_label')}</p>
