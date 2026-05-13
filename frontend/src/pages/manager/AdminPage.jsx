@@ -181,6 +181,7 @@ export default function AdminPage() {
           { key: 'users',       label: t('tab_users') },
           { key: 'permissions', label: t('tab_permissions') },
           { key: 'activity',    label: t('tab_activity') },
+          { key: 'sessions',    label: 'Sessions' },
           { key: 'funds',       label: t('tab_funds') },
         ].map(tb => (
           <button key={tb.key}
