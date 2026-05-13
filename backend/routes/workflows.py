@@ -894,6 +894,8 @@ def force_gate_endpoint(
     ).first()
     if not step:
         raise HTTPException(404, "Step not found")
+    if not step.gate_fields:
+        raise HTTPException(400, "שלב זה אינו בעל תנאי שער — אין צורך בביטול ידני")
     try:
         updated = force_gate(db, step_id, current_user.id)
         return {"message": "שער לוגיקה עבר ידנית", "step_id": updated.id}
