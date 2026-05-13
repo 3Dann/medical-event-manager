@@ -575,6 +575,12 @@ class WorkflowStepTemplate(Base):
     step_type           = Column(String, nullable=True, default="administrative")  # medical|financial|administrative
     estimated_cost      = Column(Float, nullable=True)   # typical cost in ILS
     required_documents  = Column(Text, nullable=True)    # JSON: ["discharge_summary","referral"]
+    # ── Parallel & gate fields ───────────────────────────────────────────────
+    parallel_group      = Column(String, nullable=True)  # steps with same group activate together
+    sla_days            = Column(Integer, nullable=True) # days before SLA alert fires
+    gate_condition      = Column(Text, nullable=True)    # JSON — blocking condition expression
+    gate_error_msg      = Column(String, nullable=True)  # message shown when gate blocks
+    is_exploration_gate = Column(Boolean, default=False) # True = Exploration Gate before hospice
 
     template       = relationship("WorkflowTemplate", back_populates="step_templates")
     task_templates = relationship("WorkflowStepTaskTemplate",
