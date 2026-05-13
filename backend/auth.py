@@ -86,6 +86,22 @@ def get_current_user(
     user = db.query(models.User).filter(models.User.id == int(user_id)).first()
     if user is None:
         raise credentials_exception
+    # Update last_seen on active session (best-effort)
+    try:
+        from datetime import datetime, timezone as _tz
+        now = datetime.now(_tz.utc)
+        if jti:
+            session = db.query(models.ActiveSession).filter(
+                models.ActiveSession.jti == jti,
+                models.ActiveSession.is_active == True,
+            ).first()
+            if session:
+                session.last_seen = now
+                db.commit()
+        user.last_activity = now
+        db.commit()
+    except Exception:
+        pass
     return user
 
 
