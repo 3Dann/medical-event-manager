@@ -329,6 +329,11 @@ def create_doctor(
         "notes":                data.notes,
         "extra_data":           data.extra_data,
         "source_url":           data.source_url,
+        "working_hours":        data.working_hours,
+        "accessibility":        data.accessibility if data.accessibility is not None else False,
+        "waiting_days":         data.waiting_days,
+        "is_accepting_patients": data.is_accepting_patients if data.is_accepting_patients is not None else True,
+        "active_contact":       data.active_contact if data.active_contact is not None else False,
     }
     rec = normalize_record(rec)
     if rec is None:
