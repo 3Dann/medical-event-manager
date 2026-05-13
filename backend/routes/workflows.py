@@ -567,6 +567,44 @@ def delete_instance(
     return {"ok": True}
 
 
+@router.get("/instances/{instance_id}/sla-status")
+def instance_sla_status(
+    instance_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    """Return SLA status for all steps with an SLA deadline in this instance."""
+    from datetime import datetime, timezone
+    instance = db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.id == instance_id
+    ).first()
+    if not instance:
+        raise HTTPException(404, "Instance not found")
+
+    now = datetime.now(timezone.utc)
+    items = []
+    for step in instance.steps:
+        if not step.sla_deadline:
+            continue
+        deadline = step.sla_deadline
+        if deadline.tzinfo is None:
+            from datetime import timezone as tz
+            deadline = deadline.replace(tzinfo=tz.utc)
+        days_remaining = (deadline - now).days
+        items.append({
+            "step_id":       step.id,
+            "step_key":      step.step_key,
+            "step_name":     step.name,
+            "status":        step.status,
+            "sla_deadline":  deadline.isoformat(),
+            "sla_alerted":   step.sla_alerted,
+            "days_remaining": days_remaining,
+            "is_breached":   days_remaining < 0 and step.status == "active",
+        })
+    items.sort(key=lambda x: x["days_remaining"])
+    return {"instance_id": instance_id, "sla_items": items}
+
+
 @router.get("/instances/{instance_id}/coverage-summary")
 def instance_coverage_summary(
     instance_id: int,
