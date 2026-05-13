@@ -144,8 +144,6 @@ def get_current_user_from_token(token: str, db: Session) -> models.User:
     return user
 
 
-import json as _perm_json
-
 def has_permission(user: models.User, perm: str) -> bool:
     """Check if user has a specific download/export permission."""
     if user.is_admin:
