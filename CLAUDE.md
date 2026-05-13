@@ -140,8 +140,10 @@ medical-event-manager/
 - [x] **מסע NSCLC — Frontend (שלב 7, 2026-05-13)** — WorkflowPanel parallel display, StepCard (gate badge, SLA badge, step-type badge, force-gate button), NSCLCPathwayTab (5 שדות קליניים + Tumor Board + drug search + access strategy), PATCH /api/patients/{id}, drug search by indication_oncology
 - [x] **דשבורד ניהולי (2026-05-13)** — AdminDashboardPage, StatsBar (6 כרטיסים כולל SLA+תביעות), ManagerLoadPanel, AlertsPanel (SLA breaches), OverdueTasksPanel (/api/admin/tasks endpoint חדש)
 - [x] **Session Management (2026-05-13)** — ActiveSession model, יצירה ב-login, last_seen update, GET /api/admin/sessions, DELETE revoke+blacklist, SessionsPanel טאב ב-AdminPage
-- [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" MyDay.jsx קיים (481 שורות) — לבדוק פערים: Google Calendar sync, תעדוף אוטומטי
-- [ ] **מערכת בקרת משתמשים — הרשאות הורדה** — שדות גרנולריים: export_patient_pdf, download_documents, view_financials. Session Management ✅ בוצע.
+- [x] **ניהול משימות — SLA (2026-05-13)** — _daily_sla_check יוצר Task אוטומטית (source_type="sla_breach", source_id=step.id) עם priority=urgent לכל SLA שעובר
+- [x] **הרשאות הורדה (2026-05-13)** — User.permissions JSON field, has_permission() ב-auth.py, whitelist validation ב-PATCH /api/admin/users/{id}/permissions, enforcement ב-documents download, AdminPage permissions editor (3 checkboxes)
+- [x] **מערכת התראות (2026-05-13)** — GET /api/notifications (manager-only: overdue+SLA+requests), NotificationBell.jsx עם badge+dropdown+polling 60s, מחובר ל-ManagerLayout
+- [x] **פורטל ברוקר (2026-05-13)** — UserRole.broker, routes/broker.py (PatientPermission-based access), BrokerPortal.jsx (patient list+claims accordion), route /broker ב-App.jsx
 
 ### פירוט: מערכת בקרת משתמשים
 
