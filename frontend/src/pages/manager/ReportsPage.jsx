@@ -280,17 +280,29 @@ export default function ReportsPage() {
             onGenerate={(patientId) => generate('financial-map', patientId)}
           />
 
-          {/* Placeholder for future reports */}
-          <div className="bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-6 flex items-center justify-center">
-            <div className="text-center text-slate-600">
-              <svg className="w-10 h-10 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-sm font-medium">דוחות נוספים בקרוב</p>
-              <p className="text-xs mt-1">סיכום מטופל, תביעות, תרופות</p>
-            </div>
-          </div>
+          <ReportCard
+            title="סיכום קליטה"
+            description="סיכום לאחר אינטייק: פרטי מטופל, ביטוחים, מידע רפואי, תגיות מצב, קשר חירום וסטטוס חתימות. מתאים למסירה למטופל."
+            icon="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            generating={generating === 'intake'}
+            onGenerate={(patientId) => generate('intake', patientId)}
+          />
+
+          <ReportCard
+            title="דוח חודשי"
+            description="תמונת מצב חודשית: תביעות פעילות לפי סטטוס, זרימות עבודה פעילות, פגישות בחודש האחרון, וחריגות SLA."
+            icon="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            generating={generating === 'monthly'}
+            onGenerate={(patientId) => generate('monthly', patientId)}
+          />
+
+          <ReportCard
+            title="דוח סיום התקשרות"
+            description="סיכום סיום: היסטוריית תביעות מלאה עם סכומים, סיכום מפה פיננסית, סיכום פגישות, וציר זמן מאינטייק לסיום."
+            icon="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+            generating={generating === 'discharge'}
+            onGenerate={(patientId) => generate('discharge', patientId)}
+          />
         </div>
       </div>
 
