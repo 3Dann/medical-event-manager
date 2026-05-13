@@ -72,11 +72,14 @@ export default function NSCLCPathwayTab() {
       .then(r => {
         const p = r.data
         setForm({
-          smoking_status:   p.smoking_status   || '',
-          ngs_method:       p.ngs_method       || '',
-          fev1_score:       p.fev1_score != null ? String(p.fev1_score) : '',
-          access_type:      p.access_type      || '',
-          biomarker_target: p.biomarker_target || '',
+          smoking_status:          p.smoking_status   || '',
+          ngs_method:              p.ngs_method       || '',
+          fev1_score:              p.fev1_score != null ? String(p.fev1_score) : '',
+          access_type:             p.access_type      || '',
+          biomarker_target:        p.biomarker_target || '',
+          tumor_board_surgeon:     !!p.tumor_board_surgeon,
+          tumor_board_oncologist:  !!p.tumor_board_oncologist,
+          tumor_board_radiation:   !!p.tumor_board_radiation,
         })
       })
       .catch(e => {
