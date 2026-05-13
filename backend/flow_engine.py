@@ -399,15 +399,40 @@ class FlowEngine:
         # Auto-create draft claim for financial steps with coverage categories
         _auto_create_draft_claim(db, step, instance)
 
-        # Find next pending step
-        next_step = db.query(models.WorkflowStep).filter(
-            models.WorkflowStep.instance_id == instance_id,
-            models.WorkflowStep.step_order > step.step_order,
-            models.WorkflowStep.status == "pending",
-        ).order_by(models.WorkflowStep.step_order).first()
+        # ── Parallel group: wait until ALL siblings are done ──────────────────
+        if step.parallel_group:
+            if not _parallel_group_complete(db, instance_id, step.parallel_group):
+                # Other siblings still running — don't advance yet
+                db.commit()
+                db.refresh(instance)
+                return instance
+            # All done — find next step AFTER the highest order in the group
+            max_order = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.parallel_group == step.parallel_group,
+            ).order_by(models.WorkflowStep.step_order.desc()).first().step_order
+            next_step = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.step_order > max_order,
+                models.WorkflowStep.status == "pending",
+            ).order_by(models.WorkflowStep.step_order).first()
+        else:
+            next_step = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.step_order > step.step_order,
+                models.WorkflowStep.status == "pending",
+            ).order_by(models.WorkflowStep.step_order).first()
 
         if next_step:
-            _activate_step(db, next_step, instance, user_id)
+            # Evaluate gate before activation
+            patient = db.get(models.Patient, instance.patient_id)
+            can_proceed, gate_err = evaluate_gate(db, next_step, patient)
+            if not can_proceed and not force:
+                raise ValueError(gate_err or "שלב הבא חסום על ידי שער לוגיקה")
+            if next_step.parallel_group:
+                _activate_parallel_group(db, next_step.parallel_group, instance, user_id)
+            else:
+                _activate_step(db, next_step, instance, user_id)
         else:
             instance.status = "completed"
             instance.completed_at = now
