@@ -220,6 +220,13 @@ const EMPTY_FORM = {
   notes: '',
   extra_data: {},
   source_url: '',
+  // Enrichment fields
+  working_hours: '',
+  accessibility: false,
+  waiting_days: null,
+  is_accepting_patients: true,
+  last_verified: '',
+  active_contact: false,
 }
 
 export default function DoctorsDatabase() {
