@@ -414,6 +414,8 @@ def run_migrations():
         # SMS 2FA phone number on User
         ("users", "phone_2fa",        "TEXT"),
         ("users", "phone_2fa_prefix", "TEXT"),
+        # User permissions (granular download/export permissions)
+        ("users", "permissions", "TEXT"),
         # NSCLC clinical fields on Patient
         ("patients", "smoking_status",        "TEXT"),
         ("patients", "ngs_method",            "TEXT"),
