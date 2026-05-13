@@ -188,6 +188,7 @@ medical-event-manager/
 ### עדיפות בינונית
 - [x] **SMTP (2026-05-13)** — Resend מוגדר + POST /api/admin/test-email + כפתור "בדוק מייל" ב-AdminPage
 - [x] **התראות פערי ביטוח (2026-05-13)** — _daily_insurance_gap_check (09:00 UTC), GET /insurance-gaps, "ניתוח פערים" ב-PatientInsurance.jsx
+- [x] **צ'קליסט בירוקרטי (2026-05-13)** — 57 משימות על פני 17 צמתי NSCLC. POST/DELETE /api/workflows/instances/{id}/steps/{id}/tasks. AddTaskInline UI ב-StepCard (+ כפתור מחיקה). בדיקת step.status לפני הוספה.
 - [ ] **מאגר מכונים ומעבדות** — MRI, CT, בדיקות דם פרטי, שיקום
 
 ### עדיפות נמוכה
