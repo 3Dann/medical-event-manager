@@ -113,6 +113,12 @@ class PatientUpdate(BaseModel):
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     medications: Optional[str] = None
+    # NSCLC clinical fields
+    smoking_status:   Optional[str]   = None
+    ngs_method:       Optional[str]   = None
+    fev1_score:       Optional[float] = None
+    access_type:      Optional[str]   = None
+    biomarker_target: Optional[str]   = None
     adl_answers: Optional[str] = None
     iadl_answers: Optional[str] = None
     mmse_answers: Optional[str] = None
