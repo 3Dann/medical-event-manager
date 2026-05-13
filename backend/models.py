@@ -237,9 +237,9 @@ class Patient(Base):
     access_type      = Column(String, nullable=True)  # basket | insurance | compassion | research
     biomarker_target = Column(String, nullable=True)  # EGFR | ALK | HER2 | KRAS | RET | MET | ROS1 | BRAF | PD-L1 | none
     # Tumor Board sign-offs (lung_s7_tumor_board gate)
-    tumor_board_surgeon    = Column(Boolean, default=False, nullable=True)
-    tumor_board_oncologist = Column(Boolean, default=False, nullable=True)
-    tumor_board_radiation  = Column(Boolean, default=False, nullable=True)
+    tumor_board_surgeon    = Column(Boolean, default=False, nullable=False, server_default="0")
+    tumor_board_oncologist = Column(Boolean, default=False, nullable=False, server_default="0")
+    tumor_board_radiation  = Column(Boolean, default=False, nullable=False, server_default="0")
 
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
