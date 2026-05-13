@@ -1,28 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 
-const GOV_API = 'https://data.gov.il/api/3/action/datastore_search'
-const CITIES_RESOURCE  = '5c78e9fa-c2e2-4771-93ff-7f400a12f7ba'
-const STREETS_RESOURCE = 'a7296d1a-f8c9-4b70-96c2-6ebb4352f8e3'
-async function fetchPostalCode(cityName, streetName) {
-  try {
-    const params = new URLSearchParams({
-      street: streetName,
-      city: cityName,
-      country: 'IL',
-      format: 'json',
-      addressdetails: '1',
-      limit: '1',
-    })
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?${params}`,
-      { headers: { 'User-Agent': 'OrlyMedical/1.0' } }
-    )
-    const data = await res.json()
-    return data?.[0]?.address?.postcode ?? null
-  } catch { return null }
-}
-
-// Module-level cache — loaded once per session
+// Module-level cache
 let _citiesCache = null
 let _citiesLoading = false
 const _citiesListeners = []
@@ -31,31 +9,52 @@ function loadCities() {
   if (_citiesCache) return Promise.resolve(_citiesCache)
   if (_citiesLoading) return new Promise(r => _citiesListeners.push(r))
   _citiesLoading = true
-  return fetch(`${GOV_API}?resource_id=${CITIES_RESOURCE}&limit=1500`)
-    .then(r => r.json())
+  return fetch('/api/address/cities')
+    .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
     .then(data => {
-      _citiesCache = (data?.result?.records || [])
-        .map(r => ({ name: r['שם_ישוב']?.trim(), code: String(r['סמל_ישוב'] || '') }))
-        .filter(r => r.name)
-        .sort((a, b) => a.name.localeCompare(b.name, 'he'))
+      _citiesCache = (data.records || []).sort((a, b) => a.name.localeCompare(b.name, 'he'))
       _citiesListeners.forEach(r => r(_citiesCache))
+      _citiesListeners.length = 0
       return _citiesCache
     })
-    .catch(() => { _citiesLoading = false; return [] })
+    .catch(() => {
+      _citiesLoading = false
+      _citiesListeners.forEach(r => r([]))
+      _citiesListeners.length = 0
+      return []
+    })
+}
+
+async function fetchPostalCode(cityName, streetName) {
+  try {
+    const params = new URLSearchParams({ city: cityName, street: streetName })
+    const res = await fetch(`/api/address/postal-code?${params}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    return data.postal_code ?? null
+  } catch { return null }
 }
 
 // ── City autocomplete ─────────────────────────────────────────────────────────
 
 export function CityAutocomplete({ value, onChange, required, error }) {
-  const [input, setInput]     = useState(value || '')
-  const [allCities, setAll]   = useState(_citiesCache || [])
-  const [open, setOpen]       = useState(false)
+  const [input, setInput]   = useState(value || '')
+  const [allCities, setAll] = useState(_citiesCache || [])
+  const [loading, setLoad]  = useState(false)
+  const [loadErr, setErr]   = useState(false)
+  const [open, setOpen]     = useState(false)
   const ref = useRef()
 
   useEffect(() => { setInput(value || '') }, [value])
 
   useEffect(() => {
-    if (!_citiesCache) loadCities().then(setAll)
+    if (_citiesCache) return
+    setLoad(true)
+    loadCities().then(cities => {
+      setAll(cities)
+      setLoad(false)
+      setErr(cities.length === 0)
+    })
   }, [])
 
   useEffect(() => {
@@ -65,15 +64,19 @@ export function CityAutocomplete({ value, onChange, required, error }) {
   }, [])
 
   const filtered = input.length > 0
-    ? allCities.filter(c => c.name.startsWith(input)).slice(0, 12)
+    ? allCities.filter(c => c.name.includes(input)).slice(0, 15)
     : []
+
+  const placeholder = loadErr ? 'שגיאה בטעינת ישובים — נסה לרענן'
+    : loading ? 'טוען ישובים...'
+    : 'הקלד שם עיר...'
 
   return (
     <div ref={ref} className="relative">
       <input
-        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'}`}
+        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${loadErr ? 'bg-red-50' : ''}`}
         value={input}
-        placeholder="הקלד שם עיר..."
+        placeholder={placeholder}
         onChange={e => {
           const v = e.target.value
           setInput(v)
@@ -84,9 +87,6 @@ export function CityAutocomplete({ value, onChange, required, error }) {
         required={required}
         autoComplete="off"
       />
-      {!_citiesCache && input.length > 0 && (
-        <span className="absolute left-3 top-2.5 text-xs text-slate-600">טוען...</span>
-      )}
       {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
           {filtered.map(city => (
@@ -107,35 +107,36 @@ export function CityAutocomplete({ value, onChange, required, error }) {
 // ── Street autocomplete ───────────────────────────────────────────────────────
 
 export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPostalCode, required, error, disabled }) {
-  const [input, setInput]         = useState(value || '')
-  const [allStreets, setStreets]  = useState([])  // [{name, code}]
-  const [loadingStreets, setLoad] = useState(false)
-  const [loadingZip, setLoadingZip] = useState(false)
-  const [open, setOpen]           = useState(false)
+  const [input, setInput]       = useState(value || '')
+  const [allStreets, setStreets] = useState([])
+  const [loading, setLoad]      = useState(false)
+  const [loadErr, setErr]       = useState(false)
+  const [loadingZip, setZip]    = useState(false)
+  const [open, setOpen]         = useState(false)
   const ref = useRef()
+  const abortRef = useRef()
 
   useEffect(() => { setInput(value || '') }, [value])
 
   useEffect(() => {
+    abortRef.current?.abort()
     setInput('')
     setStreets([])
+    setErr(false)
     onChange('')
     onPostalCode?.('')
     if (!cityCode) return
+
+    abortRef.current = new AbortController()
     setLoad(true)
-    const filters = encodeURIComponent(JSON.stringify({ 'סמל_ישוב': Number(cityCode) }))
-    fetch(`${GOV_API}?resource_id=${STREETS_RESOURCE}&filters=${filters}&limit=3000`)
-      .then(r => r.json())
+    fetch(`/api/address/streets?city_code=${Number(cityCode)}`, { signal: abortRef.current.signal })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then(data => {
-        const recs = data?.result?.records || []
-        setStreets(
-          recs
-            .map(r => ({ name: r['שם_רחוב']?.trim(), code: String(r['סמל_רחוב'] || '') }))
-            .filter(r => r.name)
-            .sort((a, b) => a.name.localeCompare(b.name, 'he'))
-        )
+        const streets = (data.records || []).sort((a, b) => a.name.localeCompare(b.name, 'he'))
+        setStreets(streets)
+        setErr(streets.length === 0 && !!cityCode)
       })
-      .catch(() => {})
+      .catch(e => { if (e.name !== 'AbortError') setErr(true) })
       .finally(() => setLoad(false))
   }, [cityCode])
 
@@ -146,7 +147,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
   }, [])
 
   const filtered = input.length > 0
-    ? allStreets.filter(s => s.name.startsWith(input)).slice(0, 20)
+    ? allStreets.filter(s => s.name.includes(input)).slice(0, 20)
     : []
 
   const selectStreet = async (street) => {
@@ -154,19 +155,24 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
     setOpen(false)
     onChange(street.name)
     if (onPostalCode && cityName && street.name) {
-      setLoadingZip(true)
+      setZip(true)
       const zip = await fetchPostalCode(cityName, street.name)
-      setLoadingZip(false)
+      setZip(false)
       if (zip) onPostalCode(String(zip))
     }
   }
 
+  const placeholder = disabled ? 'בחר עיר תחילה'
+    : loadErr ? 'שגיאה בטעינת רחובות'
+    : loading ? 'טוען רחובות...'
+    : 'הקלד שם רחוב...'
+
   return (
     <div ref={ref} className="relative">
       <input
-        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${disabled ? 'bg-slate-50 text-slate-400' : ''}`}
+        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${disabled ? 'bg-slate-50 text-slate-400' : ''} ${loadErr ? 'bg-red-50' : ''}`}
         value={input}
-        placeholder={disabled ? 'בחר עיר תחילה' : loadingStreets ? 'טוען רחובות...' : 'הקלד שם רחוב...'}
+        placeholder={placeholder}
         onChange={e => {
           const v = e.target.value
           setInput(v)
@@ -176,7 +182,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
         }}
         onFocus={() => filtered.length > 0 && setOpen(true)}
         required={required}
-        disabled={disabled || loadingStreets}
+        disabled={disabled || loading}
         autoComplete="off"
       />
       {loadingZip && (
