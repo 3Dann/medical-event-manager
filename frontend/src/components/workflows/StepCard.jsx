@@ -10,6 +10,44 @@ const STATUS_STYLES = {
   skipped:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-600',  icon: '⇢', label: 'דולג'  },
 }
 
+// ── Step type badge ──────────────────────────────────────────────────────────
+const STEP_TYPE_STYLES = {
+  medical:        { cls: 'bg-blue-100 text-blue-700',    label: 'רפואי'  },
+  financial:      { cls: 'bg-green-100 text-green-700',  label: 'כספי'   },
+  administrative: { cls: 'bg-slate-100 text-slate-600',  label: 'מנהלי'  },
+}
+
+function StepTypeBadge({ stepType }) {
+  if (!stepType) return null
+  const style = STEP_TYPE_STYLES[stepType]
+  if (!style) return null
+  return (
+    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${style.cls}`}>
+      {style.label}
+    </span>
+  )
+}
+
+// ── SLA countdown badge ──────────────────────────────────────────────────────
+function SlaBadge({ deadline, status }) {
+  if (!deadline || status !== 'active') return null
+  const now = new Date()
+  const dl  = new Date(deadline)
+  if (dl < now) {
+    return (
+      <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-red-100 text-red-700 animate-pulse">
+        ⚠ חריגת SLA
+      </span>
+    )
+  }
+  const daysLeft = Math.ceil((dl - now) / (1000 * 60 * 60 * 24))
+  return (
+    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-green-100 text-green-700">
+      SLA: {daysLeft} ימים
+    </span>
+  )
+}
+
 export default function StepCard({ step: initialStep, instanceId, onUpdated, gateBlocked = false }) {
   const [step, setStep] = useState(initialStep)
   const [expanded, setExpanded] = useState(initialStep.status === 'active')
