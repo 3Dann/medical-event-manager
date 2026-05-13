@@ -172,8 +172,9 @@ class Verify2FARequest(BaseModel):
 
 
 @router.post("/verify-2fa", response_model=Token)
-@limiter.limit("10/minute")
+@limiter.limit("3/minute")
 def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(get_db)):
+    from datetime import timezone as tz
     from jwt import PyJWTError as JWTError
     try:
         payload = auth_utils.decode_token(data.temp_token)
@@ -186,14 +187,29 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
     if not user:
         raise HTTPException(status_code=400, detail="משתמש לא נמצא")
 
+    # Enforce lockout — same counter as login failures
+    if user.locked_until:
+        locked_until = user.locked_until.replace(tzinfo=tz.utc) if user.locked_until.tzinfo is None else user.locked_until
+        if datetime.now(tz.utc) < locked_until:
+            raise HTTPException(status_code=429, detail="חשבון נעול זמנית. נסה שנית בעוד 15 דקות.")
+
     # Prefer the method the user chose in the UI; fall back to stored method
     chosen_method = data.method or user.totp_method or "email"
+
+    def _record_2fa_failure():
+        user.failed_login_attempts = (user.failed_login_attempts or 0) + 1
+        if user.failed_login_attempts >= _LOCKOUT_ATTEMPTS:
+            user.locked_until = datetime.now(tz.utc) + timedelta(minutes=_LOCKOUT_MINUTES)
+            user.failed_login_attempts = 0
+            logger.warning("Account locked after repeated 2FA failures: user_id=%s", user.id)
+        db.commit()
 
     if chosen_method == "totp":
         if not user.totp_secret:
             raise HTTPException(status_code=400, detail="יש להגדיר תחילה את גוגל אותנטיקייטור")
         totp = pyotp.TOTP(fe.decrypt(user.totp_secret))
         if not totp.verify(data.code, valid_window=2):
+            _record_2fa_failure()
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
         # Auto-enable on first successful TOTP use during login
         if not user.totp_enabled:
@@ -203,6 +219,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
     else:
         # email or sms
         if not user.email_2fa_code or user.email_2fa_code != data.code:
+            _record_2fa_failure()
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
         if not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד פג תוקף, בקש קוד חדש")
