@@ -191,37 +191,61 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
           )}
 
           {/* Task checklist */}
-          {tasks.length > 0 && (
+          {(tasks.length > 0 || step.status === 'active') && (
             <div className="mt-3">
-              <div className="text-xs font-medium text-slate-600 mb-2">משימות:</div>
-              <div className="space-y-1.5">
-                {tasks.map(task => (
-                  <button
-                    key={task.id}
-                    onClick={() => step.status === 'active' && handleToggleTask(task.id)}
-                    disabled={step.status !== 'active' || togglingTask === task.id}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-right transition-colors
-                      ${step.status === 'active' ? 'cursor-pointer hover:bg-white/80' : 'cursor-default'}
-                      ${task.is_completed ? 'bg-green-50/70' : 'bg-white/50'}
-                    `}
-                  >
-                    <span className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold transition-colors
-                      ${task.is_completed
-                        ? 'bg-green-500 border-green-500 text-white'
-                        : 'border-slate-300 bg-white'
-                      }
-                    `}>
-                      {task.is_completed ? '✓' : ''}
-                    </span>
-                    <span className={task.is_completed ? 'line-through text-slate-500' : 'text-slate-700'}>
-                      {task.title}
-                    </span>
-                    {togglingTask === task.id && (
-                      <span className="text-xs text-slate-600 mr-auto">...</span>
-                    )}
-                  </button>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-medium text-slate-600">
+                  צ׳קליסט
+                  {tasks.length > 0 && (
+                    <span className="mr-1 text-slate-400">({completedCount}/{tasks.length})</span>
+                  )}
+                </span>
+                {step.status === 'active' && (
+                  <AddTaskInline
+                    instanceId={instanceId}
+                    stepId={step.id}
+                    onAdded={onUpdated}
+                  />
+                )}
               </div>
+              {tasks.length > 0 && (
+                <div className="space-y-1.5">
+                  {tasks.map(task => (
+                    <div key={task.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm
+                      ${task.is_completed ? 'bg-green-50/70' : 'bg-white/50'}
+                    `}>
+                      <button
+                        onClick={() => step.status === 'active' && handleToggleTask(task.id)}
+                        disabled={step.status !== 'active' || togglingTask === task.id}
+                        className={`w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center text-xs font-bold transition-colors
+                          ${task.is_completed
+                            ? 'bg-green-500 border-green-500 text-white'
+                            : 'border-slate-300 bg-white hover:border-green-400'
+                          }
+                        `}
+                      >
+                        {task.is_completed ? '✓' : ''}
+                      </button>
+                      <span className={`flex-1 text-right ${task.is_completed ? 'line-through text-slate-500' : 'text-slate-700'}`}>
+                        {task.title}
+                      </span>
+                      {step.status === 'active' && !task.is_completed && (
+                        <button
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="text-slate-300 hover:text-red-400 text-xs px-1 flex-shrink-0 transition-colors"
+                          title="מחק משימה"
+                        >✕</button>
+                      )}
+                      {togglingTask === task.id && (
+                        <span className="text-xs text-slate-400">...</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {tasks.length === 0 && step.status === 'active' && (
+                <p className="text-xs text-slate-400 text-center py-1">אין משימות — הוסף למעלה</p>
+              )}
             </div>
           )}
 
