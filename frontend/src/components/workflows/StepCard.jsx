@@ -124,6 +124,15 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
     }
   }
 
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await axios.delete(`/api/workflows/instances/${instanceId}/steps/${step.id}/tasks/${taskId}`)
+      onUpdated()
+    } catch (e) {
+      showToast('לא ניתן למחוק את המשימה.')
+    }
+  }
+
   const formatDate = d => d ? new Date(d).toLocaleDateString('he-IL') : null
 
   return (
