@@ -31,10 +31,12 @@ export default function AdminDashboardPage() {
   // ── סטטיסטיקות עליונות ─────────────────────────────────────────────
   // להוספת כרטיס: הוסף איבר למערך
   const stats = [
-    { label: 'מלווים פעילים',  value: totals.managers,          color: 'blue'   },
-    { label: 'מטופלים סה״כ',   value: totals.patients,          color: 'slate'  },
-    { label: 'נורות קריטיות',  value: totals.critical_flags,    color: totals.critical_flags   > 0 ? 'red'    : 'slate' },
-    { label: 'פניות ממתינות',  value: totals.pending_requests,  color: totals.pending_requests > 0 ? 'yellow' : 'slate' },
+    { label: 'מלווים פעילים', value: totals.managers,          color: 'blue' },
+    { label: 'מטופלים סה״כ',  value: totals.patients,          color: 'slate' },
+    { label: 'נורות קריטיות', value: totals.critical_flags,    color: totals.critical_flags   > 0 ? 'red'    : 'slate' },
+    { label: 'פניות ממתינות', value: totals.pending_requests,  color: totals.pending_requests > 0 ? 'yellow' : 'slate' },
+    { label: 'תביעות פתוחות', value: totals.pending_claims,    color: totals.pending_claims   > 0 ? 'yellow' : 'slate' },
+    { label: 'חריגות SLA',    value: totals.sla_breaches ?? 0, color: (totals.sla_breaches ?? 0) > 0 ? 'red' : 'slate' },
   ]
 
   return (
