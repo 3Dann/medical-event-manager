@@ -54,7 +54,7 @@ def broker_patient_claims(
         ).first()
         if not perm:
             raise HTTPException(403, "אין גישה למטופל זה")
-    claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).all()
+    claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).limit(100).all()
     return [
         {
             "id": c.id,
