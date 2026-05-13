@@ -2,13 +2,14 @@
 Flow Engine — State Machine for Workflow management.
 Handles creation, advancement, and lifecycle of WorkflowInstances.
 When a step becomes active, automatically computes coverage via coverage_advisor.
+Supports parallel step groups (parallel_group) and logic gates (gate_fields).
 """
 import json
 import logging
 
 logger = logging.getLogger("flow_engine")
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Optional, Tuple
 from sqlalchemy.orm import Session
 import models
 
