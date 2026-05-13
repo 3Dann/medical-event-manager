@@ -833,10 +833,16 @@ def add_task(
     ).first()
     if not step:
         raise HTTPException(404, "Step not found")
+    if step.status not in ("active", "pending"):
+        raise HTTPException(400, "לא ניתן להוסיף משימות לשלב שהושלם או בוטל")
     title = data.title.strip()
     if not title:
         raise HTTPException(400, "כותרת המשימה לא יכולה להיות ריקה")
-    max_order = max((t.task_order for t in step.tasks), default=-1) + 1
+    from sqlalchemy import func as _func
+    max_order = db.query(_func.max(models.WorkflowStepTask.task_order)).filter(
+        models.WorkflowStepTask.step_id == step_id
+    ).scalar()
+    max_order = (max_order or -1) + 1
     task = models.WorkflowStepTask(
         step_id=step_id,
         title=title,
