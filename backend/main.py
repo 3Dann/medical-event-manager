@@ -561,6 +561,7 @@ def seed_workflow_templates():
                         # New step added to existing template
                         cats = step_data.get("coverage_categories")
                         docs = step_data.get("required_documents")
+                        gate = step_data.get("gate_condition")
                         new_st = models.WorkflowStepTemplate(
                             template_id=exists.id,
                             step_key=step_data["step_key"],
@@ -573,6 +574,11 @@ def seed_workflow_templates():
                             step_type=step_data.get("step_type", "administrative"),
                             estimated_cost=step_data.get("estimated_cost"),
                             required_documents=_json.dumps(docs) if docs else None,
+                            parallel_group=step_data.get("parallel_group"),
+                            sla_days=step_data.get("sla_days"),
+                            gate_condition=_json.dumps(gate) if gate else None,
+                            gate_error_msg=step_data.get("gate_error_msg"),
+                            is_exploration_gate=step_data.get("is_exploration_gate", False),
                         )
                         db.add(new_st)
                         db.flush()
