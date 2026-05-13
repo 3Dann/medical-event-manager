@@ -34,7 +34,9 @@ function LoginModal({ onClose, initialTab = 'login' }) {
   const [twoFAStep,        setTwoFAStep]        = useState(false)
   const [tempToken,        setTempToken]        = useState('')
   const [twoFACode,        setTwoFACode]        = useState('')
-  const [twoFAMethod,      setTwoFAMethod]      = useState('totp')
+  const [twoFAMethod,      setTwoFAMethod]      = useState(null)   // null = choice screen
+  const [totpConfigured,   setTotpConfigured]   = useState(false)
+  const [totpSetupQR,      setTotpSetupQR]      = useState('')
   const [emailCodeDisplay, setEmailCodeDisplay] = useState('')
   const [emailSentMsg,     setEmailSentMsg]     = useState('')
   const [emailCodeReady,   setEmailCodeReady]   = useState(false)
