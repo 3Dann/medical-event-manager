@@ -237,6 +237,37 @@ export default function NSCLCPathwayTab() {
 
         </div>
 
+        {/* Tumor Board sign-offs */}
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-sm font-semibold text-slate-700">ועדת גידולים (Tumor Board)</span>
+            {form.tumor_board_surgeon && form.tumor_board_oncologist && form.tumor_board_radiation
+              ? <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✓ אושר</span>
+              : <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">ממתין לאישורים</span>
+            }
+          </div>
+          <p className="text-xs text-slate-500 mb-3">שלב 7 חסום עד לאישור שלושת החברים. סמן כל אחד לאחר קבלת אישורו.</p>
+          <div className="flex flex-col gap-2">
+            {[
+              { field: 'tumor_board_surgeon',    label: 'כירורג חזה' },
+              { field: 'tumor_board_oncologist', label: 'אונקולוג רפואי' },
+              { field: 'tumor_board_radiation',  label: 'אונקולוג קרינתי' },
+            ].map(({ field, label }) => (
+              <label key={field} className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={form[field]}
+                  onChange={e => handleChange(field, e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className={`text-sm ${form[field] ? 'text-green-700 font-medium' : 'text-slate-600'}`}>
+                  {form[field] ? `✓ ${label}` : label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
         {/* Save button */}
         <div className="mt-5 flex justify-start">
           <button
