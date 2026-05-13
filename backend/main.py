@@ -129,6 +129,31 @@ def _daily_sla_check():
                 step.id, step.step_key, step.instance_id,
                 deadline.isoformat(),
             )
+            # Auto-create a task for the patient's manager
+            try:
+                instance = db.get(models.WorkflowInstance, step.instance_id)
+                if instance:
+                    patient = db.get(models.Patient, instance.patient_id)
+                    manager_id = patient.manager_id if patient else None
+                    if manager_id:
+                        existing = db.query(models.Task).filter(
+                            models.Task.workflow_step_id == step.id,
+                            models.Task.source_type == "sla_breach",
+                        ).first()
+                        if not existing:
+                            db.add(models.Task(
+                                title=f"חריגת SLA — {step.name}",
+                                description=f"מועד היעד עבר ב-{deadline.strftime('%d/%m/%Y')}. נדרשת התייחסות.",
+                                patient_id=instance.patient_id,
+                                assigned_to=manager_id,
+                                source_type="sla_breach",
+                                workflow_step_id=step.id,
+                                priority="urgent",
+                                status="pending",
+                                due_date=now,
+                            ))
+            except Exception:
+                logger.exception("Failed to create SLA task for step %s", step.id)
         if breached:
             db.commit()
             logger.info(f"SLA check: {len(breached)} steps marked as breached")
