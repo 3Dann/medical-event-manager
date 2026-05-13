@@ -146,12 +146,15 @@ def _daily_sla_check():
                                 description=f"מועד היעד עבר ב-{deadline.strftime('%d/%m/%Y')}. נדרשת התייחסות.",
                                 patient_id=instance.patient_id,
                                 assigned_to=manager_id,
+                                created_by=manager_id,
                                 source_type="sla_breach",
-                                workflow_step_id=step.id,
+                                source_id=step.id,
                                 priority="urgent",
                                 status="pending",
                                 due_date=now,
                             ))
+                        elif existing and existing.status != "done":
+                            existing.due_date = now  # refresh deadline
             except Exception:
                 logger.exception("Failed to create SLA task for step %s", step.id)
         if breached:
