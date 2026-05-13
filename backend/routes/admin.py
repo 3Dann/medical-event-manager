@@ -61,7 +61,7 @@ def update_user_role(
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="משתמש לא נמצא")
-    if data.role not in ["manager", "patient"]:
+    if data.role not in ["manager", "patient", "broker"]:
         raise HTTPException(status_code=400, detail="תפקיד לא חוקי")
     user.role = data.role
     if data.is_admin is not None:
