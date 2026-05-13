@@ -267,6 +267,9 @@ export default function NSCLCPathwayTab() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-slate-800 text-sm">{drug.name}</span>
+                        {drug.hebrew_name && (
+                          <span className="text-sm text-slate-700">{drug.hebrew_name}</span>
+                        )}
                         {drug.generic_name && drug.generic_name !== drug.name && (
                           <span className="text-xs text-slate-500">({drug.generic_name})</span>
                         )}
