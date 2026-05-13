@@ -24,6 +24,7 @@ class EncryptedText(TypeDecorator):
 class UserRole(str, enum.Enum):
     manager = "manager"
     patient = "patient"
+    broker  = "broker"
 
 
 class DiagnosisStatus(str, enum.Enum):
