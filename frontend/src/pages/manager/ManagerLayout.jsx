@@ -284,6 +284,7 @@ export default function ManagerLayout() {
             </svg>
             <span className="hidden sm:inline">{t('nav:home')}</span>
           </Link>
+          <NotificationBell />
           <LanguageSwitcher compact />
         </div>
 
