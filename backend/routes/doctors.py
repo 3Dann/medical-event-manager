@@ -358,6 +358,12 @@ def update_doctor(
     update_data = data.model_dump(exclude_none=True)
     if "hmo_acceptance" in update_data:
         update_data["hmo_acceptance"] = json.dumps(update_data["hmo_acceptance"], ensure_ascii=False)
+    if "last_verified" in update_data and update_data["last_verified"]:
+        try:
+            from datetime import datetime
+            update_data["last_verified"] = datetime.fromisoformat(update_data["last_verified"].replace("Z", "+00:00"))
+        except Exception:
+            update_data.pop("last_verified", None)
     for field, value in update_data.items():
         setattr(doctor, field, value)
     db.commit()
