@@ -9,14 +9,16 @@ export default function NotificationBell() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    let ctrl = new AbortController()
     const load = () => {
-      axios.get('/api/notifications')
+      ctrl = new AbortController()
+      axios.get('/api/notifications', { signal: ctrl.signal })
         .then(r => setData(r.data))
-        .catch(() => {})
+        .catch(e => { if (!axios.isCancel(e)) {} })
     }
     load()
-    const id = setInterval(load, 60000) // refresh every minute
-    return () => clearInterval(id)
+    const id = setInterval(load, 60000)
+    return () => { clearInterval(id); ctrl.abort() }
   }, [])
 
   // Close on outside click
