@@ -272,40 +272,130 @@ export default function WorkflowPanel({ patientId }) {
               {/* Horizontal step track */}
               <div className="px-5 py-5 border-b border-slate-100 flex-shrink-0 overflow-x-auto">
                 <div className="flex items-start gap-0 min-w-max" dir="ltr">
-                  {selected.steps?.map((step, idx) => {
-                    const st = STEP_STATUS[step.status] || STEP_STATUS.pending
-                    const icon = STEP_ICON[step.status]
-                    const isLast = idx === selected.steps.length - 1
-                    const isSelected = activeStep?.id === step.id
+                  {groupSteps(selected.steps).map((item, groupIdx, allGroups) => {
+                    const isLastGroup = groupIdx === allGroups.length - 1
+
+                    if (item.type === 'solo') {
+                      const step = item.step
+                      const idx = selected.steps.indexOf(step)
+                      const st = STEP_STATUS[step.status] || STEP_STATUS.pending
+                      const icon = STEP_ICON[step.status]
+                      const isSelected = activeStep?.id === step.id
+                      const gateBlocked = step.gate && step.gate.fulfilled === false
+
+                      return (
+                        <div key={step.id} className="flex items-start">
+                          <button
+                            onClick={() => setActiveStep(isSelected ? null : step)}
+                            className="flex flex-col items-center gap-1 group"
+                            style={{ width: 100 }}
+                          >
+                            <div className={`
+                              w-11 h-11 rounded-full border-2 flex items-center justify-center text-sm font-bold
+                              transition-all shadow-sm
+                              ${st.circle}
+                              ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
+                              ${gateBlocked ? 'opacity-60' : ''}
+                            `}>
+                              {gateBlocked ? '🔒' : (icon || (idx + 1))}
+                            </div>
+                            <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
+                              {step.name}
+                            </div>
+                            {step.duration_days && step.status !== 'completed' && step.status !== 'skipped' && (
+                              <div className="text-xs text-slate-600">~{step.duration_days}י׳</div>
+                            )}
+                            <SlaWarning deadline={step.sla_deadline} status={step.status} />
+                            {gateBlocked && (
+                              <div className="text-[10px] text-amber-600 text-center px-1 leading-tight"
+                                title={step.gate?.error_msg || 'שלב נעול'}>
+                                🔒 {step.gate?.error_msg ? step.gate.error_msg.slice(0, 18) : 'נעול'}
+                              </div>
+                            )}
+                          </button>
+                          {!isLastGroup && (
+                            <div className="flex items-center" style={{ width: 40, marginTop: 21 }}>
+                              <div className={`h-0.5 w-full rounded-full ${st.line}`} />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    }
+
+                    // Parallel group
+                    const { group, steps: pSteps } = item
+                    const anyActive = pSteps.some(s => s.status === 'active')
+                    const allDone   = pSteps.every(s => s.status === 'completed' || s.status === 'skipped')
 
                     return (
-                      <div key={step.id} className="flex items-start">
-                        {/* Step node */}
-                        <button
-                          onClick={() => setActiveStep(isSelected ? null : step)}
-                          className="flex flex-col items-center gap-2 group"
-                          style={{ width: 100 }}
+                      <div key={`pg-${group}`} className="flex items-start">
+                        {/* Parallel lane */}
+                        <div
+                          className={`border-2 rounded-xl px-3 pt-1 pb-2 flex flex-col gap-2
+                            ${allDone   ? 'border-green-300 bg-green-50'
+                              : anyActive ? 'border-blue-300 bg-blue-50'
+                              : 'border-slate-200 bg-slate-50'}`}
+                          style={{ minWidth: 100 * pSteps.length + 40 * (pSteps.length - 1) }}
                         >
-                          <div className={`
-                            w-11 h-11 rounded-full border-2 flex items-center justify-center text-sm font-bold
-                            transition-all shadow-sm
-                            ${st.circle}
-                            ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
-                          `}>
-                            {icon || (idx + 1)}
+                          {/* Badge */}
+                          <div className="flex justify-center">
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full
+                              ${allDone ? 'bg-green-100 text-green-700' : anyActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>
+                              מקביל
+                            </span>
                           </div>
-                          <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
-                            {step.name}
-                          </div>
-                          {step.duration_days && step.status !== 'completed' && step.status !== 'skipped' && (
-                            <div className="text-xs text-slate-600">~{step.duration_days}י׳</div>
-                          )}
-                        </button>
+                          {/* Steps inside lane */}
+                          <div className="flex items-start gap-0">
+                            {pSteps.map((step, pi) => {
+                              const idx = selected.steps.indexOf(step)
+                              const st = STEP_STATUS[step.status] || STEP_STATUS.pending
+                              const icon = STEP_ICON[step.status]
+                              const isSelected = activeStep?.id === step.id
+                              const gateBlocked = step.gate && step.gate.fulfilled === false
+                              const isLast = pi === pSteps.length - 1
 
-                        {/* Connector line */}
-                        {!isLast && (
+                              return (
+                                <div key={step.id} className="flex items-start">
+                                  <button
+                                    onClick={() => setActiveStep(isSelected ? null : step)}
+                                    className="flex flex-col items-center gap-1 group"
+                                    style={{ width: 100 }}
+                                  >
+                                    <div className={`
+                                      w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-bold
+                                      transition-all shadow-sm
+                                      ${st.circle}
+                                      ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
+                                      ${gateBlocked ? 'opacity-60' : ''}
+                                    `}>
+                                      {gateBlocked ? '🔒' : (icon || (idx + 1))}
+                                    </div>
+                                    <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
+                                      {step.name}
+                                    </div>
+                                    <SlaWarning deadline={step.sla_deadline} status={step.status} />
+                                    {gateBlocked && (
+                                      <div className="text-[10px] text-amber-600 text-center px-1 leading-tight"
+                                        title={step.gate?.error_msg || 'שלב נעול'}>
+                                        {step.gate?.error_msg ? step.gate.error_msg.slice(0, 16) : 'נעול'}
+                                      </div>
+                                    )}
+                                  </button>
+                                  {!isLast && (
+                                    <div className="flex items-center" style={{ width: 32, marginTop: 19 }}>
+                                      <div className={`h-0.5 w-full rounded-full ${st.line}`} />
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Connector after the group */}
+                        {!isLastGroup && (
                           <div className="flex items-center" style={{ width: 40, marginTop: 21 }}>
-                            <div className={`h-0.5 w-full rounded-full ${st.line}`} />
+                            <div className="h-0.5 w-full rounded-full bg-slate-200" />
                           </div>
                         )}
                       </div>
