@@ -6,8 +6,11 @@ from datetime import datetime, timedelta
 from typing import Optional
 import os
 import secrets
+import logging
 import pyotp
 import field_encrypt as fe
+
+logger = logging.getLogger("auth")
 import qrcode
 import io
 import base64
