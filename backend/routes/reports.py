@@ -692,6 +692,736 @@ def generate_financial_map_report(
     )
 
 
+def _header_footer_generic(title: str, patient_name: str, generated_at: str):
+    """Generic header/footer for non-financial reports."""
+    def on_page(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("RF", 8)
+        canvas.setFillColor(SLATE_MUTED)
+        canvas.setStrokeColor(SLATE_LINE)
+        canvas.setLineWidth(0.5)
+        canvas.line(MARGIN, PAGE_H - 14 * mm, PAGE_W - MARGIN, PAGE_H - 14 * mm)
+        canvas.drawRightString(
+            PAGE_W - MARGIN, PAGE_H - 12 * mm,
+            _r(f"{title} — {patient_name}"),
+        )
+        canvas.line(MARGIN, 13 * mm, PAGE_W - MARGIN, 13 * mm)
+        canvas.drawRightString(PAGE_W - MARGIN, 8 * mm, _r(f"עמוד {doc.page}"))
+        label = _r("הופק:")
+        lw = canvas.stringWidth(label, "RF", 8)
+        canvas.drawString(MARGIN, 8 * mm, label)
+        canvas.drawString(MARGIN + lw + 3, 8 * mm, generated_at)
+        canvas.restoreState()
+    return on_page
+
+
+def _footer_disclaimer(story, ST, gen):
+    story.append(Spacer(1, 12))
+    story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+    story.append(Paragraph(
+        _r(f'דוח זה הופק אוטומטית ע"י מנהל האירוע הרפואי — Orly Medical | {gen}'),
+        ST["center"],
+    ))
+    story.append(Paragraph(
+        _r("הנתונים מבוססים על המידע המוזן במערכת. אין לראות בדוח זה ייעוץ רפואי, ביטוחי או משפטי."),
+        ST["center"],
+    ))
+
+
+# ── Intake Summary PDF ──────────────────────────────────────────────────────────
+
+def _build_intake_pdf(patient: models.Patient, db: Session) -> bytes:
+    _register_fonts()
+    ST  = _styles()
+    buf = io.BytesIO()
+    avail = PAGE_W - 2 * MARGIN
+    now   = datetime.now()
+    gen   = now.strftime("%d/%m/%Y %H:%M")
+
+    doc = SimpleDocTemplate(
+        buf, pagesize=A4,
+        rightMargin=MARGIN, leftMargin=MARGIN,
+        topMargin=22 * mm, bottomMargin=22 * mm,
+        title=f"סיכום קליטה — {patient.full_name}",
+    )
+    story = []
+
+    # Title
+    story.append(Paragraph(_r("סיכום קליטה"), ST["title"]))
+    story.append(Paragraph(
+        _r(f"מטופל: {patient.full_name}   |   תאריך הפקה: {gen}"),
+        ST["subtitle"],
+    ))
+    story.append(HRFlowable(width="100%", thickness=2, color=NAVY, spaceAfter=12))
+
+    # Demographics
+    story.append(Paragraph(_r("פרטים אישיים"), ST["h2"]))
+
+    gender_map = {"male": "זכר", "female": "נקבה"}
+    marital_map = {
+        "single": "רווק/ה", "married": "נשוי/אה",
+        "divorced": "גרוש/ה", "widowed": "אלמן/ה",
+    }
+    hmo_map = {"clalit": "כללית", "maccabi": "מכבי", "meuhedet": "מאוחדת", "leumit": "לאומית"}
+    hmo_level_map = {"basic": "בסיס", "mushlam": "משלים", "premium": "פרמיום", "zahav": "זהב"}
+
+    demo_rows = [
+        [Paragraph(_r("פרטי זיהוי"), ST["td_b"]),
+         Paragraph(_r("ערך"), ST["td_b"])],
+    ]
+    # Helper: add row if value exists
+    def _row(label, value):
+        if value:
+            demo_rows.append([
+                Paragraph(_r(label), ST["td_b"]),
+                Paragraph(_r(str(value)), ST["td"]),
+            ])
+
+    _row("שם מלא", patient.full_name)
+    _row("מגדר", gender_map.get(patient.gender or "", patient.gender or ""))
+    _row("תאריך לידה", patient.birth_date)
+    _row("מצב משפחתי", marital_map.get(patient.marital_status or "", patient.marital_status or ""))
+    _row("מספר ילדים", patient.num_children)
+    if patient.hmo_name:
+        hmo_str = hmo_map.get(patient.hmo_name, patient.hmo_name)
+        if patient.hmo_level:
+            hmo_str += f" — {hmo_level_map.get(patient.hmo_level, patient.hmo_level)}"
+        _row("קופת חולים", hmo_str)
+
+    if len(demo_rows) > 1:
+        demo_tbl = Table(demo_rows, colWidths=[avail * 0.35, avail * 0.65], repeatRows=1)
+        demo_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), NAVY),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, LIGHT_BG]),
+            ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 8),
+        ]))
+        story.append(demo_tbl)
+        story.append(Spacer(1, 8))
+
+    # Address
+    addr_parts = [
+        patient.street, patient.house_number, patient.city, patient.postal_code
+    ]
+    addr_str = " ".join(filter(None, addr_parts))
+    if addr_str:
+        story.append(Paragraph(_r("כתובת"), ST["h2"]))
+        story.append(Paragraph(_r(addr_str), ST["body"]))
+        story.append(Spacer(1, 6))
+
+    # Emergency contact
+    if patient.ec_name or patient.ec_phone:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("איש קשר לחירום"), ST["h2"]))
+        ec_parts = []
+        if patient.ec_name:
+            ec_parts.append(f"שם: {patient.ec_name}")
+        if patient.ec_relation:
+            ec_parts.append(f"קרבה: {patient.ec_relation}")
+        if patient.ec_phone:
+            phone_prefix = patient.ec_phone_prefix or ""
+            ec_parts.append(f"טלפון: {phone_prefix}-{patient.ec_phone}")
+        story.append(Paragraph(_r("   |   ".join(ec_parts)), ST["body"]))
+        story.append(Spacer(1, 6))
+
+    # Medical info
+    story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+    story.append(Paragraph(_r("מידע רפואי"), ST["h2"]))
+    if patient.diagnosis_details:
+        story.append(Paragraph(_r(f"אבחנה: {patient.diagnosis_details}"), ST["body"]))
+    if patient.specialty:
+        story.append(Paragraph(_r(f"מומחיות: {patient.specialty}"), ST["body"]))
+    if patient.referral_goal:
+        story.append(Paragraph(_r(f"מטרת הפניה: {patient.referral_goal}"), ST["body"]))
+    if patient.referral_source:
+        story.append(Paragraph(_r(f"גורם מפנה: {patient.referral_source}"), ST["body"]))
+    story.append(Spacer(1, 6))
+
+    # Condition tags
+    try:
+        import json
+        condition_tags = json.loads(patient.condition_tags) if patient.condition_tags else []
+    except Exception:
+        condition_tags = []
+    if condition_tags:
+        story.append(Paragraph(_r("תגיות מצב רפואי"), ST["h3"]))
+        tags_str = "   •   ".join(condition_tags)
+        story.append(Paragraph(_r(tags_str), ST["body"]))
+        story.append(Spacer(1, 6))
+
+    # Functional assessments
+    if patient.adl_score is not None or patient.iadl_score is not None or patient.mmse_score is not None:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("הערכות תפקודיות"), ST["h2"]))
+        scores = []
+        if patient.adl_score is not None:
+            scores.append(f"ADL: {patient.adl_score}/100")
+        if patient.iadl_score is not None:
+            scores.append(f"IADL: {patient.iadl_score}/8")
+        if patient.mmse_score is not None:
+            scores.append(f"MMSE: {patient.mmse_score}/30")
+        story.append(Paragraph(_r("   |   ".join(scores)), ST["body"]))
+        story.append(Spacer(1, 6))
+
+    # Insurance sources
+    active_sources = [s for s in patient.insurance_sources if s.is_active]
+    if active_sources:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("מקורות ביטוח"), ST["h2"]))
+        for src in active_sources:
+            src_name = src.company_name or src.hmo_name or src.source_type or "ביטוח"
+            story.append(Paragraph("• " + _r(src_name), ST["bullet"]))
+        story.append(Spacer(1, 6))
+
+    # Consent status
+    story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+    story.append(Paragraph(_r("סטטוס חתימות"), ST["h2"]))
+    consent_str = "✓ הסכמה לטיפול" if patient.consent_agreed else "✗ הסכמה לטיפול — טרם נחתמה"
+    poa_str     = "✓ ייפוי כוח"    if patient.poa_agreed    else "✗ ייפוי כוח — טרם נחתם"
+    story.append(Paragraph(_r(consent_str), ST["body"]))
+    story.append(Paragraph(_r(poa_str),     ST["body"]))
+    story.append(Spacer(1, 6))
+
+    _footer_disclaimer(story, ST, gen)
+
+    on_page = _header_footer_generic("סיכום קליטה", patient.full_name, gen)
+    doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
+    buf.seek(0)
+    return buf.read()
+
+
+# ── Monthly Status PDF ──────────────────────────────────────────────────────────
+
+def _build_monthly_pdf(patient: models.Patient, db: Session) -> bytes:
+    _register_fonts()
+    ST  = _styles()
+    buf = io.BytesIO()
+    avail = PAGE_W - 2 * MARGIN
+    now   = datetime.now()
+    gen   = now.strftime("%d/%m/%Y %H:%M")
+    from datetime import timedelta
+    thirty_days_ago = now - timedelta(days=30)
+
+    doc = SimpleDocTemplate(
+        buf, pagesize=A4,
+        rightMargin=MARGIN, leftMargin=MARGIN,
+        topMargin=22 * mm, bottomMargin=22 * mm,
+        title=f"דוח חודשי — {patient.full_name}",
+    )
+    story = []
+
+    # Title
+    story.append(Paragraph(_r("דוח חודשי"), ST["title"]))
+    story.append(Paragraph(
+        _r(f"מטופל: {patient.full_name}   |   אבחנה: {patient.diagnosis_details or '—'}   |   תאריך: {gen}"),
+        ST["subtitle"],
+    ))
+    story.append(HRFlowable(width="100%", thickness=2, color=NAVY, spaceAfter=12))
+
+    # Claims status
+    claims = db.query(models.Claim).filter(
+        models.Claim.patient_id == patient.id,
+    ).all()
+
+    if claims:
+        story.append(Paragraph(_r("סטטוס תביעות"), ST["h2"]))
+        status_counts = {}
+        for c in claims:
+            status_counts[c.status] = status_counts.get(c.status, 0) + 1
+
+        status_label_map = {
+            "draft": "טיוטה", "pending": "ממתינה", "submitted": "הוגשה",
+            "approved": "אושרה", "partial": "אושרה חלקית", "rejected": "נדחתה",
+        }
+        col_w = avail / max(len(status_counts), 1)
+        card_rows = [
+            [Paragraph(_r(status_label_map.get(s, s)), ST["label"]) for s in status_counts],
+            [Paragraph(_r(str(cnt)), ParagraphStyle(
+                f"sc{i}", fontName="RF-Bold", fontSize=18, leading=24,
+                textColor=GREEN if s == "approved" else RED if s == "rejected" else BLUE,
+                alignment=0x02,  # TA_RIGHT
+            )) for i, (s, cnt) in enumerate(status_counts.items())],
+        ]
+        ctbl = Table(card_rows, colWidths=[col_w] * len(status_counts), rowHeights=[14, 28])
+        ctbl.setStyle(TableStyle([
+            ("ALIGN",     (0, 0), (-1, -1), "RIGHT"),
+            ("VALIGN",    (0, 0), (-1, -1), "MIDDLE"),
+            ("TOPPADDING",(0, 0), (-1, -1), 6),
+            ("BOTTOMPADDING",(0, 0),(-1,-1), 6),
+            ("RIGHTPADDING",(0, 0),(-1,-1), 10),
+            ("LEFTPADDING", (0, 0),(-1,-1), 10),
+            ("BOX",       (0, 0), (-1, -1), 1, SLATE_LINE),
+            ("INNERGRID", (0, 0), (-1, -1), 0.5, SLATE_LINE),
+            ("BACKGROUND",(0, 0), (-1, -1), LIGHT_BG),
+        ]))
+        story.append(ctbl)
+        story.append(Spacer(1, 8))
+
+        # Active claims table
+        active_claims = [c for c in claims if c.status not in ("approved", "rejected")]
+        if active_claims:
+            story.append(Paragraph(_r("תביעות פעילות"), ST["h3"]))
+            crows = [[
+                Paragraph(_r("סטטוס"),   ST["th"]),
+                Paragraph(_r("סכום"),    ST["th"]),
+                Paragraph(_r("תביעה"),   ST["th"]),
+            ]]
+            for c in active_claims[:15]:
+                status_lbl = status_label_map.get(c.status, c.status)
+                amount_str = _ils(c.amount_requested) if c.amount_requested else "—"
+                crows.append([
+                    Paragraph(_r(status_lbl), ST["td_amber"]),
+                    Paragraph(_r(amount_str),  ST["td"]),
+                    Paragraph(_r(c.title or "—"), ST["td"]),
+                ])
+            ctbl2 = Table(crows, colWidths=[avail*0.18, avail*0.17, avail*0.65], repeatRows=1)
+            ctbl2.setStyle(TableStyle([
+                ("BACKGROUND",    (0, 0), (-1, 0), NAVY),
+                ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, LIGHT_BG]),
+                ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+                ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+                ("TOPPADDING",    (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+                ("LEFTPADDING",   (0, 0), (-1, -1), 6),
+            ]))
+            story.append(ctbl2)
+            story.append(Spacer(1, 8))
+
+    # Active workflow instances
+    instances = db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.patient_id == patient.id,
+        models.WorkflowInstance.status == "active",
+    ).all()
+    if instances:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("זרימות עבודה פעילות"), ST["h2"]))
+        wrows = [[
+            Paragraph(_r("שלב נוכחי"), ST["th"]),
+            Paragraph(_r("זרימה"),     ST["th"]),
+        ]]
+        for inst in instances[:10]:
+            current = inst.current_step or "—"
+            wrows.append([
+                Paragraph(_r(str(current)), ST["td"]),
+                Paragraph(_r(inst.title or "—"), ST["td"]),
+            ])
+        wtbl = Table(wrows, colWidths=[avail*0.3, avail*0.7], repeatRows=1)
+        wtbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), NAVY),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, LIGHT_BG]),
+            ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 6),
+        ]))
+        story.append(wtbl)
+        story.append(Spacer(1, 8))
+
+    # Recent meetings (last 30 days)
+    recent_meetings = db.query(models.PatientMeeting).filter(
+        models.PatientMeeting.patient_id == patient.id,
+        models.PatientMeeting.meeting_date >= thirty_days_ago,
+    ).order_by(models.PatientMeeting.meeting_date.desc()).all()
+
+    if recent_meetings:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("פגישות בחודש האחרון"), ST["h2"]))
+        mrows = [[
+            Paragraph(_r("הערות"),    ST["th"]),
+            Paragraph(_r("נושא"),     ST["th"]),
+            Paragraph(_r("תאריך"),    ST["th"]),
+        ]]
+        for m in recent_meetings:
+            date_str = m.meeting_date.strftime("%d/%m/%Y") if m.meeting_date else "—"
+            mrows.append([
+                Paragraph(_r((m.notes or "")[:80]), ST["td"]),
+                Paragraph(_r(m.title or m.meeting_type or "—"), ST["td"]),
+                Paragraph(_r(date_str), ST["td"]),
+            ])
+        mtbl = Table(mrows, colWidths=[avail*0.45, avail*0.3, avail*0.25], repeatRows=1)
+        mtbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), NAVY),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, LIGHT_BG]),
+            ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 6),
+        ]))
+        story.append(mtbl)
+        story.append(Spacer(1, 8))
+
+    # SLA breaches
+    sla_breaches = db.query(models.WorkflowStep).join(
+        models.WorkflowInstance,
+        models.WorkflowStep.instance_id == models.WorkflowInstance.id,
+    ).filter(
+        models.WorkflowInstance.patient_id == patient.id,
+        models.WorkflowStep.sla_alerted == True,
+        models.WorkflowStep.status == "active",
+    ).all()
+
+    if sla_breaches:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("חריגות SLA"), ST["h2"]))
+        for step in sla_breaches:
+            deadline_str = step.sla_deadline.strftime("%d/%m/%Y") if step.sla_deadline else "—"
+            story.append(Paragraph(
+                "⚠ " + _r(f"{step.name} — מועד יעד: {deadline_str}"),
+                ST["bullet"],
+            ))
+        story.append(Spacer(1, 6))
+
+    _footer_disclaimer(story, ST, gen)
+
+    on_page = _header_footer_generic("דוח חודשי", patient.full_name, gen)
+    doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
+    buf.seek(0)
+    return buf.read()
+
+
+# ── Discharge PDF ───────────────────────────────────────────────────────────────
+
+def _build_discharge_pdf(patient: models.Patient, db: Session) -> bytes:
+    _register_fonts()
+    ST  = _styles()
+    buf = io.BytesIO()
+    avail = PAGE_W - 2 * MARGIN
+    now   = datetime.now()
+    gen   = now.strftime("%d/%m/%Y %H:%M")
+
+    data = _financial_data(patient, db)
+
+    doc = SimpleDocTemplate(
+        buf, pagesize=A4,
+        rightMargin=MARGIN, leftMargin=MARGIN,
+        topMargin=22 * mm, bottomMargin=22 * mm,
+        title=f"דוח סיום התקשרות — {patient.full_name}",
+    )
+    story = []
+
+    # Title
+    story.append(Paragraph(_r("דוח סיום התקשרות"), ST["title"]))
+    story.append(Paragraph(
+        _r(f"מטופל: {patient.full_name}   |   אבחנה: {patient.diagnosis_details or '—'}   |   תאריך: {gen}"),
+        ST["subtitle"],
+    ))
+    story.append(HRFlowable(width="100%", thickness=2, color=NAVY, spaceAfter=12))
+
+    # Timeline: intake to discharge
+    intake_date = patient.intake_completed_at or patient.created_at
+    story.append(Paragraph(_r("ציר זמן — מאינטייק לסיום"), ST["h2"]))
+    tl_rows = []
+    if intake_date:
+        tl_rows.append([
+            Paragraph(_r(intake_date.strftime("%d/%m/%Y")), ST["td"]),
+            Paragraph(_r("תאריך קליטה"), ST["td_b"]),
+        ])
+    tl_rows.append([
+        Paragraph(_r(now.strftime("%d/%m/%Y")), ST["td"]),
+        Paragraph(_r("תאריך סיום"), ST["td_b"]),
+    ])
+    if intake_date:
+        days = (now.date() - intake_date.date()).days
+        tl_rows.append([
+            Paragraph(_r(f"{days} ימים"), ST["td"]),
+            Paragraph(_r("משך ליווי כולל"), ST["td_b"]),
+        ])
+
+    if tl_rows:
+        tl_tbl = Table(tl_rows, colWidths=[avail * 0.3, avail * 0.7])
+        tl_tbl.setStyle(TableStyle([
+            ("ROWBACKGROUNDS",(0, 0), (-1, -1), [WHITE, LIGHT_BG]),
+            ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 8),
+        ]))
+        story.append(tl_tbl)
+        story.append(Spacer(1, 8))
+
+    # Financial map summary (reuse cards pattern)
+    d = data
+    story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+    story.append(Paragraph(_r("סיכום מפה פיננסית"), ST["h2"]))
+    ext_total = d["ext_approved"] + d["ext_expected"]
+    sum_rows = [
+        ("עלות כוללת מוערכת",  _ils(d["total_cost"]),    SLATE_DARK),
+        ("כיסוי ביטוחי",        _ils(d["total_covered"]), GREEN),
+        ("מימון נוסף",           _ils(ext_total),         BLUE),
+        ("פער נותר",             _ils(d["remaining"]),
+         RED if d["remaining"] > 0 else GREEN),
+    ]
+    col_w = avail / 4
+    fcard_rows = [
+        [Paragraph(_r(r[0]), ST["label"])  for r in reversed(sum_rows)],
+        [Paragraph(_r(r[1]), ParagraphStyle(
+            f"dc{i}", fontName="RF-Bold", fontSize=14, leading=20,
+            textColor=r[2], alignment=0x02,
+        )) for i, r in enumerate(reversed(sum_rows))],
+    ]
+    fcard_tbl = Table(fcard_rows, colWidths=[col_w] * 4, rowHeights=[14, 28])
+    fcard_tbl.setStyle(TableStyle([
+        ("ALIGN",        (0, 0), (-1, -1), "RIGHT"),
+        ("VALIGN",       (0, 0), (-1, -1), "MIDDLE"),
+        ("TOPPADDING",   (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING",(0, 0), (-1, -1), 6),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("LEFTPADDING",  (0, 0), (-1, -1), 10),
+        ("BOX",          (0, 0), (-1, -1), 1, SLATE_LINE),
+        ("INNERGRID",    (0, 0), (-1, -1), 0.5, SLATE_LINE),
+        ("BACKGROUND",   (0, 0), (-1, -1), LIGHT_BG),
+    ]))
+    story.append(fcard_tbl)
+    story.append(Spacer(1, 8))
+
+    # Full claims history
+    all_claims = db.query(models.Claim).filter(
+        models.Claim.patient_id == patient.id,
+    ).order_by(models.Claim.created_at.asc()).all()
+
+    if all_claims:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r("היסטוריית תביעות"), ST["h2"]))
+
+        total_requested = sum(c.amount_requested or 0 for c in all_claims)
+        total_approved  = sum(c.amount_approved  or 0 for c in all_claims if c.status == "approved")
+        story.append(Paragraph(
+            _r(f'סה"כ מבוקש: {_ils(total_requested)}   |   סה"כ אושר: {_ils(total_approved)}'),
+            ST["body"],
+        ))
+        story.append(Spacer(1, 4))
+
+        status_label_map = {
+            "draft": "טיוטה", "pending": "ממתינה", "submitted": "הוגשה",
+            "approved": "אושרה", "partial": "אושרה חלקית", "rejected": "נדחתה",
+        }
+        cr_rows = [[
+            Paragraph(_r("אושר"),  ST["th"]),
+            Paragraph(_r("סטטוס"), ST["th"]),
+            Paragraph(_r("מבוקש"), ST["th"]),
+            Paragraph(_r("תאריך"), ST["th"]),
+            Paragraph(_r("תביעה"), ST["th"]),
+        ]]
+        for c in all_claims:
+            date_str = c.created_at.strftime("%d/%m/%Y") if c.created_at else "—"
+            status   = status_label_map.get(c.status, c.status)
+            st_style = ST["td_green"] if c.status == "approved" else (
+                ST["td_red"] if c.status == "rejected" else ST["td_amber"]
+            )
+            cr_rows.append([
+                Paragraph(_r(_ils(c.amount_approved) if c.amount_approved else "—"), ST["td_green"]),
+                Paragraph(_r(status), st_style),
+                Paragraph(_r(_ils(c.amount_requested) if c.amount_requested else "—"), ST["td"]),
+                Paragraph(_r(date_str), ST["td"]),
+                Paragraph(_r(c.title or "—"), ST["td"]),
+            ])
+
+        # Totals row
+        cr_rows.append([
+            Paragraph(_r(_ils(total_approved)), ST["td_green"]),
+            Paragraph(_r('סה"כ'), ParagraphStyle("tot3", fontName="RF-Bold", fontSize=8.5,
+                                                  textColor=SLATE_DARK, alignment=0x02)),
+            Paragraph(_r(_ils(total_requested)), ST["td_b"]),
+            Paragraph(_r(""), ST["td"]),
+            Paragraph(_r(""), ST["td"]),
+        ])
+
+        cr_cws = [avail*0.14, avail*0.14, avail*0.14, avail*0.13, avail*0.45]
+        cr_tbl = Table(cr_rows, colWidths=cr_cws, repeatRows=1)
+        cr_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0,  0), (-1,  0), NAVY),
+            ("BACKGROUND",    (0, -1), (-1, -1), LIGHT_BG),
+            ("ROWBACKGROUNDS",(0,  1), (-1, -2), [WHITE, LIGHT_BG]),
+            ("GRID",          (0,  0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0,  0), (-1, -1), "RIGHT"),
+            ("VALIGN",        (0,  0), (-1, -1), "TOP"),
+            ("TOPPADDING",    (0,  0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0,  0), (-1, -1), 4),
+            ("RIGHTPADDING",  (0,  0), (-1, -1), 6),
+            ("LEFTPADDING",   (0,  0), (-1, -1), 6),
+            ("LINEABOVE",     (0, -1), (-1, -1), 0.8, SLATE_MED),
+        ]))
+        story.append(cr_tbl)
+        story.append(Spacer(1, 8))
+
+    # Meetings summary
+    all_meetings = db.query(models.PatientMeeting).filter(
+        models.PatientMeeting.patient_id == patient.id,
+    ).order_by(models.PatientMeeting.meeting_date.asc()).all()
+
+    if all_meetings:
+        story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
+        story.append(Paragraph(_r(f"סיכום פגישות ({len(all_meetings)})"), ST["h2"]))
+        mr_rows = [[
+            Paragraph(_r("הערות"),    ST["th"]),
+            Paragraph(_r("נושא"),     ST["th"]),
+            Paragraph(_r("תאריך"),    ST["th"]),
+        ]]
+        for m in all_meetings:
+            date_str = m.meeting_date.strftime("%d/%m/%Y") if m.meeting_date else "—"
+            mr_rows.append([
+                Paragraph(_r((m.notes or "")[:60]), ST["td"]),
+                Paragraph(_r(m.title or m.meeting_type or "—"), ST["td"]),
+                Paragraph(_r(date_str), ST["td"]),
+            ])
+        mr_tbl = Table(mr_rows, colWidths=[avail*0.45, avail*0.3, avail*0.25], repeatRows=1)
+        mr_tbl.setStyle(TableStyle([
+            ("BACKGROUND",    (0, 0), (-1, 0), NAVY),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1), [WHITE, LIGHT_BG]),
+            ("GRID",          (0, 0), (-1, -1), 0.4, SLATE_LINE),
+            ("ALIGN",         (0, 0), (-1, -1), "RIGHT"),
+            ("TOPPADDING",    (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 6),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 6),
+        ]))
+        story.append(mr_tbl)
+        story.append(Spacer(1, 6))
+
+    _footer_disclaimer(story, ST, gen)
+
+    on_page = _header_footer_generic("דוח סיום התקשרות", patient.full_name, gen)
+    doc.build(story, onFirstPage=on_page, onLaterPages=on_page)
+    buf.seek(0)
+    return buf.read()
+
+
+# ── New Report Routes ───────────────────────────────────────────────────────────
+
+@router.get("/api/patients/{patient_id}/reports/intake")
+def generate_intake_report(
+    patient_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+    try:
+        pdf_bytes = _build_intake_pdf(patient, db)
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc))
+
+    now = datetime.now()
+    doc_filename = f"report_intake_{patient_id}_{now.strftime('%Y%m%d_%H%M%S')}.pdf"
+    patient_dir  = os.path.join(UPLOAD_DIR, str(patient_id))
+    os.makedirs(patient_dir, exist_ok=True)
+    with open(os.path.join(patient_dir, doc_filename), "wb") as fh:
+        fh.write(pdf_bytes)
+
+    doc_record = models.PatientDocument(
+        patient_id   = patient_id,
+        uploaded_by  = current_user.id,
+        filename     = doc_filename,
+        original_name= f"סיכום קליטה — {patient.full_name} — {now.strftime('%d.%m.%Y')}.pdf",
+        file_type    = "application/pdf",
+        file_size    = len(pdf_bytes),
+        category     = "דוח",
+        notes        = f"דוח סיכום קליטה — הופק {now.strftime('%d/%m/%Y %H:%M')}",
+    )
+    db.add(doc_record)
+    db.commit()
+    db.refresh(doc_record)
+
+    safe_name = f"intake-summary-{patient_id}-{now.strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
+
+
+@router.get("/api/patients/{patient_id}/reports/monthly")
+def generate_monthly_report(
+    patient_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+    try:
+        pdf_bytes = _build_monthly_pdf(patient, db)
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc))
+
+    now = datetime.now()
+    doc_filename = f"report_monthly_{patient_id}_{now.strftime('%Y%m%d_%H%M%S')}.pdf"
+    patient_dir  = os.path.join(UPLOAD_DIR, str(patient_id))
+    os.makedirs(patient_dir, exist_ok=True)
+    with open(os.path.join(patient_dir, doc_filename), "wb") as fh:
+        fh.write(pdf_bytes)
+
+    doc_record = models.PatientDocument(
+        patient_id   = patient_id,
+        uploaded_by  = current_user.id,
+        filename     = doc_filename,
+        original_name= f"דוח חודשי — {patient.full_name} — {now.strftime('%d.%m.%Y')}.pdf",
+        file_type    = "application/pdf",
+        file_size    = len(pdf_bytes),
+        category     = "דוח",
+        notes        = f"דוח חודשי — הופק {now.strftime('%d/%m/%Y %H:%M')}",
+    )
+    db.add(doc_record)
+    db.commit()
+    db.refresh(doc_record)
+
+    safe_name = f"monthly-{patient_id}-{now.strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
+
+
+@router.get("/api/patients/{patient_id}/reports/discharge")
+def generate_discharge_report(
+    patient_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+    try:
+        pdf_bytes = _build_discharge_pdf(patient, db)
+    except RuntimeError as exc:
+        raise HTTPException(500, str(exc))
+
+    now = datetime.now()
+    doc_filename = f"report_discharge_{patient_id}_{now.strftime('%Y%m%d_%H%M%S')}.pdf"
+    patient_dir  = os.path.join(UPLOAD_DIR, str(patient_id))
+    os.makedirs(patient_dir, exist_ok=True)
+    with open(os.path.join(patient_dir, doc_filename), "wb") as fh:
+        fh.write(pdf_bytes)
+
+    doc_record = models.PatientDocument(
+        patient_id   = patient_id,
+        uploaded_by  = current_user.id,
+        filename     = doc_filename,
+        original_name= f"דוח סיום התקשרות — {patient.full_name} — {now.strftime('%d.%m.%Y')}.pdf",
+        file_type    = "application/pdf",
+        file_size    = len(pdf_bytes),
+        category     = "דוח",
+        notes        = f"דוח סיום התקשרות — הופק {now.strftime('%d/%m/%Y %H:%M')}",
+    )
+    db.add(doc_record)
+    db.commit()
+    db.refresh(doc_record)
+
+    safe_name = f"discharge-{patient_id}-{now.strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
+    )
+
+
 @router.get("/api/patients/{patient_id}/reports")
 def list_patient_reports(
     patient_id: int,
