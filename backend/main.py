@@ -167,6 +167,7 @@ async def lifespan(app: FastAPI):
     app.state.scheduler = scheduler
     logger.info("Scheduler started")
     _seed_drugs_on_startup()
+    _seed_nsclc_drugs_on_startup()
     yield
     # ── Shutdown ─────────────────────────────────────────────────────────
     scheduler.shutdown(wait=False)
