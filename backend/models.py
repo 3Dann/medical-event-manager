@@ -544,6 +544,13 @@ class Doctor(Base):
     source_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    # Doctor enrichment fields
+    working_hours         = Column(Text, nullable=True)     # JSON: {"sun":"08:00-13:00","mon":"16:00-20:00",...}
+    accessibility         = Column(Boolean, default=False)  # נגישות לנכים
+    waiting_days          = Column(Integer, nullable=True)  # ממוצע ימי המתנה לתור
+    is_accepting_patients = Column(Boolean, default=True)   # מקבל מטופלים חדשים
+    last_verified         = Column(DateTime(timezone=True), nullable=True)  # תאריך אחרון שבו הפרטים אומתו
+    active_contact        = Column(Boolean, default=False)  # כוכבית: יש לנו קשר פעיל עם הרופא
 
 
 # ── Flow Engine ───────────────────────────────────────────────────────────────
