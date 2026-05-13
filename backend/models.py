@@ -270,6 +270,11 @@ class DrugEntry(Base):
     source = Column(String, default="local")              # local / openfda
     is_active = Column(Boolean, default=True)
     last_updated = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    # ── Oncology / logistics fields ──────────────────────────────────────────
+    msl_phone      = Column(String, nullable=True)  # Medical Science Liaison phone
+    access_type    = Column(String, nullable=True)  # basket | compassion | eap | research
+    treatment_line = Column(String, nullable=True)  # 1st | 2nd | maintenance | any
+    indication_oncology = Column(Text, nullable=True)  # JSON: ["EGFR","ALK"] — biomarker targets
 
 
 class DrugUpdateLog(Base):
