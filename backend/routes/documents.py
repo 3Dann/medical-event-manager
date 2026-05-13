@@ -148,6 +148,8 @@ def download_document(
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
+    if not auth_utils.has_permission(current_user, "download_docs"):
+        raise HTTPException(403, "אין הרשאה להוריד מסמכים")
     _get_patient_or_403(patient_id, current_user, db)
     doc = db.query(models.PatientDocument).filter(
         models.PatientDocument.id == doc_id,
