@@ -10,7 +10,7 @@ const STATUS_STYLES = {
   skipped:   { bg: 'bg-slate-50',   border: 'border-slate-200', badge: 'bg-slate-100 text-slate-600',  icon: '⇢', label: 'דולג'  },
 }
 
-export default function StepCard({ step: initialStep, instanceId, onUpdated }) {
+export default function StepCard({ step: initialStep, instanceId, onUpdated, gateBlocked = false }) {
   const [step, setStep] = useState(initialStep)
   const [expanded, setExpanded] = useState(initialStep.status === 'active')
   const [notes, setNotes] = useState(initialStep.notes || '')
