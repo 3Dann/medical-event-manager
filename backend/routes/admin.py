@@ -416,34 +416,26 @@ def revoke_session(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
-    """ביטול session מרחוק — מנתק את המשתמש מיידית."""
-    from datetime import datetime, timezone
+    """ביטול session מרחוק — מנתק את המשתמש בבקשתו הבאה."""
+    from datetime import datetime, timezone, timedelta
     session = db.get(models.ActiveSession, session_id)
     if not session:
         raise HTTPException(404, "Session לא נמצא")
     if not session.is_active:
         raise HTTPException(400, "Session כבר בוטל")
-    # Revoke the JWT token
-    try:
-        import jwt as pyjwt
-        secret = os.environ.get("SECRET_KEY", "")
-        # We don't have the full JTI — find by partial match or use stored jti
-        # The jti is stored in full in the DB
-        real_session = db.query(models.ActiveSession).filter(
-            models.ActiveSession.id == session_id
-        ).first()
-        if real_session and real_session.jti:
-            from datetime import timedelta
-            expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
-            if not db.query(models.RevokedToken).filter(
-                models.RevokedToken.jti == real_session.jti
-            ).first():
-                db.add(models.RevokedToken(jti=real_session.jti, expires_at=expires_at))
-    except Exception:
-        pass
+    # Mark session inactive + add JTI to blacklist so next request is rejected
     session.is_active = False
     session.revoked_at = datetime.now(timezone.utc)
     session.revoked_by = current_user.id
+    if session.jti:
+        existing = db.query(models.RevokedToken).filter(
+            models.RevokedToken.jti == session.jti
+        ).first()
+        if not existing:
+            db.add(models.RevokedToken(
+                jti=session.jti,
+                expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
+            ))
     db.commit()
     return {"ok": True, "message": "Session בוטל — המשתמש ינותק בבקשתו הבאה"}
 
