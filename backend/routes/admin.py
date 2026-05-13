@@ -512,7 +512,7 @@ def test_email(
 ):
     """Send a test email to the admin to verify Resend is configured."""
     import email_utils
-    if not email_utils.is_configured():
+    if not email_utils.is_email_configured():
         return {"ok": False, "message": "Resend לא מוגדר — הגדר SMTP_PASS ב-Railway עם מפתח API של Resend (re_...)"}
     sent = email_utils.send_email(
         to=current_user.email,
