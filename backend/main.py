@@ -127,7 +127,7 @@ def _daily_sla_check():
             logger.warning(
                 "SLA BREACH: step_id=%s step_key=%s instance_id=%s deadline=%s",
                 step.id, step.step_key, step.instance_id,
-                step.sla_deadline.isoformat(),
+                deadline.isoformat(),
             )
         if breached:
             db.commit()
