@@ -47,6 +47,17 @@ def _daily_backup():
         logger.info(f"Daily backup OK — local={result['local']} cloud={result['cloud']}")
 
 
+def _seed_nsclc_drugs_on_startup():
+    from data.nsclc_drugs import seed_nsclc_drugs
+    db = SessionLocal()
+    try:
+        added = seed_nsclc_drugs(db)
+        if added:
+            logger.info(f"NSCLC drug seed: added {added} new drugs")
+    finally:
+        db.close()
+
+
 def _seed_drugs_on_startup():
     from drug_updater import seed_drugs
     db = SessionLocal()
