@@ -816,6 +816,104 @@ export default function PatientInsurance() {
         </div>
       )}
 
+      {/* ── ניתוח פערים ביטוחיים ── */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => fetchGapAnalysis()}
+            disabled={gapLoading}
+            className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            רענן
+          </button>
+          <h2 className="font-semibold text-slate-800">ניתוח פערים ביטוחיים</h2>
+        </div>
+
+        {gapLoading && (
+          <div className="text-center py-6 text-slate-500 text-sm">מחשב פערים...</div>
+        )}
+        {gapError && (
+          <div className="text-red-500 text-sm text-center py-4">{gapError}</div>
+        )}
+
+        {gapData && !gapLoading && (() => {
+          const severityConfig = {
+            none:   { label: 'אין פער',      bar: 'bg-green-500',  badge: 'bg-green-100 text-green-700',  text: 'text-green-700' },
+            low:    { label: 'פער נמוך',     bar: 'bg-yellow-400', badge: 'bg-yellow-100 text-yellow-700', text: 'text-yellow-700' },
+            medium: { label: 'פער בינוני',   bar: 'bg-orange-400', badge: 'bg-orange-100 text-orange-700', text: 'text-orange-700' },
+            high:   { label: 'פער גבוה',     bar: 'bg-red-500',    badge: 'bg-red-100 text-red-700',      text: 'text-red-700' },
+          }
+          const cfg = severityConfig[gapData.severity] || severityConfig.none
+          const coverPct = gapData.total_cost > 0
+            ? Math.round(gapData.total_covered / gapData.total_cost * 100)
+            : 0
+
+          return (
+            <div className="space-y-4">
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { label: 'עלות כוללת',   value: `₪${(gapData.total_cost || 0).toLocaleString()}`,    color: 'text-slate-800' },
+                  { label: 'כיסוי ביטוחי', value: `₪${(gapData.total_covered || 0).toLocaleString()}`, color: 'text-green-700' },
+                  { label: 'פער ביטוחי',   value: `₪${(gapData.gap || 0).toLocaleString()}`,           color: gapData.gap > 0 ? 'text-red-600' : 'text-green-700' },
+                  { label: 'אחוז פער',     value: `${gapData.gap_pct}%`,                               color: cfg.text },
+                ].map((card, i) => (
+                  <div key={i} className="bg-slate-50 rounded-xl p-3 text-right border border-slate-100">
+                    <p className="text-xs text-slate-500 mb-1">{card.label}</p>
+                    <p className={`text-lg font-bold ${card.color}`}>{card.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Severity badge + progress bar */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.badge}`}>{cfg.label}</span>
+                  <span className="text-xs text-slate-500">{coverPct}% מכוסה</span>
+                </div>
+                <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${cfg.bar}`}
+                    style={{ width: `${Math.min(100, gapData.gap_pct)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Uncovered categories */}
+              {gapData.uncovered_categories?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 mb-2">קטגוריות לא מכוסות:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {gapData.uncovered_categories.map((cat, i) => (
+                      <span key={i} className="text-xs bg-red-50 text-red-600 border border-red-100 px-2 py-0.5 rounded-full">
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommendations */}
+              {gapData.recommendations?.length > 0 && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-blue-700 mb-2">המלצות:</p>
+                  {gapData.recommendations.map((rec, i) => (
+                    <p key={i} className="text-xs text-blue-700 flex items-start gap-1.5">
+                      <span className="mt-0.5 flex-shrink-0">•</span>
+                      {rec}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })()}
+      </div>
+
       {/* ביטוח לאומי */}
       <div className="card">
         <div className="flex justify-between items-center mb-4">
