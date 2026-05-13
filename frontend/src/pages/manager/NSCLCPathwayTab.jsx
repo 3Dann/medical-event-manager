@@ -46,6 +46,9 @@ const EMPTY_FORM = {
   fev1_score: '',
   access_type: '',
   biomarker_target: '',
+  tumor_board_surgeon:    false,
+  tumor_board_oncologist: false,
+  tumor_board_radiation:  false,
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
