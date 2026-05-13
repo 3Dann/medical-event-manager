@@ -103,6 +103,14 @@ export default function NSCLCPathwayTab() {
   }
 
   const handleSave = async () => {
+    // Client-side validation
+    if (form.fev1_score !== '') {
+      const fev1Num = Number(form.fev1_score)
+      if (isNaN(fev1Num) || fev1Num < 0 || fev1Num > 150) {
+        showToast('ערך FEV1 חייב להיות בין 0 ל-150', 'error')
+        return
+      }
+    }
     setSaving(true)
     try {
       const payload = {
