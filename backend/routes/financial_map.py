@@ -536,6 +536,81 @@ def admin_update_fund(
     db.refresh(fund)
     return _fund_dict(fund)
 
+@router.get("/api/patients/{patient_id}/insurance-gaps")
+def get_insurance_gaps(
+    patient_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.get_current_user),
+):
+    """
+    ניתוח פערים ביטוחיים מובנה — מחזיר עלות כוללת, כיסוי, פער, חומרה, קטגוריות לא מכוסות, והמלצות.
+    """
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+
+    nodes = db.query(models.Node).filter(
+        models.Node.patient_id == patient_id,
+        models.Node.node_type != "stage",
+        models.Node.overlay_global.is_(False),
+    ).all()
+
+    total_cost = 0.0
+    total_covered = 0.0
+    uncovered_categories: set = set()
+
+    for node in nodes:
+        if not node.estimated_cost:
+            continue
+        cost = float(node.estimated_cost)
+        total_cost += cost
+        cov = _best_coverage_for_node(node, patient, db)
+        total_covered += cov["covered_amount"]
+        # If node is not covered (or partially covered) — collect its categories
+        if cov["covered_amount"] < cost * 0.5 and node.coverage_categories:
+            try:
+                cats = json.loads(node.coverage_categories)
+                for c in cats:
+                    uncovered_categories.add(c)
+            except Exception:
+                pass
+
+    gap = max(0.0, total_cost - total_covered)
+    gap_pct = round(gap / total_cost * 100, 1) if total_cost > 0 else 0
+
+    if gap_pct == 0:
+        severity = "none"
+    elif gap_pct < 20:
+        severity = "low"
+    elif gap_pct < 40:
+        severity = "medium"
+    else:
+        severity = "high"
+
+    # Human-readable category labels
+    uncovered_labels = [CATEGORY_LABELS.get(c, c) for c in uncovered_categories]
+
+    recommendations = []
+    if severity == "high":
+        recommendations.append("פער ביטוחי גבוה — מומלץ לבחון רכישת ביטוח משלים או ביטוח פרטי נוסף.")
+    if severity in ("high", "medium"):
+        recommendations.append("בדוק זכאות לקרנות סיוע — ייתכן שחלק מהפער מכוסה על ידי קרנות ציבוריות.")
+    if "surgery" in uncovered_categories or "ניתוחים" in uncovered_categories:
+        recommendations.append("כיסוי ניתוחים חסר — ודא שיש כיסוי ניתוח בחו\"ל אם הניתוח מתוכנן מחוץ לישראל.")
+    if "rehabilitation" in uncovered_categories:
+        recommendations.append("שיקום אינו מכוסה — ברר זכאות לשיקום דרך קופת החולים או ביטוח לאומי.")
+    if not recommendations:
+        recommendations.append("המצב הביטוחי תקין — המשך לעדכן את פרטי הכיסויים באופן שוטף.")
+
+    return {
+        "total_cost":           round(total_cost, 2),
+        "total_covered":        round(total_covered, 2),
+        "gap":                  round(gap, 2),
+        "gap_pct":              gap_pct,
+        "severity":             severity,
+        "uncovered_categories": uncovered_labels,
+        "recommendations":      recommendations,
+    }
+
+
 @router.get("/api/admin/financial-funds")
 def admin_list_funds(
     db: Session = Depends(get_db),
