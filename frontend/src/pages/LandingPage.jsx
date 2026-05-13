@@ -165,56 +165,121 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-slate-800">{t('auth:two_fa_title')}</h3>
-              <p className="text-sm text-slate-500 mt-1">
-                {twoFAMethod === 'email' ? t('auth:enter_email_code') : t('auth:enter_2fa')}
-              </p>
+              <p className="text-sm text-slate-500 mt-1">בחר כיצד לאמת את זהותך</p>
             </div>
-            {twoFAMethod === 'email' && !emailCodeReady && (
-              <button type="button" onClick={async () => {
-                setLoading(true); setError('')
-                try {
-                  const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
-                  setEmailCodeReady(true)
-                  if (r.data.code) { setEmailCodeDisplay(r.data.code); setEmailSentMsg('DEV: code shown here') }
-                  else setEmailSentMsg(r.data.message || t('auth:email_code_sent', { email: r.data.email }))
-                } catch(e) { setError(e.response?.data?.detail || t('common:error')) }
-                finally { setLoading(false) }
-              }} disabled={loading} className="btn-primary w-full py-3">
-                {loading ? t('common:loading') : t('auth:send_code')}
-              </button>
+
+            {/* ── בחירת שיטה ── */}
+            {twoFAMethod === null && (
+              <div className="space-y-2">
+                <button onClick={async () => {
+                  setLoading(true); setError('')
+                  try {
+                    const r = await axios.post('/api/auth/2fa/request-email-code', { temp_token: tempToken })
+                    setTwoFAMethod('email')
+                    setEmailCodeReady(true)
+                    if (r.data.code) { setEmailCodeDisplay(r.data.code) }
+                    else setEmailSentMsg(r.data.message || `קוד נשלח לאימייל`)
+                  } catch(e) { setError(e.response?.data?.detail || t('common:error')) }
+                  finally { setLoading(false) }
+                }} disabled={loading}
+                  className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors min-h-[52px]">
+                  <span className="text-2xl">✉️</span>
+                  <div className="text-right flex-1">
+                    <p className="font-medium text-slate-800 text-sm">שלח קוד לאימייל</p>
+                    <p className="text-xs text-slate-500">קוד חד-פעמי ישלח לכתובת המייל שלך</p>
+                  </div>
+                </button>
+
+                <button onClick={async () => {
+                  setError('')
+                  if (totpConfigured) { setTwoFAMethod('totp'); return }
+                  setLoading(true)
+                  try {
+                    const r = await axios.post('/api/auth/2fa/setup-totp-login', { temp_token: tempToken })
+                    setTotpSetupQR(r.data.qr_code)
+                    setTwoFAMethod('totp')
+                  } catch(e) { setError(e.response?.data?.detail || 'שגיאה בהגדרת גוגל אותנטיקייטור') }
+                  finally { setLoading(false) }
+                }} disabled={loading}
+                  className="w-full py-3.5 flex items-center gap-3 px-5 border-2 border-slate-200 bg-white hover:bg-slate-50 rounded-xl transition-colors min-h-[52px]">
+                  <span className="text-2xl">📱</span>
+                  <div className="text-right flex-1">
+                    <p className="font-medium text-slate-800 text-sm">קוד מגוגל אותנטיקייטור</p>
+                    <p className="text-xs text-slate-500">פתח את האפליקציה והזן את הקוד בן 6 הספרות</p>
+                  </div>
+                </button>
+
+                {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+                <button onClick={() => { setTwoFAStep(false); setError('') }}
+                  className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+                  {t('auth:back_to_login')}
+                </button>
+              </div>
             )}
-            {twoFAMethod === 'email' && emailCodeReady && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                {emailCodeDisplay ? (
-                  <><p className="text-xs text-blue-600 mb-1">קוד האימות (מצב פיתוח):</p>
-                  <p className="text-2xl font-bold text-blue-800 tracking-widest">{emailCodeDisplay}</p></>
-                ) : (
-                  <p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>
+
+            {/* ── קוד מייל ── */}
+            {twoFAMethod === 'email' && (
+              <div className="space-y-3">
+                {emailCodeReady && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                    {emailCodeDisplay ? (
+                      <><p className="text-xs text-blue-600 mb-1">קוד האימות (מצב פיתוח):</p>
+                      <p className="text-2xl font-bold text-blue-800 tracking-widest font-mono">{emailCodeDisplay}</p></>
+                    ) : (
+                      <p className="text-sm font-medium text-blue-800">✓ {emailSentMsg}</p>
+                    )}
+                    <p className="text-xs text-blue-500 mt-1">{t('auth:validity_10min')}</p>
+                  </div>
                 )}
-                <p className="text-xs text-blue-500 mt-1">{t('auth:validity_10min')}</p>
+                <form onSubmit={handle2FAVerify} className="space-y-3">
+                  <div>
+                    <label className="label">הזן את הקוד מהאימייל</label>
+                    <input className="input text-center tracking-widest text-xl" maxLength={8}
+                      value={twoFACode}
+                      onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                      placeholder="XXXXXXXX" autoFocus required />
+                  </div>
+                  {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+                  <button type="submit" disabled={loading || twoFACode.length < 8}
+                    className="btn-primary w-full py-3">
+                    {loading ? t('auth:verifying') : t('auth:verify_code')}
+                  </button>
+                  <button type="button" onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setEmailCodeDisplay(''); setEmailCodeReady(false); setEmailSentMsg(''); setError('') }}
+                    className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+                    חזור לבחירת שיטה
+                  </button>
+                </form>
               </div>
             )}
-            <form onSubmit={handle2FAVerify} className="space-y-4">
-              <div>
-                <label className="label">{twoFAMethod === 'email' ? t('auth:enter_email_code') : t('auth:enter_2fa')}</label>
-                <input className="input text-center tracking-widest text-xl" maxLength={6}
-                  value={twoFACode}
-                  onChange={e => setTwoFACode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                  placeholder="000000" autoFocus={twoFAMethod === 'totp' || !!emailCodeDisplay} required />
-              </div>
-              {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-              <button type="submit"
-                disabled={loading || twoFACode.length !== 6 || (twoFAMethod === 'email' && !emailCodeReady)}
-                className="btn-primary w-full py-3">
-                {loading ? t('auth:verifying') : t('auth:verify_code')}
-              </button>
-              <button type="button" onClick={() => {
-                setTwoFAStep(false); setTwoFACode(''); setEmailCodeDisplay('');
-                setEmailCodeReady(false); setEmailSentMsg(''); setError('')
-              }} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
-                {t('auth:back_to_login')}
-              </button>
-            </form>
+
+            {/* ── קוד TOTP ── */}
+            {twoFAMethod === 'totp' && (
+              <form onSubmit={handle2FAVerify} className="space-y-3">
+                {totpSetupQR && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center space-y-2">
+                    <p className="text-xs font-medium text-slate-700">סרוק עם גוגל אותנטיקייטור</p>
+                    <img src={totpSetupQR} alt="QR Code" className="mx-auto w-40 h-40" />
+                    <p className="text-xs text-slate-500">לאחר הסריקה הזן את הקוד בן 6 הספרות</p>
+                  </div>
+                )}
+                <div>
+                  <label className="label">קוד מגוגל אותנטיקייטור</label>
+                  <input className="input text-center tracking-widest text-2xl" maxLength={6}
+                    value={twoFACode}
+                    onChange={e => setTwoFACode(e.target.value.replace(/\D/g, ''))}
+                    placeholder="000000" autoFocus required />
+                </div>
+                {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+                <button type="submit" disabled={loading || twoFACode.length !== 6}
+                  className="btn-primary w-full py-3">
+                  {loading ? t('auth:verifying') : t('auth:verify_code')}
+                </button>
+                <button type="button" onClick={() => { setTwoFAMethod(null); setTwoFACode(''); setTotpSetupQR(''); setError('') }}
+                  className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+                  חזור לבחירת שיטה
+                </button>
+              </form>
+            )}
           </div>
         )}
 
