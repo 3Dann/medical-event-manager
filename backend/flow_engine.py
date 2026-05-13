@@ -278,6 +278,19 @@ class FlowEngine:
         steps = []
         for st in step_templates:
             due = (now + timedelta(days=st.duration_days)) if st.duration_days else None
+            sla_dl = (now + timedelta(days=st.sla_days)) if st.sla_days else None
+
+            # Merge gate_condition + gate_error_msg into gate_fields JSON
+            gate_fields = None
+            if st.gate_condition:
+                try:
+                    gate_data = json.loads(st.gate_condition)
+                    if st.gate_error_msg:
+                        gate_data["error_msg"] = st.gate_error_msg
+                    gate_fields = json.dumps(gate_data)
+                except Exception:
+                    pass
+
             step = models.WorkflowStep(
                 instance_id=instance.id,
                 step_key=st.step_key,
@@ -285,6 +298,7 @@ class FlowEngine:
                 step_order=st.step_order,
                 status="pending",
                 due_date=due,
+                sla_deadline=sla_dl,
                 is_optional=st.is_optional,
                 instructions=st.instructions,
                 # Inherit coverage fields from template
@@ -292,6 +306,9 @@ class FlowEngine:
                 step_type=st.step_type,
                 estimated_cost=st.estimated_cost,
                 required_documents=st.required_documents,
+                # Parallel & gate fields
+                parallel_group=st.parallel_group,
+                gate_fields=gate_fields,
             )
             db.add(step)
             steps.append(step)
@@ -310,9 +327,13 @@ class FlowEngine:
 
         db.flush()
 
-        # Activate first step
+        # Activate first step (or first parallel group)
         if steps:
-            _activate_step(db, steps[0], instance, created_by)
+            first = steps[0]
+            if first.parallel_group:
+                _activate_parallel_group(db, first.parallel_group, instance, created_by)
+            else:
+                _activate_step(db, first, instance, created_by)
 
         db.commit()
         db.refresh(instance)
