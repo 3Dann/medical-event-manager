@@ -58,6 +58,13 @@ class DoctorCreate(BaseModel):
     notes: Optional[str] = None
     extra_data: Optional[str] = None   # JSON string
     source_url: Optional[str] = None
+    # Enrichment fields
+    working_hours: Optional[str] = None
+    accessibility: Optional[bool] = None
+    waiting_days: Optional[int] = None
+    is_accepting_patients: Optional[bool] = None
+    last_verified: Optional[str] = None
+    active_contact: Optional[bool] = None
 
 
 class DoctorUpdate(BaseModel):
@@ -78,6 +85,13 @@ class DoctorUpdate(BaseModel):
     notes: Optional[str] = None
     extra_data: Optional[str] = None   # JSON string
     source_url: Optional[str] = None
+    # Enrichment fields
+    working_hours: Optional[str] = None
+    accessibility: Optional[bool] = None
+    waiting_days: Optional[int] = None
+    is_accepting_patients: Optional[bool] = None
+    last_verified: Optional[str] = None
+    active_contact: Optional[bool] = None
 
 
 def doctor_to_dict(d: models.Doctor) -> dict:
