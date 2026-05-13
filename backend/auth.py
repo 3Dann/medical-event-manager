@@ -143,6 +143,19 @@ def get_current_user_from_token(token: str, db: Session) -> models.User:
     return user
 
 
+import json as _perm_json
+
+def has_permission(user: models.User, perm: str) -> bool:
+    """Check if user has a specific download/export permission."""
+    if user.is_admin:
+        return True
+    try:
+        perms = _perm_json.loads(user.permissions or "[]")
+        return perm in perms
+    except Exception:
+        return False
+
+
 def require_manager(current_user: models.User = Depends(get_current_user)):
     if current_user.role != models.UserRole.manager:
         raise HTTPException(status_code=403, detail="Manager access required")
