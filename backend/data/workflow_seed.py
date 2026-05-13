@@ -1,5 +1,7 @@
 """Built-in workflow templates — enriched with medical awareness and coverage data."""
 
+from data.nsclc_workflow import NSCLC_TEMPLATE
+
 BUILTIN_TEMPLATES = [
     # ══════════════════════════════════════════════════════════════════════════
     # GENERAL — כל מצב רפואי
