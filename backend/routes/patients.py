@@ -480,6 +480,7 @@ def get_patient(patient_id: int, db: Session = Depends(get_db), current_user: mo
 
 
 @router.put("/{patient_id}")
+@router.patch("/{patient_id}")
 def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
     old_hmo = patient.hmo_name
