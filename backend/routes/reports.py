@@ -1226,7 +1226,7 @@ def _build_discharge_pdf(patient: models.Patient, db: Session) -> bytes:
                 Paragraph(_r(status), st_style),
                 Paragraph(_r(_ils(c.amount_requested) if c.amount_requested else "—"), ST["td"]),
                 Paragraph(_r(date_str), ST["td"]),
-                Paragraph(_r(c.title or "—"), ST["td"]),
+                Paragraph(_r(c.description or c.category or "—"), ST["td"]),
             ])
 
         # Totals row
