@@ -86,21 +86,17 @@ export default function NSCLCPathwayTab() {
     return () => ctrl.abort()
   }, [id])
 
-  // Load medications when biomarker changes
-  const fetchDrugs = useCallback((biomarker) => {
-    if (!biomarker) { setDrugs([]); return }
-    setDrugsLoading(true)
+  // Load medications when biomarker changes — AbortController cancels in-flight request on change
+  useEffect(() => {
+    if (!form.biomarker_target) { setDrugs([]); return }
     const ctrl = new AbortController()
-    axios.get(`/api/medications/search`, { params: { q: biomarker }, signal: ctrl.signal })
+    setDrugsLoading(true)
+    axios.get('/api/medications/search', { params: { q: form.biomarker_target }, signal: ctrl.signal })
       .then(r => setDrugs(r.data || []))
       .catch(e => { if (!axios.isCancel(e)) setDrugs([]) })
       .finally(() => setDrugsLoading(false))
     return () => ctrl.abort()
-  }, [])
-
-  useEffect(() => {
-    fetchDrugs(form.biomarker_target)
-  }, [form.biomarker_target, fetchDrugs])
+  }, [form.biomarker_target])
 
   const handleChange = (field, value) => {
     setForm(prev => ({ ...prev, [field]: value }))
