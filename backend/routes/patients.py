@@ -114,11 +114,15 @@ class PatientUpdate(BaseModel):
     sub_specialty: Optional[str] = None
     medications: Optional[str] = None
     # NSCLC clinical fields
-    smoking_status:   Optional[str]   = None
-    ngs_method:       Optional[str]   = None
-    fev1_score:       Optional[float] = None
-    access_type:      Optional[str]   = None
-    biomarker_target: Optional[str]   = None
+    smoking_status:        Optional[str]   = None
+    ngs_method:            Optional[str]   = None
+    fev1_score:            Optional[float] = None
+    access_type:           Optional[str]   = None
+    biomarker_target:      Optional[str]   = None
+    # Tumor Board sign-offs
+    tumor_board_surgeon:    Optional[bool] = None
+    tumor_board_oncologist: Optional[bool] = None
+    tumor_board_radiation:  Optional[bool] = None
     adl_answers: Optional[str] = None
     iadl_answers: Optional[str] = None
     mmse_answers: Optional[str] = None
