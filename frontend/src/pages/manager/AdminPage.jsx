@@ -201,6 +201,23 @@ export default function AdminPage() {
 
   const managers = users.filter(u => u.role === 'manager' && !u.is_admin)
 
+  // ── Email test ───────────────────────────────────────────────────────────────
+  const [emailTesting, setEmailTesting] = useState(false)
+  const [emailTestResult, setEmailTestResult] = useState(null)
+
+  const handleTestEmail = async () => {
+    setEmailTesting(true)
+    setEmailTestResult(null)
+    try {
+      const res = await axios.post('/api/admin/test-email')
+      setEmailTestResult({ ok: res.data.ok, message: res.data.message })
+    } catch (e) {
+      setEmailTestResult({ ok: false, message: e.response?.data?.detail || 'שגיאת שרת' })
+    } finally {
+      setEmailTesting(false)
+    }
+  }
+
   return (
     <div className="p-4 md:p-8" dir="rtl">
       <h1 className="text-2xl font-bold text-slate-800 mb-1">{t('title')}</h1>
