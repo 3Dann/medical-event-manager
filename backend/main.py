@@ -154,6 +154,15 @@ async def lifespan(app: FastAPI):
         replace_existing=True,
         max_instances=1,
     )
+    scheduler.add_job(
+        _daily_sla_check,
+        trigger="cron",
+        hour=7,
+        minute=30,
+        id="daily_sla_check",
+        replace_existing=True,
+        max_instances=1,
+    )
     scheduler.start()
     app.state.scheduler = scheduler
     logger.info("Scheduler started")
