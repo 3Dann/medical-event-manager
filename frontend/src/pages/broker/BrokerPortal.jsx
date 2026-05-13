@@ -39,7 +39,7 @@ export default function BrokerPortal() {
   useEffect(() => {
     const ctrl = new AbortController()
     axios.get('/api/broker/patients', { signal: ctrl.signal })
-      .then(r => setPatients(r.data))
+      .then(r => setPatients(Array.isArray(r.data) ? r.data : []))
       .catch(e => { if (!axios.isCancel(e)) setError('שגיאה בטעינת המטופלים') })
       .finally(() => setLoading(false))
     return () => ctrl.abort()
