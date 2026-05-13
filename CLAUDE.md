@@ -137,10 +137,11 @@ medical-event-manager/
   - `flow_engine.py` — parallel group logic (activate/complete), gate evaluation (evaluate_gate, force_gate), sla_deadline copied on instance create
   - `routes/workflows.py` — endpoints חדשים: GET /sla-status, GET /can-advance, POST /force-gate (require_manager)
   - `main.py` — _daily_sla_check() job (07:30 UTC) + _seed_nsclc_drugs_on_startup()
-- [ ] **מסע NSCLC — Frontend (שלב 7)** — WorkflowPanel: תצוגת שלבים מקבילים + NSCLCPathwayTab.jsx עם 5 שדות קליניים
-- [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה (עדיפות עליונה)
-- [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
-- [ ] **מערכת בקרת משתמשים (User Activity & Permissions)** — ראה פירוט למטה
+- [x] **מסע NSCLC — Frontend (שלב 7, 2026-05-13)** — WorkflowPanel parallel display, StepCard (gate badge, SLA badge, step-type badge, force-gate button), NSCLCPathwayTab (5 שדות קליניים + Tumor Board + drug search + access strategy), PATCH /api/patients/{id}, drug search by indication_oncology
+- [x] **דשבורד ניהולי (2026-05-13)** — AdminDashboardPage, StatsBar (6 כרטיסים כולל SLA+תביעות), ManagerLoadPanel, AlertsPanel (SLA breaches), OverdueTasksPanel (/api/admin/tasks endpoint חדש)
+- [x] **Session Management (2026-05-13)** — ActiveSession model, יצירה ב-login, last_seen update, GET /api/admin/sessions, DELETE revoke+blacklist, SessionsPanel טאב ב-AdminPage
+- [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" MyDay.jsx קיים (481 שורות) — לבדוק פערים: Google Calendar sync, תעדוף אוטומטי
+- [ ] **מערכת בקרת משתמשים — הרשאות הורדה** — שדות גרנולריים: export_patient_pdf, download_documents, view_financials. Session Management ✅ בוצע.
 
 ### פירוט: מערכת בקרת משתמשים
 
