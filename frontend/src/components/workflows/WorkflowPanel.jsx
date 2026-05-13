@@ -407,12 +407,22 @@ export default function WorkflowPanel({ patientId }) {
               {/* Step detail panel */}
               <div className="flex-1 overflow-y-auto">
                 {activeStep ? (
-                  <div className="p-4">
+                  <div className="p-4 space-y-3">
+                    {/* Gate block warning above card */}
+                    <GateBlockBadge gate={activeStep.gate} />
+                    {/* SLA overdue warning */}
+                    {isOverdue(activeStep.sla_deadline) && activeStep.status !== 'completed' && activeStep.status !== 'skipped' && (
+                      <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                        <span>⚠️</span>
+                        <span>חריגת SLA — דדליין היה ב-{fmtDate(activeStep.sla_deadline)}</span>
+                      </div>
+                    )}
                     <StepCard
                       key={activeStep.id}
                       step={activeStep}
                       instanceId={selected.id}
                       onUpdated={handleUpdated}
+                      gateBlocked={activeStep.gate && activeStep.gate.fulfilled === false}
                     />
                   </div>
                 ) : (
