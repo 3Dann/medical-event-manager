@@ -351,7 +351,14 @@ def logout(
                 expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
                 if not db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first():
                     db.add(models.RevokedToken(jti=jti, expires_at=expires_at))
-                    db.commit()
+                # Mark active session as revoked
+                session = db.query(models.ActiveSession).filter(
+                    models.ActiveSession.jti == jti
+                ).first()
+                if session:
+                    session.is_active = False
+                    session.revoked_at = datetime.now(timezone.utc)
+                db.commit()
     except Exception:
         pass
     response = JSONResponse(content={"ok": True})
