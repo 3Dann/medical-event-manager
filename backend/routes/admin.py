@@ -505,6 +505,23 @@ def update_user_permissions(
     return {"ok": True, "permissions": perms}
 
 
+@router.post("/test-email")
+def test_email(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """Send a test email to the admin to verify Resend is configured."""
+    import email_utils
+    if not email_utils.is_configured():
+        return {"ok": False, "message": "Resend לא מוגדר — הגדר SMTP_PASS ב-Railway עם מפתח API של Resend (re_...)"}
+    sent = email_utils.send_email(
+        to=current_user.email,
+        subject="✅ בדיקת מייל — Orly Medical",
+        body_html=f"<p>המייל עובד. נשלח אל: {current_user.email}</p>",
+    )
+    return {"ok": sent, "message": "מייל נשלח בהצלחה" if sent else "שגיאה בשליחת מייל — בדוק את מפתח ה-API"}
+
+
 @router.delete("/patients/{patient_id}/permissions/{manager_id}")
 def revoke_patient_permission(
     patient_id: int,
