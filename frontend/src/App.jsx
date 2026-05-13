@@ -107,6 +107,9 @@ function AppRoutes() {
           <Route path="landing-editor" element={<ProtectedRoute role={ADMIN_ROLE} adminOnly><LandingEditorPage /></ProtectedRoute>} />
         </Route>
 
+        {/* Broker routes */}
+        <Route path="/broker" element={<ProtectedRoute role="broker"><BrokerPortal /></ProtectedRoute>} />
+
         {/* Patient routes */}
         <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
           <Route index element={<PatientSummary />} />
