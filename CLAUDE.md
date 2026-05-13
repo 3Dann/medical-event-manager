@@ -130,6 +130,14 @@ medical-event-manager/
 - [x] **מערכת דוחות — דוח מפה פיננסית** — בוצע (2026-05-08): routes/reports.py (PDF ב-ReportLab + RTL + שמירה כמסמך), ReportsPage.jsx + כפתור ב-FinancialMapTab, Dockerfile עם fonts-dejavu-core, requirements: reportlab+python-bidi, symlink pdf_builder.py בbackend. 3 endpoints: GET /api/patients/{id}/reports/financial-map, /reports, /api/reports/recent.
 - [x] **פורטל מטופל** — בוצע (2026-05-08): PatientRequest model + routes/patient_portal.py, PatientSummary.jsx בנוי מחדש — 5 טאבים (ציר זמן, תביעות, מסמכים+הורדה, מצב כספי, פניות), PatientRequestsPanel ב-PatientMeetings למנהל
 - [x] **ביקורת אבטחה ותיקונים (2026-05-12)** — 36 מתוך 38 ממצאים טופלו. ראה פירוט בסעיף "ביקורת מערכת" למטה.
+- [x] **מסע NSCLC — Backend (2026-05-13)** — שלבים 2-6 הושלמו:
+  - `data/nsclc_workflow.py` — NSCLC_TEMPLATE עם 17 צמתים (11 שלבים 1-3 + 6 שלב 4, parallel_group, sla_days, gate_condition)
+  - `data/workflow_seed.py` — NSCLC_TEMPLATE מיובא ומוסף ל-BUILTIN_TEMPLATES
+  - `data/nsclc_drugs.py` — 15 תרופות NSCLC עם msl_phone, access_type, treatment_line, indication_oncology; seed_nsclc_drugs()
+  - `flow_engine.py` — parallel group logic (activate/complete), gate evaluation (evaluate_gate, force_gate), sla_deadline copied on instance create
+  - `routes/workflows.py` — endpoints חדשים: GET /sla-status, GET /can-advance, POST /force-gate (require_manager)
+  - `main.py` — _daily_sla_check() job (07:30 UTC) + _seed_nsclc_drugs_on_startup()
+- [ ] **מסע NSCLC — Frontend (שלב 7)** — WorkflowPanel: תצוגת שלבים מקבילים + NSCLCPathwayTab.jsx עם 5 שדות קליניים
 - [ ] **דשבורד ניהולי** — סקירת כל המלווים, עומס תיקים, סטטוסים, פערים, התראות אסקלציה (עדיפות עליונה)
 - [ ] **ניהול משימות חוצה-תיקים** — "היום שלי" לכל המלווים, תעדוף קלנדרי, Google Calendar
 - [ ] **מערכת בקרת משתמשים (User Activity & Permissions)** — ראה פירוט למטה
