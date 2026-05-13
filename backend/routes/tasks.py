@@ -480,3 +480,74 @@ def get_calendar_token(
         row.expires_at = datetime.now(timezone.utc) + timedelta(days=365)
         db.commit()
     return {"token": row.token, "expires_at": row.expires_at.isoformat() if row.expires_at else None}
+
+
+# ── Notifications ─────────────────────────────────────────────────────────────
+
+@router.get("/api/notifications")
+def get_notifications(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """
+    Returns up to 20 recent notifications for the current manager:
+    - Overdue tasks (status=pending, due_date < now)
+    - SLA breaches (source_type=sla_breach, status=pending)
+    - Pending patient requests (via patients they manage)
+    """
+    now = datetime.now(timezone.utc)
+    notifications = []
+
+    # Overdue tasks
+    overdue = db.query(models.Task).filter(
+        models.Task.assigned_to == current_user.id,
+        models.Task.status == "pending",
+        models.Task.due_date < now,
+    ).order_by(models.Task.due_date.asc()).limit(10).all()
+    for t in overdue:
+        notifications.append({
+            "id": f"task_{t.id}",
+            "type": "overdue_task",
+            "title": t.title,
+            "patient_id": t.patient_id,
+            "created_at": t.due_date.isoformat() if t.due_date else None,
+            "severity": "warning",
+        })
+
+    # SLA breach tasks
+    sla_tasks = db.query(models.Task).filter(
+        models.Task.assigned_to == current_user.id,
+        models.Task.source_type == "sla_breach",
+        models.Task.status == "pending",
+    ).limit(5).all()
+    for t in sla_tasks:
+        notifications.append({
+            "id": f"sla_{t.id}",
+            "type": "sla_breach",
+            "title": t.title,
+            "patient_id": t.patient_id,
+            "created_at": None,
+            "severity": "critical",
+        })
+
+    # Pending patient requests
+    patient_ids = [p.id for p in db.query(models.Patient).filter(
+        models.Patient.manager_id == current_user.id
+    ).all()]
+    if patient_ids:
+        requests = db.query(models.PatientRequest).filter(
+            models.PatientRequest.patient_id.in_(patient_ids),
+            models.PatientRequest.status == "pending",
+        ).order_by(models.PatientRequest.created_at.desc()).limit(5).all()
+        for r in requests:
+            notifications.append({
+                "id": f"req_{r.id}",
+                "type": "patient_request",
+                "title": f"פנייה ממתינה — {r.category}",
+                "patient_id": r.patient_id,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "severity": "warning",
+            })
+
+    notifications.sort(key=lambda n: (0 if n["severity"] == "critical" else 1))
+    return {"count": len(notifications), "items": notifications[:20]}
