@@ -516,6 +516,14 @@ export default function DoctorsDatabase() {
         return doc.private_price ? `₪${doc.private_price.toLocaleString()}` : '—'
       case 'phone': case 'phone2': case 'whatsapp':
         return doc[colKey] ? <span dir="ltr">{doc[colKey]}</span> : '—'
+      case 'name':
+        return (
+          <span className="flex items-center gap-1">
+            {doc.active_contact && <span title="קשר פעיל" className="text-amber-400 text-sm">⭐</span>}
+            {!doc.is_accepting_patients && <span title="אינו מקבל מטופלים חדשים" className="text-amber-500 text-sm">⚠️</span>}
+            <span>{doc.name || '—'}</span>
+          </span>
+        )
       default:
         return doc[colKey] || '—'
     }
