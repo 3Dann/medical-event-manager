@@ -777,6 +777,89 @@ def toggle_task(
     return _step_dict(step)
 
 
+@router.get("/instances/{instance_id}/steps/{step_id}/can-advance")
+def can_advance(
+    instance_id: int,
+    step_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    """
+    Check whether the NEXT step's gate allows advancing from the given step.
+    Returns {can_advance, gate_blocked, error_msg}.
+    """
+    from flow_engine import evaluate_gate
+    step = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.id == step_id,
+        models.WorkflowStep.instance_id == instance_id,
+    ).first()
+    if not step:
+        raise HTTPException(404, "Step not found")
+
+    instance = db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.id == instance_id
+    ).first()
+    if not instance:
+        raise HTTPException(404, "Instance not found")
+
+    # Determine next step (respects parallel groups)
+    if step.parallel_group:
+        from flow_engine import _parallel_group_complete
+        if not _parallel_group_complete(db, instance_id, step.parallel_group):
+            return {"can_advance": False, "gate_blocked": False,
+                    "error_msg": "ממתין לסיום שלבים מקבילים נוספים"}
+        max_order = db.query(models.WorkflowStep).filter(
+            models.WorkflowStep.instance_id == instance_id,
+            models.WorkflowStep.parallel_group == step.parallel_group,
+        ).order_by(models.WorkflowStep.step_order.desc()).first().step_order
+        next_step = db.query(models.WorkflowStep).filter(
+            models.WorkflowStep.instance_id == instance_id,
+            models.WorkflowStep.step_order > max_order,
+            models.WorkflowStep.status == "pending",
+        ).order_by(models.WorkflowStep.step_order).first()
+    else:
+        next_step = db.query(models.WorkflowStep).filter(
+            models.WorkflowStep.instance_id == instance_id,
+            models.WorkflowStep.step_order > step.step_order,
+            models.WorkflowStep.status == "pending",
+        ).order_by(models.WorkflowStep.step_order).first()
+
+    if not next_step:
+        return {"can_advance": True, "gate_blocked": False, "error_msg": None}
+
+    patient = db.get(models.Patient, instance.patient_id)
+    can_proceed, error_msg = evaluate_gate(db, next_step, patient)
+    return {
+        "can_advance": can_proceed,
+        "gate_blocked": not can_proceed,
+        "error_msg": error_msg,
+        "next_step_key": next_step.step_key,
+        "next_step_name": next_step.name,
+    }
+
+
+@router.post("/instances/{instance_id}/steps/{step_id}/force-gate")
+def force_gate_endpoint(
+    instance_id: int,
+    step_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    """Manually mark a step's gate as fulfilled (clinical override by manager)."""
+    from flow_engine import force_gate
+    step = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.id == step_id,
+        models.WorkflowStep.instance_id == instance_id,
+    ).first()
+    if not step:
+        raise HTTPException(404, "Step not found")
+    try:
+        updated = force_gate(db, step_id, current_user.id)
+        return {"message": "שער לוגיקה עבר ידנית", "step_id": updated.id}
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
 @router.post("/instances/{instance_id}/steps/{step_id}/notes")
 def add_note(
     instance_id: int,
