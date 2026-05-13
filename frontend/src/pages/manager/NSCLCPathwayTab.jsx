@@ -355,9 +355,8 @@ export default function NSCLCPathwayTab() {
 
       {/* ── Access Strategy section ────────────────────────────────────── */}
       {form.biomarker_target && form.access_type && (() => {
-        const matchedDrug = drugs.find(d => d.access_type === form.access_type)
-        const cta = ACCESS_CTA[form.access_type]
-        if (!matchedDrug && !cta) return null
+        const matchedDrug = drugs.find(d => d.access_type === form.access_type) || drugs[0] || null
+        const cta = ACCESS_CTA[form.access_type] || null
         return (
           <div className="card" dir="rtl">
             <div className="flex items-center gap-2 mb-4">
