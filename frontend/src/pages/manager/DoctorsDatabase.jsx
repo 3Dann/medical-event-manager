@@ -394,6 +394,12 @@ export default function DoctorsDatabase() {
       ...doc,
       extra_data: doc.extra_data || {},
       hmo_acceptance: doc.hmo_acceptance || [],
+      working_hours:  doc.working_hours || '',
+      accessibility:  !!doc.accessibility,
+      waiting_days:   doc.waiting_days ?? null,
+      is_accepting_patients: doc.is_accepting_patients !== false,
+      last_verified:  doc.last_verified ? doc.last_verified.split('T')[0] : '',
+      active_contact: !!doc.active_contact,
     })
     setShowForm(true)
   }
