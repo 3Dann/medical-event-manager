@@ -1039,10 +1039,10 @@ def _build_monthly_pdf(patient: models.Patient, db: Session) -> bytes:
             Paragraph(_r("תאריך"),    ST["th"]),
         ]]
         for m in recent_meetings:
-            date_str = m.meeting_date.strftime("%d/%m/%Y") if m.meeting_date else "—"
+            date_str = m.meeting_date if m.meeting_date else "—"
             mrows.append([
-                Paragraph(_r((m.notes or "")[:80]), ST["td"]),
-                Paragraph(_r(m.title or m.meeting_type or "—"), ST["td"]),
+                Paragraph(_r((m.caregiver_notes or m.status_summary or "")[:80]), ST["td"]),
+                Paragraph(_r(m.professional_name or m.meeting_type or "—"), ST["td"]),
                 Paragraph(_r(date_str), ST["td"]),
             ])
         mtbl = Table(mrows, colWidths=[avail*0.45, avail*0.3, avail*0.25], repeatRows=1)
