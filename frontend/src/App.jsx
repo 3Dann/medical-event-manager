@@ -45,6 +45,7 @@ const DemoPatientPortal  = lazy(() => import('./pages/demo/DemoPatientPortal'))
 const DemoBrokerPortal   = lazy(() => import('./pages/demo/DemoBrokerPortal'))
 const PatientLayout      = lazy(() => import('./pages/patient/PatientLayout'))
 const PatientSummary     = lazy(() => import('./pages/patient/PatientSummary'))
+const BrokerPortal       = lazy(() => import('./pages/broker/BrokerPortal'))
 
 function PageLoader() {
   return (
