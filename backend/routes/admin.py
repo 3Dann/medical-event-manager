@@ -336,13 +336,15 @@ def admin_dashboard(
     ).all()
     total_sla_breaches = len(sla_breached_steps)
     for ws in sla_breached_steps[:5]:
-        instance = db.get(models.WorkflowInstance, ws.instance_id)
-        patient = db.get(models.Patient, instance.patient_id) if instance else None
-        mgr = db.get(models.User, instance.created_by) if instance else None
+        instance = db.get(models.WorkflowInstance, ws.instance_id) if ws.instance_id else None
+        patient  = db.get(models.Patient, instance.patient_id) if instance and instance.patient_id else None
+        mgr      = db.get(models.User, instance.created_by)    if instance and instance.created_by else None
+        if not ws.sla_deadline or ws.sla_deadline > now_utc:
+            continue  # skip if deadline not actually passed
         alerts.append({
             "type":         "sla_breach",
             "severity":     "critical",
-            "patient_id":   patient.id if patient else None,
+            "patient_id":   patient.id        if patient else None,
             "patient_name": patient.full_name if patient else "",
             "manager_name": mgr.full_name if mgr else "",
             "manager_id":   mgr.id if mgr else None,
