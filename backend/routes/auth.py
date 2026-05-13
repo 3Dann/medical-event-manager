@@ -220,7 +220,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
             ))
             db.commit()
     except Exception:
-        pass  # session tracking is best-effort
+        logger.warning("ActiveSession create failed", exc_info=True)
     is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
     response = JSONResponse(content={
         "access_token": token, "token_type": "bearer",
