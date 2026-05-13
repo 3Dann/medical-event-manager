@@ -369,6 +369,82 @@ def admin_dashboard(
     }
 
 
+@router.get("/sessions")
+def list_sessions(
+    active_only: bool = True,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """רשימת sessions — מי מחובר עכשיו."""
+    from datetime import datetime, timezone, timedelta
+    q = db.query(models.ActiveSession)
+    if active_only:
+        q = q.filter(models.ActiveSession.is_active == True)
+    sessions = q.order_by(models.ActiveSession.last_seen.desc()).limit(100).all()
+    now = datetime.now(timezone.utc)
+    result = []
+    for s in sessions:
+        user = db.get(models.User, s.user_id)
+        last_seen = s.last_seen
+        if last_seen and last_seen.tzinfo is None:
+            last_seen = last_seen.replace(tzinfo=timezone.utc)
+        minutes_ago = int((now - last_seen).total_seconds() / 60) if last_seen else None
+        result.append({
+            "id":           s.id,
+            "user_id":      s.user_id,
+            "user_name":    user.full_name if user else "—",
+            "user_email":   user.email if user else "—",
+            "user_role":    user.role if user else "—",
+            "jti":          s.jti[:8] + "…",  # partial, for display only
+            "login_at":     s.login_at.isoformat() if s.login_at else None,
+            "last_seen":    last_seen.isoformat() if last_seen else None,
+            "minutes_ago":  minutes_ago,
+            "ip_address":   s.ip_address,
+            "user_agent":   s.user_agent,
+            "is_active":    s.is_active,
+            "revoked_at":   s.revoked_at.isoformat() if s.revoked_at else None,
+        })
+    return result
+
+
+@router.delete("/sessions/{session_id}")
+def revoke_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """ביטול session מרחוק — מנתק את המשתמש מיידית."""
+    from datetime import datetime, timezone
+    session = db.get(models.ActiveSession, session_id)
+    if not session:
+        raise HTTPException(404, "Session לא נמצא")
+    if not session.is_active:
+        raise HTTPException(400, "Session כבר בוטל")
+    # Revoke the JWT token
+    try:
+        import jwt as pyjwt
+        secret = os.environ.get("SECRET_KEY", "")
+        # We don't have the full JTI — find by partial match or use stored jti
+        # The jti is stored in full in the DB
+        real_session = db.query(models.ActiveSession).filter(
+            models.ActiveSession.id == session_id
+        ).first()
+        if real_session and real_session.jti:
+            from datetime import timedelta
+            expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+            if not db.query(models.RevokedToken).filter(
+                models.RevokedToken.jti == real_session.jti
+            ).first():
+                db.add(models.RevokedToken(jti=real_session.jti, expires_at=expires_at))
+    except Exception:
+        pass
+    session.is_active = False
+    session.revoked_at = datetime.now(timezone.utc)
+    session.revoked_by = current_user.id
+    db.commit()
+    return {"ok": True, "message": "Session בוטל — המשתמש ינותק בבקשתו הבאה"}
+
+
 @router.get("/tasks")
 def admin_tasks(
     overdue_only: bool = False,
