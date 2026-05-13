@@ -124,8 +124,10 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
           {st.icon}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-medium text-slate-800 text-sm">{step.name}</span>
+            <StepTypeBadge stepType={step.step_type} />
+            <SlaBadge deadline={step.sla_deadline} status={step.status} />
             {step.is_optional && (
               <span className="text-xs text-slate-600">(אופציונלי)</span>
             )}
