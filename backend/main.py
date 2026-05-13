@@ -709,6 +709,7 @@ app.include_router(family_share_routes.router)
 app.include_router(tasks_routes.router)
 app.include_router(calendar_feed_routes.router)
 app.include_router(broker_routes.router)
+app.include_router(address_routes.router)
 
 
 def _seed_step_task_templates(db, step_template, tasks):
