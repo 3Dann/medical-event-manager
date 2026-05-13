@@ -43,7 +43,6 @@ export default function LoginPage() {
         res = await axios.post('/api/auth/register', { full_name: form.full_name, email: form.email, password: form.password, role: form.role })
       }
       if (res.data.requires_2fa) {
-        console.log('[2FA DEBUG]', JSON.stringify(res.data))
         setTempToken(res.data.temp_token)
         setPendingUser(res.data)
         setTotpConfigured(!!res.data.totp_configured)
