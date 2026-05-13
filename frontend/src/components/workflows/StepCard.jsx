@@ -96,6 +96,20 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
     }
   }
 
+  const handleForceGate = async () => {
+    const ok = window.confirm('האם לעקוף את שער הלוגיקה? פעולה זו תתועד.')
+    if (!ok) return
+    setSaving(true)
+    try {
+      await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/force-gate`)
+      onUpdated({ id: instanceId })
+    } catch (e) {
+      showToast('לא ניתן לעקוף את השער כרגע. נסה שוב.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const handleToggleTask = async (taskId) => {
     setTogglingTask(taskId)
     try {
