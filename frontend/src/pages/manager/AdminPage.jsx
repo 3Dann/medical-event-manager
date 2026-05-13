@@ -446,17 +446,21 @@ function SessionsPanel() {
   const [loading, setLoading]   = useState(true)
   const [revoking, setRevoking] = useState(null)
 
-  const load = useCallback(() => {
+  const load = () => {
     const ctrl = new AbortController()
     setLoading(true)
     axios.get('/api/admin/sessions?active_only=true', { signal: ctrl.signal })
       .then(r => setSessions(r.data || []))
       .catch(e => { if (!axios.isCancel(e)) console.error(e) })
       .finally(() => setLoading(false))
-    return () => ctrl.abort()
-  }, [])
+    return ctrl
+  }
 
-  useEffect(() => { const cleanup = load(); return cleanup }, [load])
+  useEffect(() => {
+    const ctrl = load()
+    return () => ctrl.abort()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const revoke = async (sessionId, userName) => {
     if (!window.confirm(`לנתק את ${userName} מהמערכת?`)) return
