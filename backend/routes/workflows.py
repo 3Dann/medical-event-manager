@@ -815,6 +815,68 @@ def toggle_task(
     return _step_dict(step)
 
 
+class AddTaskIn(BaseModel):
+    title: str
+
+@router.post("/instances/{instance_id}/steps/{step_id}/tasks")
+def add_task(
+    instance_id: int,
+    step_id: int,
+    data: AddTaskIn,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    """Add an ad-hoc checklist task to an active step."""
+    step = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.id == step_id,
+        models.WorkflowStep.instance_id == instance_id,
+    ).first()
+    if not step:
+        raise HTTPException(404, "Step not found")
+    title = data.title.strip()
+    if not title:
+        raise HTTPException(400, "כותרת המשימה לא יכולה להיות ריקה")
+    max_order = max((t.task_order for t in step.tasks), default=-1) + 1
+    task = models.WorkflowStepTask(
+        step_id=step_id,
+        title=title,
+        task_order=max_order,
+        is_completed=False,
+    )
+    db.add(task)
+    db.commit()
+    db.refresh(task)
+    return {"id": task.id, "title": task.title, "task_order": task.task_order, "is_completed": False}
+
+
+@router.delete("/instances/{instance_id}/steps/{step_id}/tasks/{task_id}")
+def delete_task(
+    instance_id: int,
+    step_id: int,
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    """Delete an uncompleted ad-hoc task from a step."""
+    step = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.id == step_id,
+        models.WorkflowStep.instance_id == instance_id,
+    ).first()
+    if not step:
+        raise HTTPException(404, "Step not found")
+    task = db.query(models.WorkflowStepTask).filter(
+        models.WorkflowStepTask.id == task_id,
+        models.WorkflowStepTask.step_id == step_id,
+    ).first()
+    if not task:
+        raise HTTPException(404, "Task not found")
+    if task.is_completed:
+        raise HTTPException(400, "לא ניתן למחוק משימה שהושלמה")
+    db.delete(task)
+    db.commit()
+    return {"ok": True}
+
+
 @router.get("/instances/{instance_id}/steps/{step_id}/can-advance")
 def can_advance(
     instance_id: int,
