@@ -269,6 +269,15 @@ async def lifespan(app: FastAPI):
         replace_existing=True,
         max_instances=1,
     )
+    scheduler.add_job(
+        _daily_insurance_gap_check,
+        trigger="cron",
+        hour=9,
+        minute=0,
+        id="daily_insurance_gap_check",
+        replace_existing=True,
+        max_instances=1,
+    )
     scheduler.start()
     app.state.scheduler = scheduler
     logger.info("Scheduler started")
