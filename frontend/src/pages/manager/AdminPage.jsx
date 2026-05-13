@@ -440,6 +440,93 @@ export default function AdminPage() {
   )
 }
 
+// ── Sessions Panel ─────────────────────────────────────────────────────────────
+function SessionsPanel() {
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [revoking, setRevoking] = useState(null)
+
+  const load = useCallback(() => {
+    const ctrl = new AbortController()
+    setLoading(true)
+    axios.get('/api/admin/sessions?active_only=true', { signal: ctrl.signal })
+      .then(r => setSessions(r.data || []))
+      .catch(e => { if (!axios.isCancel(e)) console.error(e) })
+      .finally(() => setLoading(false))
+    return () => ctrl.abort()
+  }, [])
+
+  useEffect(() => { const cleanup = load(); return cleanup }, [load])
+
+  const revoke = async (sessionId, userName) => {
+    if (!window.confirm(`לנתק את ${userName} מהמערכת?`)) return
+    setRevoking(sessionId)
+    try {
+      await axios.delete(`/api/admin/sessions/${sessionId}`)
+      setSessions(prev => prev.filter(s => s.id !== sessionId))
+    } catch (e) {
+      alert('שגיאה בביטול ה-session')
+    } finally {
+      setRevoking(null)
+    }
+  }
+
+  if (loading) return <div className="py-10 text-center text-slate-500 text-sm">טוען sessions...</div>
+
+  return (
+    <div dir="rtl">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="font-semibold text-slate-800">משתמשים מחוברים כרגע</h3>
+          <p className="text-xs text-slate-500 mt-0.5">עודכן בכל טעינה — לחץ רענן לעדכון</p>
+        </div>
+        <button onClick={load} className="btn-secondary text-sm">רענן</button>
+      </div>
+
+      {sessions.length === 0 ? (
+        <div className="py-10 text-center text-slate-500 text-sm">אין sessions פעילים</div>
+      ) : (
+        <div className="space-y-2">
+          {sessions.map(s => {
+            const minsAgo = s.minutes_ago
+            const timeLabel = minsAgo == null ? '—'
+              : minsAgo < 1  ? 'עכשיו'
+              : minsAgo < 60 ? `לפני ${minsAgo} דקות`
+              : `לפני ${Math.round(minsAgo / 60)} שעות`
+            const isRecent = minsAgo != null && minsAgo < 15
+            return (
+              <div key={s.id} className="card flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isRecent ? 'bg-green-400' : 'bg-slate-300'}`} />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-slate-800 text-sm">{s.user_name}</span>
+                      <span className="text-xs text-slate-500">{s.user_email}</span>
+                      <span className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full">{s.user_role}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                      <span className="text-xs text-slate-500">נכנס: {s.login_at ? new Date(s.login_at).toLocaleString('he-IL') : '—'}</span>
+                      <span className={`text-xs font-medium ${isRecent ? 'text-green-600' : 'text-slate-400'}`}>{timeLabel}</span>
+                      {s.ip_address && <span className="text-xs text-slate-400 font-mono">{s.ip_address}</span>}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => revoke(s.id, s.user_name)}
+                  disabled={revoking === s.id}
+                  className="text-xs text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                >
+                  {revoking === s.id ? 'מנתק...' : 'נתק'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ACTION_LABELS and RESOURCE_LABELS are now computed inside ActivityLogPanel using t()
 
 function ActivityLogPanel({ logs, total, loading, page, users, userFilter, actionFilter, dateFrom, dateTo,
