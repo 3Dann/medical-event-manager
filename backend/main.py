@@ -137,7 +137,7 @@ def _daily_sla_check():
                     manager_id = patient.manager_id if patient else None
                     if manager_id:
                         existing = db.query(models.Task).filter(
-                            models.Task.workflow_step_id == step.id,
+                            models.Task.source_id == step.id,
                             models.Task.source_type == "sla_breach",
                         ).first()
                         if not existing:
