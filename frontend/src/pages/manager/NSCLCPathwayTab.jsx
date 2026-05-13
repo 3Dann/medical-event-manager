@@ -22,8 +22,17 @@ const ACCESS_OPTIONS = [
   { value: 'basket',    label: 'סל קופה' },
   { value: 'insurance', label: 'ביטוח פרטי' },
   { value: 'compassion', label: 'חמלה 29ג׳' },
+  { value: 'eap',       label: 'EAP' },
   { value: 'research',  label: 'מחקר קליני' },
 ]
+
+const ACCESS_CTA = {
+  basket:     'זמין בסל — פנה לאישור קופה',
+  compassion: 'גישה בחמלה 29ג׳ — צור קשר עם ה-MSL לפתיחת בקשה',
+  eap:        'EAP — צור קשר עם ה-MSL לרישום לתכנית',
+  research:   'מחקר קליני — בדוק אלמ אינדיקציה פתוחה',
+  insurance:  'ביטוח פרטי — הגש תביעה מוקדמת לחברת הביטוח',
+}
 
 const BIOMARKER_OPTIONS = [
   { value: 'EGFR',        label: 'EGFR' },
