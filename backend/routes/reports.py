@@ -973,10 +973,11 @@ def _build_monthly_pdf(patient: models.Patient, db: Session) -> bytes:
             for c in active_claims[:15]:
                 status_lbl = status_label_map.get(c.status, c.status)
                 amount_str = _ils(c.amount_requested) if c.amount_requested else "—"
+                claim_label = c.description or c.category or "—"
                 crows.append([
                     Paragraph(_r(status_lbl), ST["td_amber"]),
                     Paragraph(_r(amount_str),  ST["td"]),
-                    Paragraph(_r(c.title or "—"), ST["td"]),
+                    Paragraph(_r(claim_label), ST["td"]),
                 ])
             ctbl2 = Table(crows, colWidths=[avail*0.18, avail*0.17, avail*0.65], repeatRows=1)
             ctbl2.setStyle(TableStyle([
