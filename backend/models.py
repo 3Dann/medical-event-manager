@@ -100,6 +100,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(String, default=UserRole.manager)
     is_admin    = Column(Boolean, default=False)
+    permissions = Column(Text, nullable=True)  # JSON: ["export_pdf","download_docs","view_financials"]
     preserve_data = Column(Boolean, default=False)
     demo_mode_allowed = Column(Boolean, default=False)
     reset_token = Column(String, nullable=True)
