@@ -127,6 +127,13 @@ def doctor_to_dict(d: models.Doctor) -> dict:
         "extra_data":           extra,
         "source_url":           d.source_url,
         "created_at":           str(d.created_at) if d.created_at else None,
+        # Enrichment fields
+        "working_hours":        getattr(d, 'working_hours', None),
+        "accessibility":        getattr(d, 'accessibility', False),
+        "waiting_days":         getattr(d, 'waiting_days', None),
+        "is_accepting_patients": getattr(d, 'is_accepting_patients', True),
+        "last_verified":        str(d.last_verified) if getattr(d, 'last_verified', None) else None,
+        "active_contact":       getattr(d, 'active_contact', False),
     }
 
 
