@@ -251,6 +251,33 @@ export default function AdminPage() {
       {/* ── Users tab ── */}
       {tab === 'users' && (
         <>
+          {/* Email test banner */}
+          <div className="mb-5 flex flex-wrap items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-slate-700">בדיקת מערכת מייל</p>
+              <p className="text-xs text-slate-500 mt-0.5">שלח מייל בדיקה לאימייל שלך כדי לאמת שהגדרות Resend תקינות</p>
+            </div>
+            <button
+              onClick={handleTestEmail}
+              disabled={emailTesting}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 disabled:opacity-50 transition-colors"
+            >
+              {emailTesting ? (
+                <><span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />בודק...</>
+              ) : (
+                <><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>בדוק מייל</>
+              )}
+            </button>
+            {emailTestResult && (
+              <div className={`w-full text-xs px-3 py-2 rounded-lg mt-1 ${emailTestResult.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                {emailTestResult.ok ? '✅' : '❌'} {emailTestResult.message}
+                <button onClick={() => setEmailTestResult(null)} className="mr-2 opacity-60 hover:opacity-100">✕</button>
+              </div>
+            )}
+          </div>
+
           <p className="text-slate-500 text-sm mb-6">{t('users_registered', { count: users.length })}</p>
 
           {resetResult && (
