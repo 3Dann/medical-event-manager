@@ -474,14 +474,33 @@ class FlowEngine:
         _log(db, step, user_id, "step_skipped",
              f"שלב '{step.name}' דולג", {"reason": reason})
 
-        next_step = db.query(models.WorkflowStep).filter(
-            models.WorkflowStep.instance_id == instance_id,
-            models.WorkflowStep.step_order > step.step_order,
-            models.WorkflowStep.status == "pending",
-        ).order_by(models.WorkflowStep.step_order).first()
+        # Parallel group: wait for siblings before advancing
+        if step.parallel_group:
+            if not _parallel_group_complete(db, instance_id, step.parallel_group):
+                db.commit()
+                db.refresh(instance)
+                return instance
+            max_order = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.parallel_group == step.parallel_group,
+            ).order_by(models.WorkflowStep.step_order.desc()).first().step_order
+            next_step = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.step_order > max_order,
+                models.WorkflowStep.status == "pending",
+            ).order_by(models.WorkflowStep.step_order).first()
+        else:
+            next_step = db.query(models.WorkflowStep).filter(
+                models.WorkflowStep.instance_id == instance_id,
+                models.WorkflowStep.step_order > step.step_order,
+                models.WorkflowStep.status == "pending",
+            ).order_by(models.WorkflowStep.step_order).first()
 
         if next_step:
-            _activate_step(db, next_step, instance, user_id)
+            if next_step.parallel_group:
+                _activate_parallel_group(db, next_step.parallel_group, instance, user_id)
+            else:
+                _activate_step(db, next_step, instance, user_id)
         else:
             instance.status = "completed"
             instance.completed_at = now
