@@ -47,7 +47,7 @@ async def get_streets(city_code: int = Query(...)):
                 GOV_API,
                 params={
                     'resource_id': STREETS_RID,
-                    'filters': f'{{"סמל_ישוב":{city_code}}}',
+                    'filters': json.dumps({'סמל_ישוב': city_code}),
                     'limit': 3000,
                 },
             )
