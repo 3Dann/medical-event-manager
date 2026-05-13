@@ -673,6 +673,19 @@ def _step_dict(step: models.WorkflowStep) -> dict:
         return None
     from coverage_advisor import get_step_coverage_summary
     coverage = get_step_coverage_summary(step) if step.coverage_items else None
+    # Gate info for frontend display
+    gate_info = None
+    if step.gate_fields:
+        try:
+            gd = json.loads(step.gate_fields)
+            gate_info = {
+                "operator":  gd.get("operator"),
+                "error_msg": gd.get("error_msg"),
+                "fulfilled": gd.get("fulfilled", False),
+            }
+        except Exception:
+            pass
+
     return {
         "id":                  step.id,
         "step_key":            step.step_key,
@@ -687,9 +700,12 @@ def _step_dict(step: models.WorkflowStep) -> dict:
         "coverage_categories": json.loads(step.coverage_categories) if step.coverage_categories else [],
         "required_documents":  json.loads(step.required_documents) if step.required_documents else [],
         "due_date":            step.due_date.isoformat() if step.due_date else None,
+        "sla_deadline":        step.sla_deadline.isoformat() if step.sla_deadline else None,
         "started_at":          step.started_at.isoformat() if step.started_at else None,
         "completed_at":        step.completed_at.isoformat() if step.completed_at else None,
         "assignee_id":         step.assignee_id,
+        "parallel_group":      step.parallel_group,
+        "gate":                gate_info,
         "coverage":            coverage,
         "actions": [
             {
