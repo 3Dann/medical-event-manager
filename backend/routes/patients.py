@@ -479,20 +479,27 @@ def get_patient(patient_id: int, db: Session = Depends(get_db), current_user: mo
     return patient_to_dict(patient)
 
 
-@router.put("/{patient_id}")
-@router.patch("/{patient_id}")
-def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+def _do_update_patient(patient_id: int, data: PatientUpdate, db: Session, current_user):
     patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
     old_hmo = patient.hmo_name
     old_level = patient.hmo_level
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(patient, field, value)
-    # Auto-import if HMO was just set or changed
     if patient.hmo_name and (patient.hmo_name != old_hmo or patient.hmo_level != old_level):
         _auto_import_hmo(db, patient_id, patient.hmo_name, patient.hmo_level)
     db.commit()
     db.refresh(patient)
     return patient_to_dict(patient)
+
+
+@router.put("/{patient_id}")
+def update_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    return _do_update_patient(patient_id, data, db, current_user)
+
+
+@router.patch("/{patient_id}")
+def patch_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    return _do_update_patient(patient_id, data, db, current_user)
 
 
 @router.delete("/{patient_id}")
