@@ -81,6 +81,48 @@ def _daily_overdue_check():
         db.close()
 
 
+def _daily_sla_check():
+    """
+    בדיקה יומית — שלבי זרימה שחצו את ה-SLA ועדיין לא קיבלו התראה.
+    מסמן sla_alerted=True ויוצר WorkflowAction מסוג sla_breached.
+    """
+    from datetime import datetime, timezone
+    import json as _json
+    db = SessionLocal()
+    try:
+        now = datetime.now(timezone.utc)
+        breached = db.query(models.WorkflowStep).filter(
+            models.WorkflowStep.sla_deadline < now,
+            models.WorkflowStep.sla_alerted.is_(False),
+            models.WorkflowStep.status == "active",
+        ).all()
+        for step in breached:
+            step.sla_alerted = True
+            action = models.WorkflowAction(
+                step_id=step.id,
+                user_id=None,
+                action_type="sla_breached",
+                description=f"SLA עבר — שלב '{step.name}' חצה את מועד היעד",
+                data=_json.dumps({
+                    "sla_deadline": step.sla_deadline.isoformat(),
+                    "step_key": step.step_key,
+                }),
+            )
+            db.add(action)
+            logger.warning(
+                "SLA BREACH: step_id=%s step_key=%s instance_id=%s deadline=%s",
+                step.id, step.step_key, step.instance_id,
+                step.sla_deadline.isoformat(),
+            )
+        if breached:
+            db.commit()
+            logger.info(f"SLA check: {len(breached)} steps marked as breached")
+    except Exception:
+        logger.exception("SLA check job failed")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
