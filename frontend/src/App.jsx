@@ -88,6 +88,7 @@ function AppRoutes() {
             <Route path="medications"   element={<PatientMedications />} />
             <Route path="financial-map" element={<PatientFinancialMap />} />
             <Route path="meetings"      element={<PatientMeetings />} />
+            <Route path="nsclc"         element={<NSCLCPathwayTab />} />
           </Route>
           <Route path="doctors" element={<DoctorsDatabase />} />
           <Route path="responsiveness" element={<ResponsivenessPage />} />
