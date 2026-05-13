@@ -63,7 +63,12 @@ function ProtectedRoute({ children, role, adminOnly }) {
   if (loading) return <div className="flex items-center justify-center h-screen text-slate-500">טוען...</div>
   if (!user) return <Navigate to="/" state={{ openLogin: true }} replace />
   const effectiveRole = user.role === 'admin' ? 'manager' : user.role
-  if (role && effectiveRole !== role) return <Navigate to={effectiveRole === 'manager' ? '/manager' : '/patient'} replace />
+  if (role && effectiveRole !== role) {
+    const fallback = effectiveRole === 'manager' ? '/manager'
+      : effectiveRole === 'broker' ? '/broker'
+      : '/patient'
+    return <Navigate to={fallback} replace />
+  }
   if (adminOnly && !user.is_admin) return <Navigate to="/manager" replace />
   return children
 }
