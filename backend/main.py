@@ -322,6 +322,28 @@ def run_migrations():
         # SMS 2FA phone number on User
         ("users", "phone_2fa",        "TEXT"),
         ("users", "phone_2fa_prefix", "TEXT"),
+        # NSCLC clinical fields on Patient
+        ("patients", "smoking_status",   "TEXT"),
+        ("patients", "ngs_method",       "TEXT"),
+        ("patients", "fev1_score",       "REAL"),
+        ("patients", "access_type",      "TEXT"),
+        ("patients", "biomarker_target", "TEXT"),
+        # Parallel & gate fields on WorkflowStepTemplate
+        ("workflow_step_templates", "parallel_group",      "TEXT"),
+        ("workflow_step_templates", "sla_days",            "INTEGER"),
+        ("workflow_step_templates", "gate_condition",      "TEXT"),
+        ("workflow_step_templates", "gate_error_msg",      "TEXT"),
+        ("workflow_step_templates", "is_exploration_gate", "BOOLEAN DEFAULT 0"),
+        # Parallel & SLA runtime fields on WorkflowStep
+        ("workflow_steps", "parallel_group", "TEXT"),
+        ("workflow_steps", "sla_deadline",   "DATETIME"),
+        ("workflow_steps", "sla_alerted",    "BOOLEAN DEFAULT 0"),
+        ("workflow_steps", "gate_fields",    "TEXT"),
+        # Oncology logistics on DrugEntry
+        ("drug_entries", "msl_phone",           "TEXT"),
+        ("drug_entries", "access_type",         "TEXT"),
+        ("drug_entries", "treatment_line",      "TEXT"),
+        ("drug_entries", "indication_oncology", "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
