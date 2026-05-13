@@ -52,7 +52,7 @@ export default function LoginPage() {
         return
       }
       login(res.data)
-      navigate(res.data.role === 'manager' ? '/manager' : '/patient')
+      navigate(res.data.role === 'broker' ? '/broker' : res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
       setError(err.response?.data?.detail || 'שגיאה בהתחברות')
     } finally {
@@ -67,7 +67,7 @@ export default function LoginPage() {
     try {
       const res = await axios.post('/api/auth/verify-2fa', { temp_token: tempToken, code: twoFACode, method: twoFAMethod })
       login(res.data)
-      navigate(res.data.role === 'manager' ? '/manager' : '/patient')
+      navigate(res.data.role === 'broker' ? '/broker' : res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
       setError(err.response?.data?.detail || 'חוסר התאמה בזיהוי — נסה שוב')
     } finally {
