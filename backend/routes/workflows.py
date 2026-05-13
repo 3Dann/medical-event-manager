@@ -881,7 +881,7 @@ def force_gate_endpoint(
     instance_id: int,
     step_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.get_current_user),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     """Manually mark a step's gate as fulfilled (clinical override by manager)."""
     from flow_engine import force_gate
