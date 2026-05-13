@@ -444,6 +444,13 @@ def run_migrations():
         ("drug_entries", "access_type",         "TEXT"),
         ("drug_entries", "treatment_line",      "TEXT"),
         ("drug_entries", "indication_oncology", "TEXT"),
+        # Doctor enrichment fields
+        ("doctors", "working_hours",         "TEXT"),
+        ("doctors", "accessibility",         "BOOLEAN DEFAULT 0"),
+        ("doctors", "waiting_days",          "INTEGER"),
+        ("doctors", "is_accepting_patients", "BOOLEAN DEFAULT 1"),
+        ("doctors", "last_verified",         "DATETIME"),
+        ("doctors", "active_contact",        "BOOLEAN DEFAULT 0"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
