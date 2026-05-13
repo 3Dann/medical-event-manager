@@ -4,7 +4,6 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/src ./src
-COPY frontend/public ./public
 COPY frontend/index.html frontend/vite.config.js frontend/tailwind.config.js frontend/postcss.config.js ./
 RUN npm run build
 
