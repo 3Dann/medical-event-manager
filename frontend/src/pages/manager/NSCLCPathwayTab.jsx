@@ -257,7 +257,7 @@ export default function NSCLCPathwayTab() {
                 <input
                   type="checkbox"
                   checked={form[field]}
-                  onChange={e => handleChange(field, e.target.checked)}
+                  onChange={e => handleChange(field, Boolean(e.target.checked))}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className={`text-sm ${form[field] ? 'text-green-700 font-medium' : 'text-slate-600'}`}>
