@@ -601,6 +601,7 @@ def seed_workflow_templates():
             for step in tmpl_data.get("steps", []):
                 cats = step.get("coverage_categories")
                 docs = step.get("required_documents")
+                gate = step.get("gate_condition")
                 new_st = models.WorkflowStepTemplate(
                     template_id=tmpl.id,
                     step_key=step["step_key"],
@@ -613,6 +614,11 @@ def seed_workflow_templates():
                     step_type=step.get("step_type", "administrative"),
                     estimated_cost=step.get("estimated_cost"),
                     required_documents=_json.dumps(docs) if docs else None,
+                    parallel_group=step.get("parallel_group"),
+                    sla_days=step.get("sla_days"),
+                    gate_condition=_json.dumps(gate) if gate else None,
+                    gate_error_msg=step.get("gate_error_msg"),
+                    is_exploration_gate=step.get("is_exploration_gate", False),
                 )
                 db.add(new_st)
                 db.flush()
