@@ -179,16 +179,15 @@ medical-event-manager/
 ---
 
 ### עדיפות גבוהה
-- [ ] **WorkflowsPage** — ניהול תבניות (עריכה/יצירה), רשימת כל ה-instances בארגון, סינון/חיפוש
-- [ ] **מערכת התראות** — notification bell, דדליינים, חידוש ביטוחים
-- [ ] **העשרת מאגר רופאים** — זמני קבלה, WhatsApp, תשלום פרטי, נגישות, כוכבית קשר פעיל
-- [ ] **פורטל ברוקר/סוכן** — תפקיד ייעודי, מבט על מטופלים, סטטוס תביעות, התחשבנות
-- [ ] **דוחות אוטומטיים** — אחרי אינטייק, חודשי, למשפחה, סיום התקשרות
+- [x] **WorkflowsPage (קיים)** — TemplateEditorModal (create/edit), instances list, tabs — שלם
+- [x] **מערכת התראות (2026-05-13)** — NotificationBell.jsx + GET /api/notifications + polling 60s
+- [x] **העשרת מאגר רופאים (2026-05-13)** — 6 שדות חדשים: working_hours, accessibility, waiting_days, is_accepting_patients, last_verified, active_contact (⭐/⚠️ בממשק)
+- [x] **פורטל ברוקר (2026-05-13)** — UserRole.broker, routes/broker.py, BrokerPortal.jsx
+- [x] **דוחות נוספים (2026-05-13)** — intake/monthly/discharge PDFs + כפתורים ב-ReportsPage
 
 ### עדיפות בינונית
-- [ ] **דוחות וייצוא** — PDF/Excel מטופל, גרף ציר זמן
-- [ ] **SMTP אמיתי** — כרגע mail אינו נשלח בפועל
-- [ ] **התראות פערי ביטוח** — זיהוי אוטומטי כיסוי חסר (סיעוד, אובדן כושר)
+- [x] **SMTP (2026-05-13)** — Resend מוגדר + POST /api/admin/test-email + כפתור "בדוק מייל" ב-AdminPage
+- [x] **התראות פערי ביטוח (2026-05-13)** — _daily_insurance_gap_check (09:00 UTC), GET /insurance-gaps, "ניתוח פערים" ב-PatientInsurance.jsx
 - [ ] **מאגר מכונים ומעבדות** — MRI, CT, בדיקות דם פרטי, שיקום
 
 ### עדיפות נמוכה
