@@ -226,6 +226,11 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         user.email_2fa_code = None
         user.email_2fa_expires = None
         db.commit()
+    # 2FA passed — reset failure counter
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    db.commit()
+
     token = auth_utils.create_access_token({"sub": str(user.id)})
     # Record active session
     try:
