@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/broker", tags=["broker"])
 def require_broker(current_user: models.User = Depends(auth_utils.get_current_user)):
     if current_user.is_admin:
         return current_user
-    if current_user.role not in ("broker", "admin"):
+    if current_user.role != models.UserRole.broker:
         raise HTTPException(403, "גישה מותרת לברוקרים בלבד")
     return current_user
 
