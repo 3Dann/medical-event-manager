@@ -426,6 +426,23 @@ def run_migrations():
         ))
         conn.commit()
 
+        # Create new tables (idempotent)
+        conn.execute(sqlalchemy.text(
+            "CREATE TABLE IF NOT EXISTS active_sessions ("
+            "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,"
+            "  jti TEXT UNIQUE NOT NULL,"
+            "  login_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+            "  last_seen DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,"
+            "  ip_address TEXT,"
+            "  user_agent TEXT,"
+            "  is_active BOOLEAN DEFAULT 1 NOT NULL,"
+            "  revoked_at DATETIME,"
+            "  revoked_by INTEGER"
+            ")"
+        ))
+        conn.commit()
+
         for table, col, col_type in migrations:
             try:
                 conn.execute(sqlalchemy.text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
