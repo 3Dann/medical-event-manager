@@ -67,13 +67,15 @@ def _search_db(q: str, db: Session) -> list[dict]:
     is_heb = _is_hebrew(q)
     pat = f"%{q}%"
 
-    # DB-level pre-filter — avoid loading all 1,162 rows into memory
+    # DB-level pre-filter — name/generic/hebrew OR indication_oncology JSON contains q
     query = db.query(models.DrugEntry).filter(
         models.DrugEntry.is_active == True,
         or_(
             models.DrugEntry.name.ilike(pat),
             models.DrugEntry.generic_name.ilike(pat),
             models.DrugEntry.hebrew_name.ilike(pat),
+            models.DrugEntry.indication_oncology.ilike(pat),
+            models.DrugEntry.openfda_indication.ilike(pat),
         )
     ).limit(100)
 
@@ -87,14 +89,21 @@ def _search_db(q: str, db: Session) -> list[dict]:
         if score < 9:
             seen.add(d.name)
             dosages = json.loads(d.common_dosages) if d.common_dosages else []
+            indications = json.loads(d.indication_oncology) if d.indication_oncology else []
             sort_key = hebrew.lower() if (is_heb and hebrew) else d.name.lower()
             scored.append((score, sort_key, {
-                "name": d.name,
-                "generic_name": d.generic_name or "",
-                "dosage_form": d.dosage_form or "",
-                "manufacturer": "",
-                "hebrew_name": hebrew,
-                "common_dosages": dosages,
+                "id":                  d.id,
+                "name":                d.name,
+                "generic_name":        d.generic_name or "",
+                "dosage_form":         d.dosage_form or "",
+                "manufacturer":        "",
+                "hebrew_name":         hebrew,
+                "common_dosages":      dosages,
+                "msl_phone":           d.msl_phone or "",
+                "access_type":         d.access_type or "",
+                "treatment_line":      d.treatment_line or "",
+                "indication_oncology": indications,
+                "openfda_indication":  d.openfda_indication or "",
             }))
     scored.sort(key=lambda x: (x[0], x[1]))
     return [r for _, _, r in scored]
