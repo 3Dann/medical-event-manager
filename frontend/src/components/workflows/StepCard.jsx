@@ -174,6 +174,22 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
             </div>
           )}
 
+          {/* Force-gate button — shown only when active and gate is blocking */}
+          {step.status === 'active' && step.gate && step.gate.fulfilled === false && (
+            <div className="flex items-center gap-2 mt-2">
+              {step.gate.error_msg && (
+                <span className="text-xs text-amber-700 flex-1">{step.gate.error_msg}</span>
+              )}
+              <button
+                onClick={handleForceGate}
+                disabled={saving}
+                className="text-xs px-2.5 py-1 bg-amber-100 text-amber-700 border border-amber-300 rounded-lg hover:bg-amber-200 disabled:opacity-40 font-medium whitespace-nowrap"
+              >
+                בטל שער ▸
+              </button>
+            </div>
+          )}
+
           {/* Task checklist */}
           {tasks.length > 0 && (
             <div className="mt-3">
