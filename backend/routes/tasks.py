@@ -22,7 +22,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from database import get_db
 import models
-from auth import get_current_user
+from auth import get_current_user, require_manager
 
 router = APIRouter()
 
