@@ -26,7 +26,7 @@ export default function LoginPage() {
   const [emailCodeReady, setEmailCodeReady] = useState(false)
   const [pendingUser, setPendingUser] = useState(null)
   const [totpSetupQR, setTotpSetupQR] = useState('')
-  const _BUILD = 'v2'
+
 
   const handleSubmit = async (e) => {
     e.preventDefault()
