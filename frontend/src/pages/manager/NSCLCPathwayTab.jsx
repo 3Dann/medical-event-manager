@@ -352,6 +352,64 @@ export default function NSCLCPathwayTab() {
           )}
         </div>
       )}
+
+      {/* ── Access Strategy section ────────────────────────────────────── */}
+      {form.biomarker_target && form.access_type && (() => {
+        const matchedDrug = drugs.find(d => d.access_type === form.access_type)
+        const cta = ACCESS_CTA[form.access_type]
+        if (!matchedDrug && !cta) return null
+        return (
+          <div className="card" dir="rtl">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="font-semibold text-slate-800">אסטרטגיית גישה מומלצת</h2>
+              <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                {ACCESS_LABELS[form.access_type] || form.access_type}
+              </span>
+            </div>
+
+            {matchedDrug && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="font-semibold text-slate-800 text-sm">{matchedDrug.name}</span>
+                      {matchedDrug.hebrew_name && (
+                        <span className="text-sm text-slate-700">{matchedDrug.hebrew_name}</span>
+                      )}
+                      {matchedDrug.treatment_line && (
+                        <span className="text-[11px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full font-medium">
+                          {matchedDrug.treatment_line}
+                        </span>
+                      )}
+                      {matchedDrug.access_type && (
+                        <span className="text-[11px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                          {ACCESS_LABELS[matchedDrug.access_type] || matchedDrug.access_type}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {matchedDrug.msl_phone && (
+                    <a
+                      href={`tel:${matchedDrug.msl_phone}`}
+                      className="text-xs text-blue-600 hover:underline flex-shrink-0"
+                      title="MSL — Medical Science Liaison"
+                    >
+                      📞 MSL: {matchedDrug.msl_phone}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {cta && (
+              <div className="flex items-start gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700">
+                <span className="text-base leading-tight mt-0.5">→</span>
+                <span>{cta}</span>
+              </div>
+            )}
+          </div>
+        )
+      })()}
     </div>
   )
 }
