@@ -356,3 +356,59 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
     </>
   )
 }
+
+// ── AddTaskInline — small inline form to add a checklist item ────────────────
+function AddTaskInline({ instanceId, stepId, onAdded }) {
+  const [open, setOpen]   = useState(false)
+  const [title, setTitle] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    if (!title.trim()) return
+    setSaving(true)
+    try {
+      await axios.post(
+        `/api/workflows/instances/${instanceId}/steps/${stepId}/tasks`,
+        { title: title.trim() }
+      )
+      setTitle('')
+      setOpen(false)
+      onAdded()
+    } catch {
+      // ignore — parent will refresh
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (!open) return (
+    <button
+      onClick={() => setOpen(true)}
+      className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+    >
+      + הוסף משימה
+    </button>
+  )
+
+  return (
+    <form onSubmit={submit} className="flex items-center gap-1.5" dir="rtl">
+      <input
+        autoFocus
+        value={title}
+        onChange={e => setTitle(e.target.value)}
+        placeholder="שם המשימה..."
+        className="text-xs border border-slate-300 rounded px-2 py-1 w-36 focus:outline-none focus:border-blue-400"
+        maxLength={120}
+      />
+      <button type="submit" disabled={saving || !title.trim()}
+        className="text-xs bg-blue-600 text-white px-2 py-1 rounded disabled:opacity-40">
+        {saving ? '...' : '✓'}
+      </button>
+      <button type="button" onClick={() => setOpen(false)}
+        className="text-xs text-slate-400 hover:text-slate-600 px-1">
+        ✕
+      </button>
+    </form>
+  )
+}
