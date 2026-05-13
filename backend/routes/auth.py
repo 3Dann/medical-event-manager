@@ -207,6 +207,20 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         user.email_2fa_expires = None
         db.commit()
     token = auth_utils.create_access_token({"sub": str(user.id)})
+    # Record active session
+    try:
+        decoded = auth_utils.decode_token(token)
+        jti = decoded.get("jti")
+        ip  = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or (request.client.host if request.client else None)
+        ua  = request.headers.get("User-Agent", "")[:256]
+        if jti:
+            db.add(models.ActiveSession(
+                user_id=user.id, jti=jti,
+                ip_address=ip, user_agent=ua,
+            ))
+            db.commit()
+    except Exception:
+        pass  # session tracking is best-effort
     is_secure = os.environ.get("RAILWAY_ENVIRONMENT") == "production"
     response = JSONResponse(content={
         "access_token": token, "token_type": "bearer",
