@@ -1005,7 +1005,7 @@ def _build_monthly_pdf(patient: models.Patient, db: Session) -> bytes:
             Paragraph(_r("זרימה"),     ST["th"]),
         ]]
         for inst in instances[:10]:
-            current = inst.current_step or "—"
+            current = inst.current_step_key or "—"
             wrows.append([
                 Paragraph(_r(str(current)), ST["td"]),
                 Paragraph(_r(inst.title or "—"), ST["td"]),
