@@ -491,13 +491,18 @@ def update_user_permissions(
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
     """Set permissions list for a user. data: {"permissions": ["export_pdf","download_docs"]}"""
+    _VALID_PERMS = {"export_pdf", "download_docs", "view_financials"}
     user = db.get(models.User, user_id)
     if not user:
         raise HTTPException(404, "משתמש לא נמצא")
     import json as _j
-    user.permissions = _j.dumps(data.get("permissions", []))
+    perms = data.get("permissions", [])
+    invalid = [p for p in perms if p not in _VALID_PERMS]
+    if invalid:
+        raise HTTPException(400, f"הרשאות לא חוקיות: {invalid}")
+    user.permissions = _j.dumps(perms)
     db.commit()
-    return {"ok": True, "permissions": data.get("permissions", [])}
+    return {"ok": True, "permissions": perms}
 
 
 @router.delete("/patients/{patient_id}/permissions/{manager_id}")
