@@ -412,6 +412,13 @@ NSCLC_TEMPLATE = {
                 "(ג) Off-label: Case Reports, ספרות, בקשת חמלה אישית לחברת פארמה. "
                 "שער: חסום לפני מעבר להוספיס — חובת Checklist שלושת המסלולים."
             ),
+            "tasks": [
+                "בדוק מרכזים בינ\"ל (MD Anderson, גרמניה) — הכן תיק באנגלית",
+                "חפש ניסויים קליניים ב-ClinicalTrials.gov",
+                "בדוק תרופות Off-label — ספרות + Case Reports",
+                "שקול Single Patient IND עם חברת פארמה",
+                "תעד החלטה לכל מסלול — כתב ויתור מודע",
+            ],
         },
         {
             "step_key":      "lung4_s6_comfort_transition",
