@@ -487,7 +487,7 @@ def get_calendar_token(
 @router.get("/api/notifications")
 def get_notifications(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    current_user=Depends(require_manager),
 ):
     """
     Returns up to 20 recent notifications for the current manager:
