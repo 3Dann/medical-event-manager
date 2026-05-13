@@ -47,6 +47,8 @@ def evaluate_gate(
     """
     if not step.gate_fields:
         return True, None
+    if patient is None:
+        return False, "מטופל לא נמצא — לא ניתן לאמת שער לוגיקה"
     try:
         condition = json.loads(step.gate_fields)
     except Exception:
