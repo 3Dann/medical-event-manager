@@ -30,6 +30,106 @@ def _log(db: Session, step: models.WorkflowStep, user_id: Optional[int],
     db.add(action)
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Gate evaluation
+# ──────────────────────────────────────────────────────────────────────────────
+
+def evaluate_gate(
+    db: Session,
+    step: models.WorkflowStep,
+    patient: models.Patient,
+) -> Tuple[bool, Optional[str]]:
+    """
+    Evaluate the gate condition stored in step.gate_fields.
+    Returns (can_proceed, error_message).
+    Operators: not_empty | all_true | all_answered | is_true.
+    A "fulfilled": true flag in the JSON bypasses all checks (manual override).
+    """
+    if not step.gate_fields:
+        return True, None
+    try:
+        condition = json.loads(step.gate_fields)
+    except Exception:
+        return True, None
+
+    if condition.get("fulfilled"):
+        return True, None
+
+    operator = condition.get("operator")
+    error_msg = condition.get("error_msg")
+
+    if operator == "not_empty":
+        field = condition.get("field", "")
+        value = getattr(patient, field, None)
+        if not value:
+            return False, error_msg or f"שדה '{field}' נדרש לפני המשך"
+
+    elif operator == "all_true":
+        for field in condition.get("fields", []):
+            if not getattr(patient, field, None):
+                return False, error_msg or "נדרש מילוי כל שדות החובה לפני המשך"
+
+    elif operator == "all_answered":
+        # Checklist gates must be manually fulfilled via force_gate()
+        return False, error_msg or "נדרש מילוי רשימת תיוג לפני המשך"
+
+    elif operator == "is_true":
+        field = condition.get("field", "")
+        if not getattr(patient, field, None):
+            return False, error_msg or f"שדה '{field}' לא מאומת"
+
+    return True, None
+
+
+def force_gate(db: Session, step_id: int, user_id: int) -> models.WorkflowStep:
+    """
+    Manually mark a gate as fulfilled (clinical override).
+    Sets {"fulfilled": true} in step.gate_fields, preserving existing data.
+    """
+    step = db.get(models.WorkflowStep, step_id)
+    if not step:
+        raise ValueError("Step not found")
+    try:
+        condition = json.loads(step.gate_fields) if step.gate_fields else {}
+    except Exception:
+        condition = {}
+    condition["fulfilled"] = True
+    condition["fulfilled_by"] = user_id
+    condition["fulfilled_at"] = _now().isoformat()
+    step.gate_fields = json.dumps(condition)
+    _log(db, step, user_id, "gate_forced", "שער לוגיקה עבר ידנית ע\"י מנהל")
+    db.commit()
+    db.refresh(step)
+    return step
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Parallel group helpers
+# ──────────────────────────────────────────────────────────────────────────────
+
+def _parallel_group_complete(db: Session, instance_id: int, group_name: str) -> bool:
+    """True when every step in the group has been completed or skipped."""
+    pending = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.instance_id == instance_id,
+        models.WorkflowStep.parallel_group == group_name,
+        models.WorkflowStep.status.in_(["pending", "active"]),
+    ).count()
+    return pending == 0
+
+
+def _activate_parallel_group(db: Session, group_name: str,
+                              instance: models.WorkflowInstance,
+                              user_id: Optional[int]):
+    """Activate every pending step in the parallel group simultaneously."""
+    pending_steps = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.instance_id == instance.id,
+        models.WorkflowStep.parallel_group == group_name,
+        models.WorkflowStep.status == "pending",
+    ).order_by(models.WorkflowStep.step_order).all()
+    for ps in pending_steps:
+        _activate_step(db, ps, instance, user_id)
+
+
 def _activate_step(db: Session, step: models.WorkflowStep,
                    instance: models.WorkflowInstance,
                    user_id: Optional[int]):
