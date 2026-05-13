@@ -283,6 +283,7 @@ export default function AdminPage() {
                       >
                         <option value="manager">{t('role_manager')}</option>
                         <option value="patient">{t('role_patient')}</option>
+                        <option value="broker">ברוקר / סוכן</option>
                       </select>
                     </div>
 
