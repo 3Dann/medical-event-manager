@@ -28,6 +28,7 @@ const PatientMedications = lazy(() => import('./pages/manager/PatientMedications
 const PatientInsurancePolicies = lazy(() => import('./pages/manager/PatientInsurancePolicies'))
 const PatientFinancialMap = lazy(() => import('./pages/manager/PatientFinancialMap'))
 const PatientMeetings    = lazy(() => import('./pages/manager/PatientMeetings'))
+const NSCLCPathwayTab    = lazy(() => import('./pages/manager/NSCLCPathwayTab'))
 const ResponsivenessPage = lazy(() => import('./pages/manager/ResponsivenessPage'))
 const FeedbackInbox      = lazy(() => import('./pages/manager/FeedbackInbox'))
 const DoctorsDatabase    = lazy(() => import('./pages/manager/DoctorsDatabase'))
