@@ -207,15 +207,18 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
                 <div className="flex gap-2">
                   <button
                     onClick={() => allTasksDone ? handleAdvance(false) : setShowForceConfirm(true)}
-                    disabled={saving}
+                    disabled={saving || gateBlocked}
+                    title={gateBlocked ? (step.gate?.error_msg || 'שלב נעול — יש להשלים תנאי שער לפני ההתקדמות') : undefined}
                     className={`flex-1 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors
-                      ${allTasksDone
-                        ? 'bg-blue-600 text-white hover:bg-blue-700'
-                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                      ${gateBlocked
+                        ? 'bg-amber-100 text-amber-700 cursor-not-allowed'
+                        : allTasksDone
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                       }
                     `}
                   >
-                    {saving ? 'שומר...' : allTasksDone ? '✓ השלם שלב' : `השלם שלב (${pendingCount} משימות פתוחות)`}
+                    {saving ? 'שומר...' : gateBlocked ? '🔒 שלב נעול' : allTasksDone ? '✓ השלם שלב' : `השלם שלב (${pendingCount} משימות פתוחות)`}
                   </button>
                   {step.is_optional && !showSkipConfirm && (
                     <button
