@@ -423,6 +423,9 @@ export default function AdminPage() {
         />
       )}
 
+      {/* ── Sessions tab ── */}
+      {tab === 'sessions' && <SessionsPanel />}
+
       {/* ── Funds tab ── */}
       {tab === 'funds' && (
         <div>
