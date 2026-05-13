@@ -477,6 +477,23 @@ def admin_tasks(
     return result
 
 
+@router.patch("/users/{user_id}/permissions")
+def update_user_permissions(
+    user_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """Set permissions list for a user. data: {"permissions": ["export_pdf","download_docs"]}"""
+    user = db.get(models.User, user_id)
+    if not user:
+        raise HTTPException(404, "משתמש לא נמצא")
+    import json as _j
+    user.permissions = _j.dumps(data.get("permissions", []))
+    db.commit()
+    return {"ok": True, "permissions": data.get("permissions", [])}
+
+
 @router.delete("/patients/{patient_id}/permissions/{manager_id}")
 def revoke_patient_permission(
     patient_id: int,
