@@ -230,6 +230,13 @@ class Patient(Base):
     phone2_prefix = Column(String, nullable=True)
     phone2 = Column(String, nullable=True)
 
+    # ── NSCLC / Oncology clinical fields ─────────────────────────────────────
+    smoking_status   = Column(String, nullable=True)  # never | former | current
+    ngs_method       = Column(String, nullable=True)  # tissue | blood | liquid
+    fev1_score       = Column(Float,  nullable=True)  # % — כשירות ניתוח
+    access_type      = Column(String, nullable=True)  # basket | insurance | compassion | research
+    biomarker_target = Column(String, nullable=True)  # EGFR | ALK | HER2 | KRAS | RET | MET | ROS1 | BRAF | PD-L1 | none
+
     manager = relationship("User", foreign_keys="Patient.manager_id", back_populates="patients")
     nodes = relationship("Node", back_populates="patient", cascade="all, delete-orphan")
     insurance_sources = relationship("InsuranceSource", back_populates="patient", cascade="all, delete-orphan")
