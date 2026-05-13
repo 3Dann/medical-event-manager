@@ -24,6 +24,7 @@ export default function PatientLayout() {
     { to: 'medications',   label: t('medications') },
     { to: 'documents',     label: t('documents') },
     { to: 'meetings',      label: t('meetings') },
+    { to: 'nsclc',         label: 'מסע NSCLC' },
   ]
 
   return (
