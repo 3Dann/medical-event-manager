@@ -7,12 +7,18 @@ import RedFlagsBanner from '../../components/RedFlagsBanner'
 export default function PatientLayout() {
   const { id }    = useParams()
   const { t }     = useTranslation('nav')
-  const [patient, setPatient] = useState(null)
+  const [patient, setPatient]     = useState(null)
+  const [hasNsclc, setHasNsclc]   = useState(false)
 
   useEffect(() => {
-    axios.get(`/api/patients/${id}`)
+    const ctrl = new AbortController()
+    axios.get(`/api/patients/${id}`, { signal: ctrl.signal })
       .then(r => setPatient(r.data))
-      .catch(() => {})
+      .catch(e => { if (!axios.isCancel(e)) {} })
+    axios.get(`/api/workflows/instances`, { params: { patient_id: id }, signal: ctrl.signal })
+      .then(r => setHasNsclc(r.data.some(i => i.template_name?.includes('NSCLC'))))
+      .catch(e => { if (!axios.isCancel(e)) {} })
+    return () => ctrl.abort()
   }, [id])
 
   const tabs = [
@@ -24,7 +30,7 @@ export default function PatientLayout() {
     { to: 'medications',   label: t('medications') },
     { to: 'documents',     label: t('documents') },
     { to: 'meetings',      label: t('meetings') },
-    { to: 'nsclc',         label: 'מסע NSCLC' },
+    ...(hasNsclc ? [{ to: 'nsclc', label: 'מסע NSCLC' }] : []),
   ]
 
   return (
