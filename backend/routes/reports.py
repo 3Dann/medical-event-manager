@@ -1025,9 +1025,10 @@ def _build_monthly_pdf(patient: models.Patient, db: Session) -> bytes:
         story.append(Spacer(1, 8))
 
     # Recent meetings (last 30 days)
+    thirty_days_str = thirty_days_ago.strftime("%Y-%m-%d")
     recent_meetings = db.query(models.PatientMeeting).filter(
         models.PatientMeeting.patient_id == patient.id,
-        models.PatientMeeting.meeting_date >= thirty_days_ago,
+        models.PatientMeeting.meeting_date >= thirty_days_str,
     ).order_by(models.PatientMeeting.meeting_date.desc()).all()
 
     if recent_meetings:
