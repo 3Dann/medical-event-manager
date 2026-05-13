@@ -82,7 +82,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
   const handle2FAVerify = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
     try {
-      const res = await axios.post('/api/auth/verify-2fa', { temp_token: tempToken, code: twoFACode })
+      const res = await axios.post('/api/auth/verify-2fa', { temp_token: tempToken, code: twoFACode, method: twoFAMethod })
       login(res.data)
       navigate(res.data.role === 'manager' ? '/manager' : '/patient')
     } catch (err) {
