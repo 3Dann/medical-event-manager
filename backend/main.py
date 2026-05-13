@@ -166,6 +166,69 @@ def _daily_sla_check():
         db.close()
 
 
+def _daily_insurance_gap_check():
+    """
+    בדיקה יומית — פערים ביטוחיים משמעותיים.
+    לכל מטופל פעיל: מחשב פער ביטוחי. אם > 30% — יוצר PatientRedFlag.
+    אם הפער ירד מתחת לסף — מסמן את הדגל כלא פעיל.
+    """
+    from routes.financial_map import _best_coverage_for_node
+    import json as _json
+    db = SessionLocal()
+    try:
+        patients = db.query(models.Patient).all()
+        for patient in patients:
+            nodes = db.query(models.Node).filter(
+                models.Node.patient_id == patient.id,
+                models.Node.node_type != "stage",
+                models.Node.overlay_global.is_(False),
+            ).all()
+            total_cost = 0.0
+            total_covered = 0.0
+            for node in nodes:
+                if node.estimated_cost:
+                    total_cost += float(node.estimated_cost)
+                    cov = _best_coverage_for_node(node, patient, db)
+                    total_covered += cov["covered_amount"]
+
+            if total_cost <= 0:
+                continue
+
+            insurance_gap = max(0.0, total_cost - total_covered)
+            gap_pct = insurance_gap / total_cost
+
+            existing_flag = db.query(models.PatientRedFlag).filter(
+                models.PatientRedFlag.patient_id == patient.id,
+                models.PatientRedFlag.title == "פער ביטוחי משמעותי",
+            ).first()
+
+            if gap_pct > 0.3:
+                if not existing_flag:
+                    pct_label = round(gap_pct * 100)
+                    db.add(models.PatientRedFlag(
+                        patient_id=patient.id,
+                        flag_type="financial",
+                        severity="warning",
+                        title="פער ביטוחי משמעותי",
+                        description=f"פער ביטוחי של {pct_label}% ({insurance_gap:,.0f} ₪) — מעל 30% מהעלות הכוללת.",
+                        is_active=True,
+                    ))
+                elif not existing_flag.is_active:
+                    existing_flag.is_active = True
+                    pct_label = round(gap_pct * 100)
+                    existing_flag.description = f"פער ביטוחי של {pct_label}% ({insurance_gap:,.0f} ₪) — מעל 30% מהעלות הכוללת."
+            else:
+                if existing_flag and existing_flag.is_active:
+                    existing_flag.is_active = False
+
+        db.commit()
+        logger.info("Insurance gap check completed for %s patients", len(patients))
+    except Exception:
+        logger.exception("Insurance gap check job failed")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
