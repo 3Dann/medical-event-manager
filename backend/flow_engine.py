@@ -409,10 +409,11 @@ class FlowEngine:
                 db.refresh(instance)
                 return instance
             # All done — find next step AFTER the highest order in the group
-            max_order = db.query(models.WorkflowStep).filter(
+            last_in_group = db.query(models.WorkflowStep).filter(
                 models.WorkflowStep.instance_id == instance_id,
                 models.WorkflowStep.parallel_group == step.parallel_group,
-            ).order_by(models.WorkflowStep.step_order.desc()).first().step_order
+            ).order_by(models.WorkflowStep.step_order.desc()).first()
+            max_order = last_in_group.step_order if last_in_group else step.step_order
             next_step = db.query(models.WorkflowStep).filter(
                 models.WorkflowStep.instance_id == instance_id,
                 models.WorkflowStep.step_order > max_order,
