@@ -343,6 +343,43 @@ def admin_dashboard(
     }
 
 
+@router.get("/tasks")
+def admin_tasks(
+    overdue_only: bool = False,
+    status: str = None,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """רשימת משימות לאדמין — עם סינון לפי איחור וסטטוס."""
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    q = db.query(models.Task)
+    if status:
+        q = q.filter(models.Task.status == status)
+    if overdue_only:
+        q = q.filter(models.Task.due_date < now)
+    tasks = q.order_by(models.Task.due_date.asc().nullslast()).limit(limit).all()
+
+    result = []
+    for t in tasks:
+        patient = db.get(models.Patient, t.patient_id) if t.patient_id else None
+        assignee = db.get(models.User, t.assigned_to) if t.assigned_to else None
+        result.append({
+            "id":           t.id,
+            "title":        t.title,
+            "status":       t.status,
+            "priority":     t.priority,
+            "due_date":     t.due_date.isoformat() if t.due_date else None,
+            "source_type":  t.source_type,
+            "patient_id":   t.patient_id,
+            "patient_name": patient.full_name if patient else None,
+            "assigned_to":  t.assigned_to,
+            "assigned_name": assignee.full_name if assignee else None,
+        })
+    return result
+
+
 @router.delete("/patients/{patient_id}/permissions/{manager_id}")
 def revoke_patient_permission(
     patient_id: int,
