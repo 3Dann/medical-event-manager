@@ -32,7 +32,7 @@ async def get_cities():
 
     records = data.get('result', {}).get('records', [])
     _cities_cache = [
-        {'name': r.get('שם_ישוב', '').strip(), 'code': str(r.get('סמל_ישוב', ''))}
+        {'name': r.get('שם_ישוב', '').strip(), 'code': str(r.get('סמל_ישוב', '')).strip()}
         for r in records
         if r.get('שם_ישוב', '').strip()
     ]
