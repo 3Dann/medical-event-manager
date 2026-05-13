@@ -325,6 +325,31 @@ def admin_dashboard(
             "pending_claims": pending_claims,
         })
 
+    # SLA breaches — active steps past their deadline
+    from datetime import datetime, timezone
+    now_utc = datetime.now(timezone.utc)
+    sla_breached_steps = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.sla_deadline != None,
+        models.WorkflowStep.sla_alerted == True,
+        models.WorkflowStep.status == "active",
+    ).all()
+    total_sla_breaches = len(sla_breached_steps)
+    for ws in sla_breached_steps[:5]:
+        instance = db.get(models.WorkflowInstance, ws.instance_id)
+        patient = db.get(models.Patient, instance.patient_id) if instance else None
+        mgr = db.get(models.User, instance.created_by) if instance else None
+        alerts.append({
+            "type":         "sla_breach",
+            "severity":     "critical",
+            "patient_id":   patient.id if patient else None,
+            "patient_name": patient.full_name if patient else "",
+            "manager_name": mgr.full_name if mgr else "",
+            "manager_id":   mgr.id if mgr else None,
+            "title":        f"חריגת SLA — {ws.name}",
+            "description":  f"המועד האחרון עבר ב-{ws.sla_deadline.strftime('%d/%m/%Y') if ws.sla_deadline else '?'}",
+            "flag_type":    "sla",
+        })
+
     # sort alerts: critical first, then by patient name
     alerts.sort(key=lambda a: (0 if a["severity"] == "critical" else 1, a["patient_name"]))
 
@@ -332,11 +357,12 @@ def admin_dashboard(
 
     return {
         "totals": {
-            "managers": len(managers),
-            "patients": all_patients_count,
-            "critical_flags": total_critical,
+            "managers":        len(managers),
+            "patients":        all_patients_count,
+            "critical_flags":  total_critical,
             "pending_requests": total_pending_requests,
-            "pending_claims": total_pending_claims,
+            "pending_claims":  total_pending_claims,
+            "sla_breaches":    total_sla_breaches,
         },
         "managers": manager_rows,
         "alerts": alerts[:20],
