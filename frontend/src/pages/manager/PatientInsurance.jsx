@@ -68,9 +68,28 @@ export default function PatientInsurance() {
   const [coverages, setCoverages] = useState(emptyCoverages())
   const [entForm, setEntForm] = useState({ entitlement_type:'existing', title:'', description:'', amount:'', is_approved:false, notes:'' })
 
+  // Insurance gap analysis
+  const [gapData, setGapData] = useState(null)
+  const [gapLoading, setGapLoading] = useState(false)
+  const [gapError, setGapError] = useState(null)
+
+  const fetchGapAnalysis = async (signal) => {
+    setGapLoading(true)
+    setGapError(null)
+    try {
+      const res = await axios.get(`/api/patients/${id}/insurance-gaps`, { signal })
+      setGapData(res.data)
+    } catch (e) {
+      if (!axios.isCancel(e)) setGapError('שגיאה בטעינת ניתוח פערים')
+    } finally {
+      setGapLoading(false)
+    }
+  }
+
   useEffect(() => {
     const ctrl = new AbortController()
     fetchAll(ctrl.signal)
+    fetchGapAnalysis(ctrl.signal)
     return () => ctrl.abort()
   }, [id])
 
