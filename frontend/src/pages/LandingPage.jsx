@@ -425,7 +425,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
                 <button onClick={onRegisterClick} className="text-sm py-1.5 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
                   {t('auth:register')}
                 </button>
-                <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4">
+                <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4 whitespace-nowrap">
                   {t('auth:login')}
                 </button>
               </div>
