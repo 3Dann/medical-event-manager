@@ -74,6 +74,7 @@ export default function PatientDetail() {
   const [editingNode,  setEditingNode]  = useState(null)
   const [editNodeData, setEditNodeData] = useState({})
   const [saving,           setSaving]           = useState(false)
+  const [addingNode,       setAddingNode]       = useState(false)
   const [showJourneyModal, setShowJourneyModal] = useState(false)
   const [journeyTemplates, setJourneyTemplates] = useState([])
   const [applyingTemplate, setApplyingTemplate] = useState(null) // key of template being applied
