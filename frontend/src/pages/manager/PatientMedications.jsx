@@ -101,7 +101,8 @@ export default function PatientMedications() {
   }
 
   const handleDelete = async (medId) => {
-    if (!confirm('למחוק תרופה זו?')) return
+    const ok = await confirm({ title: 'מחיקת תרופה', message: 'למחוק תרופה זו?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/medications/${medId}`)
     checkInBackground()
   }
