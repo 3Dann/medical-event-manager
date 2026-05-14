@@ -47,8 +47,8 @@ export default function PatientMedications() {
   const fetchAll = async (signal) => {
     try {
       const res = await axios.get(`/api/patients/${id}/medications`, { signal })
-      setMedications(res.data.medications)
-      setInteractions(res.data.interactions)
+      setMedications(res.data.medications ?? [])
+      setInteractions(res.data.interactions ?? [])
     } catch (e) { if (axios.isCancel(e)) return }
     setCheckingInteractions(false)
   }
