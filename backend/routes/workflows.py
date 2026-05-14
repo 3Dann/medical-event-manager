@@ -448,6 +448,8 @@ def apply_suggest(
 def list_instances(
     patient_id: Optional[int] = None,
     status: Optional[str] = None,
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
@@ -463,7 +465,7 @@ def list_instances(
         q = q.filter(models.Patient.patient_user_id == current_user.id)
     elif not current_user.is_admin:
         q = q.filter(models.Patient.manager_id == current_user.id)
-    instances = q.order_by(models.WorkflowInstance.started_at.desc()).all()
+    instances = q.order_by(models.WorkflowInstance.started_at.desc()).limit(limit).offset(offset).all()
 
     result = []
     for i in instances:
