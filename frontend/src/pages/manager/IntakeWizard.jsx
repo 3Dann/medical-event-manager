@@ -613,6 +613,19 @@ export default function IntakeWizard() {
     if (stepIdx === 3) {
       if (!form.hmo_name) e.hmo_name = 'שדה חובה'
     }
+    if (stepIdx === 5) {
+      const adlTouched = Object.keys(form.adl_answers).length > 0
+      if (adlTouched && Object.values(form.adl_answers).every(v => Number(v) === 0)) {
+        e._adl_warning = 'כל ערכי ADL הם 0 — האם המטופל תלוי לחלוטין? ודא שהנתונים מדויקים.'
+      }
+      if (Object.keys(form.mmse_answers).length > 0) {
+        const total = Object.entries(form.mmse_answers).reduce((s, [k, v]) => {
+          const sec = MMSE_SECTIONS.find(x => x.key === k)
+          return s + Math.min(Number(v || 0), sec?.max || 0)
+        }, 0)
+        if (total > 30) e.mmse_score = 'ניקוד MMSE חייב להיות 0-30'
+      }
+    }
     if (stepIdx === 6) {
       if (!form.signer_is_self && !form.signer_name.trim()) e.signer_name = 'יש להזין שם החותם'
       if (!form.consent_agreed) e.consent = 'יש לאשר ולחתום על ויתור סודיות רפואית'
