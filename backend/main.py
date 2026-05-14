@@ -457,6 +457,7 @@ def run_migrations():
         # Demo mode permission
         ("users", "demo_mode_allowed", "BOOLEAN DEFAULT 0"),
         ("users", "failed_login_attempts", "INTEGER DEFAULT 0"),
+        ("users", "reset_verify_attempts", "INTEGER DEFAULT 0"),
         ("users", "locked_until", "DATETIME"),
         ("users", "last_login", "DATETIME"),
         ("users", "last_activity", "DATETIME"),
