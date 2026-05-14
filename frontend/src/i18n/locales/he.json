@@ -646,6 +646,7 @@
     "source_workflow": "זרימה",
     "source_request": "פנייה",
     "source_flag": "נורה",
+    "source_sla": "חריגת SLA",
     "priority_urgent": "דחוף",
     "priority_high": "גבוה",
     "priority_medium": "בינוני",
