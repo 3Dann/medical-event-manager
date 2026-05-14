@@ -835,7 +835,7 @@ class PatientFundApplication(Base):
     __tablename__ = "patient_fund_applications"
 
     id              = Column(Integer, primary_key=True, index=True)
-    patient_id      = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id      = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
     fund_id         = Column(Integer, ForeignKey("financial_funds.id"), nullable=True)
     custom_name     = Column(String, nullable=True)        # free-text if not from registry
     status          = Column(String, default="considering") # considering|applied|approved|rejected
