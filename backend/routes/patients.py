@@ -1,7 +1,7 @@
 import re
 import logging
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from database import get_db
