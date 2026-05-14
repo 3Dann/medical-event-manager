@@ -93,6 +93,8 @@ def create_claim(patient_id: int, data: ClaimCreate, db: Session = Depends(get_d
 @router.put("/{claim_id}")
 def update_claim(patient_id: int, claim_id: int, data: ClaimUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if data.status and data.status not in VALID_STATUSES:
+        raise HTTPException(status_code=400, detail=f"סטטוס לא חוקי: {data.status}")
     claim = db.query(models.Claim).filter(models.Claim.id == claim_id, models.Claim.patient_id == patient_id).first()
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
