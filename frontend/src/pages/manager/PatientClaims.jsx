@@ -33,6 +33,8 @@ export default function PatientClaims() {
   const [feedbackSaving, setFeedbackSaving] = useState(false)
 
   useEffect(() => {
+    setForm({ insurance_source_id: '', category: 'surgery', description: '', amount_requested: '', status: 'pending', submission_date: '', deadline: '', notes: '', priority_order: '' })
+    setShowForm(false)
     const ctrl = new AbortController()
     fetchAll(ctrl.signal)
     return () => ctrl.abort()
