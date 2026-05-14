@@ -579,7 +579,7 @@ export default function AdminPage() {
 
       {/* ── Registrations tab ── */}
       {tab === 'registrations' && (
-        <RegistrationsPanel onCountChange={setPendingRegCount} />
+        <RegistrationsPanel onCountChange={setPendingRegCount} showToast={showToast} />
       )}
 
       {/* ── Drug Database Panel ─────────────────────────────────────── */}
