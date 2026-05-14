@@ -72,7 +72,9 @@ export default function NotificationBell() {
                 <li key={n.id}>
                   <button
                     onClick={() => {
-                      if (n.patient_id) {
+                      if (n.type === 'pending_registration') {
+                        navigate('/manager/admin')
+                      } else if (n.patient_id) {
                         const path = n.type === 'patient_document'
                           ? `/manager/patients/${n.patient_id}/documents`
                           : n.type === 'patient_request'
