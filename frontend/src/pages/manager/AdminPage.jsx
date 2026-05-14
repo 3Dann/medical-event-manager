@@ -14,6 +14,7 @@ export default function AdminPage() {
   const { t } = useTranslation('admin')
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
+  const { toast, showToast, dismissToast } = useToast()
   const isDev = currentUser?.email === DEV_EMAIL
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
