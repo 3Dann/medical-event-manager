@@ -23,7 +23,7 @@ def send_2fa_sms(phone: str, code: str) -> bool:
     Returns True if sent successfully, False on failure or dev-mode.
     """
     if not _CONFIGURED:
-        logger.warning("[DEV] SMS 2FA code for %s: %s", phone, code)
+        logger.warning("[DEV] SMS 2FA code sent (phone masked): %s", phone[-4:] if phone else "??")
         return False
     try:
         from twilio.rest import Client
