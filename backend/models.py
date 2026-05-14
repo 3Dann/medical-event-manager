@@ -113,6 +113,7 @@ class User(Base):
     phone_2fa = Column(String, nullable=True)         # phone number for SMS 2FA (e.g. "+972501234567")
     phone_2fa_prefix = Column(String, nullable=True)
     failed_login_attempts = Column(Integer, default=0, nullable=False)
+    reset_verify_attempts = Column(Integer, default=0, nullable=False)
     locked_until = Column(DateTime(timezone=True), nullable=True)
     must_change_password = Column(Boolean, default=False, nullable=False)
     last_login = Column(DateTime(timezone=True), nullable=True)
