@@ -807,7 +807,7 @@ def setup_sms_2fa(
     current_user.phone_2fa = e164
     current_user.phone_2fa_prefix = data.phone_prefix
     current_user.email_2fa_code = code
-    current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    current_user.email_2fa_expires = datetime.now(tz_module.utc) + timedelta(minutes=10)
     current_user.totp_method = "sms"
     current_user.totp_enabled = False
     db.commit()
