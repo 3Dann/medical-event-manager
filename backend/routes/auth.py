@@ -27,10 +27,12 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 def _get_real_ip(request: Request) -> str:
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    client_host = request.client.host if request.client else ""
+    if client_host.startswith("100.64."):
+        forwarded = request.headers.get("X-Forwarded-For", "")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+    return client_host or "unknown"
 
 limiter = Limiter(key_func=_get_real_ip)
 
