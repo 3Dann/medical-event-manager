@@ -529,7 +529,18 @@ def patch_patient(patient_id: int, data: PatientUpdate, db: Session = Depends(ge
 
 @router.delete("/{patient_id}")
 def delete_patient(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    import shutil
     patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if patient.patient_user_id:
+        portal_user = db.query(models.User).filter(
+            models.User.id == patient.patient_user_id,
+            models.User.role == models.UserRole.patient
+        ).first()
+        if portal_user:
+            db.delete(portal_user)
+    patient_dir = os.path.join('/data/uploads', str(patient.id))
+    if os.path.isdir(patient_dir):
+        shutil.rmtree(patient_dir, ignore_errors=True)
     db.delete(patient)
     db.commit()
     return {"message": "Patient deleted"}
