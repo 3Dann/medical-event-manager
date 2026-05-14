@@ -820,7 +820,7 @@ export default function PatientInsurance() {
               )}
 
               {/* Expanded editable table */}
-              {expandedSource === s.id && <EditableCoverageTable source={s} />}
+              {expandedSource === s.id && <EditableCoverageTable source={s} patientId={id} handleEditCoverage={handleEditCoverage} fetchAll={fetchAll} t={t} />}
             </div>
           ))}
         </div>
