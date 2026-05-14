@@ -120,6 +120,7 @@ function AppRoutes() {
 
         {/* Patient routes */}
         <Route path="/patient-login" element={<PatientLoginPage />} />
+        <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
           <Route index element={<PatientSummary />} />
         </Route>
