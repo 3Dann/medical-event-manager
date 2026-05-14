@@ -83,7 +83,9 @@ def get_patient_for_manager(patient_id: int, current_user: models.User, db: Sess
 @router.get("")
 def list_sources(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
-    sources = db.query(models.InsuranceSource).filter(models.InsuranceSource.patient_id == patient_id).all()
+    sources = db.query(models.InsuranceSource).options(
+        joinedload(models.InsuranceSource.coverages)
+    ).filter(models.InsuranceSource.patient_id == patient_id).all()
     return [source_to_dict(s) for s in sources]
 
 
