@@ -758,7 +758,7 @@ def setup_email_2fa(current_user: models.User = Depends(auth_utils.get_current_u
     """Enable email-based 2FA — sends confirmation code to registered email."""
     code = secrets.token_hex(4).upper()  # 8 chars, 32-bit entropy
     current_user.email_2fa_code = code
-    current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    current_user.email_2fa_expires = datetime.now(tz_module.utc) + timedelta(minutes=10)
     current_user.totp_method = "email"
     current_user.totp_enabled = False
     db.commit()
