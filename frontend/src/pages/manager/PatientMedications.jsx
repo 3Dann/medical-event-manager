@@ -97,7 +97,10 @@ export default function PatientMedications() {
       setShowForm(false)   // close modal immediately
       setSaving(false)
       checkInBackground()  // check interactions without blocking UI
-    } catch { setSaving(false) }
+    } catch {
+      showToast('שגיאה בשמירת התרופה. נסה שוב.')
+      setSaving(false)
+    }
   }
 
   const handleDelete = async (medId) => {
