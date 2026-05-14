@@ -262,8 +262,9 @@ def get_hmo_plans(hmo_name: str):
 
 @router.get("")
 def list_patients(db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+    base_q = db.query(models.Patient).options(joinedload(models.Patient.manager))
     if current_user.role == "manager":
-        own = db.query(models.Patient).filter(models.Patient.manager_id == current_user.id).all()
+        own = base_q.filter(models.Patient.manager_id == current_user.id).all()
         # Also include patients the admin explicitly shared with this manager
         permitted_ids = [
             r.patient_id for r in db.query(models.PatientPermission).filter(
@@ -273,13 +274,13 @@ def list_patients(db: Session = Depends(get_db), current_user: models.User = Dep
         shared = []
         if permitted_ids:
             seen = {p.id for p in own}
-            shared = [p for p in db.query(models.Patient).filter(models.Patient.id.in_(permitted_ids)).all()
+            shared = [p for p in base_q.filter(models.Patient.id.in_(permitted_ids)).all()
                       if p.id not in seen]
         patients = own + shared
     elif current_user.is_admin:
-        patients = db.query(models.Patient).all()
+        patients = base_q.all()
     else:
-        patients = db.query(models.Patient).filter(models.Patient.patient_user_id == current_user.id).all()
+        patients = base_q.filter(models.Patient.patient_user_id == current_user.id).all()
     return [patient_to_dict(p) for p in patients]
 
 
