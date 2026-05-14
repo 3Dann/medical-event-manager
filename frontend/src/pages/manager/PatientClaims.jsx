@@ -68,7 +68,7 @@ export default function PatientClaims() {
   const handleDelete = async (claimId) => {
     const ok = await confirm({ title: 'מחיקת תביעה', message: 'למחוק תביעה זו?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/claims/${claimId}`); fetchAll()
+    await axios.delete(`/api/patients/${id}/claims/${claimId}`); fetchAll().catch(() => {})
   }
 
   const handleFeedbackConfirm = async () => {
