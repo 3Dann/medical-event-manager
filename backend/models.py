@@ -1042,11 +1042,12 @@ class CalendarToken(Base):
     """טוקן ICS אישי — לכל משתמש כתובת ייחודית ליומן חי."""
     __tablename__ = "calendar_tokens"
 
-    id         = Column(Integer, primary_key=True, index=True)
-    user_id    = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
-    token      = Column(String(64), unique=True, nullable=False, index=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=True)  # None = ללא תפוגה
-    is_active  = Column(Boolean, default=True)
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    token         = Column(String(64), unique=True, nullable=False, index=True)
+    created_at    = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at    = Column(DateTime(timezone=True), nullable=True)  # None = ללא תפוגה
+    expires_at_v2 = Column(DateTime(timezone=True), nullable=True)  # mandatory TTL column (migration-safe)
+    is_active     = Column(Boolean, default=True)
 
     user = relationship("User")
