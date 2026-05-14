@@ -925,8 +925,16 @@ def seed_journey_workflows():
             ).first()
             if existing:
                 continue
-            # Use the first admin/manager user as creator fallback
             creator_id = patient.manager_id
+            if creator_id is None:
+                fallback = db.query(models.User).filter(
+                    models.User.is_admin == True,
+                    models.User.is_active == True,
+                ).first()
+                if not fallback:
+                    logger.warning(f"No manager_id and no admin found for patient {patient.id}, skipping journey workflow")
+                    continue
+                creator_id = fallback.id
             from flow_engine import FlowEngine
             try:
                 FlowEngine.create_instance(
