@@ -323,6 +323,7 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db
         "email": user.email, "role": user.role,
         "is_admin": user.is_admin,
         "must_change_password": bool(user.must_change_password),
+        "demo_mode_allowed": bool(getattr(user, "demo_mode_allowed", False)),
     })
     response.set_cookie(
         key="access_token", value=token,
