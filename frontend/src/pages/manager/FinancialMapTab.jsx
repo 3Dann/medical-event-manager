@@ -228,6 +228,7 @@ function UpdateStatusModal({ patientId, app, onClose, onUpdated }) {
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function FinancialMapTab({ patientId }) {
   const { toast, showToast, dismissToast } = useToast()
+  const [confirm, ConfirmUI] = useConfirm()
   const [data, setData]           = useState(null)
   const [loading, setLoading]     = useState(true)
   const [showAdd, setShowAdd]     = useState(false)
