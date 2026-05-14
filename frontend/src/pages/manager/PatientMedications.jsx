@@ -109,13 +109,21 @@ export default function PatientMedications() {
   const handleDelete = async (medId) => {
     const ok = await confirm({ title: 'מחיקת תרופה', message: 'למחוק תרופה זו?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/medications/${medId}`)
-    checkInBackground()
+    try {
+      await axios.delete(`/api/patients/${id}/medications/${medId}`)
+      checkInBackground()
+    } catch {
+      showToast('שגיאה במחיקת התרופה. נסה שוב.')
+    }
   }
 
   const toggleActive = async (m) => {
-    await axios.put(`/api/patients/${id}/medications/${m.id}`, { is_active: !m.is_active })
-    checkInBackground()
+    try {
+      await axios.put(`/api/patients/${id}/medications/${m.id}`, { is_active: !m.is_active })
+      checkInBackground()
+    } catch {
+      showToast('שגיאה בעדכון סטטוס התרופה. נסה שוב.')
+    }
   }
 
   const handleExtract = async () => {
