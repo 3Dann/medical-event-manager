@@ -190,7 +190,7 @@ export default function PatientDetail() {
     setApplyingTemplate(key)
     try {
       await axios.post(`/api/patients/${id}/journey-templates/${key}/apply`)
-      await fetchAll()
+      await fetchAll().catch(() => {})
       setShowJourneyModal(false)
       setSelectedTplPreview(null)
     } catch (e) {
@@ -207,7 +207,7 @@ export default function PatientDetail() {
     if (!ok) return
     try {
       await axios.delete(`/api/patients/${id}/journey-templates/${key}`)
-      await fetchAll()
+      await fetchAll().catch(() => {})
       setSelectedTplPreview(prev => prev?.key === key ? null : prev)
     } catch (err) {
       showToast('שגיאה בהסרת המסע. נסה שוב.')
