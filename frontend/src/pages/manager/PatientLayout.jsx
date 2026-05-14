@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, NavLink, Outlet } from 'react-router-dom'
+import { useParams, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import RedFlagsBanner from '../../components/RedFlagsBanner'
