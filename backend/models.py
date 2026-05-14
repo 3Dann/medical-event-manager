@@ -489,7 +489,7 @@ class PatientPermission(Base):
         Index("ix_patient_perm_unique", "patient_id", "manager_id", unique=True),
     )
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False, index=True)
     manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     granted_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
