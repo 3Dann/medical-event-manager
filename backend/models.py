@@ -714,7 +714,7 @@ class WorkflowStep(Base):
 class WorkflowAction(Base):
     __tablename__ = "workflow_actions"
     id          = Column(Integer, primary_key=True, index=True)
-    step_id     = Column(Integer, ForeignKey("workflow_steps.id"))
+    step_id     = Column(Integer, ForeignKey("workflow_steps.id"), index=True)
     user_id     = Column(Integer, ForeignKey("users.id"), nullable=True)
     action_type = Column(String, nullable=False)
     description = Column(Text, nullable=True)

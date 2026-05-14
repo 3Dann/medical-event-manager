@@ -11,6 +11,7 @@ export default function NotificationBell() {
   useEffect(() => {
     let ctrl = new AbortController()
     const load = () => {
+      ctrl.abort()
       ctrl = new AbortController()
       axios.get('/api/notifications', { signal: ctrl.signal })
         .then(r => setData(r.data))
