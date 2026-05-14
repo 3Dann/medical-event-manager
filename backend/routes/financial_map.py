@@ -285,7 +285,7 @@ def get_financial_map(
                 age = (date.today() - bday).days // 365
             except Exception:
                 pass
-        if fund.eligible_ages_min and age and age < fund.eligible_ages_min:
+        if fund.eligible_ages_min is not None and age is not None and age < fund.eligible_ages_min:
             continue
         if fund.eligible_ages_max and age and age > fund.eligible_ages_max:
             continue
