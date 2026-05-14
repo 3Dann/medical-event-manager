@@ -491,7 +491,8 @@ def run_migrations():
         ("users", "phone_2fa",        "TEXT"),
         ("users", "phone_2fa_prefix", "TEXT"),
         # User permissions (granular download/export permissions)
-        ("users", "permissions", "TEXT"),
+        ("users", "permissions",          "TEXT"),
+        ("users", "must_change_password", "BOOLEAN DEFAULT 0"),
         # NSCLC clinical fields on Patient
         ("patients", "smoking_status",        "TEXT"),
         ("patients", "ngs_method",            "TEXT"),
