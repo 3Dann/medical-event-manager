@@ -633,6 +633,7 @@ def delete_subitem(patient_id: int, node_id: int, item_id: int,
 def list_journey_templates(patient_id: int,
                             db: Session = Depends(get_db),
                             current_user=Depends(auth_utils.get_current_user)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     from data.journey_templates import JOURNEY_TEMPLATES
     return JOURNEY_TEMPLATES
 
