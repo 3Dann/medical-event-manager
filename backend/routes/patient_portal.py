@@ -160,7 +160,7 @@ def get_patient_summary(
     manager = patient.manager
     manager_info = {
         "name":  manager.full_name if manager else None,
-        "email": manager.email    if manager else None,
+        "email": None,
     }
 
     return {
