@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 const FUND_TYPE_COLORS = {
   aid_fund:           { bg: 'bg-emerald-50',  text: 'text-emerald-700',  border: 'border-emerald-200', dot: 'bg-emerald-500' },
