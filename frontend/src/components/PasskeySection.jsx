@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { fmtDate } from '../utils/formatters'
+import { useConfirm } from './ConfirmDialog'
 import {
   startRegistration,
   browserSupportsWebAuthn,
