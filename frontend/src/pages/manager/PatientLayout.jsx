@@ -49,24 +49,27 @@ export default function PatientLayout() {
       {/* Tab bar */}
       <div className="bg-slate-50 border-b border-slate-200 px-4 md:px-6">
         <div role="tablist" className="flex gap-1 overflow-x-auto">
-          {tabs.map(tab => (
-            <NavLink
-              key={tab.to}
-              to={`/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`}
-              end={tab.end}
-              role="tab"
-              className={({ isActive }) =>
-                `px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors
-                 ${isActive
-                   ? 'border-blue-600 text-blue-600'
-                   : 'border-transparent text-slate-500 hover:text-slate-800'}`
-              }
-            >
-              {({ isActive }) => (
-                <span aria-hidden="true" data-active={isActive}>{tab.label}</span>
-              )}
-            </NavLink>
-          ))}
+          {tabs.map(tab => {
+            const href = `/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`
+            const isActive = tab.end
+              ? location.pathname === href
+              : location.pathname.startsWith(href)
+            return (
+              <NavLink
+                key={tab.to}
+                to={href}
+                end={tab.end}
+                role="tab"
+                aria-selected={isActive}
+                className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors
+                  ${isActive
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+              >
+                {tab.label}
+              </NavLink>
+            )
+          })}
         </div>
       </div>
 
