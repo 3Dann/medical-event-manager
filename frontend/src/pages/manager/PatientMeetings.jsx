@@ -453,7 +453,7 @@ export default function PatientMeetings() {
     const ok = await confirm({ title: t('delete_meeting_title'), message: t('delete_meeting_confirm'), confirmLabel: t('common:delete', { ns: 'common' }), danger: true })
     if (!ok) return
     await axios.delete(`/api/patients/${id}/meetings/${mid}`)
-    load()
+    load().catch(() => {})
   }
 
   return (
