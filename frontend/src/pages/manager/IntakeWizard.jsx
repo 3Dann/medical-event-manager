@@ -1110,6 +1110,8 @@ export default function IntakeWizard() {
                   <button
                     onClick={() => isDemoMode && setStep(i)}
                     disabled={!isDemoMode && i > step}
+                    aria-label={s.label}
+                    aria-current={i === step ? 'step' : undefined}
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${
                       isDemoMode ? 'cursor-pointer' : i > step ? 'cursor-default' : 'cursor-pointer'
                     } ${
