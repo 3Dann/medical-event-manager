@@ -874,7 +874,7 @@ class PatientMeeting(Base):
     __tablename__ = "patient_meetings"
 
     id                        = Column(Integer, primary_key=True, index=True)
-    patient_id                = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id                = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
     meeting_type              = Column(String, nullable=False)   # oncologist|insurance_agent|social_worker|other
     meeting_date              = Column(String, nullable=True)    # YYYY-MM-DD
     professional_name         = Column(String, nullable=True)
