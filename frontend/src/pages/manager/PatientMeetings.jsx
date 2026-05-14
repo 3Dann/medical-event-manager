@@ -49,7 +49,7 @@ function PatientRequestsPanel({ patientId }) {
       showReqToast('שגיאה בעדכון הפנייה. נסה שוב.')
     } finally {
       setReplyId(null); setNote(''); setSaving(false)
-      load()
+      load().catch(() => {})
     }
   }
 
