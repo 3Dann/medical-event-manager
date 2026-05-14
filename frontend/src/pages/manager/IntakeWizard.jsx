@@ -284,12 +284,13 @@ function SignatureCanvas({ label, onChange }) {
     ctx.lineTo(x, y)
     ctx.stroke()
     setIsEmpty(false)
+    isEmptyRef.current = false
   }
 
   const endDraw = () => {
     if (!drawing.current) return
     drawing.current = false
-    if (isEmpty) return
+    if (isEmptyRef.current) return
     onChange(canvasRef.current.toDataURL('image/png'))
   }
 
@@ -297,6 +298,7 @@ function SignatureCanvas({ label, onChange }) {
     const canvas = canvasRef.current
     canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
     setIsEmpty(true)
+    isEmptyRef.current = true
     onChange(null)
   }
 
