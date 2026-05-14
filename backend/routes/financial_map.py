@@ -423,12 +423,12 @@ def update_patient_fund(
         try:
             app.applied_at = datetime.fromisoformat(body.applied_at)
         except Exception:
-            pass
+            logger.warning("Invalid applied_at value for application %s: %r", application_id, body.applied_at)
     if body.resolved_at is not None:
         try:
             app.resolved_at = datetime.fromisoformat(body.resolved_at)
         except Exception:
-            pass
+            logger.warning("Invalid resolved_at value for application %s: %r", application_id, body.resolved_at)
     db.commit()
     db.refresh(app)
     return _application_dict(app)
