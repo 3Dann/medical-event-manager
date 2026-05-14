@@ -80,6 +80,8 @@ def list_claims(patient_id: int, db: Session = Depends(get_db), current_user: mo
 @router.post("")
 def create_claim(patient_id: int, data: ClaimCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if data.status and data.status not in VALID_STATUSES:
+        raise HTTPException(status_code=400, detail=f"סטטוס לא חוקי: {data.status}")
     claim = models.Claim(**data.model_dump(), patient_id=patient_id)
     db.add(claim)
     db.commit()
