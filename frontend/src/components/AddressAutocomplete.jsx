@@ -177,7 +177,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
           const v = e.target.value
           setInput(v)
           onChange(v)
-          if (!v) onPostalCode?.('')
+          onPostalCode?.('')
           setOpen(v.length > 0 && allStreets.length > 0)
         }}
         onFocus={() => filtered.length > 0 && setOpen(true)}
