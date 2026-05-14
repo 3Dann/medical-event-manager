@@ -43,7 +43,7 @@ function sourceLabel(s) {
 function CoverageTable({ catCoverages, editable, updateCovField }) {
   return (
     <div className="overflow-x-auto mt-3">
-      <table className="w-full text-sm border-collapse">
+      <table dir="rtl" className="w-full text-sm border-collapse">
         <thead>
           <tr className="bg-slate-100">
             <th className="text-right p-2 font-medium text-slate-600 border border-slate-200 w-36">קטגוריה</th>
