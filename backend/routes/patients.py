@@ -358,7 +358,11 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
                     .all())
         if any(p.id_number == data.id_number for p in existing):
             raise HTTPException(status_code=400, detail="מטופל עם מספר זהות זה כבר קיים")
-    patient = models.Patient(**data.model_dump(), manager_id=current_user.id)
+    safe_data = data.model_dump(exclude={
+        'patient_user_id', 'intake_completed', 'consent_agreed',
+        'consent_signature_path', 'adl_score', 'iadl_score', 'mmse_score'
+    })
+    patient = models.Patient(**safe_data, manager_id=current_user.id)
     db.add(patient)
     db.flush()
     # Auto-create patient portal account if id_number provided
