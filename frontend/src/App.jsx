@@ -45,7 +45,8 @@ const DemoPatientPortal  = lazy(() => import('./pages/demo/DemoPatientPortal'))
 const DemoBrokerPortal   = lazy(() => import('./pages/demo/DemoBrokerPortal'))
 const PatientLayout      = lazy(() => import('./pages/patient/PatientLayout'))
 const PatientSummary     = lazy(() => import('./pages/patient/PatientSummary'))
-const PatientLoginPage   = lazy(() => import('./pages/patient/PatientLoginPage'))
+const PatientLoginPage      = lazy(() => import('./pages/patient/PatientLoginPage'))
+const ChangePasswordPage    = lazy(() => import('./pages/ChangePasswordPage'))
 const BrokerPortal       = lazy(() => import('./pages/broker/BrokerPortal'))
 
 function PageLoader() {
