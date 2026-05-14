@@ -97,8 +97,12 @@ export default function CareTeamSection({ patientId }) {
   const [editing, setEditing] = useState(null)
   const [confirm, ConfirmUI] = useConfirm()
 
-  const load = () => axios.get(`/api/patients/${patientId}/care-team`).then(r => setMembers(r.data)).catch(() => {})
-  useEffect(() => { load() }, [patientId])
+  const load = (signal) => axios.get(`/api/patients/${patientId}/care-team`, { signal }).then(r => setMembers(r.data)).catch(e => { if (axios.isCancel(e)) return })
+  useEffect(() => {
+    const controller = new AbortController()
+    load(controller.signal)
+    return () => controller.abort()
+  }, [patientId])
 
   const remove = async (id) => {
     const ok = await confirm({ title: 'הסרת איש צוות', message: 'להסיר איש צוות זה?', confirmLabel: 'הסר', danger: true })
