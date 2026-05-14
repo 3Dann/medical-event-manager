@@ -63,7 +63,7 @@ def _upload_to_r2(file_path: str, object_key: str) -> bool:
         aws_secret_access_key=secret,
         region_name="auto",
     )
-    s3.upload_file(file_path, bucket, object_key)
+    s3.upload_file(file_path, bucket, object_key, ExtraArgs={"ServerSideEncryption": "AES256"})
     return True
 
 
