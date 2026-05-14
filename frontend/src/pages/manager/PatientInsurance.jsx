@@ -340,6 +340,8 @@ export default function PatientInsurance() {
         })
       }
       setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll().catch(() => {})
+    } catch {
+      showToast('שגיאה בשמירת מקור הביטוח. נסה שוב.')
     } finally {
       setAddingSource(false)
     }
