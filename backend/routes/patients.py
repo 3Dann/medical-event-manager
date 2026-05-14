@@ -558,7 +558,9 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db), current_user:
 @router.get("/{patient_id}/nodes")
 def list_nodes(patient_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
-    nodes = db.query(models.Node).filter(models.Node.patient_id == patient_id).all()
+    nodes = db.query(models.Node).options(
+        joinedload(models.Node.sub_items)
+    ).filter(models.Node.patient_id == patient_id).all()
     return [node_to_dict(n) for n in nodes]
 
 
