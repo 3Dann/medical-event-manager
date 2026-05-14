@@ -72,7 +72,7 @@ export default function PatientMedications() {
     const ctrl = new AbortController()
     fetchAll(ctrl.signal)
     fetchDocuments(ctrl.signal)
-    return () => ctrl.abort()
+    return () => { ctrl.abort(); checkCtrlRef.current?.abort() }
   }, [id])
 
   const openAdd = () => { setForm(emptyForm()); setEditId(null); setShowForm(true) }
