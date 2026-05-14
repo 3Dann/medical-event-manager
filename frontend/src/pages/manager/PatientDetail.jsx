@@ -231,8 +231,12 @@ export default function PatientDetail() {
   const handleDeleteNode = async (nodeId) => {
     const ok = await confirm({ title: 'מחיקת צומת', message: 'למחוק צומת זה?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
-    fetchAll().catch(() => {})
+    try {
+      await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
+      fetchAll().catch(() => {})
+    } catch (err) {
+      showToast('שגיאה במחיקת הצומת. נסה שוב.')
+    }
   }
 
   const handleUpdateNode = async (nodeId, updates) => {
