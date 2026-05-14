@@ -916,10 +916,13 @@ def can_advance(
         if not _parallel_group_complete(db, instance_id, step.parallel_group):
             return {"can_advance": False, "gate_blocked": False,
                     "error_msg": "ממתין לסיום שלבים מקבילים נוספים"}
-        max_order = db.query(models.WorkflowStep).filter(
+        last_parallel = db.query(models.WorkflowStep).filter(
             models.WorkflowStep.instance_id == instance_id,
             models.WorkflowStep.parallel_group == step.parallel_group,
-        ).order_by(models.WorkflowStep.step_order.desc()).first().step_order
+        ).order_by(models.WorkflowStep.step_order.desc()).first()
+        if last_parallel is None:
+            return {"can_advance": True, "gate_blocked": False, "error_msg": None}
+        max_order = last_parallel.step_order
         next_step = db.query(models.WorkflowStep).filter(
             models.WorkflowStep.instance_id == instance_id,
             models.WorkflowStep.step_order > max_order,
