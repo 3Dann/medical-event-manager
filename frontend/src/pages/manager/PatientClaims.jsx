@@ -62,7 +62,7 @@ export default function PatientClaims() {
   }
 
   const handleAmountApproved = async (claimId, amount) => {
-    await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parseFloat(amount) }); fetchAll()
+    await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parseFloat(amount) }); fetchAll().catch(() => {})
   }
 
   const handleDelete = async (claimId) => {
