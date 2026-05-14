@@ -87,20 +87,26 @@ export default function WorkflowPanel({ patientId }) {
   const { toast, showToast, dismissToast } = useToast()
   const [confirm, ConfirmUI] = useConfirm()
 
-  const fetchInstances = useCallback(async () => {
+  const fetchInstances = useCallback(async (signal) => {
     try {
-      const res = await axios.get(`/api/workflows/instances?patient_id=${patientId}`)
+      const res = await axios.get(`/api/workflows/instances?patient_id=${patientId}`, { signal })
       setInstances(res.data)
       if (res.data.length > 0 && !selected) {
         const first = res.data.find(i => i.status === 'active') || res.data[0]
         setSelected(first)
       }
+    } catch (e) {
+      if (axios.isCancel(e)) return
     } finally {
       setLoading(false)
     }
   }, [patientId])
 
-  useEffect(() => { fetchInstances() }, [fetchInstances])
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchInstances(controller.signal)
+    return () => controller.abort()
+  }, [fetchInstances])
 
   // Auto-expand the active step when instance changes; reset delete confirm
   useEffect(() => {
