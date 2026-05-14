@@ -1145,14 +1145,14 @@ export default function IntakeWizard() {
               disabled={step === 0}
               className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium"
             >
-              ← חזרה
+              → חזרה
             </button>
             {step < STEPS.length - 1 ? (
               <button
                 onClick={next}
                 className="px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
               >
-                המשך →
+                המשך ←
               </button>
             ) : (
               <button
