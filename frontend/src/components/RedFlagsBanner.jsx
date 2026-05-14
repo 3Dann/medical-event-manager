@@ -98,11 +98,12 @@ function AddFlagModal({ patientId, onClose, onSaved }) {
           </div>
         </div>
         <div className="flex gap-3 justify-end mt-5">
-          <button onClick={onClose} className="btn-secondary">ביטול</button>
-          <button onClick={save} disabled={saving || !form.title.trim()} className="btn-primary disabled:opacity-40">
+          <button type="button" onClick={onClose} className="btn-secondary">ביטול</button>
+          <button type="submit" disabled={saving || !form.title.trim()} className="btn-primary disabled:opacity-40">
             {saving ? 'שומר...' : 'הוסף נורה'}
           </button>
         </div>
+        </form>
       </div>
     </div>
   )
