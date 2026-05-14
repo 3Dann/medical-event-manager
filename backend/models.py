@@ -390,7 +390,7 @@ class Node(Base):
 class NodeSubItem(Base):
     __tablename__ = "node_sub_items"
     id = Column(Integer, primary_key=True, index=True)
-    node_id = Column(Integer, ForeignKey("nodes.id"), nullable=False)
+    node_id = Column(Integer, ForeignKey("nodes.id"), nullable=False, index=True)
     text = Column(String, nullable=False)
     is_done = Column(Boolean, default=False)
     sort_order = Column(Integer, default=0)
