@@ -578,6 +578,20 @@ def get_notifications(
                 "severity": "info",
             })
 
+    if current_user.is_admin:
+        pending_regs = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.status == "pending"
+        ).order_by(models.PendingRegistration.created_at.desc()).limit(5).all()
+        for reg in pending_regs:
+            notifications.append({
+                "id": f"reg_{reg.id}",
+                "type": "pending_registration",
+                "title": f"בקשת רישום: {reg.full_name} ({reg.role})",
+                "patient_id": None,
+                "created_at": reg.created_at.isoformat() if reg.created_at else None,
+                "severity": "warning",
+            })
+
     notifications.sort(key=lambda n: (
         0 if n["severity"] == "critical" else
         1 if n["severity"] == "warning" else 2
