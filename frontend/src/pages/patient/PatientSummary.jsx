@@ -1148,7 +1148,7 @@ export default function PatientSummary() {
       {view === 'home'      && <HomeScreen patient={patient} manager={manager} data={data} onNavigate={setView} />}
       {view === 'timeline'  && <TimelineSection  workflows={workflows} redFlags={red_flags} onBack={goBack} />}
       {view === 'claims'    && <ClaimsSection    claims={claims}       onBack={goBack} />}
-      {view === 'documents' && <DocumentsSection documents={documents} patientId={patient.id} onBack={goBack} />}
+      {view === 'documents' && <DocumentsSection documents={documents} patientId={patient.id} onBack={goBack} onRefresh={setData} />}
       {view === 'financial' && <FinancialSection financial={financial} onBack={goBack} />}
       {view === 'requests'  && <RequestsSection  patientId={patient.id} onBack={goBack} />}
     </div>
