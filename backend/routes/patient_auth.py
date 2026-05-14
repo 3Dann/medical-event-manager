@@ -131,7 +131,6 @@ def _ensure_patient_user(patient: models.Patient, db: Session) -> models.User:
         email=email,
         hashed_password=hashed,
         role=models.UserRole.patient,
-        is_active=True,
     )
     db.add(user)
     db.flush()
