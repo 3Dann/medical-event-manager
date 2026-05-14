@@ -7,6 +7,7 @@ import RedFlagsBanner from '../../components/RedFlagsBanner'
 export default function PatientLayout() {
   const { id }    = useParams()
   const { t }     = useTranslation('nav')
+  const location  = useLocation()
   const [patient, setPatient]     = useState(null)
   const [hasNsclc, setHasNsclc]   = useState(false)
 
