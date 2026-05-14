@@ -104,10 +104,27 @@ function LoginModal({ onClose, initialTab = 'login' }) {
     e.preventDefault(); setError(''); setLoading(true)
     try {
       const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail })
-      setResetToken(res.data.reset_token)
-      setForgotStep(2)
+      setExtraField(res.data.extra_field || '')
+      setIdNumber('')
+      setExtraAnswer('')
+      setForgotStep('1b')
     } catch (err) { setError(err.response?.data?.detail || t('common:error')) }
     finally { setLoading(false) }
+  }
+
+  const handleForgotVerify = async (e) => {
+    e.preventDefault(); setError(''); setLoading(true)
+    try {
+      await axios.post('/api/auth/forgot-password/verify', {
+        email: forgotEmail,
+        id_number: idNumber,
+        extra_answer: extraAnswer,
+      })
+      setForgotStep(2)
+    } catch (err) {
+      const detail = err.response?.data?.detail || t('common:error')
+      setError(detail)
+    } finally { setLoading(false) }
   }
 
   const handleForgotStep2 = async (e) => {
