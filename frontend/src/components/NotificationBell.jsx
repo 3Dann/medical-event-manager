@@ -31,10 +31,11 @@ export default function NotificationBell() {
   }, [])
 
   const TYPE_ICONS = {
-    overdue_task:     '⏰',
-    sla_breach:       '🚨',
-    patient_request:  '📩',
-    patient_document: '📎',
+    overdue_task:          '⏰',
+    sla_breach:            '🚨',
+    patient_request:       '📩',
+    patient_document:      '📎',
+    pending_registration:  '📝',
   }
 
   return (
