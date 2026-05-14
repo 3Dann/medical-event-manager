@@ -84,6 +84,7 @@ export default function PatientDetail() {
   })
 
   useEffect(() => {
+    setEditForm({ full_name: '', id_number: '', birth_date: '', gender: '', hmo_name: '', hmo_level: '', diagnosis: '', medical_stage: '', notes: '', condition_tags: [] })
     const ctrl = new AbortController()
     fetchAll(ctrl.signal)
     return () => ctrl.abort()
