@@ -246,6 +246,7 @@ export default function AdminPage() {
           { key: 'activity',    label: t('tab_activity') },
           { key: 'sessions',    label: 'Sessions' },
           { key: 'funds',       label: t('tab_funds') },
+          { key: 'registrations', label: 'בקשות רישום', badge: pendingRegCount },
         ].map(tb => (
           <button key={tb.key}
             onClick={() => setTab(tb.key)}
