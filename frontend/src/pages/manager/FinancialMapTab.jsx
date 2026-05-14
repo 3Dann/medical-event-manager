@@ -272,7 +272,8 @@ export default function FinancialMapTab({ patientId }) {
   }
 
   const removeApp = async (appId) => {
-    if (!confirm('להסיר מקור מימון זה?')) return
+    const ok = await confirm({ title: 'הסרת מקור מימון', message: 'להסיר מקור מימון זה?', confirmLabel: 'הסר', danger: true })
+    if (!ok) return
     await fetch(`/api/patients/${patientId}/financial-funds/${appId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
