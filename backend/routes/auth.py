@@ -68,6 +68,7 @@ class Token(BaseModel):
     tfa_method: str = None
     totp_configured: bool = False   # True = user has TOTP set up, shows Google option
     must_change_password: bool = False
+    demo_mode_allowed: bool = False
 
 
 class ForgotPasswordRequest(BaseModel):
