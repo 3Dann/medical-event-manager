@@ -254,6 +254,7 @@ function SignatureCanvas({ label, onChange }) {
   const canvasRef = useRef()
   const drawing = useRef(false)
   const [isEmpty, setIsEmpty] = useState(true)
+  const isEmptyRef = useRef(true)
 
   const getPos = (e, canvas) => {
     const rect = canvas.getBoundingClientRect()
