@@ -180,9 +180,17 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
           setInput(v)
           onChange(v)
           onPostalCode?.('')
+          selectedStreetRef.current = null
           setOpen(v.length > 0 && allStreets.length > 0)
         }}
         onFocus={() => filtered.length > 0 && setOpen(true)}
+        onBlur={() => {
+          const trimmed = input.trim()
+          if (trimmed && allStreets.length > 0) {
+            const exact = allStreets.filter(s => s.name === trimmed)
+            if (exact.length === 1) selectStreet(exact[0])
+          }
+        }}
         required={required}
         disabled={disabled || loading}
         autoComplete="off"
