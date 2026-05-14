@@ -26,7 +26,7 @@ export default function AdminDashboardPage() {
     <div className="p-8 text-center text-red-500">{error}</div>
   )
 
-  const { totals, managers, alerts } = data
+  const { totals = {}, managers = [], alerts = [] } = data || {}
 
   // ── סטטיסטיקות עליונות ─────────────────────────────────────────────
   // להוספת כרטיס: הוסף איבר למערך
