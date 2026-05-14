@@ -8,6 +8,8 @@ import auth as auth_utils
 
 router = APIRouter(prefix="/api/patients/{patient_id}/claims", tags=["claims"])
 
+VALID_STATUSES = {"pending", "submitted", "approved", "partial", "rejected", "draft"}
+
 
 class ClaimCreate(BaseModel):
     insurance_source_id: int
