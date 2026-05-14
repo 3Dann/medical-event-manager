@@ -231,11 +231,9 @@ export default function FinancialMapTab({ patientId }) {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const r = await fetch(`/api/patients/${patientId}/financial-map`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
-      if (r.ok) setData(await r.json())
-    } finally { setLoading(false) }
+      const res = await axios.get(`/api/patients/${patientId}/financial-map`)
+      setData(res.data)
+    } catch {} finally { setLoading(false) }
   }, [patientId])
 
   useEffect(() => { load() }, [load])
