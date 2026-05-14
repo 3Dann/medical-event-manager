@@ -764,7 +764,8 @@ function SessionsPanel() {
   }, [])
 
   const revoke = async (sessionId, userName) => {
-    if (!window.confirm(`לנתק את ${userName} מהמערכת?`)) return
+    const ok = await confirm({ title: 'ניתוק משתמש', message: `לנתק את ${userName} מהמערכת?`, confirmLabel: 'נתק', danger: true })
+    if (!ok) return
     setRevoking(sessionId)
     try {
       await axios.delete(`/api/admin/sessions/${sessionId}`)
