@@ -181,7 +181,7 @@ def list_registrations(
     ]
 
 
-@router.post("/api/admin/registrations/{reg_id}/approve")
+@router.post("/admin/registrations/{reg_id}/approve")
 def approve_registration(
     reg_id: int,
     current_user: models.User = Depends(auth_utils.get_current_user),
