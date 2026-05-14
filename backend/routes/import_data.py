@@ -103,7 +103,7 @@ def import_bituch_leumi(
     if existing_count > 0:
         raise HTTPException(
             status_code=400,
-            detail=f"זכאויות ביטוח לאומי כבר קיימות בתיק {patient.full_name} — {existing_count} זכאויות קיימות"
+            detail=f"זכאויות ביטוח לאומי כבר קיימות בתיק המטופל שצוין — {existing_count} זכאויות קיימות"
         )
 
     # Import all default entitlements
