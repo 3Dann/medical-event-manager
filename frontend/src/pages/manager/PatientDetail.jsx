@@ -144,22 +144,34 @@ export default function PatientDetail() {
   // ── Sub-items ──────────────────────────────────────────────────────────────
   const addSubItem = async (nodeId, text) => {
     if (!text.trim()) return
-    await axios.post(`/api/patients/${id}/nodes/${nodeId}/subitems`, {
-      text: text.trim(), sort_order: 99,
-    })
-    fetchAll()
+    try {
+      await axios.post(`/api/patients/${id}/nodes/${nodeId}/subitems`, {
+        text: text.trim(), sort_order: 99,
+      })
+      fetchAll()
+    } catch (err) {
+      showToast('שגיאה בהוספת פריט. נסה שוב.')
+    }
   }
 
   const toggleSubItem = async (nodeId, itemId, isDone) => {
-    await axios.put(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`, { is_done: isDone })
-    setNodes(prev => prev.map(n => n.id === nodeId
-      ? { ...n, sub_items: n.sub_items.map(s => s.id === itemId ? { ...s, is_done: isDone } : s) }
-      : n))
+    try {
+      await axios.put(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`, { is_done: isDone })
+      setNodes(prev => prev.map(n => n.id === nodeId
+        ? { ...n, sub_items: n.sub_items.map(s => s.id === itemId ? { ...s, is_done: isDone } : s) }
+        : n))
+    } catch (err) {
+      showToast('שגיאה בעדכון הפריט. נסה שוב.')
+    }
   }
 
   const deleteSubItem = async (nodeId, itemId) => {
-    await axios.delete(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`)
-    fetchAll()
+    try {
+      await axios.delete(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`)
+      fetchAll()
+    } catch (err) {
+      showToast('שגיאה במחיקת הפריט. נסה שוב.')
+    }
   }
 
   // ── Journey templates ──────────────────────────────────────────────────────
