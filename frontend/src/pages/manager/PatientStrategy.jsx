@@ -310,7 +310,7 @@ export default function PatientStrategy() {
       }
       await axios.post('/api/workflows/suggest/apply', payload)
       setConflict(null)
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (e) {
       showToast('לא ניתן ליצור זרימות כרגע. נסה שוב.')
     } finally {
