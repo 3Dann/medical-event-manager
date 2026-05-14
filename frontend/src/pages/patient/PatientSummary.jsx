@@ -497,11 +497,11 @@ function DocumentsSection({ documents: initialDocs, patientId, onBack, onRefresh
           onClose={() => setViewingDoc(null)}
         />
       )}
-      {documents.length === 0 ? (
-        <EmptyState icon="📁" text="אין מסמכים עדיין" sub="מנהל האירוע שלך יעלה מסמכים כשיהיו" />
+      {docs.length === 0 ? (
+        <EmptyState icon="📁" text="אין מסמכים עדיין" sub="תוכל להעלות מסמכים בכפתור למעלה" />
       ) : (
         <div className="space-y-3">
-          {documents.map(doc => {
+          {docs.map(doc => {
             const icon = DOC_CATEGORY[doc.category] || '📄'
             return (
               <div key={doc.id} className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-4">
