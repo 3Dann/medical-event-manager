@@ -333,7 +333,7 @@ export default function PatientInsurance() {
         notes:          cov.notes      || null,
       })
     }
-    setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll()
+    setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll().catch(() => {})
   }
 
   const handleEditCoverage = async (sourceId, category, field, value) => {
@@ -351,13 +351,13 @@ export default function PatientInsurance() {
       abroad_covered: updated.abroad_covered ?? false,
       notes:          updated.notes       || null,
     })
-    fetchAll()
+    fetchAll().catch(() => {})
   }
 
   const handleDeleteSource = async (sourceId) => {
     const ok = await confirm({ title: 'מחיקת מקור ביטוח', message: 'למחוק מקור ביטוח זה?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/insurance/${sourceId}`); fetchAll()
+    await axios.delete(`/api/patients/${id}/insurance/${sourceId}`); fetchAll().catch(() => {})
   }
 
   const handleUploadExcel = async (e) => {
@@ -366,7 +366,7 @@ export default function PatientInsurance() {
     const fd = new FormData(); fd.append('file', file)
     try {
       const res = await axios.post(`/api/patients/${id}/insurance/upload-excel`, fd)
-      setExcelResult({ success:true, ...res.data }); fetchAll()
+      setExcelResult({ success:true, ...res.data }); fetchAll().catch(() => {})
     } catch(err) {
       setExcelResult({ success:false, error: err.response?.data?.detail||err.message })
     } finally { setUploading(false) }
@@ -386,7 +386,7 @@ export default function PatientInsurance() {
       }
       const res = await axios.post('/api/import/kupat-holim', { id_number: p.data.id_number })
       setHmoResult({ success: true, message: res.data.message, imported: res.data.imported })
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (err) {
       setHmoResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally { setImportingHmo(false) }
@@ -402,7 +402,7 @@ export default function PatientInsurance() {
       }
       const res = await axios.post('/api/import/bituch-leumi', { id_number: p.data.id_number })
       setBlResult({ success: true, message: res.data.message, count: res.data.entitlements_imported })
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (err) {
       setBlResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally { setImportingBL(false) }
@@ -415,7 +415,7 @@ export default function PatientInsurance() {
     try {
       const res = await axios.post(`/api/patients/${id}/insurance/upload-private`, fd)
       setPrivateUploadResult({ success: true, ...res.data })
-      setShowForm(false); fetchAll()
+      setShowForm(false); fetchAll().catch(() => {})
     } catch (err) {
       setPrivateUploadResult({ success: false, error: err.response?.data?.detail || err.message })
     } finally { setUploadingPrivate(false) }
@@ -428,7 +428,7 @@ export default function PatientInsurance() {
     try {
       const res = await axios.post(`/api/patients/${id}/insurance/analyze-ai`, fd)
       setAiResult({ success: true, ...res.data })
-      setShowForm(false); fetchAll()
+      setShowForm(false); fetchAll().catch(() => {})
     } catch (err) {
       setAiResult({ success: false, error: err.response?.data?.detail || err.message })
     } finally { setAnalyzingAI(false) }
@@ -437,13 +437,13 @@ export default function PatientInsurance() {
   const handleDeleteEntitlement = async (entId) => {
     const ok = await confirm({ title: 'מחיקת זכאות', message: 'למחוק זכאות זו?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/entitlements/${entId}`); fetchAll()
+    await axios.delete(`/api/patients/${id}/entitlements/${entId}`); fetchAll().catch(() => {})
   }
 
   const handleAddEntitlement = async (e) => {
     e.preventDefault()
     await axios.post(`/api/patients/${id}/entitlements`, { ...entForm, amount: entForm.amount ? parseFloat(entForm.amount) : null })
-    setShowEntitlementForm(false); fetchAll()
+    setShowEntitlementForm(false); fetchAll().catch(() => {})
   }
 
   const updateCovField = (catKey, field, value) =>
@@ -452,7 +452,6 @@ export default function PatientInsurance() {
   const handleImportSal = async () => {
     setImportingSal(true); setSalResult(null)
     try {
-      // Get patient id_number first
       const p = await axios.get(`/api/patients/${id}`)
       if (!p.data.id_number) {
         setSalResult({ success: false, message: 'אין מספר ת.ז. בתיק המטופל — עדכן תחילה בלשונית פרטים' })
@@ -460,7 +459,7 @@ export default function PatientInsurance() {
       }
       const res = await axios.post('/api/import/sal-habriut', { id_number: p.data.id_number })
       setSalResult({ success: true, message: res.data.message, count: res.data.coverages_imported })
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (err) {
       setSalResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally { setImportingSal(false) }
