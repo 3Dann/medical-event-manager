@@ -376,6 +376,7 @@ def delete_medication(
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     med = (
         db.query(models.PatientMedication)
         .filter(models.PatientMedication.id == med_id, models.PatientMedication.patient_id == patient_id)
