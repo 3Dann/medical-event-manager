@@ -60,7 +60,7 @@ export default function PatientLayout() {
                    ? 'border-blue-600 text-blue-600'
                    : 'border-transparent text-slate-500 hover:text-slate-800'}`
               }
-              aria-selected={undefined}
+              aria-selected={({ isActive }) => isActive}
             >
               {tab.label}
             </NavLink>
