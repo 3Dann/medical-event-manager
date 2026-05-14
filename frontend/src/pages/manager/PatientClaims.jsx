@@ -108,6 +108,7 @@ export default function PatientClaims() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
+      <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {ConfirmUI}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">{t('claims_tracker_title')}</h2>
