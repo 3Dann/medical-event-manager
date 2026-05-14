@@ -645,6 +645,10 @@ export default function IntakeWizard() {
 
   const back = () => { setErrors({}); setStep(s => s - 1) }
 
+  const adlTouched  = useMemo(() => Object.keys(form.adl_answers).length > 0,  [form.adl_answers])
+  const iadlTouched = useMemo(() => Object.keys(form.iadl_answers).length > 0, [form.iadl_answers])
+  const mmseTouched = useMemo(() => Object.keys(form.mmse_answers).length > 0, [form.mmse_answers])
+
   // ── Scores ──────────────────────────────────────────────────────────────────
   const adlScore  = useMemo(() => Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0), [form.adl_answers])
   const iadlScore = useMemo(() => Object.values(form.iadl_answers).reduce((s, v) => s + (Number(v) === 1 ? 1 : 0), 0), [form.iadl_answers])
