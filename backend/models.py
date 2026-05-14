@@ -186,8 +186,8 @@ class WebAuthnCredential(Base):
     public_key      = Column(Text, nullable=False)                  # hex
     sign_count      = Column(Integer, default=0)
     device_name     = Column(String, default="מכשיר")
-    created_at      = Column(DateTime, default=func.now())
-    last_used       = Column(DateTime, nullable=True)
+    created_at      = Column(DateTime(timezone=True), server_default=func.now())
+    last_used       = Column(DateTime(timezone=True), nullable=True)
     user = relationship("User", back_populates="webauthn_credentials")
 
 
