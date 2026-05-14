@@ -238,7 +238,7 @@ export default function PatientDetail() {
   const handleUpdateNode = async (nodeId, updates) => {
     try {
       await axios.put(`/api/patients/${id}/nodes/${nodeId}`, updates)
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (err) {
       showToast('שגיאה בעדכון הצומת. נסה שוב.')
     }
