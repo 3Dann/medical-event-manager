@@ -29,6 +29,7 @@ export default function MedicationAutocomplete({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef(null)
+  const abortRef = useRef(null)
   const containerRef = useRef(null)
   const inputRef = useRef(null)
 
