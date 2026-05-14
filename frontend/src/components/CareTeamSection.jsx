@@ -109,6 +109,7 @@ export default function CareTeamSection({ patientId }) {
 
   return (
     <div className="card">
+      {ConfirmUI}
       <div className="flex items-center justify-between mb-4">
         <h2 className="font-semibold text-slate-800">צוות המטפלים</h2>
         <button onClick={() => { setEditing(null); setShowModal(true) }}
