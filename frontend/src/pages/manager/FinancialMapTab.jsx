@@ -59,8 +59,8 @@ function AddFundModal({ patientId, onClose, onAdded }) {
 
   useEffect(() => {
     const ctrl = new AbortController()
-    fetch('/api/financial-funds', { signal: ctrl.signal, headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
-      .then(r => r.json()).then(setFunds).catch(() => {})
+    axios.get('/api/financial-funds', { signal: ctrl.signal })
+      .then(r => setFunds(r.data)).catch(() => {})
     return () => ctrl.abort()
   }, [])
 
