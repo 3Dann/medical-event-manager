@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
+import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 
 // SOURCE_TYPE_LABELS defined inside component for i18n
