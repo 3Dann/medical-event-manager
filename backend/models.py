@@ -628,7 +628,7 @@ class WorkflowInstance(Base):
     __tablename__ = "workflow_instances"
     id               = Column(Integer, primary_key=True, index=True)
     template_id      = Column(Integer, ForeignKey("workflow_templates.id"))
-    patient_id       = Column(Integer, ForeignKey("patients.id"))
+    patient_id       = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"))
     created_by       = Column(Integer, ForeignKey("users.id"))
     title            = Column(String, nullable=True)
     status           = Column(String, default="active")  # active / completed / cancelled / paused
