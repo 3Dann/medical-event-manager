@@ -40,12 +40,17 @@ function PatientRequestsPanel({ patientId }) {
 
   const resolve = async (req, newStatus) => {
     setSaving(true)
-    await axios.put(`/api/patients/${patientId}/requests/${req.id}`, {
-      status: newStatus,
-      manager_note: replyId === req.id ? note : undefined,
-    }).catch(() => {})
-    setReplyId(null); setNote(''); setSaving(false)
-    load()
+    try {
+      await axios.put(`/api/patients/${patientId}/requests/${req.id}`, {
+        status: newStatus,
+        manager_note: replyId === req.id ? note : undefined,
+      })
+    } catch {
+      showReqToast('שגיאה בעדכון הפנייה. נסה שוב.')
+    } finally {
+      setReplyId(null); setNote(''); setSaving(false)
+      load()
+    }
   }
 
   const pending = requests.filter(r => r.status === 'pending').length
