@@ -117,7 +117,7 @@ export default function WorkflowPanel({ patientId }) {
     } else {
       setActiveStep(null)
     }
-  }, [selected?.id])
+  }, [selected])
 
   const handleUpdated = async (updatedInstance) => {
     const res = await axios.get(`/api/workflows/instances/${updatedInstance.id}`)
