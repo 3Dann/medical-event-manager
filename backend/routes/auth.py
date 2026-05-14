@@ -486,7 +486,8 @@ def request_sms_code(request: Request, data: RequestEmailCodeRequest, db: Sessio
 
 
 @router.post("/2fa/setup-totp-login")
-def setup_totp_during_login(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def setup_totp_during_login(request: Request, data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
     """Generate TOTP secret during login flow (uses temp_token, no full auth needed)."""
     from jwt import PyJWTError as JWTError
     try:
