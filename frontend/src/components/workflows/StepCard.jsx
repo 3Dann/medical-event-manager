@@ -99,12 +99,12 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
   }
 
   const handleForceGate = async () => {
-    const ok = window.confirm('האם לעקוף את שער הלוגיקה? פעולה זו תתועד.')
+    const ok = await confirm({ title: 'עקיפת שער לוגיקה', message: 'האם לעקוף את שער הלוגיקה? פעולה זו תתועד.', confirmLabel: 'עקוף שער', danger: true })
     if (!ok) return
     setSaving(true)
     try {
-      await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/force-gate`)
-      onUpdated()
+      const res = await axios.post(`/api/workflows/instances/${instanceId}/steps/${step.id}/force-gate`)
+      onUpdated(res.data)
     } catch (e) {
       showToast('לא ניתן לעקוף את השער כרגע. נסה שוב.')
     } finally {
