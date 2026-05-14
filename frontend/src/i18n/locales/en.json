@@ -617,6 +617,7 @@
     "source_workflow": "Workflow",
     "source_request": "Request",
     "source_flag": "Alert",
+    "source_sla": "SLA Breach",
     "priority_urgent": "Urgent",
     "priority_high": "High",
     "priority_medium": "Medium",
