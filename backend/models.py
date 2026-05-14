@@ -740,7 +740,7 @@ class WorkflowStepTask(Base):
     """Checklist task instance — one per step per patient workflow."""
     __tablename__ = "workflow_step_tasks"
     id           = Column(Integer, primary_key=True, index=True)
-    step_id      = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False)
+    step_id      = Column(Integer, ForeignKey("workflow_steps.id"), nullable=False, index=True)
     title        = Column(String, nullable=False)
     task_order   = Column(Integer, default=0)
     is_completed = Column(Boolean, default=False)
