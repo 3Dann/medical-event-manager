@@ -368,11 +368,10 @@ export default function PatientStrategy() {
       {/* Tabs */}
       <nav aria-label="טאבי אסטרטגיה" className="flex gap-1 border-b border-slate-200">
         {[
-          ['workflows',     `⚡ ${t('strategy:tab_workflows')}`],
-          ['financial_map', `💰 ${t('strategy:tab_financial_map')}`],
-          ['strategy',      t('strategy:tab_strategy')],
-          ['matrix',        t('strategy:tab_matrix')],
-          ['insights',      `🧠 ${t('strategy:tab_insights')}`],
+          ['workflows', `⚡ ${t('strategy:tab_workflows')}`],
+          ['strategy',  t('strategy:tab_strategy')],
+          ['matrix',    t('strategy:tab_matrix')],
+          ['insights',  `🧠 ${t('strategy:tab_insights')}`],
         ].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors
