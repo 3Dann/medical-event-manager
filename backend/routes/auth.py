@@ -577,23 +577,114 @@ def logout(
     return response
 
 
+_RESET_CHALLENGES: dict = {}
+
+
+def _cleanup_reset_challenges():
+    from datetime import timezone as tz
+    now = datetime.now(tz.utc)
+    expired = [k for k, v in _RESET_CHALLENGES.items() if v["expires"] < now]
+    for k in expired:
+        del _RESET_CHALLENGES[k]
+
+
+class ForgotPasswordVerifyRequest(BaseModel):
+    email: str
+    id_number: str
+    extra_answer: str
+
+
 @router.post("/forgot-password")
-@limiter.limit("3/15minutes")
+@limiter.limit("5/minute")
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    _GENERIC = "אם האימייל רשום במערכת, קוד איפוס ישלח אליו"
+    from datetime import timezone as tz
+    import random
+    _cleanup_reset_challenges()
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
-        return {"message": _GENERIC, "reset_token": None, "email_configured": False}
-    token = secrets.token_urlsafe(16)  # 22 chars, 128-bit entropy
-    user.reset_token = token
-    user.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
-    db.commit()
-    sent = email_utils.send_reset_code(user.email, token)
-    return {
-        "message": _GENERIC,
-        "reset_token": None if sent else token,
-        "email_configured": sent,
+        return {"step": "verify", "extra_field": "מה שמך המלא?"}
+    options = []
+    if user.full_name:
+        options.append(("full_name", "מה שמך המלא?"))
+    pending_reg = db.query(models.PendingRegistration).filter(
+        models.PendingRegistration.email == data.email,
+        models.PendingRegistration.status == "approved",
+    ).first()
+    if pending_reg and pending_reg.org_name:
+        options.append(("org_name", "מה שם הארגון שלך?"))
+    if not options:
+        options.append(("full_name", "מה שמך המלא?"))
+    chosen_field, chosen_label = random.choice(options)
+    _RESET_CHALLENGES[data.email] = {
+        "field": chosen_field,
+        "expires": datetime.now(tz.utc) + timedelta(minutes=10),
+        "user_id": user.id,
     }
+    return {"step": "verify", "extra_field": chosen_label}
+
+
+@router.post("/forgot-password/verify")
+@limiter.limit("5/minute")
+def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, db: Session = Depends(get_db)):
+    from datetime import timezone as tz
+    _cleanup_reset_challenges()
+    challenge = _RESET_CHALLENGES.get(data.email)
+    if not challenge or challenge["expires"] < datetime.now(tz.utc):
+        raise HTTPException(status_code=400, detail="נא להתחיל מחדש")
+    user = db.query(models.User).filter(models.User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="נא להתחיל מחדש")
+    if (user.reset_verify_attempts or 0) >= 3:
+        raise HTTPException(status_code=429, detail="החשבון חסום. פנה לאדמין.")
+    patient = db.query(models.Patient).filter(
+        models.Patient.patient_user_id == user.id
+    ).first()
+    id_ok = True
+    if patient and patient.id_number:
+        id_ok = (data.id_number.strip() == (patient.id_number or "").strip())
+    extra_ok = False
+    field = challenge["field"]
+    if field == "full_name":
+        extra_ok = data.extra_answer.strip().lower() == (user.full_name or "").strip().lower()
+    elif field == "org_name":
+        pending_reg = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.email == data.email,
+            models.PendingRegistration.status == "approved",
+        ).first()
+        org = (pending_reg.org_name or "").strip().lower() if pending_reg else ""
+        extra_ok = data.extra_answer.strip().lower() == org
+    if not id_ok or not extra_ok:
+        user.reset_verify_attempts = (user.reset_verify_attempts or 0) + 1
+        db.commit()
+        if user.reset_verify_attempts >= 3:
+            user.locked_until = datetime.now(tz.utc) + timedelta(days=365)
+            db.commit()
+            _RESET_CHALLENGES.pop(data.email, None)
+            admins = db.query(models.User).filter(models.User.is_admin == True).all()
+            for admin in admins:
+                email_utils.send_email(
+                    to=admin.email,
+                    subject="חשבון נחסם — ניסיונות שחזור סיסמה חשודים",
+                    body_html=(
+                        f"<div dir='rtl' style='font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:12px;'>"
+                        f"<h2 style='color:#1e3a5f;'>חשבון נחסם</h2>"
+                        f"<p>החשבון של <strong>{user.full_name}</strong> ({user.email}) נחסם לאחר 3 ניסיונות כושלים לאימות זהות בתהליך שחזור סיסמה.</p>"
+                        f"<p style='color:#6b7280;font-size:13px;'>כנס לאזור הניהול כדי לשחרר את החשבון.</p>"
+                        f"</div>"
+                    ),
+                )
+            raise HTTPException(status_code=403, detail="זיהוי נכשל 3 פעמים. חשבונך נחסם — פנה לאדמין.")
+        remaining = 3 - user.reset_verify_attempts
+        raise HTTPException(status_code=401, detail=f"פרטים שגויים. נותרו {remaining} ניסיונות.")
+    user.reset_verify_attempts = 0
+    db.commit()
+    _RESET_CHALLENGES.pop(data.email, None)
+    reset_token = secrets.token_urlsafe(16)
+    user.reset_token = reset_token
+    user.reset_token_expires = datetime.utcnow() + timedelta(minutes=15)
+    db.commit()
+    email_utils.send_reset_code(user.email, reset_token)
+    return {"step": "reset_sent", "message": "קוד שחזור נשלח לאימייל שלך"}
 
 
 @router.post("/reset-password")
