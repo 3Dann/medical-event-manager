@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import FundManagementPanel from './FundManagementPanel'
 import { useTranslation } from 'react-i18next'
+import { useToast } from '../../hooks/useToast'
+import AppToast from '../../components/AppToast'
 
 const DEV_EMAIL = 'da.tzalik@gmail.com'
 
