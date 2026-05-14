@@ -589,13 +589,12 @@ export default function AdminPage() {
 }
 
 // ── Registrations Panel ───────────────────────────────────────────────────────
-function RegistrationsPanel({ onCountChange }) {
+function RegistrationsPanel({ onCountChange, showToast }) {
   const [regs, setRegs]           = useState([])
   const [loading, setLoading]     = useState(true)
   const [viewStatus, setViewStatus] = useState('pending')
   const [rejectInputs, setRejectInputs] = useState({})
   const [acting, setActing]       = useState(null)
-  const { showToast }             = useToast()
 
   const load = (status = viewStatus) => {
     const ctrl = new AbortController()
