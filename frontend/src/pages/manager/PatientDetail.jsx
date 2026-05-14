@@ -496,7 +496,7 @@ export default function PatientDetail() {
             </div>
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setShowAddForm(false)} className="btn-secondary text-sm py-1.5">{t('common:cancel', { ns: 'common' })}</button>
-              <button type="submit" className="btn-primary text-sm py-1.5">{t('add_to_timeline')}</button>
+              <button type="submit" disabled={addingNode} className="btn-primary text-sm py-1.5">{t('add_to_timeline')}</button>
             </div>
           </form>
         )}
