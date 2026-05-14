@@ -518,7 +518,8 @@ def setup_totp_during_login(request: Request, data: RequestEmailCodeRequest, db:
 
 
 @router.post("/2fa/request-email-code")
-def request_email_code(data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def request_email_code(request: Request, data: RequestEmailCodeRequest, db: Session = Depends(get_db)):
     """Generate an email 2FA code for the login flow (displayed in UI since no mail server)."""
     from jwt import PyJWTError as JWTError
     try:
