@@ -125,7 +125,7 @@ function EditableCoverageTable({ source, patientId, handleEditCoverage, fetchAll
 
   const handleDeleteCoverage = async (covId) => {
     await axios.delete(`/api/patients/${patientId}/insurance/${source.id}/coverage/${covId}`)
-    fetchAll()
+    fetchAll().catch(() => {})
   }
 
   const handleAddCustom = async () => {
@@ -133,7 +133,7 @@ function EditableCoverageTable({ source, patientId, handleEditCoverage, fetchAll
     await axios.post(`/api/patients/${patientId}/insurance/${source.id}/coverage`, {
       category: newCatLabel.trim(), is_covered: true, abroad_covered: false,
     })
-    setNewCatLabel(''); setShowAddRow(false); fetchAll()
+    setNewCatLabel(''); setShowAddRow(false); fetchAll().catch(() => {})
   }
 
   const standardKeys = CATEGORIES.map(c => c.key)
