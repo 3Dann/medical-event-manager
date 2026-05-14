@@ -247,7 +247,11 @@ export default function PatientStrategy() {
         axios.get(`/api/patients/${id}/strategy`, cfg),
         axios.get(`/api/patients/${id}/strategy/matrix`, cfg),
         axios.get(`/api/learning/patients/${id}/insights`, cfg),
-        axios.get(`/api/workflows/suggest?patient_id=${id}`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : null),
+        axios.get(`/api/workflows/suggest?patient_id=${id}`, cfg).catch(e => {
+          if (axios.isCancel(e)) return Promise.reject(e)
+          showToast('שגיאה בטעינת הצעות זרימה')
+          return null
+        }),
         axios.get(`/api/workflows/instances?patient_id=${id}`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : { data: [] }),
         axios.get(`/api/patients/${id}/claims`, cfg).catch(e => axios.isCancel(e) ? Promise.reject(e) : { data: [] }),
       ])
