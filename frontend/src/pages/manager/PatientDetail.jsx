@@ -354,9 +354,8 @@ export default function PatientDetail() {
                 </div>
               )}
               {(() => {
-                const tags = typeof patient.condition_tags === 'string'
-                  ? JSON.parse(patient.condition_tags || '[]')
-                  : (patient.condition_tags || [])
+                let tags = []
+                try { tags = typeof patient.condition_tags === 'string' ? JSON.parse(patient.condition_tags || '[]') : (patient.condition_tags || []) } catch { tags = [] }
                 return tags.length > 0 && (
                   <div>
                     <dt className="text-slate-500">{t('diagnoses_label')}</dt>
