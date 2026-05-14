@@ -555,6 +555,12 @@ class FlowEngine:
                 if s.status == "pending" and s.step_order >= new_order:
                     s.step_order += 10
 
+        while db.query(models.WorkflowStep).filter(
+            models.WorkflowStep.instance_id == instance_id,
+            models.WorkflowStep.step_order == new_order
+        ).first():
+            new_order += 1
+
         now = _now()
         due = (now + timedelta(days=duration_days)) if duration_days else None
 
