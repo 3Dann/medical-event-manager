@@ -780,7 +780,7 @@ def confirm_email_2fa(data: Confirm2FAEmailRequest, current_user: models.User = 
     """Activate email 2FA after user confirms the code."""
     if not current_user.email_2fa_code or current_user.email_2fa_code != data.code:
         raise HTTPException(status_code=400, detail="קוד שגוי")
-    if not current_user.email_2fa_expires or datetime.utcnow() > current_user.email_2fa_expires.replace(tzinfo=None):
+    if not current_user.email_2fa_expires or datetime.now(tz_module.utc) > (current_user.email_2fa_expires if current_user.email_2fa_expires.tzinfo else current_user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
         raise HTTPException(status_code=400, detail="הקוד פג תוקף")
     current_user.totp_enabled = True
     current_user.totp_method = "email"
