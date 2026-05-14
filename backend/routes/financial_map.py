@@ -153,7 +153,7 @@ def _application_dict(app: models.PatientFundApplication) -> dict:
         "expected_amount": app.expected_amount,
         "approved_amount": app.approved_amount,
         "effective_amount": app.approved_amount if app.status == "approved"
-                            else (app.expected_amount if app.status == "applied" else 0),
+                            else app.expected_amount if app.status in ("applied", "considering") else 0,
         "notes":           app.notes,
         "applied_at":      app.applied_at.isoformat() if app.applied_at else None,
         "resolved_at":     app.resolved_at.isoformat() if app.resolved_at else None,
