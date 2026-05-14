@@ -395,8 +395,6 @@ def run_migrations():
         # Phase 1 — journey + draft claims
         ("workflow_templates", "is_journey",   "BOOLEAN DEFAULT 0"),
         ("claims", "workflow_step_id", "INTEGER REFERENCES workflow_steps(id)"),
-        # Phase 2 — step tasks (checklist)
-        ("workflow_step_templates", "task_templates_json", "TEXT"),  # unused col, tables created by metadata
         # Medical specialties — learning fields
         ("medical_specialties", "confidence_score", "FLOAT DEFAULT 1.0"),
         ("medical_specialties", "feedback_count",   "INTEGER DEFAULT 0"),
