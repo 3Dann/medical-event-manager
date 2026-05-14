@@ -856,7 +856,7 @@ class PatientCareTeamMember(Base):
     __tablename__ = "patient_care_team"
 
     id           = Column(Integer, primary_key=True, index=True)
-    patient_id   = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    patient_id   = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), nullable=False)
     role         = Column(String, nullable=False)   # oncologist|navigator|pain_doctor|nutritionist|psycho_oncologist|rights_advisor|other
     name         = Column(String, nullable=False)
     phone        = Column(String, nullable=True)
