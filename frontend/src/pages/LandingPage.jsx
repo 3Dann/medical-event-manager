@@ -63,12 +63,19 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         res = await axios.post('/api/auth/register', {
           full_name: form.full_name, email: form.email,
           password: form.password, role: form.role,
+          org_name: form.org_name || null,
+          applicant_message: form.applicant_message || null,
         })
+        if (res.data.pending) {
+          setSuccess('בקשתך התקבלה! נשלח אליך מייל לאחר אישור האדמין.')
+          setForm({ email: '', password: '', full_name: '', role: 'manager', org_name: '', applicant_message: '' })
+          return
+        }
       }
       if (res.data.requires_2fa) {
         setTempToken(res.data.temp_token)
         setTotpConfigured(!!res.data.totp_configured)
-        setTwoFAMethod(null)   // show choice screen
+        setTwoFAMethod(null)
         setTwoFAStep(true)
         return
       }
