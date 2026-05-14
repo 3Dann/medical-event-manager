@@ -20,7 +20,7 @@ export default function ManagerDashboard() {
   useEffect(() => {
     const controller = new AbortController()
     fetchPatients(controller.signal)
-    fetchInsights()
+    fetchInsights(controller.signal)
     return () => controller.abort()
   }, [])
 
@@ -33,11 +33,13 @@ export default function ManagerDashboard() {
     } finally { setLoading(false) }
   }
 
-  const fetchInsights = async () => {
+  const fetchInsights = async (signal) => {
     try {
-      const res = await axios.get('/api/learning/insights')
+      const res = await axios.get('/api/learning/insights', { signal })
       setGlobalInsights(res.data)
-    } catch (e) { /* insights are non-critical */ }
+    } catch (e) {
+      if (!axios.isCancel(e)) {}
+    }
   }
 
   const handleDelete = async (id) => {
