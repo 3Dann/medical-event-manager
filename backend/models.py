@@ -653,7 +653,7 @@ class WorkflowInstance(Base):
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
     id                    = Column(Integer, primary_key=True, index=True)
-    instance_id = Column(Integer, ForeignKey("workflow_instances.id"), index=True)
+    instance_id = Column(Integer, ForeignKey("workflow_instances.id", ondelete="CASCADE"), index=True)
     step_key              = Column(String, nullable=False)
     name                  = Column(String, nullable=False)
     step_order            = Column(Integer, nullable=False)
