@@ -926,7 +926,7 @@ def request_password_email_code(current_user: models.User = Depends(auth_utils.g
         raise HTTPException(status_code=400, detail="אימות אימייל אינו מופעל")
     code = secrets.token_hex(4).upper()  # 8 chars, 32-bit entropy
     current_user.email_2fa_code = code
-    current_user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    current_user.email_2fa_expires = datetime.now(tz_module.utc) + timedelta(minutes=10)
     db.commit()
     sent = email_utils.send_2fa_code(current_user.email, code)
     return {
