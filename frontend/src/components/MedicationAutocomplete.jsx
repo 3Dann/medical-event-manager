@@ -36,6 +36,13 @@ export default function MedicationAutocomplete({
   useEffect(() => { setQuery(value || '') }, [value])
 
   useEffect(() => {
+    return () => {
+      clearTimeout(debounceRef.current)
+      if (abortRef.current) abortRef.current.abort()
+    }
+  }, [])
+
+  useEffect(() => {
     const handler = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
     }
