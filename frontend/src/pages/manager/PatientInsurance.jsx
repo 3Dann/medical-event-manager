@@ -247,6 +247,7 @@ export default function PatientInsurance() {
   const [sources, setSources]         = useState([])
   const [entitlements, setEntitlements] = useState([])
   const [showForm, setShowForm]       = useState(false)
+  const [addingSource, setAddingSource] = useState(false)
   const [expandedSource, setExpandedSource] = useState(null)
   const [showEntitlementForm, setShowEntitlementForm] = useState(false)
   const [uploading, setUploading]     = useState(false)
