@@ -264,6 +264,7 @@ export default function PatientInsurance() {
   const [analyzingAI, setAnalyzingAI] = useState(false)
   const [aiResult, setAiResult] = useState(null)
   const [customCompany, setCustomCompany] = useState(false)
+  const hmoImportCtrl = useRef(null)
 
   const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
   const [coverages, setCoverages] = useState(emptyCoverages())
