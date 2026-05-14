@@ -115,13 +115,18 @@ export default function PatientDetail() {
   }
 
   const handleSavePatient = async () => {
-    const payload = {
-      ...editForm,
-      condition_tags: JSON.stringify(editForm.condition_tags || []),
+    setSaving(true)
+    try {
+      const payload = {
+        ...editForm,
+        condition_tags: JSON.stringify(editForm.condition_tags || []),
+      }
+      await axios.put(`/api/patients/${id}`, payload)
+      setEditingInfo(false)
+      fetchAll()
+    } finally {
+      setSaving(false)
     }
-    await axios.put(`/api/patients/${id}`, payload)
-    setEditingInfo(false)
-    fetchAll()
   }
 
   const handleAddNode = async (e) => {
