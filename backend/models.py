@@ -957,6 +957,7 @@ class PatientRedFlag(Base):
 class UserActivityLog(Base):
     """Audit log — one row per meaningful user action."""
     __tablename__ = "user_activity_logs"
+    __table_args__ = (Index('ix_activity_user_time', 'user_id', 'created_at'),)
 
     id            = Column(Integer, primary_key=True, index=True)
     user_id       = Column(Integer, nullable=True, index=True)
