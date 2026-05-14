@@ -228,7 +228,7 @@ class RejectRegistrationRequest(BaseModel):
     reason: str
 
 
-@router.post("/api/admin/registrations/{reg_id}/reject")
+@router.post("/admin/registrations/{reg_id}/reject")
 def reject_registration(
     reg_id: int,
     body: RejectRegistrationRequest,
