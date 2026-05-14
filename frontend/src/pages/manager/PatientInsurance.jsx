@@ -304,7 +304,7 @@ export default function PatientInsurance() {
         axios.get(`/api/patients/${id}/entitlements`, { signal }),
       ])
       setSources(s.data); setEntitlements(e.data)
-    } catch (e) { if (!axios.isCancel(e)) throw e }
+    } catch (e) { if (!axios.isCancel(e)) showToast('שגיאה בטעינת נתונים') }
   }
 
   const isDuplicate = () => sources.some(s => {
