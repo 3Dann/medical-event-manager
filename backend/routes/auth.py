@@ -701,12 +701,12 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.reset_token == data.token).first()
     if not user:
         raise HTTPException(status_code=400, detail="קישור האיפוס אינו תקין")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(tz_module.utc)
     expires = user.reset_token_expires
     if not expires:
         raise HTTPException(status_code=400, detail="קישור האיפוס אינו תקין")
     if expires.tzinfo is None:
-        expires = expires.replace(tzinfo=timezone.utc)
+        expires = expires.replace(tzinfo=tz_module.utc)
     if now > expires:
         raise HTTPException(status_code=400, detail="קישור האיפוס פג תוקף — בקש קישור חדש")
     user.hashed_password = auth_utils.get_password_hash(data.new_password)
