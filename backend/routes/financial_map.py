@@ -12,11 +12,14 @@ PUT  /api/admin/financial-funds/{fid}          עריכת קרן (admin)
 """
 
 import json
+import logging
 from datetime import datetime, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger("financial_map")
 
 import models
 from database import get_db
