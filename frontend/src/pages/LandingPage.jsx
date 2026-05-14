@@ -406,24 +406,20 @@ function LoginModal({ onClose, initialTab = 'login' }) {
           </form>
         )}
         {!twoFAStep && tab === 'forgot' && forgotStep === 2 && (
-          <form onSubmit={handleForgotStep2} className="space-y-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-              <p className="text-xs text-blue-600 mb-1">{t('auth:reset_code_label')}</p>
-              <p className="text-2xl font-bold text-blue-800 tracking-widest">{resetToken}</p>
-              <p className="text-xs text-blue-500 mt-1">{t('auth:validity_1hr')}</p>
+          <div className="space-y-4 text-center">
+            <div className="text-5xl mb-2">📬</div>
+            <h3 className="font-bold text-slate-800 text-lg">קישור נשלח לאימייל שלך</h3>
+            <p className="text-slate-600 leading-relaxed">
+              בדוק את תיבת הדואר שלך ולחץ על הקישור לאיפוס הסיסמה.<br />
+              הקישור תקף ל-15 דקות בלבד.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-700">
+              לא קיבלת מייל? בדוק בתיקיית ספאם, או חזור ונסה שנית.
             </div>
-            <div><label className="label">{t('auth:verify_code')}</label>
-              <input className="input text-center tracking-widest uppercase" maxLength={6}
-                value={resetForm.token} onChange={e => setResetForm({...resetForm, token: e.target.value.toUpperCase()})} required /></div>
-            <div><label className="label">{t('auth:new_password')}</label>
-              <input type="password" className="input" value={resetForm.new_password} onChange={e => setResetForm({...resetForm, new_password: e.target.value})} required /></div>
-            <div><label className="label">{t('auth:confirm_password')}</label>
-              <input type="password" className="input" value={resetForm.confirm} onChange={e => setResetForm({...resetForm, confirm: e.target.value})} required /></div>
-            {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
-              {loading ? t('common:saving') : t('auth:reset_password')}
+            <button onClick={() => switchTab('login')} className="btn-secondary w-full py-2.5 mt-2">
+              חזרה לכניסה
             </button>
-          </form>
+          </div>
         )}
       </div>
     </div>
