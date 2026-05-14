@@ -643,7 +643,24 @@ export default function IntakeWizard() {
     setStep(s => s + 1)
   }
 
-  const back = () => { setErrors({}); setStep(s => s - 1) }
+  const SIGNATURE_STEP = 6
+  const back = () => {
+    setErrors({})
+    setStep(s => {
+      if (s === SIGNATURE_STEP) {
+        setForm(f => ({
+          ...f,
+          consent_agreed: false,
+          consent_signature: null,
+          financial_consent_agreed: false,
+          financial_consent_signature: null,
+          poa_agreed: false,
+          poa_signature: null,
+        }))
+      }
+      return s - 1
+    })
+  }
 
   const adlTouched  = useMemo(() => Object.keys(form.adl_answers).length > 0,  [form.adl_answers])
   const iadlTouched = useMemo(() => Object.keys(form.iadl_answers).length > 0, [form.iadl_answers])
