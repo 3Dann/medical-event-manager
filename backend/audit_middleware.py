@@ -34,6 +34,7 @@ _ROUTES = [
     ("POST",   r"^/api/admin/users/(\d+)/reset$",                    "admin_reset_user",  "user",      1),
     ("POST",   r"^/api/admin/users/(\d+)/delete-data$",              "admin_delete_data", "user",      1),
     ("GET",    r"^/api/admin/activity",                              "view_activity_log", None,        None),
+    ("POST",   r"^/api/auth/logout$",                               "logout",            None,        None),
 ]
 
 COMPILED_ROUTES = [
