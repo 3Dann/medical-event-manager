@@ -111,11 +111,15 @@ export default function RedFlagsBanner({ patientId }) {
   const [showAdd, setShowAdd] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
 
-  const load = () =>
-    axios.get(`/api/patients/${patientId}/red-flags?active_only=true`)
-      .then(r => setFlags(r.data)).catch(() => {})
+  const load = (signal) =>
+    axios.get(`/api/patients/${patientId}/red-flags?active_only=true`, { signal })
+      .then(r => setFlags(r.data)).catch(e => { if (axios.isCancel(e)) return })
 
-  useEffect(() => { load() }, [patientId])
+  useEffect(() => {
+    const controller = new AbortController()
+    load(controller.signal)
+    return () => controller.abort()
+  }, [patientId])
 
   const resolve = async (id) => {
     await axios.put(`/api/patients/${patientId}/red-flags/${id}/resolve`)
