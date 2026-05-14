@@ -146,7 +146,7 @@ export default function FeedbackWidget({ open: controlledOpen, onClose, floating
                     rows={4}
                     className="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                   />
-                  <p className="text-xs text-slate-400 mt-1 text-left">{message.length}/400</p>
+                  <p className="text-xs text-slate-400 mt-1 text-right">{message.length}/400</p>
                 </div>
 
                 {/* Submit */}
