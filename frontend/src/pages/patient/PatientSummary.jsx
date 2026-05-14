@@ -454,8 +454,18 @@ function ClaimsSection({ claims, onBack }) {
 }
 
 // ── Documents section ─────────────────────────────────────────────────────────
-function DocumentsSection({ documents, patientId, onBack }) {
+function DocumentsSection({ documents: initialDocs, patientId, onBack, onRefresh }) {
   const [viewingDoc, setViewingDoc] = useState(null)
+  const [docs, setDocs]             = useState(initialDocs)
+  const [showUpload, setShowUpload] = useState(false)
+
+  const handleUploaded = async () => {
+    try {
+      const r = await axios.get('/api/patient/summary')
+      setDocs(r.data.documents ?? [])
+      if (onRefresh) onRefresh(r.data)
+    } catch {}
+  }
 
   return (
     <div>
@@ -463,8 +473,21 @@ function DocumentsSection({ documents, patientId, onBack }) {
         title="המסמכים שלי"
         subtitle="כל המסמכים הרפואיים והביטוחיים שלך במקום אחד"
         onBack={onBack}
-        speakText={() => documents.length === 0 ? 'אין מסמכים עדיין.' : `יש ${documents.length} מסמכים. ${documents.map(d => d.original_name).join(', ')}.`}
+        speakText={() => docs.length === 0 ? 'אין מסמכים עדיין.' : `יש ${docs.length} מסמכים. ${docs.map(d => d.original_name).join(', ')}.`}
       />
+
+      <button
+        onClick={() => setShowUpload(v => !v)}
+        className="w-full mb-5 py-4 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-lg transition-colors flex items-center justify-center gap-3 min-h-[56px]"
+      >
+        <span className="text-2xl">{showUpload ? '✕' : '📤'}</span>
+        {showUpload ? 'סגור העלאה' : 'העלה מסמך חדש'}
+      </button>
+
+      {showUpload && (
+        <FileUploadZone patientId={patientId} onUploaded={handleUploaded} />
+      )}
+
       {viewingDoc && (
         <DocViewerModal
           viewUrl={`/api/patients/${patientId}/documents/${viewingDoc.id}/download`}
