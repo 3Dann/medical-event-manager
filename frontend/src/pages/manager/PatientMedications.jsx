@@ -28,6 +28,7 @@ export default function PatientMedications() {
   const { t } = useTranslation('medications')
   const { id } = useParams()
   const { toast, showToast, dismissToast } = useToast()
+  const [confirm, ConfirmUI] = useConfirm()
   const [medications, setMedications] = useState([])
   const [interactions, setInteractions] = useState([])
   const [checkingInteractions, setCheckingInteractions] = useState(false)
