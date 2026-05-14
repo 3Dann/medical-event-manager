@@ -200,9 +200,11 @@ def _find_col(row_dict, *keys):
 async def preview_har_habitua_excel(
     patient_id: int,
     file: UploadFile = File(...),
+    db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager)
 ):
     """Preview Excel contents before importing — returns detected headers and rows."""
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     content = await file.read()
     try:
         wb = openpyxl.load_workbook(io.BytesIO(content))
