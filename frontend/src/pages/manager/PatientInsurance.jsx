@@ -321,23 +321,28 @@ export default function PatientInsurance() {
   const handleAddSource = async (e) => {
     e.preventDefault()
     if (isDuplicate()) return
-    const res = await axios.post(`/api/patients/${id}/insurance`, form)
-    const srcId = res.data.id
-    for (const cat of CATEGORIES) {
-      const cov = coverages[cat.key]
-      await axios.post(`/api/patients/${id}/insurance/${srcId}/coverage`, {
-        category: cat.key,
-        is_covered: cov.is_covered,
-        coverage_amount:    cov.coverage_amount    ? parseFloat(cov.coverage_amount)    : null,
-        coverage_percentage:cov.coverage_percentage? parseFloat(cov.coverage_percentage): null,
-        copay:              cov.copay              ? parseFloat(cov.copay)              : null,
-        annual_limit:       cov.annual_limit       ? parseFloat(cov.annual_limit)       : null,
-        conditions:    cov.conditions  || null,
-        abroad_covered: cov.abroad_covered,
-        notes:          cov.notes      || null,
-      })
+    setAddingSource(true)
+    try {
+      const res = await axios.post(`/api/patients/${id}/insurance`, form)
+      const srcId = res.data.id
+      for (const cat of CATEGORIES) {
+        const cov = coverages[cat.key]
+        await axios.post(`/api/patients/${id}/insurance/${srcId}/coverage`, {
+          category: cat.key,
+          is_covered: cov.is_covered,
+          coverage_amount:    cov.coverage_amount    ? parseFloat(cov.coverage_amount)    : null,
+          coverage_percentage:cov.coverage_percentage? parseFloat(cov.coverage_percentage): null,
+          copay:              cov.copay              ? parseFloat(cov.copay)              : null,
+          annual_limit:       cov.annual_limit       ? parseFloat(cov.annual_limit)       : null,
+          conditions:    cov.conditions  || null,
+          abroad_covered: cov.abroad_covered,
+          notes:          cov.notes      || null,
+        })
+      }
+      setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll().catch(() => {})
+    } finally {
+      setAddingSource(false)
     }
-    setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll().catch(() => {})
   }
 
   const handleEditCoverage = async (sourceId, category, field, value) => {
