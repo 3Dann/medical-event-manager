@@ -906,7 +906,7 @@ def change_own_password(data: ChangePasswordRequest, db: Session = Depends(get_d
         if method == "email":
             if not current_user.email_2fa_code or current_user.email_2fa_code != data.tfa_code:
                 raise HTTPException(status_code=400, detail="קוד אימות שגוי")
-            if not current_user.email_2fa_expires or datetime.utcnow() > current_user.email_2fa_expires.replace(tzinfo=None):
+            if not current_user.email_2fa_expires or datetime.now(tz_module.utc) > (current_user.email_2fa_expires if current_user.email_2fa_expires.tzinfo else current_user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
                 raise HTTPException(status_code=400, detail="קוד האימות פג תוקף")
             current_user.email_2fa_code = None
             current_user.email_2fa_expires = None
