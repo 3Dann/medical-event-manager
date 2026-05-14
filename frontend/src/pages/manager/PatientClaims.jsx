@@ -49,7 +49,7 @@ export default function PatientClaims() {
     e.preventDefault()
     const payload = { ...form, insurance_source_id: parseInt(form.insurance_source_id), amount_requested: form.amount_requested ? parseFloat(form.amount_requested) : null, priority_order: form.priority_order ? parseInt(form.priority_order) : null }
     await axios.post(`/api/patients/${id}/claims`, payload)
-    setShowForm(false); fetchAll()
+    setShowForm(false); fetchAll().catch(() => {})
   }
 
   const handleStatusChange = async (claimId, newStatus) => {
