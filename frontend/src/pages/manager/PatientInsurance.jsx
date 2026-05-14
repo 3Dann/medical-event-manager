@@ -89,6 +89,13 @@ export default function PatientInsurance() {
   }
 
   useEffect(() => {
+    setSalResult(null)
+    setBlResult(null)
+    setHmoResult(null)
+    setPrivateUploadResult(null)
+    setExcelResult(null)
+    setAiResult(null)
+    setGapData(null)
     const ctrl = new AbortController()
     fetchAll(ctrl.signal)
     fetchGapAnalysis(ctrl.signal)
