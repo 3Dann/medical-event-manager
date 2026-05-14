@@ -237,6 +237,7 @@ function EditableCoverageTable({ source, patientId, handleEditCoverage, fetchAll
 
 export default function PatientInsurance() {
   const { t } = useTranslation('insurance')
+  const { toast, showToast, dismissToast } = useToast()
   const SOURCE_TYPE_LABELS = {
     sal_habriut: t('source_sal'), kupat_holim: t('source_hmo'),
     har_habitua: t('source_sar'), private: t('source_private'), bituch_leumi: t('source_leumi'),
