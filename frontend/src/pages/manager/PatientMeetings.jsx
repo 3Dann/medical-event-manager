@@ -193,7 +193,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
   }
 
   const toggleTask = i => {
-    const updated = form.action_items.map((t, idx) => idx === i ? { ...t, done: !t.done } : t)
+    const updated = form.action_items.map((item, idx) => idx === i ? { ...item, done: !item.done } : item)
     set('action_items', updated)
   }
 
