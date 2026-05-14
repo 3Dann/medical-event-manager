@@ -43,7 +43,7 @@ def import_sal_habriut(
     if existing:
         raise HTTPException(
             status_code=400,
-            detail=f"סל הבריאות כבר קיים בתיק {patient.full_name} — לא ניתן להוסיף כפילות"
+            detail="סל הבריאות כבר קיים בתיק המטופל שצוין — לא ניתן להוסיף כפילות"
         )
 
     # Create source
