@@ -117,6 +117,7 @@ function AppRoutes() {
         <Route path="/broker" element={<ProtectedRoute role="broker"><BrokerPortal /></ProtectedRoute>} />
 
         {/* Patient routes */}
+        <Route path="/patient-login" element={<PatientLoginPage />} />
         <Route path="/patient" element={<ProtectedRoute role="patient"><PatientLayout /></ProtectedRoute>}>
           <Route index element={<PatientSummary />} />
         </Route>
