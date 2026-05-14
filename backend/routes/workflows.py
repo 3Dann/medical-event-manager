@@ -465,12 +465,21 @@ def list_instances(
         q = q.filter(models.Patient.patient_user_id == current_user.id)
     elif not current_user.is_admin:
         q = q.filter(models.Patient.manager_id == current_user.id)
-    instances = q.order_by(models.WorkflowInstance.started_at.desc()).limit(limit).offset(offset).all()
+    instances = q.options(
+        joinedload(models.WorkflowInstance.patient)
+    ).order_by(models.WorkflowInstance.started_at.desc()).limit(limit).offset(offset).all()
+
+    inst_ids = [i.id for i in instances]
+    all_steps = db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.instance_id.in_(inst_ids)).all() if inst_ids else []
+    steps_map = {}
+    for s in all_steps:
+        steps_map.setdefault(s.instance_id, []).append(s)
 
     result = []
     for i in instances:
         summary = FlowEngine.get_summary(i)
-        patient = db.get(models.Patient, i.patient_id)
+        patient = i.patient
         summary["patient_name"] = patient.full_name if patient else None
         summary["diagnosis"] = patient.diagnosis_details if patient else None
         result.append(summary)
