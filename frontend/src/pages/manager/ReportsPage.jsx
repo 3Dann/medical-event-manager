@@ -28,10 +28,12 @@ function ReportCard({ title, description, icon, onGenerate, generating }) {
   const [open, setOpen]         = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     fetch('/api/patients', { headers: AUTH() })
       .then(r => r.json())
-      .then(data => setPatients(Array.isArray(data) ? data : []))
+      .then(data => { if (!cancelled) setPatients(Array.isArray(data) ? data : []) })
       .catch(() => {})
+    return () => { cancelled = true }
   }, [])
 
   const filtered = patients.filter(p =>
