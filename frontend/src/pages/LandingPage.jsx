@@ -367,6 +367,44 @@ function LoginModal({ onClose, initialTab = 'login' }) {
             </button>
           </form>
         )}
+        {!twoFAStep && tab === 'forgot' && forgotStep === '1b' && (
+          <form onSubmit={handleForgotVerify} className="space-y-4" dir="rtl">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+              אמת את זהותך כדי להמשיך בשחזור הסיסמה
+            </div>
+            <div>
+              <label className="label">מספר זהות (ת.ז)</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="input"
+                value={idNumber}
+                onChange={e => setIdNumber(e.target.value.replace(/\D/g, ''))}
+                maxLength={9}
+                required
+              />
+            </div>
+            <div>
+              <label className="label">{extraField}</label>
+              <input
+                type="text"
+                className="input"
+                value={extraAnswer}
+                onChange={e => setExtraAnswer(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3">
+              {loading ? t('common:loading') : 'אמת זהות'}
+            </button>
+            <button type="button" onClick={() => { setForgotStep(1); setError('') }}
+              className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
+              חזור
+            </button>
+          </form>
+        )}
         {!twoFAStep && tab === 'forgot' && forgotStep === 2 && (
           <form onSubmit={handleForgotStep2} className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
