@@ -93,6 +93,7 @@ export default function PasskeySection() {
 
   return (
     <div className="card mt-6">
+      {ConfirmUI}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-base font-semibold text-slate-800">כניסה ביומטרית (Passkey)</h3>
