@@ -383,7 +383,7 @@ class NodeSubItem(Base):
 class InsuranceSource(Base):
     __tablename__ = "insurance_sources"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), index=True)
     source_type = Column(String, nullable=False)
     # קופת חולים
     hmo_name = Column(String, nullable=True)
