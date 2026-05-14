@@ -711,6 +711,22 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     return {"message": "הסיסמה עודכנה בהצלחה"}
 
 
+@router.get("/reset-password/validate")
+def validate_reset_token(token: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.reset_token == token).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="קישור לא תקין")
+    now = datetime.now(timezone.utc)
+    expires = user.reset_token_expires
+    if not expires:
+        raise HTTPException(status_code=400, detail="קישור לא תקין")
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if now > expires:
+        raise HTTPException(status_code=400, detail="קישור פג תוקף")
+    return {"valid": True}
+
+
 @router.post("/2fa/setup")
 def setup_2fa(current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
     """Generate a new TOTP secret and return a QR code for scanning."""
