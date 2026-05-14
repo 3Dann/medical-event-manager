@@ -165,13 +165,8 @@ function UpdateStatusModal({ patientId, app, onClose, onUpdated }) {
   const save = async () => {
     setSaving(true)
     try {
-      const r = await fetch(`/api/patients/${patientId}/financial-funds/${app.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify({ status, approved_amount: approved ? +approved : null, notes }),
-      })
-      if (!r.ok) throw new Error()
-      onUpdated(await r.json())
+      const res = await axios.put(`/api/patients/${patientId}/financial-funds/${app.id}`, { status, approved_amount: approved ? +approved : null, notes })
+      onUpdated(res.data)
       onClose()
     } catch { setSaving(false) }
   }
