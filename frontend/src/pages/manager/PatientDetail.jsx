@@ -578,6 +578,7 @@ export default function PatientDetail() {
                           onClick={() => isEditing ? setEditingNode(null) : startEditNode(node)}
                           className="text-xs text-blue-400 hover:text-blue-600 px-1"
                           title="עריכה"
+                          aria-label="עריכת צומת"
                         >✏️</button>
                         {!isFixed && (
                           <button onClick={() => handleDeleteNode(node.id)} className="text-xs text-red-300 hover:text-red-500 px-1" title="מחק">✕</button>
