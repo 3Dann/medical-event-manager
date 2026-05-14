@@ -338,9 +338,7 @@ def add_medication(
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(status_code=404, detail="מטופל לא נמצא")
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     med = models.PatientMedication(patient_id=patient_id, **body.model_dump())
     db.add(med)
     db.commit()
