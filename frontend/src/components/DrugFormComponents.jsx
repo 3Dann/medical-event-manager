@@ -269,7 +269,7 @@ export function MedicationCard({ med, onChange, onRemove }) {
       if (!inLocalMap) onChange({ ...med, indication: data.indication })
     }
     if (data.interactions_text) setInteractionsText(data.interactions_text)
-  }, [])
+  }, [med, onChange])
 
   return (
     <div className="space-y-3">
