@@ -16,6 +16,9 @@ export default function ResizablePanel({
 }) {
   const [size, setSize] = useState(defaultSize)
   const drag = useRef({ active: false, startPos: 0, startSize: 0 })
+  const minRef = useRef(minSize)
+  const maxRef = useRef(maxSize)
+  useEffect(() => { minRef.current = minSize; maxRef.current = maxSize }, [minSize, maxSize])
 
   const onDragStart = useCallback((e) => {
     drag.current = {
