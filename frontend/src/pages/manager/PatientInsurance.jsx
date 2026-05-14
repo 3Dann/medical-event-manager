@@ -558,7 +558,7 @@ export default function PatientInsurance() {
       <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
       {ConfirmUI}
       {/* Modals */}
-      {showHarGuide && <HarBituaGuide />}
+      {showHarGuide && <HarBituaGuide onClose={() => setShowHarGuide(false)} onUpload={handleUploadExcel} />}
 
       {/* Header */}
       <div className="flex justify-between items-center">
