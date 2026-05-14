@@ -154,7 +154,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     return {"pending": True, "message": "בקשתך התקבלה. תקבל אישור במייל לאחר בדיקת האדמין."}
 
 
-@router.get("/api/admin/registrations")
+@router.get("/admin/registrations")
 def list_registrations(
     status: str = Query("pending"),
     current_user: models.User = Depends(auth_utils.get_current_user),
