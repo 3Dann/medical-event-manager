@@ -6,6 +6,7 @@ import {
 } from '../../components/DrugFormComponents'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 
 const SEVERITY_COLORS = {
