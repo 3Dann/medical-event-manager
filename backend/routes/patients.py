@@ -369,10 +369,12 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
     if data.id_number:
         existing = db.query(models.User).filter(models.User.email == data.id_number).first()
         if not existing:
+            import secrets as _secrets
+            temp_pw = _secrets.token_urlsafe(16)
             patient_user = models.User(
                 full_name=data.full_name,
                 email=data.id_number,
-                hashed_password=auth_utils.get_password_hash(data.id_number),
+                hashed_password=auth_utils.get_password_hash(temp_pw),
                 role=models.UserRole.patient,
             )
             db.add(patient_user)
