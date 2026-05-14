@@ -420,7 +420,7 @@ class Coverage(Base):
 class Claim(Base):
     __tablename__ = "claims"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), index=True)
     insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id", ondelete="SET NULL"), nullable=True)
     category = Column(String, nullable=False)
     description = Column(Text, nullable=True)
