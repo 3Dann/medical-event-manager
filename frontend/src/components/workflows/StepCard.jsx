@@ -55,6 +55,7 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
   const [notes, setNotes] = useState(initialStep.notes || '')
   const [saving, setSaving] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
+  const [confirm, ConfirmUI] = useConfirm()
   const [showSkipConfirm, setShowSkipConfirm] = useState(false)
   const [showForceConfirm, setShowForceConfirm] = useState(false)
   const [togglingTask, setTogglingTask] = useState(null)
