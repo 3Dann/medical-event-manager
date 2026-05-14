@@ -187,10 +187,10 @@ export default function PatientMedications() {
               </a>
             )}
           </div>
-          {interactions.map((ix, i) => {
+          {interactions.map((ix) => {
             const c = SEVERITY_COLORS[ix.severity] || SEVERITY_COLORS.low
             return (
-              <div key={i} className={`rounded-xl border ${c.border} ${c.bg} p-3`}>
+              <div key={ix.drug_a + ix.drug_b} className={`rounded-xl border ${c.border} ${c.bg} p-3`}>
                 <div className="flex items-start gap-2">
                   <span className="text-base mt-0.5">{c.icon}</span>
                   <div>
