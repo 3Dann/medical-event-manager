@@ -121,10 +121,10 @@ export default function LoginPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-slate-100 rounded-lg p-1 mb-6">
-          {[['login','התחברות'],['register','הרשמה'],['forgot','שכחתי סיסמה']].map(([t, label]) => (
-            <button key={t} onClick={() => { setTab(t); setError(''); setSuccess(''); setForgotStep(1) }}
-              className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${tab === t ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
+        <div role="tablist" className="flex bg-slate-100 rounded-lg p-1 mb-6">
+          {[['login','התחברות'],['register','הרשמה'],['forgot','שכחתי סיסמה']].map(([key, label]) => (
+            <button key={key} role="tab" aria-selected={tab === key} onClick={() => { setTab(key); setError(''); setSuccess(''); setForgotStep(1) }}
+              className={`flex-1 py-2 text-xs font-medium rounded-md transition-colors ${tab === key ? 'bg-white shadow text-blue-600' : 'text-slate-600'}`}>
               {label}
             </button>
           ))}
