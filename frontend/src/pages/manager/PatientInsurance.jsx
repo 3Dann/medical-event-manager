@@ -385,9 +385,12 @@ export default function PatientInsurance() {
   }
 
   const handleImportHmo = async () => {
+    if (hmoImportCtrl.current) hmoImportCtrl.current.abort()
+    hmoImportCtrl.current = new AbortController()
+    const signal = hmoImportCtrl.current.signal
     setImportingHmo(true); setHmoResult(null)
     try {
-      const p = await axios.get(`/api/patients/${id}`)
+      const p = await axios.get(`/api/patients/${id}`, { signal })
       if (!p.data.id_number) {
         setHmoResult({ success: false, message: 'אין מספר ת.ז. בתיק המטופל — עדכן תחילה בלשונית פרטים' })
         return
@@ -396,11 +399,11 @@ export default function PatientInsurance() {
         setHmoResult({ success: false, message: 'לא הוגדרה קופת חולים בתיק — עדכן תחילה בלשונית פרטים' })
         return
       }
-      const res = await axios.post('/api/import/kupat-holim', { id_number: p.data.id_number })
+      const res = await axios.post('/api/import/kupat-holim', { id_number: p.data.id_number }, { signal })
       setHmoResult({ success: true, message: res.data.message, imported: res.data.imported })
       fetchAll().catch(() => {})
     } catch (err) {
-      setHmoResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
+      if (!axios.isCancel(err)) setHmoResult({ success: false, message: err.response?.data?.detail || 'שגיאה בייבוא' })
     } finally { setImportingHmo(false) }
   }
 
