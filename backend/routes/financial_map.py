@@ -287,7 +287,7 @@ def get_financial_map(
                 pass
         if fund.eligible_ages_min is not None and age is not None and age < fund.eligible_ages_min:
             continue
-        if fund.eligible_ages_max and age and age > fund.eligible_ages_max:
+        if fund.eligible_ages_max is not None and age is not None and age > fund.eligible_ages_max:
             continue
         # Condition match (empty eligible_conditions = matches all)
         if fund_conds and not any(tag in fund_conds for tag in patient_tags):
