@@ -115,7 +115,7 @@ export default function Form17Section({ patientId }) {
 
   const load = () => {
     axios.get(`/api/patients/${patientId}/form17`).then(r => setEntries(r.data)).catch(() => {})
-    axios.get(`/api/patients/${patientId}/insurance-sources`).then(r => setSources(r.data)).catch(() => {})
+    axios.get(`/api/patients/${patientId}/insurance`).then(r => setSources(r.data)).catch(() => {})
   }
   useEffect(() => { load() }, [patientId])
 
