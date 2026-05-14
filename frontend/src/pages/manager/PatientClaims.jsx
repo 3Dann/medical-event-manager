@@ -55,7 +55,7 @@ export default function PatientClaims() {
   const handleStatusChange = async (claimId, newStatus) => {
     const claim = claims.find(c => c.id === claimId)
     await axios.put(`/api/patients/${id}/claims/${claimId}`, { status: newStatus })
-    fetchAll()
+    fetchAll().catch(() => {})
     if (FEEDBACK_STATUSES.includes(newStatus) && claim?.source_label) {
       setPendingFeedback({ companyName: claim.source_label, outcome: newStatus, scoreUpdated: false })
     }
