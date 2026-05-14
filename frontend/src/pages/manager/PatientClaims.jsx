@@ -28,6 +28,7 @@ export default function PatientClaims() {
   const [claims, setClaims] = useState([])
   const [sources, setSources] = useState([])
   const [showForm, setShowForm] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [form, setForm] = useState({ insurance_source_id: '', category: 'surgery', description: '', amount_requested: '', status: 'pending', submission_date: '', deadline: '', notes: '', priority_order: '' })
   const [pendingFeedback, setPendingFeedback] = useState(null) // { companyName, outcome, scoreUpdated }
   const [feedbackSaving, setFeedbackSaving] = useState(false)
