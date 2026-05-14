@@ -233,7 +233,10 @@ export default function FinancialMapTab({ patientId }) {
     try {
       const res = await axios.get(`/api/patients/${patientId}/financial-map`)
       setData(res.data)
-    } catch {} finally { setLoading(false) }
+    } catch {
+    } finally {
+      setLoading(false)
+    }
   }, [patientId])
 
   useEffect(() => { load() }, [load])
