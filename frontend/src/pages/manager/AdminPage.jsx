@@ -8,15 +8,12 @@ import { useToast } from '../../hooks/useToast'
 import AppToast from '../../components/AppToast'
 import { useConfirm } from '../../components/ConfirmDialog'
 
-const DEV_EMAIL = 'da.tzalik@gmail.com'
-
-
 export default function AdminPage() {
   const { t } = useTranslation('admin')
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const { toast, showToast, dismissToast } = useToast()
-  const isDev = currentUser?.email === DEV_EMAIL
+  const isDev = currentUser?.is_admin
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [resetResult, setResetResult] = useState(null)
