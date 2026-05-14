@@ -36,6 +36,7 @@ function TaskCard({ task, onComplete, onDelete, completing }) {
     workflow_step:   { label: t('source_workflow'), bg: 'bg-violet-100', text: 'text-violet-700'},
     patient_request: { label: t('source_request'),  bg: 'bg-amber-100',  text: 'text-amber-700' },
     red_flag:        { label: t('source_flag'),     bg: 'bg-red-100',    text: 'text-red-700'   },
+    sla_breach:      { label: t('source_sla'),      bg: 'bg-orange-100', text: 'text-orange-700' },
   }
   const PRIORITY_LABELS = {
     urgent: { label: t('priority_urgent'), color: 'text-red-600'    },
