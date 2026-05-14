@@ -473,7 +473,7 @@ def request_sms_code(request: Request, data: RequestEmailCodeRequest, db: Sessio
         raise HTTPException(status_code=404, detail="מספר טלפון לא מוגדר")
     code = secrets.token_hex(4).upper()
     user.email_2fa_code = code
-    user.email_2fa_expires = datetime.utcnow() + timedelta(minutes=10)
+    user.email_2fa_expires = datetime.now(tz_module.utc) + timedelta(minutes=10)
     db.commit()
     sent = sms_utils.send_2fa_sms(user.phone_2fa, code)
     masked = user.phone_2fa[-4:] if user.phone_2fa else "****"
