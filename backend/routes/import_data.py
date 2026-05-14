@@ -32,7 +32,7 @@ def import_sal_habriut(
     ).first()
 
     if not patient:
-        raise HTTPException(status_code=404, detail=f"לא נמצא מטופל עם ת.ז. {data.id_number}")
+        raise HTTPException(status_code=404, detail="לא נמצא מטופל עם מספר זהות זה")
 
     # Check if סל הבריאות already exists
     existing = db.query(models.InsuranceSource).filter(
@@ -93,7 +93,7 @@ def import_bituch_leumi(
     ).first()
 
     if not patient:
-        raise HTTPException(status_code=404, detail=f"לא נמצא מטופל עם ת.ז. {data.id_number}")
+        raise HTTPException(status_code=404, detail="לא נמצא מטופל עם מספר זהות זה")
 
     # Check if entitlements already imported
     existing_count = db.query(models.Entitlement).filter(
@@ -143,7 +143,7 @@ def import_kupat_holim(
     ).first()
 
     if not patient:
-        raise HTTPException(status_code=404, detail=f"לא נמצא מטופל עם ת.ז. {data.id_number}")
+        raise HTTPException(status_code=404, detail="לא נמצא מטופל עם מספר זהות זה")
 
     if not patient.hmo_name or patient.hmo_name not in HMO_PLANS:
         raise HTTPException(status_code=400, detail="לא הוגדרה קופת חולים בתיק המטופל — עדכן תחילה בלשונית פרטים")
