@@ -71,16 +71,32 @@ export default function NotificationBell() {
                 <li key={n.id}>
                   <button
                     onClick={() => {
-                      if (n.patient_id) navigate(`/manager/patients/${n.patient_id}`)
+                      if (n.patient_id) {
+                        const path = n.type === 'patient_document'
+                          ? `/manager/patients/${n.patient_id}/documents`
+                          : n.type === 'patient_request'
+                          ? `/manager/patients/${n.patient_id}/requests`
+                          : `/manager/patients/${n.patient_id}`
+                        navigate(path)
+                      }
                       setOpen(false)
                     }}
                     className="w-full text-right px-4 py-3 hover:bg-slate-50 transition-colors flex items-start gap-3"
                   >
                     <span className="text-base flex-shrink-0 mt-0.5">{TYPE_ICONS[n.type] || '🔔'}</span>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium leading-snug ${n.severity === 'critical' ? 'text-red-700' : 'text-slate-800'}`}>
+                      <p className={`text-sm font-medium leading-snug ${
+                        n.severity === 'critical' ? 'text-red-700' :
+                        n.severity === 'info'     ? 'text-blue-700' :
+                        'text-slate-800'
+                      }`}>
                         {n.title}
                       </p>
+                      {n.created_at && (
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          {new Date(n.created_at).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      )}
                     </div>
                   </button>
                 </li>
