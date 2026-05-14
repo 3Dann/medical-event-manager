@@ -196,7 +196,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
         autoComplete="off"
       />
       {loadingZip && (
-        <span className="absolute left-3 top-2.5 text-xs text-blue-400">מאתר מיקוד...</span>
+        <span className="absolute right-3 top-2.5 text-xs text-blue-400">מאתר מיקוד...</span>
       )}
       {open && filtered.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
