@@ -86,21 +86,25 @@ export default function WorkflowPanel({ patientId }) {
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
   const [confirm, ConfirmUI] = useConfirm()
+  const hasSetInitial = useRef(false)
+
+  useEffect(() => { hasSetInitial.current = false }, [patientId])
 
   const fetchInstances = useCallback(async (signal) => {
     try {
       const res = await axios.get(`/api/workflows/instances?patient_id=${patientId}`, { signal })
       setInstances(res.data)
-      if (res.data.length > 0 && !selected) {
+      if (!hasSetInitial.current && res.data.length > 0) {
         const first = res.data.find(i => i.status === 'active') || res.data[0]
         setSelected(first)
+        hasSetInitial.current = true
       }
     } catch (e) {
       if (axios.isCancel(e)) return
     } finally {
       setLoading(false)
     }
-  }, [patientId, selected])
+  }, [patientId])
 
   useEffect(() => {
     const controller = new AbortController()
