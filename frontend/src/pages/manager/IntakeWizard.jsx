@@ -1104,7 +1104,14 @@ export default function IntakeWizard() {
 
           {/* Progress */}
           <div className="mb-6">
-            <div className="flex items-center mb-3">
+            <div
+              role="progressbar"
+              aria-valuenow={step + 1}
+              aria-valuemin={1}
+              aria-valuemax={STEPS.length}
+              aria-label={`שלב ${step + 1} מתוך ${STEPS.length}`}
+              className="flex items-center mb-3"
+            >
               {STEPS.map((s, i) => (
                 <React.Fragment key={s.id}>
                   <button
