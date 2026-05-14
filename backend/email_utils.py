@@ -75,6 +75,29 @@ def send_temp_password(to: str, temp_password: str) -> bool:
     return send_email(to, subject, body)
 
 
+def send_reset_link(to: str, link: str) -> bool:
+    subject = "איפוס סיסמה — מנהל האירוע הרפואי"
+    body = f"""
+    <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div style="width: 56px; height: 56px; background: #2563eb; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+          <span style="font-size: 24px;">🔑</span>
+        </div>
+        <h2 style="color: #1e3a5f; margin: 0;">איפוס סיסמה</h2>
+        <p style="color: #64748b; margin-top: 8px;">לחץ על הכפתור לבחירת סיסמה חדשה</p>
+      </div>
+      <div style="text-align: center; margin: 28px 0;">
+        <a href="{link}" style="display: inline-block; background: #2563eb; color: white; font-weight: 700; font-size: 16px; padding: 14px 32px; border-radius: 10px; text-decoration: none;">
+          אפס סיסמה
+        </a>
+      </div>
+      <p style="color: #64748b; font-size: 13px; text-align: center;">הקישור תקף ל-15 דקות ולשימוש חד-פעמי בלבד.</p>
+      <p style="color: #94a3b8; font-size: 12px; text-align: center; margin-top: 16px;">אם לא ביקשת איפוס סיסמה, התעלם מהודעה זו.</p>
+    </div>
+    """
+    return send_email(to, subject, body)
+
+
 def send_reset_code(to: str, code: str) -> bool:
     subject = "איפוס סיסמה — מנהל האירוע הרפואי"
     body = f"""
