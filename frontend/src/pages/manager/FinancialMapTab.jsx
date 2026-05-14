@@ -76,14 +76,8 @@ function AddFundModal({ patientId, onClose, onAdded }) {
       const body = mode === 'registry'
         ? { fund_id: selected.id, expected_amount: amount ? +amount : null, notes }
         : { custom_name: customName, expected_amount: amount ? +amount : null, notes }
-      const r = await fetch(`/api/patients/${patientId}/financial-funds`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: JSON.stringify(body),
-      })
-      if (!r.ok) throw new Error()
-      const data = await r.json()
-      onAdded(data)
+      const res = await axios.post(`/api/patients/${patientId}/financial-funds`, body)
+      onAdded(res.data)
       onClose()
     } catch { setSaving(false) }
   }
