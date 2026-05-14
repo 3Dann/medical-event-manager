@@ -21,8 +21,20 @@ export default function AdminPage() {
   const [resetResult, setResetResult] = useState(null)
   const [actionStatus, setActionStatus] = useState({})
 
+  // Registrations badge
+  const [pendingRegCount, setPendingRegCount] = useState(0)
+
+  useEffect(() => {
+    if (!currentUser?.is_admin) return
+    const ctrl = new AbortController()
+    axios.get('/api/auth/admin/registrations?status=pending', { signal: ctrl.signal })
+      .then(r => setPendingRegCount(Array.isArray(r.data) ? r.data.length : 0))
+      .catch(e => { if (!axios.isCancel(e)) {} })
+    return () => ctrl.abort()
+  }, [currentUser])
+
   // Permissions state
-  const [tab, setTab] = useState('users') // 'users' | 'permissions' | 'activity'
+  const [tab, setTab] = useState('users') // 'users' | 'permissions' | 'activity' | 'registrations'
   const [patients, setPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [permissions, setPermissions] = useState([])
