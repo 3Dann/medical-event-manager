@@ -595,8 +595,7 @@ export default function IntakeWizard() {
       if (!form.gender) e.gender = 'שדה חובה'
     }
     if (stepIdx === 1) {
-      if (!form.city) e.city = 'יש לבחור עיר מהרשימה'
-      if (!form.city_code) e.city_code = 'יש לבחור עיר מהרשימה'
+      if (!form.city || !form.city_code) e.city = 'יש לבחור עיר מהרשימה'
       if (!form.street) e.street = 'יש לבחור רחוב מהרשימה'
       if (!form.house_number) e.house_number = 'שדה חובה'
       else if (!/^\d+[א-ת]?$/.test(form.house_number.trim())) e.house_number = 'מספר בית לא תקין'
