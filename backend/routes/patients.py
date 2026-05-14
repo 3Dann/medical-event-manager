@@ -545,7 +545,7 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db), current_user:
         ).first()
         if portal_user:
             db.delete(portal_user)
-    patient_dir = os.path.join('/data/uploads', str(patient.id))
+    patient_dir = os.path.join(UPLOAD_DIR, str(patient.id))
     if os.path.isdir(patient_dir):
         shutil.rmtree(patient_dir, ignore_errors=True)
     db.delete(patient)
