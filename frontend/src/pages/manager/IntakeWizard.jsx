@@ -676,7 +676,7 @@ export default function IntakeWizard() {
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   const submit = async () => {
-    if (isDemoMode) { navigate('/manager'); return }
+    if (isDemoMode) { sessionStorage.removeItem(DRAFT_KEY); navigate('/manager'); return }
     const e = validate(6)
     if (Object.keys(e).length) { setErrors(e); return }
     setSaving(true)
