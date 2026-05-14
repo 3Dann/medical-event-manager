@@ -93,8 +93,7 @@ def send_otp(request: Request, body: OTPRequest, db: Session = Depends(get_db)):
     if not patient.phone or not patient.phone_prefix:
         raise HTTPException(status_code=400, detail="אין מספר טלפון מעודכן בתיק. אנא פנה למנהל האירוע שלך.")
 
-    import secrets as _sec
-    otp_code = str(_sec.randbelow(900000) + 100000)
+    otp_code = str(secrets.randbelow(900000) + 100000)
     otp_key = _sha256(body.id_number.strip())
     _OTPS[otp_key] = {
         "code_hash": _sha256(otp_code),
