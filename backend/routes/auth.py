@@ -692,14 +692,21 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
 @router.post("/reset-password")
 def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     _validate_password(data.new_password)
-    user = db.query(models.User).filter(models.User.email == data.email).first()
-    if not user or user.reset_token != data.token:
-        raise HTTPException(status_code=400, detail="קוד איפוס שגוי")
-    if not user.reset_token_expires or datetime.utcnow() > user.reset_token_expires.replace(tzinfo=None):
-        raise HTTPException(status_code=400, detail="קוד האיפוס פג תוקף")
+    user = db.query(models.User).filter(models.User.reset_token == data.token).first()
+    if not user:
+        raise HTTPException(status_code=400, detail="קישור האיפוס אינו תקין")
+    now = datetime.now(timezone.utc)
+    expires = user.reset_token_expires
+    if not expires:
+        raise HTTPException(status_code=400, detail="קישור האיפוס אינו תקין")
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if now > expires:
+        raise HTTPException(status_code=400, detail="קישור האיפוס פג תוקף — בקש קישור חדש")
     user.hashed_password = auth_utils.get_password_hash(data.new_password)
     user.reset_token = None
     user.reset_token_expires = None
+    user.must_change_password = False
     db.commit()
     return {"message": "הסיסמה עודכנה בהצלחה"}
 
