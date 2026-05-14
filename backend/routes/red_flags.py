@@ -47,6 +47,9 @@ def list_flags(patient_id: int, active_only: bool = False,
     ).all()
     return [_flag_dict(f) for f in flags]
 
+VALID_FLAG_TYPES = {"medical", "financial", "caregiver"}
+VALID_SEVERITIES = {"low", "medium", "high", "critical"}
+
 class FlagBody(BaseModel):
     flag_type: str
     severity: str = "warning"
@@ -58,6 +61,10 @@ def create_flag(patient_id: int, body: FlagBody,
                 db: Session = Depends(get_db),
                 current_user=Depends(auth_utils.require_manager)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if body.flag_type not in VALID_FLAG_TYPES:
+        raise HTTPException(status_code=400, detail=f"סוג דגל לא חוקי: {body.flag_type}")
+    if body.severity not in VALID_SEVERITIES:
+        raise HTTPException(status_code=400, detail=f"חומרה לא חוקית: {body.severity}")
     f = models.PatientRedFlag(patient_id=patient_id, **body.model_dump())
     db.add(f); db.commit(); db.refresh(f)
     return _flag_dict(f)
