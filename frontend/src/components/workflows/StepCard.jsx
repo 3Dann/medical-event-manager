@@ -129,10 +129,15 @@ export default function StepCard({ step: initialStep, instanceId, onUpdated, gat
   const handleDeleteTask = async (taskId) => {
     try {
       await axios.delete(`/api/workflows/instances/${instanceId}/steps/${step.id}/tasks/${taskId}`)
+    } catch (e) {
+      showToast('לא ניתן למחוק את המשימה.')
+      return
+    }
+    try {
       const res = await axios.get(`/api/workflows/instances/${instanceId}`)
       onUpdated(res.data)
     } catch (e) {
-      showToast('לא ניתן למחוק את המשימה.')
+      showToast('המשימה נמחקה, אך לא ניתן לרענן את הנתונים.')
     }
   }
 
