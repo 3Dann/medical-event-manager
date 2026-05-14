@@ -235,6 +235,79 @@ function EditableCoverageTable({ source, patientId, handleEditCoverage, fetchAll
   )
 }
 
+function HarBituaGuide({ onClose, onUpload }) {
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto" dir="rtl">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl my-4" dir="rtl">
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-lg">📊</div>
+            <div>
+              <h3 className="font-bold text-slate-800">ייבוא נתונים מהר הביטוח</h3>
+              <p className="text-xs text-slate-500">הוראות מפורטות להורדה והעלאה</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 text-xl leading-none p-2 -m-2 rounded-lg">✕</button>
+        </div>
+
+        {/* Section A: Download */}
+        <div className="p-5 space-y-3">
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">שלב א׳ — הורדת הקובץ מהר הביטוח</p>
+
+          {[
+            { n:1, icon:'🌐', title:'כניסה לאתר', detail: 'בדפדפן שלך הקלד: www.hrb.gov.il — זהו האתר הרשמי של מאגר הביטוח הלאומי.' },
+            { n:2, icon:'🔐', title:'כניסה לאזור האישי', detail: 'לחץ על הכפתור "כניסה לאזור האישי" בפינה הימנית עליונה של האתר. הזן את מספר תעודת הזהות של המטופל ומספר הטלפון הנייד הרשום.' },
+            { n:3, icon:'📱', title:'קבלת קוד אימות (OTP)', detail: 'תוך שניות ישלח SMS עם קוד בן 6 ספרות לטלפון הנייד. הזן את הקוד בשדה המיועד ולחץ "אישור".' },
+            { n:4, icon:'📋', title:'צפייה ברשימת הפוליסות', detail: 'לאחר הכניסה תוצג רשימה מלאה של כל הפוליסות הפעילות — ביטוח בריאות, חיים, סיעוד, תאונות אישיות, אובדן כושר עבודה ועוד.' },
+            { n:5, icon:'⬇️', title:'ייצוא לאקסל', detail: 'מעל לרשימת הפוליסות חפש את הכפתור "ייצוא לאקסל" או סמל ⬇️. לחץ עליו — הקובץ יורד אוטומטית למחשב שלך (בדרך כלל לתיקיית "הורדות").' },
+          ].map(step => (
+            <div key={step.n} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+              <div className="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{step.n}</div>
+              <div>
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span>{step.icon}</span>
+                  <span className="font-semibold text-sm text-slate-800">{step.title}</span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">{step.detail}</p>
+              </div>
+            </div>
+          ))}
+
+          {/* Section B: Upload */}
+          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide pt-2">שלב ב׳ — העלאה למערכת</p>
+
+          <div className="flex items-start gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
+            <div className="w-7 h-7 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">6</div>
+            <div className="flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span>📤</span>
+                <span className="font-semibold text-sm text-slate-800">העלאת הקובץ למערכת</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                לאחר שהקובץ הורד למחשב — לחץ על הכפתור הירוק למטה, אתר את הקובץ בתיקיית "הורדות" ובחר אותו. המערכת תנתח אוטומטית את הפוליסות ותוסיף אותן לתיק.
+              </p>
+              <label className="inline-flex items-center gap-2 bg-green-600 text-white text-sm px-4 py-2 rounded-lg cursor-pointer hover:bg-green-700 font-medium">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                בחר קובץ Excel מהר הביטוח
+                <input type="file" accept=".xlsx,.xls" className="hidden"
+                  onChange={e => { onClose(); onUpload(e) }} />
+              </label>
+            </div>
+          </div>
+
+          {/* Format tip */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 leading-relaxed">
+            <span className="font-semibold">מה מכיל הקובץ?</span> שם חברת הביטוח, מספר פוליסה, סוג הביטוח (בריאות / חיים / סיעוד / נכות), תאריך תחילה ותאריך סיום. המערכת מזהה את העמודות אוטומטית ויוצרת רשומה נפרדת לכל פוליסה.
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PatientInsurance() {
   const { t } = useTranslation('insurance')
   const { toast, showToast, dismissToast } = useToast()
