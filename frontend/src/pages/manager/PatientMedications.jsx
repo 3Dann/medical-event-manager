@@ -55,7 +55,8 @@ export default function PatientMedications() {
 
   const checkInBackground = () => {
     setCheckingInteractions(true)
-    fetchAll()
+    const ctrl = new AbortController()
+    fetchAll(ctrl.signal)
   }
 
   const fetchDocuments = async (signal) => {
