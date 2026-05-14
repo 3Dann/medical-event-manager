@@ -261,16 +261,15 @@ export function MedicationCard({ med, onChange, onRemove }) {
     setShowInteractions(false)
   }
 
-  const handleEnrichment = (data) => {
+  const handleEnrichment = useCallback((drugName, data) => {
     setEnriching(false)
     if (data.dosages?.length) setDosageSuggestions(data.dosages)
-    // Use openFDA indication only if our local map has nothing for this drug
     if (data.indication && !med.indication) {
-      const inLocalMap = med.name && DRUG_INDICATION_MAP[med.name]
+      const inLocalMap = drugName && DRUG_INDICATION_MAP[drugName]
       if (!inLocalMap) onChange({ ...med, indication: data.indication })
     }
     if (data.interactions_text) setInteractionsText(data.interactions_text)
-  }
+  }, [])
 
   return (
     <div className="space-y-3">
@@ -281,7 +280,7 @@ export function MedicationCard({ med, onChange, onRemove }) {
             value={med.name}
             onChange={handleDrugSelect}
             onDosagesAvailable={d => setDosageSuggestions(d || [])}
-            onEnrichment={data => { setEnriching(false); handleEnrichment(data) }}
+            onEnrichment={data => { setEnriching(false); handleEnrichment(med.name, data) }}
           />
         </div>
         <div>
