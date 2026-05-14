@@ -312,9 +312,10 @@ def get_financial_map(
         action_items.append("גיל המטופל מעל 65 — בדוק זכאות לגמלת סיעוד מביטוח לאומי.")
 
     if optional_nodes:
+        applied_node_ids = {a.linked_node_id for a in applications if getattr(a, "linked_node_id", None)}
         unapplied_overlays = [
             n["description"] for n in optional_nodes
-            if n["id"] not in {a.fund_id for a in applications}
+            if n["id"] not in applied_node_ids
         ]
         if unapplied_overlays:
             action_items.append(
