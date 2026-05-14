@@ -252,70 +252,93 @@ def admin_dashboard(
     total_pending_claims = 0
     alerts = []
 
+    manager_ids = [mgr.id for mgr in managers]
+
+    all_patients = db.query(models.Patient).filter(
+        models.Patient.manager_id.in_(manager_ids)
+    ).all() if manager_ids else []
+    all_patient_ids = [p.id for p in all_patients]
+
+    patient_by_id = {p.id: p for p in all_patients}
+    patients_by_manager = {}
+    for p in all_patients:
+        patients_by_manager.setdefault(p.manager_id, []).append(p)
+
+    all_flags = db.query(models.PatientRedFlag).filter(
+        models.PatientRedFlag.patient_id.in_(all_patient_ids),
+        models.PatientRedFlag.is_active == True,
+    ).all() if all_patient_ids else []
+    flags_by_patient = {}
+    for f in all_flags:
+        flags_by_patient.setdefault(f.patient_id, []).append(f)
+
+    all_pending_requests = db.query(models.PatientRequest).filter(
+        models.PatientRequest.patient_id.in_(all_patient_ids),
+        models.PatientRequest.status == "pending",
+    ).order_by(models.PatientRequest.created_at.asc()).all() if all_patient_ids else []
+    requests_by_patient = {}
+    for req in all_pending_requests:
+        requests_by_patient.setdefault(req.patient_id, []).append(req)
+
+    from sqlalchemy import func as sqlfunc
+    pending_claims_counts = {}
+    if all_patient_ids:
+        rows = (
+            db.query(models.Claim.patient_id, sqlfunc.count(models.Claim.id))
+            .filter(
+                models.Claim.patient_id.in_(all_patient_ids),
+                models.Claim.status.in_(["pending", "draft"]),
+            )
+            .group_by(models.Claim.patient_id)
+            .all()
+        )
+        for pid, cnt in rows:
+            pending_claims_counts[pid] = cnt
+
     for mgr in managers:
-        patients = db.query(models.Patient).filter(
-            models.Patient.manager_id == mgr.id
-        ).all()
+        patients = patients_by_manager.get(mgr.id, [])
         patient_ids = [p.id for p in patients]
 
         critical_flags = 0
         warning_flags = 0
-        if patient_ids:
-            flags = db.query(models.PatientRedFlag).filter(
-                models.PatientRedFlag.patient_id.in_(patient_ids),
-                models.PatientRedFlag.is_active == True,
-            ).all()
-            critical_flags = sum(1 for f in flags if f.severity == "critical")
-            warning_flags = sum(1 for f in flags if f.severity == "warning")
-
-            # collect critical alerts
-            for f in flags:
+        for pid in patient_ids:
+            for f in flags_by_patient.get(pid, []):
                 if f.severity == "critical":
-                    patient = next((p for p in patients if p.id == f.patient_id), None)
+                    critical_flags += 1
                     alerts.append({
                         "type": "red_flag",
                         "severity": "critical",
                         "patient_id": f.patient_id,
-                        "patient_name": patient.full_name if patient else "",
+                        "patient_name": patient_by_id[f.patient_id].full_name if f.patient_id in patient_by_id else "",
                         "manager_name": mgr.full_name,
                         "manager_id": mgr.id,
                         "title": f.title,
                         "description": f.description or "",
                         "flag_type": f.flag_type,
                     })
+                elif f.severity == "warning":
+                    warning_flags += 1
 
-        pending_requests = 0
-        if patient_ids:
-            pending_requests = db.query(models.PatientRequest).filter(
-                models.PatientRequest.patient_id.in_(patient_ids),
-                models.PatientRequest.status == "pending",
-            ).count()
-
-            # collect pending request alerts (max 3 per manager)
-            req_items = db.query(models.PatientRequest).filter(
-                models.PatientRequest.patient_id.in_(patient_ids),
-                models.PatientRequest.status == "pending",
-            ).order_by(models.PatientRequest.created_at.asc()).limit(3).all()
-            for req in req_items:
-                patient = next((p for p in patients if p.id == req.patient_id), None)
+        pending_requests = sum(len(requests_by_patient.get(pid, [])) for pid in patient_ids)
+        req_alert_count = 0
+        for pid in patient_ids:
+            for req in requests_by_patient.get(pid, []):
+                if req_alert_count >= 3:
+                    break
                 alerts.append({
                     "type": "pending_request",
                     "severity": "warning",
                     "patient_id": req.patient_id,
-                    "patient_name": patient.full_name if patient else "",
+                    "patient_name": patient_by_id[req.patient_id].full_name if req.patient_id in patient_by_id else "",
                     "manager_name": mgr.full_name,
                     "manager_id": mgr.id,
                     "title": f"פנייה ממתינה — {req.category}",
                     "description": req.message[:120] + ("..." if len(req.message) > 120 else ""),
                     "created_at": req.created_at.isoformat() if req.created_at else None,
                 })
+                req_alert_count += 1
 
-        pending_claims = 0
-        if patient_ids:
-            pending_claims = db.query(models.Claim).filter(
-                models.Claim.patient_id.in_(patient_ids),
-                models.Claim.status.in_(["pending", "draft"]),
-            ).count()
+        pending_claims = sum(pending_claims_counts.get(pid, 0) for pid in patient_ids)
 
         total_critical += critical_flags
         total_pending_requests += pending_requests
