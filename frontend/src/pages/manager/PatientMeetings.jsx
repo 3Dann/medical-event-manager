@@ -26,7 +26,7 @@ function PatientRequestsPanel({ patientId }) {
   const [saving, setSaving]     = useState(false)
 
   const load = useCallback((signal) => {
-    axios.get(`/api/patients/${patientId}/requests`, { signal })
+    return axios.get(`/api/patients/${patientId}/requests`, { signal })
       .then(r => setRequests(r.data))
       .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
