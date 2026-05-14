@@ -372,10 +372,14 @@ def update_doctor(
 
 
 @router.delete("/all")
+@limiter.limit("1/hour")
 def delete_all_doctors(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="פעולה זו מותרת לאדמין בלבד")
     deleted = db.query(models.Doctor).delete()
     db.commit()
     return {"deleted": deleted}
