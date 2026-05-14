@@ -318,12 +318,12 @@ export default function PatientStrategy() {
     }
   }
 
-  if (loading) return <div className="p-8 text-slate-500">{t('strategy:loading')}</div>
-
   const journeyInstance   = useMemo(() => instances.find(i => i.title === 'מסע המטופל'), [instances])
   const activeInstances   = useMemo(() => instances.filter(i => i.status === 'active' && i.title !== 'מסע המטופל'), [instances])
   const pausedInstances   = useMemo(() => instances.filter(i => i.status === 'paused'), [instances])
   const finishedInstances = useMemo(() => instances.filter(i => ['completed','cancelled'].includes(i.status)), [instances])
+
+  if (loading) return <div className="p-8 text-slate-500">{t('strategy:loading')}</div>
 
   return (
     <div className="p-4 md:p-6 space-y-6" dir="rtl">
