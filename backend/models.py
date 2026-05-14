@@ -537,7 +537,7 @@ class ResponsivenessScore(Base):
     overall_score = Column(Float, nullable=False)
     is_default = Column(Boolean, default=True)
     notes = Column(Text, nullable=True)
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
 
 
