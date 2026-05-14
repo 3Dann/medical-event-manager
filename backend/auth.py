@@ -1,7 +1,7 @@
 import os
 import json as _perm_json
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 import jwt as pyjwt
 from jwt import PyJWTError as JWTError
