@@ -113,6 +113,7 @@ export default function Form17Section({ patientId }) {
   const [sources, setSources] = useState([])
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState(null)
+  const [confirm, ConfirmUI] = useConfirm()
 
   const load = () => {
     axios.get(`/api/patients/${patientId}/form17`).then(r => setEntries(r.data)).catch(() => {})
@@ -121,7 +122,8 @@ export default function Form17Section({ patientId }) {
   useEffect(() => { load() }, [patientId])
 
   const remove = async (id) => {
-    if (!confirm('למחוק?')) return
+    const ok = await confirm({ title: 'מחיקה', message: 'האם למחוק?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${patientId}/form17/${id}`)
     load()
   }
