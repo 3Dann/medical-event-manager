@@ -437,7 +437,7 @@ export default function PatientMeetings() {
 
   const load = useCallback((signal) => {
     setLoading(true)
-    axios.get(`/api/patients/${id}/meetings`, { signal })
+    return axios.get(`/api/patients/${id}/meetings`, { signal })
       .then(r => setMeetings(r.data))
       .catch(e => { if (axios.isCancel(e)) return })
       .finally(() => setLoading(false))
