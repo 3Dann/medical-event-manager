@@ -145,18 +145,6 @@ export default function LoginPage() {
               <p className="text-sm text-slate-500 mt-1">בחר כיצד לאמת את זהותך</p>
             </div>
 
-            {/* ── DEBUG PANEL (temp) ── */}
-            {pendingUser && (
-              <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 text-xs font-mono text-left break-all">
-                <p className="font-bold text-yellow-800 mb-1">🔍 DEBUG (יוסר בקרוב)</p>
-                <p>totp_configured: <b>{String(!!pendingUser.totp_configured)}</b></p>
-                <p>tfa_method: <b>{pendingUser.tfa_method || 'none'}</b></p>
-                <p>requires_2fa: <b>{String(!!pendingUser.requires_2fa)}</b></p>
-                <p>twoFAMethod state: <b>{String(twoFAMethod)}</b></p>
-                <p>twoFAStep state: <b>{String(twoFAStep)}</b></p>
-              </div>
-            )}
-
             {/* ── בחירת שיטה ── */}
             {twoFAMethod === null && (
               <div className="space-y-2 pt-2">
