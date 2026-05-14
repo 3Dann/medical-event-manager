@@ -288,6 +288,7 @@ function SignatureCanvas({ label, onChange }) {
   const endDraw = () => {
     if (!drawing.current) return
     drawing.current = false
+    if (isEmpty) return
     onChange(canvasRef.current.toDataURL('image/png'))
   }
 
