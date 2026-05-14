@@ -313,6 +313,14 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                   <option value="patient">{t('auth:role_patient')}</option>
                 </select></div>
             )}
+            {tab === 'register' && (
+              <div><label className="label">שם ארגון / מרפאה <span className="text-slate-400 text-xs">(אופציונלי)</span></label>
+                <input className="input" value={form.org_name} onChange={e => setForm({...form, org_name: e.target.value})} placeholder="לדוגמה: מרפאת הדסה, אסף הרופא..." /></div>
+            )}
+            {tab === 'register' && (
+              <div><label className="label">הערה <span className="text-slate-400 text-xs">(אופציונלי)</span></label>
+                <textarea className="input resize-none" rows={3} value={form.applicant_message} onChange={e => setForm({...form, applicant_message: e.target.value})} placeholder="ספר לנו בקצרה על עצמך" /></div>
+            )}
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
               {loading ? t('common:saving') : tab === 'login' ? t('auth:login') : t('auth:register')}
