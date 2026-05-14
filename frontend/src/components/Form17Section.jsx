@@ -115,11 +115,15 @@ export default function Form17Section({ patientId }) {
   const [editing, setEditing] = useState(null)
   const [confirm, ConfirmUI] = useConfirm()
 
-  const load = () => {
-    axios.get(`/api/patients/${patientId}/form17`).then(r => setEntries(r.data)).catch(() => {})
-    axios.get(`/api/patients/${patientId}/insurance`).then(r => setSources(r.data)).catch(() => {})
+  const load = (signal) => {
+    axios.get(`/api/patients/${patientId}/form17`, { signal }).then(r => setEntries(r.data)).catch(e => { if (axios.isCancel(e)) return })
+    axios.get(`/api/patients/${patientId}/insurance`, { signal }).then(r => setSources(r.data)).catch(e => { if (axios.isCancel(e)) return })
   }
-  useEffect(() => { load() }, [patientId])
+  useEffect(() => {
+    const controller = new AbortController()
+    load(controller.signal)
+    return () => controller.abort()
+  }, [patientId])
 
   const remove = async (id) => {
     const ok = await confirm({ title: 'מחיקה', message: 'האם למחוק?', confirmLabel: 'מחק', danger: true })
