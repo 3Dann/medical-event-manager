@@ -416,6 +416,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         "access_token": token, "token_type": "bearer",
         "user_id": user.id, "full_name": user.full_name,
         "email": user.email, "role": user.role, "is_admin": user.is_admin,
+        "must_change_password": bool(user.must_change_password),
     })
     response.set_cookie(
         key="access_token", value=token,
