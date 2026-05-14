@@ -745,6 +745,7 @@ function SessionsPanel() {
   const [sessions, setSessions] = useState([])
   const [loading, setLoading]   = useState(true)
   const [revoking, setRevoking] = useState(null)
+  const [confirm, ConfirmUI] = useConfirm()
 
   const load = () => {
     const ctrl = new AbortController()
