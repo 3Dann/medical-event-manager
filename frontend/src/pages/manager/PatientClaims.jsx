@@ -42,7 +42,7 @@ export default function PatientClaims() {
         axios.get(`/api/patients/${id}/insurance`, { signal }),
       ])
       setClaims(c.data); setSources(s.data)
-    } catch (e) { if (!axios.isCancel(e)) throw e }
+    } catch (e) { if (!axios.isCancel(e)) console.error('שגיאה בטעינת נתונים', e) }
   }
 
   const handleCreate = async (e) => {
