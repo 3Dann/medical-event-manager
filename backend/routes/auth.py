@@ -391,7 +391,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         if not user.email_2fa_code or user.email_2fa_code != data.code:
             _record_2fa_failure()
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
-        if not user.email_2fa_expires or datetime.utcnow() > user.email_2fa_expires.replace(tzinfo=None):
+        if not user.email_2fa_expires or datetime.now(tz_module.utc) > (user.email_2fa_expires if user.email_2fa_expires.tzinfo else user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד פג תוקף, בקש קוד חדש")
         user.email_2fa_code = None
         user.email_2fa_expires = None
