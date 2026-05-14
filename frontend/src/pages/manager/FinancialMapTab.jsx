@@ -307,6 +307,7 @@ export default function FinancialMapTab({ patientId }) {
   return (
     <div className="space-y-6">
       <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
+      {ConfirmUI}
 
       {/* ── Report button ──────────────────────────────────────────────── */}
       <div className="flex justify-start">
