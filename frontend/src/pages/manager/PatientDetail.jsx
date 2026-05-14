@@ -135,6 +135,7 @@ export default function PatientDetail() {
 
   const handleAddNode = async (e) => {
     e.preventDefault()
+    setAddingNode(true)
     try {
       await axios.post(`/api/patients/${id}/nodes`, addForm)
       setShowAddForm(false)
@@ -142,6 +143,8 @@ export default function PatientDetail() {
       fetchAll()
     } catch (err) {
       showToast('שגיאה בהוספת הצומת. נסה שוב.')
+    } finally {
+      setAddingNode(false)
     }
   }
 
