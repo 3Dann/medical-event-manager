@@ -722,12 +722,12 @@ def validate_reset_token(token: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.reset_token == token).first()
     if not user:
         raise HTTPException(status_code=400, detail="קישור לא תקין")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(tz_module.utc)
     expires = user.reset_token_expires
     if not expires:
         raise HTTPException(status_code=400, detail="קישור לא תקין")
     if expires.tzinfo is None:
-        expires = expires.replace(tzinfo=timezone.utc)
+        expires = expires.replace(tzinfo=tz_module.utc)
     if now > expires:
         raise HTTPException(status_code=400, detail="קישור פג תוקף")
     return {"valid": True}
