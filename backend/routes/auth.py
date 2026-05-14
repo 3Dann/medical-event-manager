@@ -426,6 +426,26 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
     return response
 
 
+class ChangeRequiredPasswordRequest(BaseModel):
+    new_password: str
+
+@router.post("/change-required-password")
+@limiter.limit("10/minute")
+def change_required_password(
+    request: Request,
+    body: ChangeRequiredPasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
+    if not current_user.must_change_password:
+        raise HTTPException(status_code=400, detail="שינוי סיסמה אינו נדרש")
+    _validate_password(body.new_password)
+    current_user.hashed_password = auth_utils.get_password_hash(body.new_password)
+    current_user.must_change_password = False
+    db.commit()
+    return {"changed": True}
+
+
 class RequestEmailCodeRequest(BaseModel):
     temp_token: str
 
