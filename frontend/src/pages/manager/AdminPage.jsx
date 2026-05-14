@@ -6,6 +6,7 @@ import FundManagementPanel from './FundManagementPanel'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
 import AppToast from '../../components/AppToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 const DEV_EMAIL = 'da.tzalik@gmail.com'
 
