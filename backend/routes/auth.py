@@ -85,29 +85,184 @@ class ChangePasswordRequest(BaseModel):
     tfa_code: str = None  # required if user has 2FA enabled
 
 
-@router.post("/register", response_model=Token)
+@router.post("/register")
 @limiter.limit("3/hour")
 def register(request: Request, user_data: UserCreate, db: Session = Depends(get_db),
              current_user: Optional[models.User] = Depends(auth_utils.get_optional_current_user)):
-    _validate_password(user_data.password)
-    existing = db.query(models.User).filter(models.User.email == user_data.email).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
     is_first_user = db.query(models.User).count() == 0
-    if not is_first_user and (not current_user or not current_user.is_admin):
-        raise HTTPException(status_code=403, detail="רישום מוגבל — פנה לאדמין")
-    user = models.User(
+    if is_first_user:
+        _validate_password(user_data.password)
+        existing = db.query(models.User).filter(models.User.email == user_data.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        user = models.User(
+            full_name=user_data.full_name,
+            email=user_data.email,
+            hashed_password=auth_utils.get_password_hash(user_data.password),
+            role=user_data.role,
+            is_admin=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        token = auth_utils.create_access_token({"sub": str(user.id)})
+        return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
+
+    _validate_password(user_data.password)
+    existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    existing_pending = db.query(models.PendingRegistration).filter(
+        models.PendingRegistration.email == user_data.email,
+        models.PendingRegistration.status == "pending",
+    ).first()
+    if existing_pending:
+        raise HTTPException(status_code=400, detail="בקשת רישום עם מייל זה כבר ממתינה לאישור")
+
+    pending = models.PendingRegistration(
         full_name=user_data.full_name,
         email=user_data.email,
         hashed_password=auth_utils.get_password_hash(user_data.password),
         role=user_data.role,
-        is_admin=is_first_user,
+        org_name=user_data.org_name,
+        applicant_message=user_data.applicant_message,
+    )
+    db.add(pending)
+    db.commit()
+
+    admins = db.query(models.User).filter(models.User.is_admin == True).all()
+    for admin in admins:
+        email_utils.send_email(
+            to=admin.email,
+            subject="בקשת רישום חדשה — Orly Medical",
+            body_html=f"""
+            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+              <h2 style="color: #1e3a5f;">בקשת רישום חדשה</h2>
+              <p style="color: #374151;">התקבלה בקשת רישום חדשה למערכת:</p>
+              <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid #e2e8f0; margin: 16px 0;">
+                <p style="margin: 4px 0;"><strong>שם:</strong> {user_data.full_name}</p>
+                <p style="margin: 4px 0;"><strong>מייל:</strong> {user_data.email}</p>
+                <p style="margin: 4px 0;"><strong>תפקיד:</strong> {user_data.role}</p>
+                {f'<p style="margin: 4px 0;"><strong>ארגון:</strong> {user_data.org_name}</p>' if user_data.org_name else ''}
+                {f'<p style="margin: 4px 0;"><strong>הערה:</strong> {user_data.applicant_message}</p>' if user_data.applicant_message else ''}
+              </div>
+              <p style="color: #6b7280; font-size: 13px;">כנס לאזור הניהול כדי לאשר או לדחות את הבקשה.</p>
+            </div>
+            """,
+        )
+
+    return {"pending": True, "message": "בקשתך התקבלה. תקבל אישור במייל לאחר בדיקת האדמין."}
+
+
+@router.get("/api/admin/registrations")
+def list_registrations(
+    status: str = Query("pending"),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="נגיש לאדמין בלבד")
+    regs = db.query(models.PendingRegistration).filter(
+        models.PendingRegistration.status == status
+    ).order_by(models.PendingRegistration.created_at.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "full_name": r.full_name,
+            "email": r.email,
+            "role": r.role,
+            "org_name": r.org_name,
+            "applicant_message": r.applicant_message,
+            "status": r.status,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "rejection_reason": r.rejection_reason,
+        }
+        for r in regs
+    ]
+
+
+@router.post("/api/admin/registrations/{reg_id}/approve")
+def approve_registration(
+    reg_id: int,
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="נגיש לאדמין בלבד")
+    reg = db.query(models.PendingRegistration).filter(models.PendingRegistration.id == reg_id).first()
+    if not reg:
+        raise HTTPException(status_code=404, detail="בקשה לא נמצאה")
+    if reg.status != "pending":
+        raise HTTPException(status_code=400, detail="הבקשה כבר טופלה")
+    existing = db.query(models.User).filter(models.User.email == reg.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="המייל כבר רשום במערכת")
+    user = models.User(
+        full_name=reg.full_name,
+        email=reg.email,
+        hashed_password=reg.hashed_password,
+        role=reg.role,
+        is_admin=False,
     )
     db.add(user)
+    reg.status = "approved"
+    reg.reviewed_at = datetime.now(tz_module.utc)
+    reg.reviewed_by_id = current_user.id
     db.commit()
-    db.refresh(user)
-    token = auth_utils.create_access_token({"sub": str(user.id)})
-    return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin)
+    email_utils.send_email(
+        to=reg.email,
+        subject="בקשתך אושרה — Orly Medical",
+        body_html=f"""
+        <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+          <h2 style="color: #1e3a5f;">בקשתך אושרה!</h2>
+          <p style="color: #374151;">שלום {reg.full_name},</p>
+          <p style="color: #374151;">בקשתך לרישום ל-Orly Medical אושרה. ניתן להתחבר עם כתובת המייל שלך.</p>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">צוות Orly Medical</p>
+        </div>
+        """,
+    )
+    return {"approved": True}
+
+
+class RejectRegistrationRequest(BaseModel):
+    reason: str
+
+
+@router.post("/api/admin/registrations/{reg_id}/reject")
+def reject_registration(
+    reg_id: int,
+    body: RejectRegistrationRequest,
+    current_user: models.User = Depends(auth_utils.get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="נגיש לאדמין בלבד")
+    reg = db.query(models.PendingRegistration).filter(models.PendingRegistration.id == reg_id).first()
+    if not reg:
+        raise HTTPException(status_code=404, detail="בקשה לא נמצאה")
+    if reg.status != "pending":
+        raise HTTPException(status_code=400, detail="הבקשה כבר טופלה")
+    reg.status = "rejected"
+    reg.reviewed_at = datetime.now(tz_module.utc)
+    reg.reviewed_by_id = current_user.id
+    reg.rejection_reason = body.reason
+    db.commit()
+    email_utils.send_email(
+        to=reg.email,
+        subject="עדכון לגבי בקשת הרישום שלך — Orly Medical",
+        body_html=f"""
+        <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+          <h2 style="color: #1e3a5f;">עדכון לגבי בקשת הרישום</h2>
+          <p style="color: #374151;">שלום {reg.full_name},</p>
+          <p style="color: #374151;">בקשתך לרישום ל-Orly Medical נדחתה.</p>
+          <div style="background: #fef2f2; border-radius: 8px; padding: 16px; border: 1px solid #fecaca; margin: 16px 0;">
+            <p style="margin: 0; color: #7f1d1d;"><strong>סיבה:</strong> {body.reason}</p>
+          </div>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">לשאלות נוספות, פנה לצוות Orly Medical.</p>
+        </div>
+        """,
+    )
+    return {"rejected": True}
 
 
 _LOCKOUT_ATTEMPTS = 5
