@@ -188,7 +188,8 @@ export default function FundManagementPanel() {
 
   const toggle = async (fund) => {
     try {
-      await axios.put(`/api/admin/financial-funds/${fund.id}`, { ...fund, is_active: !fund.is_active, eligible_conditions: [] })
+      const { eligible_conditions, ...rest } = fund
+      await axios.patch(`/api/admin/financial-funds/${fund.id}`, { ...rest, is_active: !fund.is_active })
       load()
     } catch {}
   }
