@@ -198,12 +198,14 @@ def approve_registration(
     existing = db.query(models.User).filter(models.User.email == reg.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="המייל כבר רשום במערכת")
+    temp_password = secrets.token_urlsafe(10)
     user = models.User(
         full_name=reg.full_name,
         email=reg.email,
-        hashed_password=reg.hashed_password,
+        hashed_password=auth_utils.get_password_hash(temp_password),
         role=reg.role,
         is_admin=False,
+        must_change_password=True,
     )
     db.add(user)
     reg.status = "approved"
@@ -217,7 +219,12 @@ def approve_registration(
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
           <h2 style="color: #1e3a5f;">בקשתך אושרה!</h2>
           <p style="color: #374151;">שלום {reg.full_name},</p>
-          <p style="color: #374151;">בקשתך לרישום ל-Orly Medical אושרה. ניתן להתחבר עם כתובת המייל שלך.</p>
+          <p style="color: #374151;">בקשתך לרישום ל-Orly Medical אושרה.</p>
+          <p style="color: #374151; margin-top: 16px;">הסיסמה הזמנית שלך:</p>
+          <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 20px; margin: 12px 0; font-size: 20px; font-weight: bold; letter-spacing: 2px; text-align: center; direction: ltr;">
+            {temp_password}
+          </div>
+          <p style="color: #dc2626; font-weight: bold;">יש לשנות את הסיסמה בכניסה הראשונה.</p>
           <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">צוות Orly Medical</p>
         </div>
         """,
