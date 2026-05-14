@@ -7,7 +7,7 @@ from starlette.requests import Request
 
 logger = logging.getLogger("audit")
 
-SECRET_KEY = os.environ.get("SECRET_KEY", "")
+from auth import SECRET_KEY
 ALGORITHM = "HS256"
 
 # (method, pattern, action_type, resource_type, resource_id_group)
