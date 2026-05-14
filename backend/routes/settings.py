@@ -131,7 +131,7 @@ async def translate_landing(
     """Translate Hebrew landing content to all 9 other languages in parallel using Claude Haiku."""
     from fastapi import HTTPException
     import anthropic
-    if current_user.email != "da.tzalik@gmail.com":
+    if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="גישה מורשית למפתח בלבד")
 
     data = await request.json()
