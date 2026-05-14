@@ -404,7 +404,7 @@ class InsuranceSource(Base):
 class Coverage(Base):
     __tablename__ = "coverages"
     id = Column(Integer, primary_key=True, index=True)
-    insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id"))
+    insurance_source_id = Column(Integer, ForeignKey("insurance_sources.id", ondelete="CASCADE"))
     category = Column(String, nullable=False)
     is_covered = Column(Boolean, default=True)
     coverage_amount = Column(Float, nullable=True)
