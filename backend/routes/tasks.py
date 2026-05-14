@@ -370,7 +370,7 @@ def _complete_source(task: models.Task, db: Session):
                     items[idx]["done"] = True
                     meeting.action_items = safe_json_dumps(items)
         except Exception:
-            pass
+            logger.exception("Failed to complete meeting_action source for task %s", task.id)
 
     elif task.source_type == "workflow_step":
         step = db.query(models.WorkflowStep).filter(
