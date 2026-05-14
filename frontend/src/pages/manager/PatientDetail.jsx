@@ -175,7 +175,7 @@ export default function PatientDetail() {
   const deleteSubItem = async (nodeId, itemId) => {
     try {
       await axios.delete(`/api/patients/${id}/nodes/${nodeId}/subitems/${itemId}`)
-      fetchAll()
+      fetchAll().catch(() => {})
     } catch (err) {
       showToast('שגיאה במחיקת הפריט. נסה שוב.')
     }
