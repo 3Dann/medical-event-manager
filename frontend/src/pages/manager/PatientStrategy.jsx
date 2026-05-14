@@ -573,7 +573,7 @@ function StrategyTab({ strategy, insights }) {
           </div>
         </div>
       )}
-      {strategy.recommendations.map((rec, ri) => (
+      {(strategy.recommendations ?? []).map((rec, ri) => (
         <div key={ri} className="card">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
