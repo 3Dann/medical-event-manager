@@ -141,8 +141,18 @@ export function DropdownPortal({ inputRef, open, children }) {
   const [pos, setPos] = useState({ top: 0, left: 0, width: 0 })
   useEffect(() => {
     if (!open || !inputRef?.current) return
-    const r = inputRef.current.getBoundingClientRect()
-    setPos({ top: r.bottom, left: r.left, width: r.width })
+    const update = () => {
+      if (!inputRef?.current) return
+      const r = inputRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom, left: r.left, width: r.width })
+    }
+    update()
+    window.addEventListener('scroll', update, true)
+    window.addEventListener('resize', update)
+    return () => {
+      window.removeEventListener('scroll', update, true)
+      window.removeEventListener('resize', update)
+    }
   }, [open, inputRef])
   if (!open) return null
   return createPortal(
