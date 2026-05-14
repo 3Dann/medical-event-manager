@@ -20,9 +20,11 @@ export default function ConditionTagsSelector({ value = [], onChange }) {
   const ref = useRef()
 
   useEffect(() => {
-    axios.get('/api/workflows/condition-tags')
+    const controller = new AbortController()
+    axios.get('/api/workflows/condition-tags', { signal: controller.signal })
       .then(r => setGroups(r.data))
-      .catch(() => {})
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => controller.abort()
   }, [])
 
   // Close dropdown on outside click
