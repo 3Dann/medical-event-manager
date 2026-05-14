@@ -677,14 +677,16 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
         remaining = 3 - user.reset_verify_attempts
         raise HTTPException(status_code=401, detail=f"פרטים שגויים. נותרו {remaining} ניסיונות.")
     user.reset_verify_attempts = 0
-    db.commit()
     _RESET_CHALLENGES.pop(data.email, None)
-    reset_token = secrets.token_urlsafe(16)
+    reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
-    user.reset_token_expires = datetime.utcnow() + timedelta(minutes=15)
+    user.reset_token_expires = datetime.now(timezone.utc) + timedelta(minutes=15)
     db.commit()
-    email_utils.send_reset_code(user.email, reset_token)
-    return {"step": "reset_sent", "message": "קוד שחזור נשלח לאימייל שלך"}
+    frontend_origin = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
+    import urllib.parse
+    link = f"{frontend_origin}/reset-password?token={urllib.parse.quote(reset_token)}&email={urllib.parse.quote(user.email)}"
+    email_utils.send_reset_link(user.email, link)
+    return {"step": "reset_sent", "message": "קישור לאיפוס סיסמה נשלח לאימייל שלך"}
 
 
 @router.post("/reset-password")
