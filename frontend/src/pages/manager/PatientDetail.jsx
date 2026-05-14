@@ -131,10 +131,14 @@ export default function PatientDetail() {
 
   const handleAddNode = async (e) => {
     e.preventDefault()
-    await axios.post(`/api/patients/${id}/nodes`, addForm)
-    setShowAddForm(false)
-    setAddForm({ description: '', node_type: 'medical', status: 'future', planned_date: '', notes: '', stage_order: 15 })
-    fetchAll()
+    try {
+      await axios.post(`/api/patients/${id}/nodes`, addForm)
+      setShowAddForm(false)
+      setAddForm({ description: '', node_type: 'medical', status: 'future', planned_date: '', notes: '', stage_order: 15 })
+      fetchAll()
+    } catch (err) {
+      showToast('שגיאה בהוספת הצומת. נסה שוב.')
+    }
   }
 
   // ── Sub-items ──────────────────────────────────────────────────────────────
