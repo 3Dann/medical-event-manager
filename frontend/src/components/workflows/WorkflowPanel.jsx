@@ -100,7 +100,7 @@ export default function WorkflowPanel({ patientId }) {
     } finally {
       setLoading(false)
     }
-  }, [patientId])
+  }, [patientId, selected])
 
   useEffect(() => {
     const controller = new AbortController()
