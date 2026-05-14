@@ -686,7 +686,7 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
     _RESET_CHALLENGES.pop(data.email, None)
     reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
-    user.reset_token_expires = datetime.now(timezone.utc) + timedelta(minutes=15)
+    user.reset_token_expires = datetime.now(tz_module.utc) + timedelta(minutes=15)
     db.commit()
     frontend_origin = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
     import urllib.parse
