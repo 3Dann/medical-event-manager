@@ -162,16 +162,18 @@ def compute_step_coverage(
 
     candidates = []  # (composite_score, WorkflowStepCoverage instance)
 
+    source_ids = [s.id for s in active_sources]
+    all_coverages = db.query(models.Coverage).filter(
+        models.Coverage.insurance_source_id.in_(source_ids)
+    ).all()
+    coverage_map = {(c.insurance_source_id, c.category): c for c in all_coverages}
+
     for source in active_sources:
         company = _company_name(source)
         resp = _responsiveness(db, company)
 
         for category in categories:
-            # Find matching coverage record
-            cov = db.query(models.Coverage).filter(
-                models.Coverage.insurance_source_id == source.id,
-                models.Coverage.category == category,
-            ).first()
+            cov = coverage_map.get((source.id, category))
 
             is_covered = bool(cov and cov.is_covered)
             covered_amount = None
