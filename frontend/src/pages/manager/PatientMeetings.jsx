@@ -59,6 +59,7 @@ function PatientRequestsPanel({ patientId }) {
     <div className="border border-slate-200 rounded-2xl overflow-hidden mt-6">
       <AppToast msg={reqToast?.msg} type={reqToast?.type} onDismiss={dismissReqToast} />
       <button onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
         className="w-full flex items-center justify-between px-5 py-3.5 bg-slate-50 hover:bg-slate-100 transition-colors">
         <div className="flex items-center gap-2">
           <span className="text-lg">{open ? '▾' : '▸'}</span>
