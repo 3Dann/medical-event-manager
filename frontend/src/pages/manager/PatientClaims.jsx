@@ -74,8 +74,10 @@ export default function PatientClaims() {
   }
 
   const handleAmountApproved = async (claimId, amount) => {
+    const parsed = parseFloat(amount)
+    if (isNaN(parsed)) return
     try {
-      await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parseFloat(amount) })
+      await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parsed })
       fetchAll().catch(() => {})
     } catch { showToast('שגיאה בשמירת הסכום. נסה שוב.') }
   }
