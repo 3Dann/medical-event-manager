@@ -51,7 +51,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  const switchTab = (t) => { setTab(t); setError(''); setSuccess(''); setForgotStep(1) }
+  const switchTab = (t) => { setTab(t); setError(''); setSuccess(''); setForgotStep(1); setIdNumber(''); setExtraAnswer(''); setExtraField('') }
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(''); setLoading(true)
