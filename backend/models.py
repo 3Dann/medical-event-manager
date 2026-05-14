@@ -121,6 +121,23 @@ class User(Base):
     webauthn_credentials = relationship("WebAuthnCredential", back_populates="user", cascade="all, delete-orphan")
 
 
+class PendingRegistration(Base):
+    __tablename__ = "pending_registrations"
+    id                = Column(Integer, primary_key=True, index=True)
+    full_name         = Column(String, nullable=False)
+    email             = Column(String, nullable=False, unique=True)
+    hashed_password   = Column(String, nullable=False)
+    role              = Column(String, nullable=False, default="manager")
+    org_name          = Column(String, nullable=True)
+    applicant_message = Column(Text, nullable=True)
+    status            = Column(String, nullable=False, default="pending")
+    created_at        = Column(DateTime(timezone=True), server_default=func.now())
+    reviewed_at       = Column(DateTime(timezone=True), nullable=True)
+    reviewed_by_id    = Column(Integer, ForeignKey("users.id"), nullable=True)
+    rejection_reason  = Column(Text, nullable=True)
+    reviewer          = relationship("User", foreign_keys="PendingRegistration.reviewed_by_id")
+
+
 class RevokedToken(Base):
     """JWT token blacklist — stores revoked token IDs until they expire."""
     __tablename__ = "revoked_tokens"
