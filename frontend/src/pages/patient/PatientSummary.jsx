@@ -104,7 +104,7 @@ function EmptyState({ icon, text, sub }) {
 }
 
 // ── Timeline section ──────────────────────────────────────────────────────────
-function TimelineSection({ workflows, redFlags, onBack }) {
+function TimelineSection({ workflows = [], redFlags = [], onBack }) {
   const speakText = () => {
     const parts = []
     if (redFlags.length > 0)
