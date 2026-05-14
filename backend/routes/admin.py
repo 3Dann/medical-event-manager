@@ -364,12 +364,34 @@ def admin_dashboard(
         models.WorkflowStep.status == "active",
     ).all()
     total_sla_breaches = len(sla_breached_steps)
-    for ws in sla_breached_steps[:5]:
-        instance = db.get(models.WorkflowInstance, ws.instance_id) if ws.instance_id else None
-        patient  = db.get(models.Patient, instance.patient_id) if instance and instance.patient_id else None
-        mgr      = db.get(models.User, instance.created_by)    if instance and instance.created_by else None
-        if not ws.sla_deadline or ws.sla_deadline > now_utc:
-            continue  # skip if deadline not actually passed
+    top_sla_steps = [ws for ws in sla_breached_steps if ws.sla_deadline and ws.sla_deadline <= now_utc][:5]
+
+    instance_ids = [ws.instance_id for ws in top_sla_steps if ws.instance_id]
+    instances_map = {}
+    if instance_ids:
+        instances_map = {
+            inst.id: inst
+            for inst in db.query(models.WorkflowInstance).filter(models.WorkflowInstance.id.in_(instance_ids)).all()
+        }
+    patient_ids = list({inst.patient_id for inst in instances_map.values() if inst.patient_id})
+    patients_map = {}
+    if patient_ids:
+        patients_map = {
+            p.id: p
+            for p in db.query(models.Patient).filter(models.Patient.id.in_(patient_ids)).all()
+        }
+    user_ids = list({inst.created_by for inst in instances_map.values() if inst.created_by})
+    users_map = {}
+    if user_ids:
+        users_map = {
+            u.id: u
+            for u in db.query(models.User).filter(models.User.id.in_(user_ids)).all()
+        }
+
+    for ws in top_sla_steps:
+        instance = instances_map.get(ws.instance_id) if ws.instance_id else None
+        patient  = patients_map.get(instance.patient_id) if instance and instance.patient_id else None
+        mgr      = users_map.get(instance.created_by)    if instance and instance.created_by else None
         alerts.append({
             "type":         "sla_breach",
             "severity":     "critical",
