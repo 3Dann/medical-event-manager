@@ -354,7 +354,7 @@ function PolicyCard({ src, expanded, onToggle, onDelete, onSave }) {
             {src.notes?.match(/₪[\d,]+/)?.[0] && (
               <span className="text-xs text-slate-600">
                 <Icon d={TrendPath} size={10} color="#94a3b8" className="inline mr-1" />
-                {src.notes.match(/₪[\d,]+/)[0]}/חודש
+                {src.notes?.match(/₪[\d,]+/)?.[0]}/חודש
               </span>
             )}
           </div>
