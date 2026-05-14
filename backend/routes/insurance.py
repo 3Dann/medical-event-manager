@@ -260,10 +260,12 @@ async def upload_har_habitua_excel(
                         break
 
             if company:
+                import html as _html
+                company_name = _html.escape(str(company).strip())[:200]
                 source = models.InsuranceSource(
                     patient_id=patient_id,
                     source_type="har_habitua",
-                    company_name=company,
+                    company_name=company_name,
                     policy_number=policy_number or None,
                     policy_type=policy_type or "ביטוח רפואי",
                     notes=notes or None,
