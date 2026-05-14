@@ -182,10 +182,20 @@ def get_patient_permissions(
     perms = db.query(models.PatientPermission).filter(
         models.PatientPermission.patient_id == patient_id
     ).all()
+    if not perms:
+        return []
+    user_ids = set()
+    for perm in perms:
+        user_ids.add(perm.manager_id)
+        user_ids.add(perm.granted_by)
+    users_by_id = {
+        u.id: u
+        for u in db.query(models.User).filter(models.User.id.in_(user_ids)).all()
+    }
     result = []
     for perm in perms:
-        manager = db.query(models.User).filter(models.User.id == perm.manager_id).first()
-        granter = db.query(models.User).filter(models.User.id == perm.granted_by).first()
+        manager = users_by_id.get(perm.manager_id)
+        granter = users_by_id.get(perm.granted_by)
         result.append({
             "id": perm.id,
             "manager_id": perm.manager_id,
