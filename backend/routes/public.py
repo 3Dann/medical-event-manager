@@ -50,12 +50,14 @@ def submit_feedback(data: FeedbackCreate, db: Session = Depends(get_db)):
 
 @router.get("/feedback")
 def list_feedback(
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
     items = db.query(models.ProjectFeedback).order_by(
         models.ProjectFeedback.created_at.desc()
-    ).all()
+    ).limit(limit).offset(offset).all()
     return [_serialize(f) for f in items]
 
 
