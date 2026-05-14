@@ -36,7 +36,7 @@ def send_2fa_sms(phone: str, code: str) -> bool:
         logger.info("SMS 2FA sent to ...%s", phone[-4:] if phone and len(phone) >= 4 else "??")
         return True
     except Exception as e:
-        logger.error("SMS send failed to %s: %s", phone, e)
+        logger.error("SMS send failed to ...%s: %s", phone[-4:] if phone and len(phone) >= 4 else "??", e)
         return False
 
 
