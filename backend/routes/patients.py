@@ -198,6 +198,14 @@ def patient_to_dict(p):
         "ec_phone_prefix": p.ec_phone_prefix,
         "ec_phone": p.ec_phone,
         "ec_relation": p.ec_relation,
+        # Phone 2
+        "phone2_prefix": p.phone2_prefix,
+        "phone2": p.phone2,
+        # Medical specialty
+        "specialty": p.specialty,
+        "sub_specialty": p.sub_specialty,
+        "referral_goal": p.referral_goal,
+        "referral_source": p.referral_source,
         # Functional assessments (medications moved to patient_medications table)
         "adl_score": p.adl_score,
         "iadl_score": p.iadl_score,
@@ -206,6 +214,15 @@ def patient_to_dict(p):
         "consent_agreed": p.consent_agreed,
         "poa_agreed": p.poa_agreed,
         "intake_completed": p.intake_completed,
+        # NSCLC / Oncology clinical fields
+        "smoking_status": p.smoking_status,
+        "ngs_method": p.ngs_method,
+        "fev1_score": p.fev1_score,
+        "access_type": p.access_type,
+        "biomarker_target": p.biomarker_target,
+        "tumor_board_surgeon": p.tumor_board_surgeon,
+        "tumor_board_oncologist": p.tumor_board_oncologist,
+        "tumor_board_radiation": p.tumor_board_radiation,
     }
 
 
