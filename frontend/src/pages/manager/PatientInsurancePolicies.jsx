@@ -595,15 +595,19 @@ export default function PatientInsurancePolicies() {
   }
 
   const saveCoverages = async (srcId, coverages, exclusions) => {
-    for (const cov of coverages) {
-      await axios.post(`/api/patients/${id}/insurance/${srcId}/coverage`, {
-        category: cov.category,
-        is_covered: cov.is_covered,
-        coverage_amount: cov.coverage_amount || null,
-        notes: cov.notes || null,
-      })
+    try {
+      for (const cov of coverages) {
+        await axios.post(`/api/patients/${id}/insurance/${srcId}/coverage`, {
+          category: cov.category,
+          is_covered: cov.is_covered,
+          coverage_amount: cov.coverage_amount || null,
+          notes: cov.notes || null,
+        })
+      }
+      fetchAll()
+    } catch (err) {
+      showToast('שגיאה בשמירת הכיסויים. נסה שוב.')
     }
-    fetchAll()
   }
 
   // Coverage card: is this type covered?
