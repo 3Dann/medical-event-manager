@@ -50,6 +50,195 @@ const DOC_CATEGORY = {
   'רפואי': '🏥', 'ביטוחי': '📋', 'משפטי': '⚖️', 'דוח': '📊', 'אחר': '📄'
 }
 
+// ── File upload ───────────────────────────────────────────────────────────────
+const ALLOWED_MIME = {
+  'application/pdf':  { label: 'PDF',   icon: '📄', cat: 'רפואי'  },
+  'image/jpeg':       { label: 'תמונה', icon: '🖼️', cat: 'רפואי'  },
+  'image/png':        { label: 'תמונה', icon: '🖼️', cat: 'רפואי'  },
+  'image/gif':        { label: 'תמונה', icon: '🖼️', cat: 'אחר'    },
+  'image/webp':       { label: 'תמונה', icon: '🖼️', cat: 'רפואי'  },
+  'application/msword': { label: 'Word', icon: '📝', cat: 'ביטוחי' },
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                      { label: 'Word',  icon: '📝', cat: 'ביטוחי' },
+  'application/vnd.ms-excel': { label: 'Excel', icon: '📊', cat: 'ביטוחי' },
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                      { label: 'Excel', icon: '📊', cat: 'ביטוחי' },
+}
+const EXT_MIME = {
+  pdf: 'application/pdf', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+  png: 'image/png', gif: 'image/gif', webp: 'image/webp', heic: 'image/jpeg',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+}
+const ACCEPT = '.pdf,.jpg,.jpeg,.png,.gif,.webp,.heic,.doc,.docx,.xls,.xlsx'
+const MAX_MB  = 20
+
+function detectType(file) {
+  if (ALLOWED_MIME[file.type]) return { mime: file.type, ...ALLOWED_MIME[file.type] }
+  const ext  = file.name.split('.').pop()?.toLowerCase()
+  const mime = EXT_MIME[ext]
+  if (mime && ALLOWED_MIME[mime]) return { mime, ...ALLOWED_MIME[mime] }
+  return { mime: file.type || 'application/octet-stream', label: 'קובץ', icon: '📎', cat: 'אחר' }
+}
+
+function FileUploadZone({ patientId, onUploaded }) {
+  const [drag,  setDrag]  = useState(false)
+  const [items, setItems] = useState([])
+  const inputRef = useRef(null)
+
+  const addFiles = (rawFiles) => {
+    const next = Array.from(rawFiles).map(file => {
+      const type = detectType(file)
+      const tooBig = file.size > MAX_MB * 1024 * 1024
+      const badType = !ALLOWED_MIME[type.mime]
+      if (tooBig)   return { file, type, status: 'error', error: `הקובץ גדול מ-${MAX_MB}MB` }
+      if (badType)  return { file, type, status: 'error', error: 'סוג קובץ לא נתמך' }
+      return { file, type, status: 'pending' }
+    })
+    setItems(prev => [...prev, ...next])
+  }
+
+  const remove = (file) => setItems(prev => prev.filter(i => i.file !== file))
+
+  const uploadAll = async () => {
+    const pending = items.filter(i => i.status === 'pending')
+    for (const item of pending) {
+      setItems(prev => prev.map(i => i.file === item.file ? { ...i, status: 'uploading' } : i))
+      try {
+        const fd = new FormData()
+        fd.append('file', item.file)
+        fd.append('category', item.type.cat)
+        await axios.post(`/api/patients/${patientId}/documents`, fd)
+        setItems(prev => prev.map(i => i.file === item.file ? { ...i, status: 'done' } : i))
+      } catch {
+        setItems(prev => prev.map(i => i.file === item.file ? { ...i, status: 'error', error: 'העלאה נכשלה. נסה שוב.' } : i))
+      }
+    }
+    onUploaded()
+  }
+
+  const hasPending = items.some(i => i.status === 'pending')
+  const allDone    = items.length > 0 && items.every(i => i.status === 'done' || i.status === 'error')
+  const allSuccess = items.length > 0 && items.every(i => i.status === 'done')
+
+  return (
+    <div className="mb-6">
+      <div
+        onDragOver={e => { e.preventDefault(); setDrag(true) }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={e => { e.preventDefault(); setDrag(false); addFiles(e.dataTransfer.files) }}
+        onClick={() => inputRef.current?.click()}
+        className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all select-none ${
+          drag
+            ? 'border-blue-500 bg-blue-50 scale-[1.01] shadow-inner'
+            : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/40'
+        }`}
+        role="button"
+        aria-label="אזור גרירה להעלאת קבצים"
+      >
+        <input ref={inputRef} type="file" multiple accept={ACCEPT} className="hidden"
+          onChange={e => { addFiles(e.target.files); e.target.value = '' }} />
+        <div className="text-5xl mb-3">{drag ? '📂' : '📤'}</div>
+        <p className="font-bold text-slate-700 text-lg mb-1">
+          {drag ? 'שחרר כאן להוספה' : 'גרור קבצים לכאן'}
+        </p>
+        <p className="text-slate-600">או לחץ לבחירת קבצים מהמכשיר שלך</p>
+        <p className="text-slate-400 text-sm mt-2">
+          PDF · Word · Excel · תמונות · עד {MAX_MB}MB לקובץ
+        </p>
+      </div>
+
+      {items.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {items.map((item, idx) => (
+            <div key={idx} className={`flex items-center gap-3 rounded-xl border-2 p-3 transition-colors ${
+              item.status === 'done'      ? 'border-green-200 bg-green-50' :
+              item.status === 'error'     ? 'border-red-200   bg-red-50'   :
+              item.status === 'uploading' ? 'border-blue-200  bg-blue-50'  :
+              'border-slate-200 bg-white'
+            }`}>
+              <span className="text-2xl flex-shrink-0">{item.type.icon}</span>
+              <div className="flex-1 min-w-0 text-right">
+                <p className="font-medium text-slate-800 truncate">{item.file.name}</p>
+                <div className="flex items-center gap-2 justify-end mt-0.5">
+                  <span className="text-slate-500 text-sm">
+                    {item.file.size < 1024 * 1024
+                      ? `${(item.file.size / 1024).toFixed(0)}KB`
+                      : `${(item.file.size / 1024 / 1024).toFixed(1)}MB`}
+                  </span>
+                  <span className="text-xs bg-white/80 border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full">
+                    {item.type.label}
+                  </span>
+                  {item.status === 'uploading' && (
+                    <span className="text-blue-600 text-sm font-medium">מעלה...</span>
+                  )}
+                </div>
+                {item.status === 'error' && (
+                  <p className="text-red-600 text-sm mt-1">{item.error}</p>
+                )}
+              </div>
+              <div className="flex-shrink-0">
+                {item.status === 'done'      && <span className="text-2xl">✅</span>}
+                {item.status === 'uploading' && (
+                  <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                )}
+                {item.status === 'error'     && <span className="text-2xl">❌</span>}
+                {item.status === 'pending'   && (
+                  <button
+                    onClick={e => { e.stopPropagation(); remove(item.file) }}
+                    className="text-slate-400 hover:text-red-500 transition-colors p-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    aria-label="הסר קובץ"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {hasPending && (
+        <button
+          onClick={uploadAll}
+          className="mt-4 w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg transition-colors shadow-md flex items-center justify-center gap-3 min-h-[56px]"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          העלה {items.filter(i => i.status === 'pending').length} קבצים
+        </button>
+      )}
+
+      {allSuccess && (
+        <div className="mt-4 bg-green-50 border-2 border-green-200 rounded-2xl p-5 text-center">
+          <p className="text-green-700 font-bold text-lg mb-2">✅ הקבצים הועלו בהצלחה!</p>
+          <button
+            onClick={() => setItems([])}
+            className="text-green-600 hover:text-green-800 font-medium underline"
+          >
+            העלה קבצים נוספים
+          </button>
+        </div>
+      )}
+
+      {allDone && !allSuccess && (
+        <button
+          onClick={() => setItems(prev => prev.filter(i => i.status !== 'done'))}
+          className="mt-3 text-slate-500 hover:text-slate-700 font-medium text-sm"
+        >
+          נקה רשימה
+        </button>
+      )}
+    </div>
+  )
+}
+
 // ── Speak button ──────────────────────────────────────────────────────────────
 function SpeakButton({ getText }) {
   const { speak, stop, speaking, supported } = useSpeech()
