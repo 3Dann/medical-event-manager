@@ -19,6 +19,7 @@ export default function PasskeySection() {
   const [deviceName,   setDeviceName]   = useState('')
   const [msg,          setMsg]          = useState(null)   // {ok, text}
   const [adding,       setAdding]       = useState(false)
+  const [confirm, ConfirmUI] = useConfirm()
 
   useEffect(() => {
     detect()
