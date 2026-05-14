@@ -49,14 +49,17 @@ export default function MedicationAutocomplete({
     onChange({ name: val, generic_name: null, common_dosages: [] })
     if (onDosagesAvailable) onDosagesAvailable([])
     clearTimeout(debounceRef.current)
+    if (abortRef.current) abortRef.current.abort()
     if (val.length < 2) { setSuggestions([]); setOpen(false); return }
     debounceRef.current = setTimeout(async () => {
+      abortRef.current = new AbortController()
       setLoading(true)
       try {
-        const res = await axios.get('/api/medications/search', { params: { q: val } })
+        const res = await axios.get('/api/medications/search', { params: { q: val }, signal: abortRef.current.signal })
         setSuggestions(res.data)
         setOpen(res.data.length > 0)
-      } catch {
+      } catch (e) {
+        if (axios.isCancel(e)) return
         setSuggestions([])
       } finally {
         setLoading(false)
