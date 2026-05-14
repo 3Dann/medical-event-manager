@@ -133,6 +133,7 @@ export default function Form17Section({ patientId }) {
 
   return (
     <div className="mt-6">
+      {ConfirmUI}
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-slate-800">מעקב טופס 17</h3>
         <button onClick={() => { setEditing(null); setShowModal(true) }}
