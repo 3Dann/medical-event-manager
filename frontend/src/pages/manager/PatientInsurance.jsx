@@ -233,7 +233,8 @@ export default function PatientInsurance() {
   }
 
   const handleDeleteEntitlement = async (entId) => {
-    if (!confirm('למחוק זכאות זו?')) return
+    const ok = await confirm({ title: 'מחיקת זכאות', message: 'למחוק זכאות זו?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/entitlements/${entId}`); fetchAll()
   }
 
