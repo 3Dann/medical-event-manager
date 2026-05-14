@@ -402,7 +402,7 @@ def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_u
                 title="מסע המטופל",
             )
     except Exception:
-        pass  # journey workflow is advisory — never block patient creation
+        logger.exception("Failed to create journey workflow instance for patient %s", patient.id)
 
     return patient_to_dict(patient)
 
