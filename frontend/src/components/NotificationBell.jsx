@@ -15,7 +15,7 @@ export default function NotificationBell() {
       ctrl = new AbortController()
       axios.get('/api/notifications', { signal: ctrl.signal })
         .then(r => setData(r.data))
-        .catch(e => { if (!axios.isCancel(e)) {} })
+        .catch(e => { if (!axios.isCancel(e)) console.error('notifications fetch failed', e) })
     }
     load()
     const id = setInterval(load, 60000)
