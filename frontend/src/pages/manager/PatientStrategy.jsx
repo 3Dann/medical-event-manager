@@ -265,7 +265,7 @@ export default function PatientStrategy() {
     setApprovingId(claimId)
     try {
       await axios.post(`/api/patients/${id}/claims/${claimId}/approve`)
-      await fetchAll()
+      await fetchAll().catch(() => {})
     } catch (e) {
       showToast('לא ניתן לאשר את התביעה כרגע. נסה שוב.')
     } finally {
@@ -277,7 +277,7 @@ export default function PatientStrategy() {
     setDeletingId(claimId)
     try {
       await axios.delete(`/api/patients/${id}/claims/${claimId}`)
-      await fetchAll()
+      await fetchAll().catch(() => {})
     } catch (e) {
       showToast('לא ניתן למחוק את התביעה כרגע. נסה שוב.')
     } finally {
