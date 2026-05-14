@@ -1,9 +1,12 @@
 import re
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from database import get_db
+
+logger = logging.getLogger("patients")
 
 _ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
