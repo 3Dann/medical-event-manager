@@ -317,8 +317,10 @@ export default function PatientDetail() {
                   <label className="label">{t('hmo_label')}</label>
                   <select className="input" value={editForm.hmo_name || ''} onChange={async e => {
                     const hmo = e.target.value; setEditForm({...editForm, hmo_name: hmo, hmo_level: ''})
-                    if (hmo) { const r = await axios.get(`/api/patients/hmo-plans/${hmo}`); setHmoPlans(r.data) }
-                    else setHmoPlans([])
+                    if (hmo) {
+                      try { const r = await axios.get(`/api/patients/hmo-plans/${hmo}`); setHmoPlans(r.data) }
+                      catch { showToast('שגיאה בטעינת תוכניות הקופה. נסה שוב.') }
+                    } else setHmoPlans([])
                   }}>
                     <option value="">{t('not_defined_option')}</option>
                     <option value="clalit">כללית</option><option value="maccabi">מכבי</option>
