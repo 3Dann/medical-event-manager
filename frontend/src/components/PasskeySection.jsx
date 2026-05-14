@@ -75,7 +75,8 @@ export default function PasskeySection() {
   }
 
   async function removeCred(id) {
-    if (!confirm('למחוק את ה-Passkey הזה?')) return
+    const ok = await confirm({ title: 'מחיקת Passkey', message: 'למחוק את ה-Passkey הזה?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     try {
       await axios.delete(`/api/auth/webauthn/credentials/${id}`)
       setCreds(c => c.filter(x => x.id !== id))
