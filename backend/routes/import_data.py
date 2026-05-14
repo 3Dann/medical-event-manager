@@ -168,7 +168,7 @@ def import_kupat_holim(
         models.InsuranceSource.hmo_level == plan_key,
     ).first()
     if already:
-        raise HTTPException(status_code=400, detail=f"{plan_label} כבר קיימת בתיק {patient.full_name}")
+        raise HTTPException(status_code=400, detail=f"{plan_label} כבר קיימת בתיק המטופל שצוין")
 
     source = models.InsuranceSource(
         patient_id=patient.id, source_type="kupat_holim",
