@@ -66,7 +66,7 @@ export default function NotificationBell() {
             )}
           </div>
           {data.items.length === 0 ? (
-            <div className="py-8 text-center text-slate-500 text-sm">אין התראות חדשות</div>
+            <div role="status" aria-live="polite" className="py-8 text-center text-slate-500 text-sm">אין התראות חדשות</div>
           ) : (
             <ul className="max-h-80 overflow-y-auto divide-y divide-slate-100">
               {data.items.map(n => (
