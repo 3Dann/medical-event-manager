@@ -82,10 +82,21 @@ def get_patient_summary(
         models.WorkflowInstance.patient_id == patient.id,
     ).order_by(models.WorkflowInstance.id.desc()).all()
 
+    # Batch-load all steps for all instances in a single query to avoid N+1
+    instance_ids = [wf.id for wf in wf_instances]
+    all_steps = (
+        db.query(models.WorkflowStep)
+        .filter(models.WorkflowStep.instance_id.in_(instance_ids))
+        .order_by(models.WorkflowStep.instance_id, models.WorkflowStep.step_order)
+        .all()
+        if instance_ids else []
+    )
+    steps_by_instance: dict = {}
+    for s in all_steps:
+        steps_by_instance.setdefault(s.instance_id, []).append(s)
+
     def _wf_dict(wf):
-        steps = db.query(models.WorkflowStep).filter(
-            models.WorkflowStep.instance_id == wf.id
-        ).order_by(models.WorkflowStep.step_order).all()
+        steps = steps_by_instance.get(wf.id, [])
         total = len(steps)
         done  = sum(1 for s in steps if s.status in ("completed", "skipped"))
         return {
