@@ -282,7 +282,8 @@ def get_financial_map(
             try:
                 from datetime import date
                 bday = datetime.strptime(patient.birth_date, "%Y-%m-%d").date()
-                age = (date.today() - bday).days // 365
+                today = date.today()
+                age = today.year - bday.year - ((today.month, today.day) < (bday.month, bday.day))
             except Exception:
                 pass
         if fund.eligible_ages_min is not None and age is not None and age < fund.eligible_ages_min:
