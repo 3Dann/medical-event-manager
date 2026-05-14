@@ -115,6 +115,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
   const [open, setOpen]         = useState(false)
   const ref = useRef()
   const abortRef = useRef()
+  const selectedStreetRef = useRef(null)
 
   useEffect(() => { setInput(value || '') }, [value])
 
