@@ -398,6 +398,7 @@ def extract_from_document(
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     doc = (
         db.query(models.PatientDocument)
         .filter(models.PatientDocument.id == doc_id, models.PatientDocument.patient_id == patient_id)
