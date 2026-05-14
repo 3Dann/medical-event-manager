@@ -57,8 +57,10 @@ function AddFundModal({ patientId, onClose, onAdded }) {
   const [search, setSearch]   = useState('')
 
   useEffect(() => {
-    fetch('/api/financial-funds', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+    const ctrl = new AbortController()
+    fetch('/api/financial-funds', { signal: ctrl.signal, headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
       .then(r => r.json()).then(setFunds).catch(() => {})
+    return () => ctrl.abort()
   }, [])
 
   const filtered = funds.filter(f =>
