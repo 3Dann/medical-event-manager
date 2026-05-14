@@ -163,7 +163,8 @@ export default function RedFlagsBanner({ patientId }) {
                 {f.description && <p className={`text-xs mt-0.5 opacity-80 ${cfg.text}`}>{f.description}</p>}
               </div>
               <button onClick={() => resolve(f.id)}
-                className={`text-xs shrink-0 ${cfg.btn} transition-colors`}>
+                aria-label={f.title ? `סמן כטופל: ${f.title}` : 'סמן כטופל'}
+                className={`text-xs shrink-0 min-h-[44px] min-w-[44px] ${cfg.btn} transition-colors`}>
                 ✓ טופל
               </button>
             </div>
