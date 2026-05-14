@@ -47,6 +47,7 @@ const PatientLayout      = lazy(() => import('./pages/patient/PatientLayout'))
 const PatientSummary     = lazy(() => import('./pages/patient/PatientSummary'))
 const PatientLoginPage      = lazy(() => import('./pages/patient/PatientLoginPage'))
 const ChangePasswordPage    = lazy(() => import('./pages/ChangePasswordPage'))
+const ResetPasswordPage     = lazy(() => import('./pages/ResetPasswordPage'))
 const BrokerPortal       = lazy(() => import('./pages/broker/BrokerPortal'))
 
 function PageLoader() {
