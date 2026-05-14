@@ -162,7 +162,7 @@ async def save_landing(
 ):
     """Admin-only — saves landing page overrides to DB."""
     from fastapi import HTTPException
-    if current_user.email != "da.tzalik@gmail.com":
+    if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="גישה מורשית למפתח בלבד")
     data = await request.json()
     _set(db, "landing_overrides", json.dumps(data))
