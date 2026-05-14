@@ -41,7 +41,7 @@ export default function ResizablePanel({
       const delta = direction === 'vertical'
         ? drag.current.startPos - pos
         : pos - drag.current.startPos
-      setSize(Math.max(minSize, Math.min(maxSize, drag.current.startSize + delta)))
+      setSize(Math.max(minRef.current, Math.min(maxRef.current, drag.current.startSize + delta)))
       // Critical: prevent page scroll while resizing
       e.preventDefault()
     }
