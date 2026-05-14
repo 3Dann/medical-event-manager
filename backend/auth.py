@@ -33,7 +33,7 @@ def get_password_hash(password):
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None, expires_minutes: int = None):
     to_encode = data.copy()
     mins = expires_minutes or ACCESS_TOKEN_EXPIRE_MINUTES
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=mins))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=mins))
     to_encode.update({"exp": expire, "jti": secrets.token_hex(16)})
     return pyjwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
