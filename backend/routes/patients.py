@@ -261,7 +261,12 @@ def get_hmo_plans(hmo_name: str):
 # ── Patients ──────────────────────────────────────────────
 
 @router.get("")
-def list_patients(db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+def list_patients(
+    limit: int = Query(100, le=500),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.get_current_user),
+):
     base_q = db.query(models.Patient).options(joinedload(models.Patient.manager))
     if current_user.role == "manager":
         own = base_q.filter(models.Patient.manager_id == current_user.id).all()
@@ -278,7 +283,7 @@ def list_patients(db: Session = Depends(get_db), current_user: models.User = Dep
                       if p.id not in seen]
         patients = own + shared
     elif current_user.is_admin:
-        patients = base_q.all()
+        patients = base_q.limit(limit).offset(offset).all()
     else:
         patients = base_q.filter(models.Patient.patient_user_id == current_user.id).all()
     return [patient_to_dict(p) for p in patients]
