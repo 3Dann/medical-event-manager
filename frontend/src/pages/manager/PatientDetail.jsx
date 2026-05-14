@@ -312,8 +312,9 @@ export default function PatientDetail() {
               <div><label className="label">{t('notes_label')}</label><textarea className="input" rows={2} value={editForm.notes || ''} onChange={e => setEditForm({...editForm, notes: e.target.value})} /></div>
               <button
                 onClick={handleSavePatient}
-                className="btn-primary w-full"
-              >{t('common:save', { ns: 'common' })}</button>
+                disabled={saving}
+                className={`btn-primary w-full${saving ? ' opacity-50 cursor-not-allowed' : ''}`}
+              >{saving ? t('common:saving', { ns: 'common' }) : t('common:save', { ns: 'common' })}</button>
             </div>
           ) : (
             <dl className="space-y-3 text-sm">
