@@ -98,11 +98,11 @@ export default function PatientDetail() {
         axios.get(`/api/patients/${id}/journey-templates`, cfg),
       ])
       setPatient(p.data)
+      let conditionTags = []
+      try { conditionTags = typeof p.data.condition_tags === 'string' ? JSON.parse(p.data.condition_tags || '[]') : (p.data.condition_tags || []) } catch { conditionTags = [] }
       const patientData = {
         ...p.data,
-        condition_tags: typeof p.data.condition_tags === 'string'
-          ? JSON.parse(p.data.condition_tags || '[]')
-          : (p.data.condition_tags || []),
+        condition_tags: conditionTags,
       }
       setEditForm(patientData)
       setNodes(n.data)
