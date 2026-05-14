@@ -588,6 +588,158 @@ export default function AdminPage() {
   )
 }
 
+// ── Registrations Panel ───────────────────────────────────────────────────────
+function RegistrationsPanel({ onCountChange }) {
+  const [regs, setRegs]           = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [viewStatus, setViewStatus] = useState('pending')
+  const [rejectInputs, setRejectInputs] = useState({})
+  const [acting, setActing]       = useState(null)
+  const { showToast }             = useToast()
+
+  const load = (status = viewStatus) => {
+    const ctrl = new AbortController()
+    setLoading(true)
+    axios.get(`/api/auth/admin/registrations?status=${status}`, { signal: ctrl.signal })
+      .then(r => {
+        setRegs(r.data)
+        if (status === 'pending' && onCountChange) onCountChange(r.data.length)
+      })
+      .catch(e => { if (!axios.isCancel(e)) showToast('שגיאה בטעינת בקשות הרישום') })
+      .finally(() => setLoading(false))
+    return ctrl
+  }
+
+  useEffect(() => {
+    const ctrl = load(viewStatus)
+    return () => ctrl.abort()
+  }, [viewStatus])
+
+  const handleApprove = async (id) => {
+    setActing(id)
+    try {
+      await axios.post(`/api/auth/admin/registrations/${id}/approve`)
+      showToast('הבקשה אושרה בהצלחה')
+      load(viewStatus)
+    } catch (e) {
+      showToast(e.response?.data?.detail || 'שגיאה באישור הבקשה')
+    } finally { setActing(null) }
+  }
+
+  const handleReject = async (id) => {
+    const reason = rejectInputs[id] || ''
+    if (!reason.trim()) { showToast('יש להזין סיבת דחייה'); return }
+    setActing(id)
+    try {
+      await axios.post(`/api/auth/admin/registrations/${id}/reject`, { reason })
+      showToast('הבקשה נדחתה')
+      setRejectInputs(prev => { const n = { ...prev }; delete n[id]; return n })
+      load(viewStatus)
+    } catch (e) {
+      showToast(e.response?.data?.detail || 'שגיאה בדחיית הבקשה')
+    } finally { setActing(null) }
+  }
+
+  const ROLE_BADGE = {
+    manager: { cls: 'bg-blue-100 text-blue-700', label: 'מנהל' },
+    patient:  { cls: 'bg-green-100 text-green-700', label: 'מטופל' },
+    broker:   { cls: 'bg-violet-100 text-violet-700', label: 'ברוקר' },
+  }
+
+  return (
+    <div dir="rtl">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+        <div>
+          <h3 className="font-semibold text-slate-800">בקשות רישום</h3>
+          <p className="text-xs text-slate-500 mt-0.5">ניהול בקשות רישום ממתינות ממשתמשים חדשים</p>
+        </div>
+        <div className="flex gap-2">
+          {['pending', 'approved', 'rejected'].map(s => (
+            <button key={s}
+              onClick={() => setViewStatus(s)}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${viewStatus === s ? 'bg-blue-600 text-white border-blue-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            >
+              {s === 'pending' ? 'ממתינות' : s === 'approved' ? 'מאושרות' : 'דחויות'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="py-12 text-center text-slate-500 text-sm">טוען...</div>
+      ) : regs.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-4xl mb-3">📋</p>
+          <p className="text-slate-500 text-sm">
+            {viewStatus === 'pending' ? 'אין בקשות רישום ממתינות' : viewStatus === 'approved' ? 'אין בקשות מאושרות' : 'אין בקשות דחויות'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {regs.map(reg => {
+            const roleInfo = ROLE_BADGE[reg.role] || { cls: 'bg-slate-100 text-slate-700', label: reg.role }
+            const isActing = acting === reg.id
+            return (
+              <div key={reg.id} className="card">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="font-semibold text-slate-800">{reg.full_name}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${roleInfo.cls}`}>{roleInfo.label}</span>
+                    </div>
+                    <p className="text-sm text-slate-500">{reg.email}</p>
+                    {reg.org_name && (
+                      <p className="text-xs text-slate-600 mt-0.5">ארגון: {reg.org_name}</p>
+                    )}
+                    {reg.applicant_message && (
+                      <p className="text-xs text-slate-600 mt-1 bg-slate-50 rounded p-2 border border-slate-100">{reg.applicant_message}</p>
+                    )}
+                    <p className="text-xs text-slate-400 mt-1">
+                      הוגש: {reg.created_at ? new Date(reg.created_at).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+                    </p>
+                    {reg.rejection_reason && (
+                      <p className="text-xs text-red-600 mt-1">סיבת דחייה: {reg.rejection_reason}</p>
+                    )}
+                  </div>
+
+                  {viewStatus === 'pending' && (
+                    <div className="flex flex-col gap-2 flex-shrink-0 w-full sm:w-auto">
+                      <button
+                        onClick={() => handleApprove(reg.id)}
+                        disabled={isActing}
+                        className="text-sm bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+                      >
+                        {isActing ? 'מעבד...' : 'אשר'}
+                      </button>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          className="input text-sm py-1.5 flex-1 min-w-0"
+                          placeholder="סיבת דחייה..."
+                          value={rejectInputs[reg.id] || ''}
+                          onChange={e => setRejectInputs(prev => ({ ...prev, [reg.id]: e.target.value }))}
+                        />
+                        <button
+                          onClick={() => handleReject(reg.id)}
+                          disabled={isActing}
+                          className="text-sm bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 disabled:opacity-50 transition-colors flex-shrink-0"
+                        >
+                          דחה
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 // ── Sessions Panel ─────────────────────────────────────────────────────────────
 function SessionsPanel() {
   const [sessions, setSessions] = useState([])
