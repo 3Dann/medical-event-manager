@@ -241,12 +241,8 @@ export default function FinancialMapTab({ patientId }) {
   const generateReport = async () => {
     setGenerating(true)
     try {
-      const r = await fetch(`/api/patients/${patientId}/reports/financial-map`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
-      if (!r.ok) throw new Error()
-      const blob = await r.blob()
-      const url  = URL.createObjectURL(blob)
+      const res = await axios.get(`/api/patients/${patientId}/reports/financial-map`, { responseType: 'blob' })
+      const url  = URL.createObjectURL(res.data)
       const a    = document.createElement('a')
       a.href     = url
       a.download = `מפה-פיננסית-${patientId}.pdf`
