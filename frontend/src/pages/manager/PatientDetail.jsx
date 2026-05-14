@@ -124,6 +124,8 @@ export default function PatientDetail() {
       await axios.put(`/api/patients/${id}`, payload)
       setEditingInfo(false)
       fetchAll()
+    } catch {
+      showToast('שגיאה בשמירת פרטי המטופל. נסה שוב.')
     } finally {
       setSaving(false)
     }
