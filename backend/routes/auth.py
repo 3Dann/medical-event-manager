@@ -50,6 +50,8 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: str = "manager"
+    org_name: Optional[str] = None
+    applicant_message: Optional[str] = None
 
 
 class Token(BaseModel):
