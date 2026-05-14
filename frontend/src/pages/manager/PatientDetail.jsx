@@ -225,8 +225,12 @@ export default function PatientDetail() {
   }
 
   const handleUpdateNode = async (nodeId, updates) => {
-    await axios.put(`/api/patients/${id}/nodes/${nodeId}`, updates)
-    fetchAll()
+    try {
+      await axios.put(`/api/patients/${id}/nodes/${nodeId}`, updates)
+      fetchAll()
+    } catch (err) {
+      showToast('שגיאה בעדכון הצומת. נסה שוב.')
+    }
   }
 
   const startEditNode = (node) => {
