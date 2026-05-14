@@ -51,27 +51,37 @@ export default function PatientClaims() {
   const handleCreate = async (e) => {
     e.preventDefault()
     const payload = { ...form, insurance_source_id: parseInt(form.insurance_source_id), amount_requested: form.amount_requested ? parseFloat(form.amount_requested) : null, priority_order: form.priority_order ? parseInt(form.priority_order) : null }
-    await axios.post(`/api/patients/${id}/claims`, payload)
-    setShowForm(false); fetchAll().catch(() => {})
+    try {
+      await axios.post(`/api/patients/${id}/claims`, payload)
+      setShowForm(false); fetchAll().catch(() => {})
+    } catch { showToast('שגיאה ביצירת התביעה. נסה שוב.') }
   }
 
   const handleStatusChange = async (claimId, newStatus) => {
     const claim = claims.find(c => c.id === claimId)
-    await axios.put(`/api/patients/${id}/claims/${claimId}`, { status: newStatus })
-    fetchAll().catch(() => {})
-    if (FEEDBACK_STATUSES.includes(newStatus) && claim?.source_label) {
-      setPendingFeedback({ companyName: claim.source_label, outcome: newStatus, scoreUpdated: false })
-    }
+    try {
+      await axios.put(`/api/patients/${id}/claims/${claimId}`, { status: newStatus })
+      fetchAll().catch(() => {})
+      if (FEEDBACK_STATUSES.includes(newStatus) && claim?.source_label) {
+        setPendingFeedback({ companyName: claim.source_label, outcome: newStatus, scoreUpdated: false })
+      }
+    } catch { showToast('שגיאה בעדכון הסטטוס. נסה שוב.') }
   }
 
   const handleAmountApproved = async (claimId, amount) => {
-    await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parseFloat(amount) }); fetchAll().catch(() => {})
+    try {
+      await axios.put(`/api/patients/${id}/claims/${claimId}`, { amount_approved: parseFloat(amount) })
+      fetchAll().catch(() => {})
+    } catch { showToast('שגיאה בשמירת הסכום. נסה שוב.') }
   }
 
   const handleDelete = async (claimId) => {
     const ok = await confirm({ title: 'מחיקת תביעה', message: 'למחוק תביעה זו?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/claims/${claimId}`); fetchAll().catch(() => {})
+    try {
+      await axios.delete(`/api/patients/${id}/claims/${claimId}`)
+      fetchAll().catch(() => {})
+    } catch { showToast('שגיאה במחיקת התביעה. נסה שוב.') }
   }
 
   const handleFeedbackConfirm = async () => {
