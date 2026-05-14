@@ -250,9 +250,12 @@ export default function AdminPage() {
         ].map(tb => (
           <button key={tb.key}
             onClick={() => setTab(tb.key)}
-            className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors ${tab === tb.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-1.5 ${tab === tb.key ? 'border-blue-600 text-blue-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
           >
             {tb.label}
+            {tb.badge > 0 && (
+              <span className="inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full">{tb.badge > 9 ? '9+' : tb.badge}</span>
+            )}
           </button>
         ))}
         {isDev && (
