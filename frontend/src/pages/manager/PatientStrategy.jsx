@@ -540,11 +540,6 @@ export default function PatientStrategy() {
         </div>
       )}
 
-      {/* ── FINANCIAL MAP TAB ─────────────────────────────────────────────── */}
-      {tab === 'financial_map' && (
-        <FinancialMapTab patientId={id} />
-      )}
-
       {/* ── STRATEGY TAB ───────────────────────────────────────────────────── */}
       {tab === 'strategy' && strategy && (
         <StrategyTab strategy={strategy} insights={insights} />
