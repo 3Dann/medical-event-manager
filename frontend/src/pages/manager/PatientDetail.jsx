@@ -232,7 +232,7 @@ export default function PatientDetail() {
     const ok = await confirm({ title: 'מחיקת צומת', message: 'למחוק צומת זה?', confirmLabel: 'מחק', danger: true })
     if (!ok) return
     await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
-    fetchAll()
+    fetchAll().catch(() => {})
   }
 
   const handleUpdateNode = async (nodeId, updates) => {
