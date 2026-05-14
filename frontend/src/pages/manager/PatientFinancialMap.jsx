@@ -37,7 +37,7 @@ export default function PatientFinancialMap() {
   if (error) return <div className="p-6 text-red-500">{error}</div>
   if (!data) return null
 
-  const { summary, categories, claim_priority, alerts } = data
+  const { summary = {}, categories = [], claim_priority = [], alerts = [] } = data || {}
 
   return (
     <div className="p-6 space-y-6 max-w-5xl">
