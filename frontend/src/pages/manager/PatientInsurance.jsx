@@ -153,7 +153,8 @@ export default function PatientInsurance() {
   }
 
   const handleDeleteSource = async (sourceId) => {
-    if (!confirm('למחוק מקור ביטוח זה?')) return
+    const ok = await confirm({ title: 'מחיקת מקור ביטוח', message: 'למחוק מקור ביטוח זה?', confirmLabel: 'מחק', danger: true })
+    if (!ok) return
     await axios.delete(`/api/patients/${id}/insurance/${sourceId}`); fetchAll()
   }
 
