@@ -380,7 +380,7 @@ def _complete_source(task: models.Task, db: Session):
             from flow_engine import FlowEngine
             instance = db.get(models.WorkflowInstance, step.instance_id)
             if instance:
-                FlowEngine.advance_step(instance, step, db)
+                FlowEngine.advance_step(db, step.instance_id, step.id, task.assigned_to or 0)
             else:
                 step.status = "completed"
 
