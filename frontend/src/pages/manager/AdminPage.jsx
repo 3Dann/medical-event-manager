@@ -577,6 +577,11 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* ── Registrations tab ── */}
+      {tab === 'registrations' && (
+        <RegistrationsPanel onCountChange={setPendingRegCount} />
+      )}
+
       {/* ── Drug Database Panel ─────────────────────────────────────── */}
       <DrugDatabasePanel />
     </div>
