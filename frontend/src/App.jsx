@@ -64,6 +64,7 @@ function ProtectedRoute({ children, role, adminOnly }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="flex items-center justify-center h-screen text-slate-500">טוען...</div>
   if (!user) return <Navigate to={role === 'patient' ? '/patient-login' : '/'} state={{ openLogin: true }} replace />
+  if (user.must_change_password) return <Navigate to="/change-password" replace />
   const effectiveRole = user.role === 'admin' ? 'manager' : user.role
   if (role && effectiveRole !== role) {
     const fallback = effectiveRole === 'manager' ? '/manager'
