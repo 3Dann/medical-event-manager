@@ -505,7 +505,8 @@ def revoke_session(
 def admin_tasks(
     overdue_only: bool = False,
     status: str = None,
-    limit: int = 50,
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
@@ -517,7 +518,7 @@ def admin_tasks(
         q = q.filter(models.Task.status == status)
     if overdue_only:
         q = q.filter(models.Task.due_date < now)
-    tasks = q.order_by(models.Task.due_date.asc().nullslast()).limit(limit).all()
+    tasks = q.order_by(models.Task.due_date.asc().nullslast()).limit(limit).offset(offset).all()
 
     result = []
     for t in tasks:
