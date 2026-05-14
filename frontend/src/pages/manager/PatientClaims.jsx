@@ -205,7 +205,7 @@ export default function PatientClaims() {
               <div><label className="label">{t('notes_label')}</label><textarea className="input" rows={2} value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} /></div>
               <div className="flex gap-2 justify-end pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">{t('common:cancel', { ns: 'common' })}</button>
-                <button type="submit" className="btn-primary">{t('add_claim_btn')}</button>
+                <button type="submit" disabled={creating} className="btn-primary disabled:opacity-50">{t('add_claim_btn')}</button>
               </div>
             </form>
           </div>
