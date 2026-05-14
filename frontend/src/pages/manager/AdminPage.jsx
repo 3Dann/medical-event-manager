@@ -781,6 +781,7 @@ function SessionsPanel() {
 
   return (
     <div dir="rtl">
+      {ConfirmUI}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-semibold text-slate-800">משתמשים מחוברים כרגע</h3>
