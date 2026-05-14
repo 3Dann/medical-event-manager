@@ -54,16 +54,27 @@ def get_strategy(patient_id: int, db: Session = Depends(get_db), current_user: m
     if not sources:
         return {"recommendations": [], "summary": {"total_covered": 0, "out_of_pocket": 0, "gaps": []}}
 
+    source_ids = [s.id for s in sources]
+    resp_scores = {r.insurance_source_id: r for r in
+        db.query(models.ResponsivenessScore)
+        .filter(models.ResponsivenessScore.insurance_source_id.in_(source_ids)).all()}
+
+    defaults = {
+        "sal_habriut": 8.0,
+        "bituch_leumi": 5.5,
+        "kupat_holim": 7.0,
+        "har_habitua": 6.0,
+        "private": 7.5,
+    }
+
     # Build coverage matrix
     coverage_matrix = {}
     for source in sources:
         for coverage in source.coverages:
             if coverage.category not in coverage_matrix:
                 coverage_matrix[coverage.category] = []
-            responsiveness = get_responsiveness(
-                source.company_name or source.hmo_name or source.source_type,
-                source.source_type, db
-            )
+            resp = resp_scores.get(source.id)
+            responsiveness = resp.overall_score if resp else defaults.get(source.source_type, 6.0)
             coverage_matrix[coverage.category].append({
                 "source_id": source.id,
                 "source_type": source.source_type,
