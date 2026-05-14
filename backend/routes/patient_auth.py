@@ -126,18 +126,23 @@ def _ensure_patient_user(patient: models.Patient, db: Session) -> models.User:
     raw_password = secrets.token_hex(32)
     hashed = bcrypt.hashpw(raw_password.encode(), bcrypt.gensalt()).decode()
 
-    user = models.User(
-        full_name=patient.full_name,
-        email=email,
-        hashed_password=hashed,
-        role=models.UserRole.patient,
-    )
-    db.add(user)
-    db.flush()
-    patient.patient_user_id = user.id
-    db.commit()
-    db.refresh(user)
-    return user
+    try:
+        user = models.User(
+            full_name=patient.full_name,
+            email=email,
+            hashed_password=hashed,
+            role=models.UserRole.patient,
+        )
+        db.add(user)
+        db.flush()
+        patient.patient_user_id = user.id
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        logger.error("_ensure_patient_user failed for patient %d: %s", patient.id, e)
+        raise HTTPException(status_code=500, detail="שגיאה ביצירת גישה. אנא פנה למנהל האירוע שלך.")
 
 
 @router.post("/verify")
