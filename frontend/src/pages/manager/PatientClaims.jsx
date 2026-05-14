@@ -21,6 +21,7 @@ export default function PatientClaims() {
     critical_illness: t('cat_critical_illness'), diagnostics: t('cat_diagnostics'),
   }
   const { id } = useParams()
+  const [confirm, ConfirmUI] = useConfirm()
   const [claims, setClaims] = useState([])
   const [sources, setSources] = useState([])
   const [showForm, setShowForm] = useState(false)
