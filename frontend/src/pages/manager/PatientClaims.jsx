@@ -228,7 +228,7 @@ export default function PatientClaims() {
                 <th className="p-3 text-right text-slate-600 font-medium">{t('col_approved')}</th>
                 <th className="p-3 text-right text-slate-600 font-medium">{t('col_status')}</th>
                 <th className="p-3 text-right text-slate-600 font-medium">{t('col_deadline')}</th>
-                <th className="p-3"></th>
+                <th className="p-3" aria-label="פעולות"></th>
               </tr>
             </thead>
             <tbody>
