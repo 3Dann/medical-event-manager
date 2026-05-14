@@ -260,19 +260,12 @@ export default function FinancialMapTab({ patientId }) {
   const removeApp = async (appId) => {
     const ok = await confirm({ title: 'הסרת מקור מימון', message: 'להסיר מקור מימון זה?', confirmLabel: 'הסר', danger: true })
     if (!ok) return
-    await fetch(`/api/patients/${patientId}/financial-funds/${appId}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    })
+    await axios.delete(`/api/patients/${patientId}/financial-funds/${appId}`)
     load()
   }
 
   const addRecommended = async (fund) => {
-    await fetch(`/api/patients/${patientId}/financial-funds`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-      body: JSON.stringify({ fund_id: fund.id }),
-    })
+    await axios.post(`/api/patients/${patientId}/financial-funds`, { fund_id: fund.id })
     load()
   }
 
