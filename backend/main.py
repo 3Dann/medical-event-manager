@@ -932,7 +932,7 @@ def seed_journey_workflows():
                     models.User.is_active == True,
                 ).first()
                 if not fallback:
-                    logger.warning(f"No manager_id and no admin found for patient {patient.id}, skipping journey workflow")
+                    logger.warning(f"seed_journey_workflows: patient {patient.id} ({getattr(patient, 'full_name', 'unknown')}) has no manager_id and no active admin found — skipping")
                     continue
                 creator_id = fallback.id
             from flow_engine import FlowEngine
