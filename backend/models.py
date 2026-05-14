@@ -350,7 +350,7 @@ class PatientDocument(Base):
 class Node(Base):
     __tablename__ = "nodes"
     id = Column(Integer, primary_key=True, index=True)
-    patient_id = Column(Integer, ForeignKey("patients.id"), index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), index=True)
     node_type = Column(String, nullable=False)   # medical / financial / stage
     description = Column(Text, nullable=False)
     planned_date = Column(String, nullable=True)
