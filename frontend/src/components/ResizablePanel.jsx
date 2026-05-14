@@ -60,7 +60,7 @@ export default function ResizablePanel({
       document.removeEventListener('mousemove', onMove)
       document.removeEventListener('mouseup', onUp)
     }
-  }, [direction, minSize, maxSize])
+  }, [direction])
 
   const isVertical = direction === 'vertical'
 
