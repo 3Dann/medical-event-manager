@@ -691,7 +691,9 @@ export default function IntakeWizard() {
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
         mmse_answers: JSON.stringify(form.mmse_answers),
-        adl_score: adlScore, iadl_score: iadlScore, mmse_score: mmseScore,
+        adl_score: adlTouched ? adlScore : null,
+        iadl_score: iadlTouched ? iadlScore : null,
+        mmse_score: mmseTouched ? mmseScore : null,
       }
       const res = await axios.post('/api/patients', payload)
       const patientId = res.data.id
