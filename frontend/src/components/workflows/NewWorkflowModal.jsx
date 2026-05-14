@@ -11,7 +11,11 @@ export default function NewWorkflowModal({ patientId, onClose, onCreated }) {
   const { toast, showToast, dismissToast } = useToast()
 
   useEffect(() => {
-    axios.get('/api/workflows/templates').then(r => setTemplates(r.data))
+    const controller = new AbortController()
+    axios.get('/api/workflows/templates', { signal: controller.signal })
+      .then(r => setTemplates(r.data))
+      .catch(e => { if (axios.isCancel(e)) return })
+    return () => controller.abort()
   }, [])
 
   const handleCreate = async () => {
