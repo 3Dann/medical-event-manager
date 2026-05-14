@@ -60,9 +60,18 @@ export default function PatientLayout() {
                    ? 'border-blue-600 text-blue-600'
                    : 'border-transparent text-slate-500 hover:text-slate-800'}`
               }
+              aria-selected={undefined}
             >
               {({ isActive }) => (
-                <span aria-selected={isActive}>{tab.label}</span>
+                <NavLink
+                  to={`/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`}
+                  end={tab.end}
+                  role="tab"
+                  aria-selected={isActive}
+                  className="contents"
+                >
+                  {tab.label}
+                </NavLink>
               )}
             </NavLink>
           ))}
