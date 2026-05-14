@@ -759,7 +759,7 @@ export default function PatientInsurance() {
                 {/* Coverage table */}
                 <div>
                   <p className="label mb-1">{t('coverages_fill_label')}</p>
-                  <CoverageTable catCoverages={coverages} editable={true} />
+                  <CoverageTable catCoverages={coverages} editable={true} updateCovField={updateCovField} />
                 </div>
               </div>
 
