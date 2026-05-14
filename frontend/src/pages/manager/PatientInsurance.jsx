@@ -45,6 +45,7 @@ export default function PatientInsurance() {
     har_habitua: t('source_sar'), private: t('source_private'), bituch_leumi: t('source_leumi'),
   }
   const { id } = useParams()
+  const [confirm, ConfirmUI] = useConfirm()
   const [sources, setSources]         = useState([])
   const [entitlements, setEntitlements] = useState([])
   const [showForm, setShowForm]       = useState(false)
