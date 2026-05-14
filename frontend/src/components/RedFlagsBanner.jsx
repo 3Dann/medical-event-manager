@@ -40,7 +40,8 @@ function AddFlagModal({ patientId, onClose, onSaved }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const cfg = TYPE_CONFIG[form.flag_type]
 
-  const save = async () => {
+  const save = async (e) => {
+    e.preventDefault()
     if (!form.title.trim()) return
     setSaving(true)
     try {
@@ -54,8 +55,9 @@ function AddFlagModal({ patientId, onClose, onSaved }) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" dir="rtl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-slate-800">הוספת נורה אדומה</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
+          <button type="button" onClick={onClose} className="text-slate-500 hover:text-slate-700 p-2 -m-2 rounded-lg">✕</button>
         </div>
+        <form onSubmit={save}>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
