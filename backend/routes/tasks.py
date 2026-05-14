@@ -377,7 +377,12 @@ def _complete_source(task: models.Task, db: Session):
             models.WorkflowStep.id == task.source_id
         ).first()
         if step and step.status == "active":
-            step.status = "completed"
+            from flow_engine import FlowEngine
+            instance = db.get(models.WorkflowInstance, step.instance_id)
+            if instance:
+                FlowEngine.advance_step(instance, step, db)
+            else:
+                step.status = "completed"
 
     elif task.source_type == "patient_request":
         req = db.query(models.PatientRequest).filter(
