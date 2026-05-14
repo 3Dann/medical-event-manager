@@ -95,6 +95,7 @@ export default function PatientClaims() {
 
   return (
     <div className="p-4 md:p-8 space-y-6">
+      {ConfirmUI}
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">{t('claims_tracker_title')}</h2>
         <button onClick={() => setShowForm(true)} className="btn-primary text-sm">+ {t('new_claim')}</button>
