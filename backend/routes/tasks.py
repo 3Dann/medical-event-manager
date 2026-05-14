@@ -530,24 +530,56 @@ def get_notifications(
             "severity": "critical",
         })
 
-    # Pending patient requests
-    patient_ids = [p.id for p in db.query(models.Patient).filter(
+    # Pending patient requests + recent patient document uploads
+    my_patients = db.query(models.Patient).filter(
         models.Patient.manager_id == current_user.id
-    ).all()]
+    ).all()
+    patient_ids = [p.id for p in my_patients]
+    patient_names = {p.id: p.full_name for p in my_patients}
+
     if patient_ids:
         requests = db.query(models.PatientRequest).filter(
             models.PatientRequest.patient_id.in_(patient_ids),
             models.PatientRequest.status == "pending",
         ).order_by(models.PatientRequest.created_at.desc()).limit(5).all()
         for r in requests:
+            name = patient_names.get(r.patient_id, "מטופל")
             notifications.append({
                 "id": f"req_{r.id}",
                 "type": "patient_request",
-                "title": f"פנייה ממתינה — {r.category}",
+                "title": f"פנייה חדשה מ-{name}",
                 "patient_id": r.patient_id,
                 "created_at": r.created_at.isoformat() if r.created_at else None,
                 "severity": "warning",
             })
 
-    notifications.sort(key=lambda n: (0 if n["severity"] == "critical" else 1))
+        # Documents uploaded by patient users in the last 48 hours
+        cutoff = now - timedelta(hours=48)
+        patient_docs = (
+            db.query(models.PatientDocument)
+            .join(models.User, models.PatientDocument.uploaded_by == models.User.id)
+            .filter(
+                models.PatientDocument.patient_id.in_(patient_ids),
+                models.User.role == models.UserRole.patient,
+                models.PatientDocument.created_at >= cutoff,
+            )
+            .order_by(models.PatientDocument.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        for doc in patient_docs:
+            name = patient_names.get(doc.patient_id, "מטופל")
+            notifications.append({
+                "id": f"doc_{doc.id}",
+                "type": "patient_document",
+                "title": f"{name} העלה מסמך: {doc.original_name}",
+                "patient_id": doc.patient_id,
+                "created_at": doc.created_at.isoformat() if doc.created_at else None,
+                "severity": "info",
+            })
+
+    notifications.sort(key=lambda n: (
+        0 if n["severity"] == "critical" else
+        1 if n["severity"] == "warning" else 2
+    ))
     return {"count": len(notifications), "items": notifications[:20]}
