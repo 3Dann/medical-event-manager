@@ -340,7 +340,8 @@ export default function PatientInsurance() {
   const [customCompany, setCustomCompany] = useState(false)
   const hmoImportCtrl = useRef(null)
 
-  const [form, setForm] = useState({ source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' })
+  const INS_INIT = { source_type:'kupat_holim', hmo_name:'clalit', hmo_level:'mushlam', company_name:'', policy_number:'', policy_type:'regular', notes:'' }
+  const [form, setForm, { clearDraft: clearInsDraft, hasDraft: hasInsDraft }] = useDraft(`draft_insurance_${id}`, INS_INIT)
   const [coverages, setCoverages] = useState(emptyCoverages())
   const [entForm, setEntForm] = useState({ entitlement_type:'existing', title:'', description:'', amount:'', is_approved:false, notes:'' })
 
