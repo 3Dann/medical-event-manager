@@ -731,6 +731,9 @@ function RequestsSection({ patientId, onBack }) {
               placeholder="כתוב את בקשתך כאן בשפה חופשית..."
               value={message}
               onChange={e => setMessage(e.target.value)}
+              aria-label="תוכן הבקשה"
+              aria-required="true"
+              aria-invalid={!message.trim() ? 'true' : 'false'}
             />
           </div>
 
