@@ -677,7 +677,6 @@ class ForgotPasswordVerifyRequest(BaseModel):
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     from datetime import timezone as tz
     import random
-    _cleanup_reset_challenges()
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
         return {"step": "verify", "extra_field": "מה שמך המלא?"}
@@ -693,11 +692,9 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
     if not options:
         options.append(("full_name", "מה שמך המלא?"))
     chosen_field, chosen_label = random.choice(options)
-    _RESET_CHALLENGES[data.email] = {
-        "field": chosen_field,
-        "expires": datetime.now(tz.utc) + timedelta(minutes=10),
-        "user_id": user.id,
-    }
+    user.reset_challenge_field   = chosen_field
+    user.reset_challenge_expires = datetime.now(tz.utc) + timedelta(minutes=10)
+    db.commit()
     return {"step": "verify", "extra_field": chosen_label}
 
 
@@ -705,30 +702,30 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
 @limiter.limit("5/minute")
 def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, db: Session = Depends(get_db)):
     from datetime import timezone as tz
-    _cleanup_reset_challenges()
-    challenge = _RESET_CHALLENGES.get(data.email)
-    if not challenge or challenge["expires"] < datetime.now(tz.utc):
-        raise HTTPException(status_code=400, detail="נא להתחיל מחדש")
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
-        raise HTTPException(status_code=400, detail="נא להתחיל מחדש")
+        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
+    expires = user.reset_challenge_expires
+    if not expires or not user.reset_challenge_field:
+        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=tz.utc)
+    if datetime.now(tz.utc) > expires:
+        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
     if (user.reset_verify_attempts or 0) >= 3:
         raise HTTPException(status_code=429, detail="החשבון חסום. פנה לאדמין.")
-    patient = db.query(models.Patient).filter(
-        models.Patient.patient_user_id == user.id
+    pending_reg = db.query(models.PendingRegistration).filter(
+        models.PendingRegistration.email == data.email,
+        models.PendingRegistration.status == "approved",
     ).first()
     id_ok = True
-    if patient and patient.id_number:
-        id_ok = (data.id_number.strip() == (patient.id_number or "").strip())
+    if pending_reg and pending_reg.id_number:
+        id_ok = (data.id_number.strip() == (pending_reg.id_number or "").strip())
     extra_ok = False
-    field = challenge["field"]
+    field = user.reset_challenge_field
     if field == "full_name":
         extra_ok = data.extra_answer.strip().lower() == (user.full_name or "").strip().lower()
     elif field == "org_name":
-        pending_reg = db.query(models.PendingRegistration).filter(
-            models.PendingRegistration.email == data.email,
-            models.PendingRegistration.status == "approved",
-        ).first()
         org = (pending_reg.org_name or "").strip().lower() if pending_reg else ""
         extra_ok = data.extra_answer.strip().lower() == org
     if not id_ok or not extra_ok:
@@ -736,8 +733,9 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
         db.commit()
         if user.reset_verify_attempts >= 3:
             user.locked_until = datetime.now(tz.utc) + timedelta(days=365)
+            user.reset_challenge_field   = None
+            user.reset_challenge_expires = None
             db.commit()
-            _RESET_CHALLENGES.pop(data.email, None)
             admins = db.query(models.User).filter(models.User.is_admin == True).all()
             for admin in admins:
                 email_utils.send_email(
@@ -753,9 +751,10 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
                 )
             raise HTTPException(status_code=403, detail="זיהוי נכשל 3 פעמים. חשבונך נחסם — פנה לאדמין.")
         remaining = 3 - user.reset_verify_attempts
-        raise HTTPException(status_code=401, detail=f"פרטים שגויים. נותרו {remaining} ניסיונות.")
-    user.reset_verify_attempts = 0
-    _RESET_CHALLENGES.pop(data.email, None)
+        raise HTTPException(status_code=401, detail=f"אחד מהפרטים שהוזנו שגוי. נותרו {remaining} ניסיונות.")
+    user.reset_verify_attempts   = 0
+    user.reset_challenge_field   = None
+    user.reset_challenge_expires = None
     reset_token = secrets.token_urlsafe(32)
     user.reset_token = reset_token
     user.reset_token_expires = datetime.now(tz_module.utc) + timedelta(minutes=15)
