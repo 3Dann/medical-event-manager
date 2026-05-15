@@ -154,7 +154,11 @@ export default function LoginPage() {
       })
       setForgotStep(3)
     } catch (err) {
-      setError(err.response?.data?.detail || 'פרטים שגויים — נסה שנית')
+      const msg = err.response?.data?.detail || 'פרטים שגויים — נסה שנית'
+      setError(msg)
+      if (msg.includes('חזור לשלב הראשון')) {
+        setTimeout(() => { setForgotStep(1); setError('') }, 3000)
+      }
     } finally { setLoading(false) }
   }
 
