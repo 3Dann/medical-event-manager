@@ -529,6 +529,7 @@ export default function IntakeWizard() {
   const { t } = useTranslation(['intake', 'common'])
   const STEPS = STEP_KEYS.map(s => ({ ...s, label: t(`intake:${s.key}`) }))
   const [step, setStep] = useState(0)
+  const [funcSubStep, setFuncSubStep] = useState(0) // 0=ADL 1=IADL 2=MMSE within step 5
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem(DRAFT_KEY)
