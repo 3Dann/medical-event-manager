@@ -677,14 +677,16 @@ class ForgotPasswordVerifyRequest(BaseModel):
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     from datetime import timezone as tz
     import random
-    user = db.query(models.User).filter(models.User.email == data.email).first()
+    from sqlalchemy import func as sqlfunc
+    email_key = data.email.lower().strip()
+    user = db.query(models.User).filter(sqlfunc.lower(models.User.email) == email_key).first()
     if not user:
         return {"step": "verify", "extra_field": "מה שמך המלא?"}
     options = []
     if user.full_name:
         options.append(("full_name", "מה שמך המלא?"))
     pending_reg = db.query(models.PendingRegistration).filter(
-        models.PendingRegistration.email == data.email,
+        sqlfunc.lower(models.PendingRegistration.email) == email_key,
         models.PendingRegistration.status == "approved",
     ).first()
     if pending_reg and pending_reg.org_name:
