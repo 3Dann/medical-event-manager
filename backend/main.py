@@ -562,6 +562,8 @@ def run_migrations():
         # בקשות הרשמה — ת"ז וטלפון לבדיקת כפילות
         ("pending_registrations", "id_number", "TEXT"),
         ("pending_registrations", "phone",     "TEXT"),
+        ("users", "reset_challenge_field",   "TEXT"),
+        ("users", "reset_challenge_expires", "DATETIME"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
