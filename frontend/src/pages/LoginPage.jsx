@@ -127,6 +127,10 @@ export default function LoginPage() {
   const handleForgotStep1 = async (e) => {
     e.preventDefault()
     setError('')
+    if (!validateEmail(forgotEmail)) {
+      setForgotEmailError('כתובת האימייל אינה תקינה')
+      return
+    }
     setLoading(true)
     try {
       const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail })
