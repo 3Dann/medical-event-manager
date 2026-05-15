@@ -709,7 +709,8 @@ function RequestsSection({ patientId, onBack }) {
             <div className="flex flex-wrap gap-2">
               {REQUEST_CATEGORIES.map(c => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
-                  className={`px-4 py-2.5 rounded-xl border-2 font-medium transition-all ${
+                  aria-pressed={category === c.key}
+                  className={`px-4 py-2.5 rounded-xl border-2 font-medium transition-all min-h-[44px] ${
                     category === c.key
                       ? 'bg-blue-600 text-white border-blue-600'
                       : 'border-slate-200 text-slate-700 hover:border-blue-300 bg-white'
