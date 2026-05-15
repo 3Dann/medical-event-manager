@@ -1156,23 +1156,25 @@ export default function IntakeWizard() {
           <div className="flex justify-between mt-6">
             <button
               onClick={back}
-              disabled={step === 0}
-              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium"
+              disabled={step === 0 && funcSubStep === 0}
+              className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium min-h-[44px]"
             >
               → חזרה
             </button>
-            {step < STEPS.length - 1 ? (
+            {(step < STEPS.length - 1 || (step === 5 && funcSubStep < 2)) ? (
               <button
                 onClick={next}
-                className="px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+                className="px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium min-h-[44px]"
               >
-                המשך ←
+                {step === 5 && funcSubStep < 2
+                  ? `המשך — ${FUNC_SUB_STEPS[funcSubStep + 1].label} ←`
+                  : 'המשך ←'}
               </button>
             ) : (
               <button
                 onClick={submit}
                 disabled={saving}
-                className="px-6 py-2.5 rounded-xl bg-green-600 text-white hover:bg-green-700 text-sm font-medium disabled:opacity-60"
+                className="px-6 py-2.5 rounded-xl bg-green-600 text-white hover:bg-green-700 text-sm font-medium disabled:opacity-60 min-h-[44px]"
               >
                 {saving ? 'שומר...' : 'סיום ושמירה'}
               </button>
