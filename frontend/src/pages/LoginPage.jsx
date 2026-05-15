@@ -327,19 +327,68 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {tab === 'register' && (
               <div>
-                <label className="label">שם מלא</label>
-                <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required />
+                <label className="label">שם מלא <span className="text-red-500">*</span></label>
+                <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required placeholder="ישראל ישראלי" />
               </div>
             )}
             <div>
-              <label className="label">אימייל</label>
+              <label className="label">אימייל <span className="text-red-500">*</span></label>
               <input type="email" className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
             </div>
             <div>
-              <label className="label">סיסמה</label>
+              <label className="label">סיסמה <span className="text-red-500">*</span></label>
               <input type="password" className="input" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
             </div>
-            {tab === 'register' && (
+            {tab === 'register' && (<>
+              {/* ת"ז */}
+              <div>
+                <label className="label">
+                  מספר תעודת זהות
+                  <span className="text-slate-400 font-normal text-xs mr-1">(לבדיקת זהות — לא יועבר לצד שלישי)</span>
+                </label>
+                <input
+                  className={`input text-left tracking-widest ${
+                    form.id_number && validateIsraeliId(form.id_number) === false
+                      ? 'border-red-400' : form.id_number && validateIsraeliId(form.id_number)
+                      ? 'border-green-400' : ''
+                  }`}
+                  inputMode="numeric"
+                  maxLength={9}
+                  value={form.id_number}
+                  onChange={e => setForm({...form, id_number: e.target.value.replace(/\D/g,'')})}
+                  placeholder="000000000"
+                />
+                {form.id_number && validateIsraeliId(form.id_number) === false && (
+                  <p className="text-red-500 text-xs mt-1">מספר ת"ז לא תקין</p>
+                )}
+                {form.id_number && validateIsraeliId(form.id_number) === true && (
+                  <p className="text-green-600 text-xs mt-1">✓ ת"ז תקין</p>
+                )}
+              </div>
+
+              {/* טלפון */}
+              <div>
+                <label className="label">טלפון</label>
+                <div className="flex gap-2">
+                  <select
+                    className="input w-24 flex-shrink-0 text-center"
+                    value={form.phone_prefix}
+                    onChange={e => setForm({...form, phone_prefix: e.target.value})}
+                  >
+                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                  <input
+                    className="input flex-1 text-left tracking-widest"
+                    inputMode="numeric"
+                    maxLength={7}
+                    value={form.phone}
+                    onChange={e => setForm({...form, phone: e.target.value.replace(/\D/g,'')})}
+                    placeholder="1234567"
+                  />
+                </div>
+              </div>
+
+              {/* תפקיד */}
               <div>
                 <label className="label">תפקיד</label>
                 <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
@@ -347,10 +396,29 @@ export default function LoginPage() {
                   <option value="patient">מטופל</option>
                 </select>
               </div>
-            )}
+
+              {/* ארגון */}
+              <div>
+                <label className="label">ארגון / מוסד <span className="text-slate-400 font-normal text-xs mr-1">(אופציונלי)</span></label>
+                <input className="input" value={form.org_name} onChange={e => setForm({...form, org_name: e.target.value})} placeholder="שם הארגון שאתה מייצג" />
+              </div>
+
+              {/* הודעה לאדמין */}
+              <div>
+                <label className="label">הערה לאדמין <span className="text-slate-400 font-normal text-xs mr-1">(אופציונלי)</span></label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={form.applicant_message}
+                  onChange={e => setForm({...form, applicant_message: e.target.value})}
+                  placeholder="מי שלח אותך, במה תשתמש במערכת..."
+                />
+              </div>
+            </>)}
+
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-base">
-              {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'הרשמה'}
+              {loading ? 'מתחבר...' : tab === 'login' ? 'התחברות' : 'שלח בקשת הרשמה'}
             </button>
           </form>
         )}
