@@ -663,7 +663,15 @@ export default function PatientInsurance() {
         <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto" dir="rtl">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl my-4">
             <div className="p-6 border-b flex justify-between items-center">
-              <h3 className="font-semibold text-lg">{t('add_source')}</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="font-semibold text-lg">{t('add_source')}</h3>
+                {hasInsDraft && (
+                  <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2 py-1 rounded-lg">
+                    <span>📝 טיוטה שמורה</span>
+                    <button type="button" onClick={() => clearInsDraft(true)} className="underline hover:no-underline">נקה</button>
+                  </div>
+                )}
+              </div>
               <button onClick={() => setShowForm(false)} className="text-slate-500 hover:text-slate-700 text-xl p-2 -m-2 rounded-lg">✕</button>
             </div>
             <form onSubmit={handleAddSource}>
