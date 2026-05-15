@@ -643,12 +643,15 @@ export default function IntakeWizard() {
     const e = validate(step)
     if (Object.keys(e).length) { setErrors(e); return }
     setErrors({})
+    if (step === 5 && funcSubStep < 2) { setFuncSubStep(s => s + 1); return }
+    if (step === 5) setFuncSubStep(0)
     setStep(s => s + 1)
   }
 
   const SIGNATURE_STEP = 6
   const back = () => {
     setErrors({})
+    if (step === 5 && funcSubStep > 0) { setFuncSubStep(s => s - 1); return }
     setStep(s => {
       if (s === SIGNATURE_STEP) {
         setForm(f => ({
