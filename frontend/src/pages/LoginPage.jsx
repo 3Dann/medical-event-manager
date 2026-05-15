@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { validateIsraeliId } from '../utils/validateId'
+
+const PHONE_PREFIXES = ['050','051','052','053','054','055','056','057','058','059','02','03','04','08','09']
 
 export default function LoginPage() {
   const { login } = useAuth()
