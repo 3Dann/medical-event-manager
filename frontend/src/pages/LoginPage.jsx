@@ -32,6 +32,7 @@ export default function LoginPage() {
 
   // ── Forgot-password state ──
   const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotEmailError, setForgotEmailError] = useState('')
   const [forgotStep, setForgotStep] = useState(1) // 1=email, 2=verify, 3=done
   const [extraField, setExtraField] = useState('')   // שאלת אימות מה-backend
   const [idNumber, setIdNumber] = useState('')
@@ -40,10 +41,13 @@ export default function LoginPage() {
   const resetForgot = () => {
     setForgotStep(1)
     setForgotEmail('')
+    setForgotEmailError('')
     setExtraField('')
     setIdNumber('')
     setExtraAnswer('')
   }
+
+  const validateEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())
 
   const switchTab = (key) => {
     setTab(key)
