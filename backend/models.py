@@ -105,6 +105,8 @@ class User(Base):
     demo_mode_allowed = Column(Boolean, default=False)
     reset_token = Column(String, nullable=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
+    reset_challenge_field   = Column(String, nullable=True)
+    reset_challenge_expires = Column(DateTime(timezone=True), nullable=True)
     totp_secret = Column(String, nullable=True)
     totp_enabled = Column(Boolean, default=False)
     totp_method = Column(String, nullable=True, default="totp")  # "totp" | "email" | "sms"
