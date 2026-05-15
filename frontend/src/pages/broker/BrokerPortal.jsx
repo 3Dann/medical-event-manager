@@ -33,7 +33,7 @@ export default function BrokerPortal() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedId, setExpandedId] = useState(null)
-  const [claimsMap, setClaimsMap] = useState({})
+  const [claimsMap, setClaimsMap] = useState({})       // patientId → {items, total, has_more, offset}
   const [claimsLoading, setClaimsLoading] = useState({})
 
   useEffect(() => {
