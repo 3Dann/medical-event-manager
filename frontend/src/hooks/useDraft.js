@@ -10,7 +10,9 @@ import { useState, useEffect, useRef } from 'react'
  * @returns [state, setState, { clearDraft, hasDraft }]
  */
 export function useDraft(key, initialState, { debounce = 600 } = {}) {
+  // key=null → plain useState, no draft persistence (used for edit-mode forms)
   const [state, _setState] = useState(() => {
+    if (!key) return initialState
     try {
       const saved = sessionStorage.getItem(key)
       if (!saved) return initialState
@@ -21,6 +23,7 @@ export function useDraft(key, initialState, { debounce = 600 } = {}) {
   })
 
   const [hasDraft, setHasDraft] = useState(() => {
+    if (!key) return false
     try { return !!sessionStorage.getItem(key) } catch { return false }
   })
 
