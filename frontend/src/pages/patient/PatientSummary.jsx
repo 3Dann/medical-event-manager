@@ -1082,7 +1082,9 @@ function BottomNav({ view, onNavigate }) {
         <button
           key={item.key}
           onClick={() => onNavigate(item.key)}
-          className={`flex-1 flex flex-col items-center py-3 gap-0.5 transition-colors ${
+          aria-label={item.label}
+          aria-current={view === item.key ? 'page' : undefined}
+          className={`flex-1 flex flex-col items-center py-3 gap-0.5 transition-colors min-h-[56px] ${
             view === item.key ? 'text-blue-600' : 'text-slate-500'
           }`}
         >
