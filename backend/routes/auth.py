@@ -704,7 +704,9 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
 @limiter.limit("5/minute")
 def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, db: Session = Depends(get_db)):
     from datetime import timezone as tz
-    user = db.query(models.User).filter(models.User.email == data.email).first()
+    from sqlalchemy import func as sqlfunc
+    email_key = data.email.lower().strip()
+    user = db.query(models.User).filter(sqlfunc.lower(models.User.email) == email_key).first()
     if not user:
         raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
     expires = user.reset_challenge_expires
@@ -717,7 +719,7 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
     if (user.reset_verify_attempts or 0) >= 3:
         raise HTTPException(status_code=429, detail="החשבון חסום. פנה לאדמין.")
     pending_reg = db.query(models.PendingRegistration).filter(
-        models.PendingRegistration.email == data.email,
+        sqlfunc.lower(models.PendingRegistration.email) == email_key,
         models.PendingRegistration.status == "approved",
     ).first()
     id_ok = True
