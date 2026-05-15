@@ -129,16 +129,60 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
         return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin, demo_mode_allowed=bool(user.demo_mode_allowed))
 
     _validate_password(user_data.password)
+
+    # ── ת"ז — ולידציה ובדיקת כפילות ──────────────────────────────────────────
+    clean_id = None
+    if user_data.id_number:
+        clean_id = ''.join(c for c in user_data.id_number if c.isdigit())
+        if not _validate_israeli_id(clean_id):
+            raise HTTPException(status_code=400, detail="מספר ת\"ז אינו תקין — בדוק את הספרות")
+        dup_id = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.id_number == clean_id,
+            models.PendingRegistration.status == "pending",
+        ).first()
+        if dup_id:
+            raise HTTPException(status_code=400, detail="קיימת בקשת רישום ממתינה עם מספר ת\"ז זה. אם שכחת סיסמה — חזור להתחברות.")
+
+    # ── טלפון — בדיקת כפילות ─────────────────────────────────────────────────
+    clean_phone = None
+    if user_data.phone:
+        clean_phone = ''.join(c for c in user_data.phone if c.isdigit())
+        if len(clean_phone) < 9:
+            raise HTTPException(status_code=400, detail="מספר הטלפון קצר מדי — יש להזין לפחות 9 ספרות")
+        dup_phone = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.phone == clean_phone,
+            models.PendingRegistration.status == "pending",
+        ).first()
+        if dup_phone:
+            raise HTTPException(status_code=400, detail="קיימת בקשת רישום ממתינה עם מספר טלפון זה. אם שכחת סיסמה — חזור להתחברות.")
+
+    # ── מייל — כפילות ────────────────────────────────────────────────────────
     existing_user = db.query(models.User).filter(models.User.email == user_data.email).first()
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="מייל זה כבר רשום במערכת. אם שכחת סיסמה — חזור להתחברות.")
     existing_pending = db.query(models.PendingRegistration).filter(
         models.PendingRegistration.email == user_data.email,
         models.PendingRegistration.status == "pending",
     ).first()
     if existing_pending:
-        raise HTTPException(status_code=400, detail="בקשת רישום עם מייל זה כבר ממתינה לאישור")
+        raise HTTPException(status_code=400, detail="בקשת רישום עם מייל זה כבר ממתינה לאישור. תקבל הודעה במייל עם ההחלטה.")
 
+    # ── שם מלא — בדיקת כפילות ────────────────────────────────────────────────
+    from sqlalchemy import func as sql_func
+    name_lower = user_data.full_name.strip().lower()
+    dup_name_pending = db.query(models.PendingRegistration).filter(
+        sql_func.lower(models.PendingRegistration.full_name) == name_lower,
+        models.PendingRegistration.status == "pending",
+    ).first()
+    if dup_name_pending:
+        raise HTTPException(status_code=400, detail=f"קיימת בקשת רישום ממתינה בשם זה. אם זו בקשה חדשה, פנה לאדמין ישירות.")
+    dup_name_user = db.query(models.User).filter(
+        sql_func.lower(models.User.full_name) == name_lower,
+    ).first()
+    if dup_name_user:
+        raise HTTPException(status_code=400, detail="קיים משתמש פעיל בשם זה. אם שכחת סיסמה — השתמש ב'שכחתי סיסמה'.")
+
+    # ── יצירת הבקשה ──────────────────────────────────────────────────────────
     pending = models.PendingRegistration(
         full_name=user_data.full_name,
         email=user_data.email,
@@ -146,25 +190,35 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
         role=user_data.role,
         org_name=user_data.org_name,
         applicant_message=user_data.applicant_message,
+        id_number=clean_id,
+        phone=clean_phone,
     )
     db.add(pending)
     db.commit()
 
+    # ── מייל לאדמין עם פרטים מלאים ───────────────────────────────────────────
+    id_display = f"***{clean_id[-4:]}" if clean_id else "לא הוזן"
+    phone_display = f"****{clean_phone[-4:]}" if clean_phone else "לא הוזן"
     admins = db.query(models.User).filter(models.User.is_admin == True).all()
     for admin in admins:
         email_utils.send_email(
             to=admin.email,
             subject="בקשת רישום חדשה — Orly Medical",
             body_html=f"""
-            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
+            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
               <h2 style="color: #1e3a5f;">בקשת רישום חדשה</h2>
-              <p style="color: #374151;">התקבלה בקשת רישום חדשה למערכת:</p>
+              <p style="color: #374151;">התקבלה בקשת רישום חדשה — עברה בדיקות כפילות אוטומטיות.</p>
               <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid #e2e8f0; margin: 16px 0;">
                 <p style="margin: 4px 0;"><strong>שם:</strong> {user_data.full_name}</p>
                 <p style="margin: 4px 0;"><strong>מייל:</strong> {user_data.email}</p>
+                <p style="margin: 4px 0;"><strong>ת"ז:</strong> {id_display}</p>
+                <p style="margin: 4px 0;"><strong>טלפון:</strong> {phone_display}</p>
                 <p style="margin: 4px 0;"><strong>תפקיד:</strong> {user_data.role}</p>
                 {f'<p style="margin: 4px 0;"><strong>ארגון:</strong> {user_data.org_name}</p>' if user_data.org_name else ''}
                 {f'<p style="margin: 4px 0;"><strong>הערה:</strong> {user_data.applicant_message}</p>' if user_data.applicant_message else ''}
+              </div>
+              <div style="background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <p style="margin: 0; color: #065f46; font-size: 13px;">✓ לא נמצאו כפילויות — מייל, ת"ז, טלפון ושם ייחודיים</p>
               </div>
               <p style="color: #6b7280; font-size: 13px;">כנס לאזור הניהול כדי לאשר או לדחות את הבקשה.</p>
             </div>
