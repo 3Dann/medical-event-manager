@@ -468,7 +468,7 @@ export default function LoginPage() {
               <p className="text-sm text-blue-800">ענה על השאלות הבאות כדי לאמת שזה החשבון שלך.</p>
               <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between">
                 <p className="text-xs text-blue-700">מאמת עבור: <span className="font-semibold">{forgotEmail}</span></p>
-                <button type="button" onClick={() => { setForgotStep(1); setError('') }} className="text-xs text-blue-600 underline hover:text-blue-800">שנה</button>
+                <button type="button" onClick={() => { setForgotStep(1); setError(''); setIdNumber(''); setExtraAnswer('') }} className="text-xs text-blue-600 underline hover:text-blue-800">שנה</button>
               </div>
             </div>
             <div>
