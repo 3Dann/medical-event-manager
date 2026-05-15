@@ -50,6 +50,7 @@ export default function LoginPage() {
     setError('')
     setSuccess('')
     resetForgot()
+    setForm(f => ({ ...f, id_number: '', phone: '', org_name: '', applicant_message: '' }))
   }
 
   // ── Login / Register ──
