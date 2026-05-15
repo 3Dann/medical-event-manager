@@ -158,7 +158,7 @@ class ActiveSession(Base):
     login_at    = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     last_seen   = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     ip_address  = Column(String(64), nullable=True)
-    user_agent  = Column(String(256), nullable=True)
+    user_agent  = Column(String(500), nullable=True)
     is_active   = Column(Boolean, default=True, nullable=False)
     revoked_at  = Column(DateTime(timezone=True), nullable=True)
     revoked_by  = Column(Integer, nullable=True)  # user_id of admin who revoked

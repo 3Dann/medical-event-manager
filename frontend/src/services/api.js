@@ -24,6 +24,14 @@ api.interceptors.response.use(
     if (status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.clear()
       window.location.href = '/login'
+    } else if (status === 429) {
+      window.dispatchEvent(new CustomEvent('api-rate-limited', {
+        detail: 'יותר מדי ניסיונות — נסה שנית בעוד מספר דקות.'
+      }))
+    } else if (status === 403) {
+      window.dispatchEvent(new CustomEvent('api-forbidden', {
+        detail: err?.response?.data?.detail || 'אין הרשאה לבצע פעולה זו.'
+      }))
     } else if (status >= 500) {
       window.dispatchEvent(new CustomEvent('api-server-error', {
         detail: 'אירעה שגיאת שרת. נסה שנית בעוד מספר שניות.'

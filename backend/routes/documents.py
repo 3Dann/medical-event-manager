@@ -42,6 +42,8 @@ ALLOWED_TYPES = {
 }
 MAX_SIZE = 20 * 1024 * 1024  # 20 MB
 
+_ALLOWED_EXTS = {".pdf", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".doc", ".docx", ".xls", ".xlsx"}
+
 # Magic bytes לולידציה של תוכן קובץ (לא רק Content-Type)
 _MAGIC = [
     (b'%PDF',       'application/pdf'),
@@ -116,7 +118,9 @@ async def upload_document(
     if not _validate_magic(content):
         raise HTTPException(status_code=415, detail="סוג הקובץ אינו נתמך")
 
-    ext = os.path.splitext(file.filename or "")[1]
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in _ALLOWED_EXTS:
+        ext = ""
     stored_name = f"{uuid.uuid4().hex}{ext}"
     patient_dir = os.path.join(UPLOAD_DIR, str(patient_id))
     os.makedirs(patient_dir, exist_ok=True)

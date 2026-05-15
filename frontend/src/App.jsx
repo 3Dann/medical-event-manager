@@ -143,7 +143,13 @@ function GlobalErrorToast() {
       setTimeout(() => setMsg(null), 5000)
     }
     window.addEventListener('api-server-error', handler)
-    return () => window.removeEventListener('api-server-error', handler)
+    window.addEventListener('api-rate-limited', handler)
+    window.addEventListener('api-forbidden', handler)
+    return () => {
+      window.removeEventListener('api-server-error', handler)
+      window.removeEventListener('api-rate-limited', handler)
+      window.removeEventListener('api-forbidden', handler)
+    }
   }, [])
   if (!msg) return null
   return (

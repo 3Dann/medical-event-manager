@@ -47,7 +47,10 @@ def is_token_revoked(jti: str, db: Session) -> bool:
     entry = db.query(models.RevokedToken).filter(models.RevokedToken.jti == jti).first()
     if not entry:
         return False
-    if entry.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+    expires = entry.expires_at
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc):
         db.delete(entry)
         db.commit()
         return False

@@ -230,6 +230,28 @@ def _daily_insurance_gap_check():
         db.close()
 
 
+def _nightly_cleanup():
+    """מחיקת RevokedTokens שפגו תוקפם + ActiveSessions ישנים שבוטלו."""
+    from datetime import datetime, timezone, timedelta
+    db = SessionLocal()
+    try:
+        now = datetime.now(timezone.utc)
+        deleted_tokens = db.query(models.RevokedToken).filter(
+            models.RevokedToken.expires_at < now
+        ).delete(synchronize_session=False)
+        cutoff = now - timedelta(days=30)
+        deleted_sessions = db.query(models.ActiveSession).filter(
+            models.ActiveSession.is_active.is_(False),
+            models.ActiveSession.revoked_at < cutoff,
+        ).delete(synchronize_session=False)
+        db.commit()
+        logger.info(f"Nightly cleanup: {deleted_tokens} expired tokens, {deleted_sessions} old sessions removed")
+    except Exception:
+        logger.exception("Nightly cleanup failed")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── Startup ──────────────────────────────────────────────────────────
@@ -279,6 +301,15 @@ async def lifespan(app: FastAPI):
         replace_existing=True,
         max_instances=1,
     )
+    scheduler.add_job(
+        _nightly_cleanup,
+        trigger="cron",
+        hour=2,
+        minute=0,
+        id="nightly_cleanup",
+        replace_existing=True,
+        max_instances=1,
+    )
     scheduler.start()
     app.state.scheduler = scheduler
     logger.info("Scheduler started")
@@ -311,10 +342,14 @@ app = FastAPI(title="Medical Event Manager API", version="1.0.0", lifespan=lifes
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-_cors_origins = ["http://localhost:5173", "http://localhost:3000"]
+_cors_origins = []
 _production_origin = os.getenv("FRONTEND_ORIGIN", "")
 if _production_origin:
     _cors_origins.append(_production_origin)
+if os.getenv("RAILWAY_ENVIRONMENT") != "production":
+    _cors_origins.extend(["http://localhost:5173", "http://localhost:3000"])
+if not _cors_origins:
+    logger.error("CORS: no allowed origins configured — FRONTEND_ORIGIN must be set in production")
 
 app.add_middleware(
     CORSMiddleware,

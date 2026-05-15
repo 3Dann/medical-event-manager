@@ -78,9 +78,9 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    email: str
     token: str
     new_password: str
+    email: Optional[str] = None  # לא בשימוש — המשתמש מזוהה לפי token בלבד
 
 
 class ChangePasswordRequest(BaseModel):
@@ -388,11 +388,11 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
             db.commit()
     else:
         # email or sms
+        if not user.email_2fa_expires or datetime.now(tz_module.utc) > (user.email_2fa_expires if user.email_2fa_expires.tzinfo else user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
+            raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד פג תוקף, בקש קוד חדש")
         if not user.email_2fa_code or user.email_2fa_code != data.code:
             _record_2fa_failure()
             raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד שהוזן אינו תואם")
-        if not user.email_2fa_expires or datetime.now(tz_module.utc) > (user.email_2fa_expires if user.email_2fa_expires.tzinfo else user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
-            raise HTTPException(status_code=401, detail="חוסר התאמה בזיהוי — הקוד פג תוקף, בקש קוד חדש")
         user.email_2fa_code = None
         user.email_2fa_expires = None
         db.commit()
@@ -407,7 +407,7 @@ def verify_2fa(request: Request, data: Verify2FARequest, db: Session = Depends(g
         decoded = auth_utils.decode_token(token)
         jti = decoded.get("jti")
         ip  = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or (request.client.host if request.client else None)
-        ua  = request.headers.get("User-Agent", "")[:256]
+        ua  = request.headers.get("User-Agent", "")[:500]
         if jti:
             db.add(models.ActiveSession(
                 user_id=user.id, jti=jti,
@@ -698,7 +698,8 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
 
 
 @router.post("/reset-password")
-def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
     _validate_password(data.new_password)
     user = db.query(models.User).filter(models.User.reset_token == data.token).first()
     if not user:
@@ -858,12 +859,15 @@ def confirm_2fa(data: Confirm2FARequest, current_user: models.User = Depends(aut
 
 
 @router.delete("/2fa/disable")
-def disable_2fa(data: Confirm2FARequest, current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def disable_2fa(request: Request, data: Confirm2FARequest, current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
     """Disable 2FA — requires current valid code (TOTP / email / SMS)."""
     if not current_user.totp_enabled:
         raise HTTPException(status_code=400, detail="אימות דו-שלבי אינו מופעל")
     method = current_user.totp_method or "totp"
     if method in ("email", "sms"):
+        if not current_user.email_2fa_expires or datetime.now(tz_module.utc) > (current_user.email_2fa_expires if current_user.email_2fa_expires.tzinfo else current_user.email_2fa_expires.replace(tzinfo=tz_module.utc)):
+            raise HTTPException(status_code=400, detail="הקוד פג תוקף — בקש קוד חדש תחילה")
         if not current_user.email_2fa_code or current_user.email_2fa_code != data.code:
             raise HTTPException(status_code=400, detail="קוד שגוי — בקש קוד חדש תחילה")
     else:
@@ -894,7 +898,8 @@ def get_2fa_status(current_user: models.User = Depends(auth_utils.get_current_us
 
 
 @router.put("/profile/password")
-def change_own_password(data: ChangePasswordRequest, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
+@limiter.limit("5/minute")
+def change_own_password(request: Request, data: ChangePasswordRequest, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.get_current_user)):
     _validate_password(data.new_password)
     if not auth_utils.verify_password(data.current_password, current_user.hashed_password):
         raise HTTPException(status_code=400, detail="הסיסמה הנוכחית שגויה")
@@ -920,7 +925,8 @@ def change_own_password(data: ChangePasswordRequest, db: Session = Depends(get_d
 
 
 @router.post("/2fa/request-password-email-code")
-def request_password_email_code(current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def request_password_email_code(request: Request, current_user: models.User = Depends(auth_utils.get_current_user), db: Session = Depends(get_db)):
     """Send email 2FA code for password change."""
     if not current_user.totp_enabled or current_user.totp_method != "email":
         raise HTTPException(status_code=400, detail="אימות אימייל אינו מופעל")

@@ -8,6 +8,8 @@ venv/
 # Database
 *.db
 *.sqlite
+*.db.gz
+backend/backups/
 
 # Node
 node_modules/
