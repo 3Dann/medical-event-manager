@@ -1064,7 +1064,7 @@ export default function IntakeWizard() {
 
       // ── Step 6: הערכות תפקודיות ─────────────────────────────────────────────
       case 5: return (
-        <FunctionalStep adlScore={adlScore} iadlScore={iadlScore} mmseScore={mmseScore} />
+        <FunctionalStep adlScore={adlScore} iadlScore={iadlScore} mmseScore={mmseScore} subStep={funcSubStep} />
       )
 
       // ── Step 7: חתימות ──────────────────────────────────────────────────────
