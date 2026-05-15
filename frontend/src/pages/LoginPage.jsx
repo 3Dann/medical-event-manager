@@ -441,12 +441,14 @@ export default function LoginPage() {
               <input
                 type="text"
                 inputMode="email"
-                autoComplete="off"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className={`input${forgotEmailError ? ' border-red-400' : ''}`}
                 value={forgotEmail}
                 onChange={e => { setForgotEmail(e.target.value); setForgotEmailError('') }}
                 onBlur={e => { if (e.target.value && !validateEmail(e.target.value)) setForgotEmailError('כתובת האימייל אינה תקינה') }}
-                required
                 autoFocus
               />
               {forgotEmailError && <p className="text-red-500 text-xs mt-1">{forgotEmailError}</p>}
