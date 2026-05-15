@@ -187,11 +187,12 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
     { value: 'private',     label: t('reimburse_private') },
     { value: 'both',        label: t('reimburse_both') },
   ]
-  const [form, setForm] = useState(meeting ? {
-    ...meeting,
-    action_items: meeting.action_items || [],
-    meeting_cost: meeting.meeting_cost ?? '',
-  } : EMPTY_MEETING)
+  // draft only for new meetings; null key = no draft (edit mode)
+  const draftKey = meeting ? null : `draft_meeting_${patientId}`
+  const initState = meeting
+    ? { ...meeting, action_items: meeting.action_items || [], meeting_cost: meeting.meeting_cost ?? '' }
+    : EMPTY_MEETING
+  const [form, setForm, { clearDraft: clearMeetingDraft, hasDraft: hasMeetingDraft }] = useDraft(draftKey, initState)
   const [saving, setSaving] = useState(false)
   const [newTask, setNewTask] = useState('')
 
