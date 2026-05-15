@@ -609,6 +609,7 @@ export default function IntakeWizard() {
     if (stepIdx === 2) {
       if (!form.ec_name.trim()) e.ec_name = 'שדה חובה'
       if (!form.ec_phone) e.ec_phone = 'שדה חובה'
+      else if (form.ec_phone.replace(/\D/g,'').length !== 7) e.ec_phone = 'יש להזין 7 ספרות'
       if (!form.ec_relation.trim()) e.ec_relation = 'שדה חובה'
     }
     if (stepIdx === 3) {
