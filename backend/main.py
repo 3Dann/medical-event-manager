@@ -559,6 +559,9 @@ def run_migrations():
         ("doctors", "is_accepting_patients", "BOOLEAN DEFAULT 1"),
         ("doctors", "last_verified",         "DATETIME"),
         ("doctors", "active_contact",        "BOOLEAN DEFAULT 0"),
+        # בקשות הרשמה — ת"ז וטלפון לבדיקת כפילות
+        ("pending_registrations", "id_number", "TEXT"),
+        ("pending_registrations", "phone",     "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
