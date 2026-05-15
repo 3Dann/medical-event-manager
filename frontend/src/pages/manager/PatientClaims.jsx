@@ -30,7 +30,8 @@ export default function PatientClaims() {
   const [sources, setSources] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [form, setForm] = useState({ insurance_source_id: '', category: 'surgery', description: '', amount_requested: '', status: 'pending', submission_date: '', deadline: '', notes: '', priority_order: '' })
+  const CLAIM_INIT = { insurance_source_id: '', category: 'surgery', description: '', amount_requested: '', status: 'pending', submission_date: '', deadline: '', notes: '', priority_order: '' }
+  const [form, setForm, { clearDraft: clearClaimDraft, hasDraft: hasClaimDraft }] = useDraft(`draft_claim_${id}`, CLAIM_INIT)
   const [pendingFeedback, setPendingFeedback] = useState(null) // { companyName, outcome, scoreUpdated }
   const [feedbackSaving, setFeedbackSaving] = useState(false)
 
