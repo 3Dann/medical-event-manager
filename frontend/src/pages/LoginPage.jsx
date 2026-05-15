@@ -10,7 +10,11 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [tab, setTab] = useState('login')
-  const [form, setForm] = useState({ email: '', password: '', full_name: '', role: 'manager' })
+  const [form, setForm] = useState({
+    email: '', password: '', full_name: '', role: 'manager',
+    id_number: '', phone_prefix: '050', phone: '',
+    org_name: '', applicant_message: '',
+  })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
