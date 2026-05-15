@@ -132,6 +132,8 @@ class PendingRegistration(Base):
     role              = Column(String, nullable=False, default="manager")
     org_name          = Column(String, nullable=True)
     applicant_message = Column(Text, nullable=True)
+    id_number         = Column(String, nullable=True)   # ת"ז — לבדיקת כפילות
+    phone             = Column(String, nullable=True)   # טלפון — לבדיקת כפילות
     status            = Column(String, nullable=False, default="pending")
     created_at        = Column(DateTime(timezone=True), server_default=func.now())
     reviewed_at       = Column(DateTime(timezone=True), nullable=True)
