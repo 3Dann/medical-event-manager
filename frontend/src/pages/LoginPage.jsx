@@ -438,8 +438,18 @@ export default function LoginPage() {
             <p className="text-sm text-slate-600">הזן את האימייל שלך. תישאל שאלת אימות כדי לאמת את זהותך.</p>
             <div>
               <label className="label">אימייל</label>
-              <input type="email" className="input" value={forgotEmail}
-                onChange={e => setForgotEmail(e.target.value)} required autoFocus />
+              <input
+                type="text"
+                inputMode="email"
+                autoComplete="off"
+                className={`input${forgotEmailError ? ' border-red-400' : ''}`}
+                value={forgotEmail}
+                onChange={e => { setForgotEmail(e.target.value); setForgotEmailError('') }}
+                onBlur={e => { if (e.target.value && !validateEmail(e.target.value)) setForgotEmailError('כתובת האימייל אינה תקינה') }}
+                required
+                autoFocus
+              />
+              {forgotEmailError && <p className="text-red-500 text-xs mt-1">{forgotEmailError}</p>}
             </div>
             {error && <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">{error}</p>}
             <button type="submit" disabled={loading} className="btn-primary w-full py-3">
