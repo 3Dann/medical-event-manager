@@ -470,6 +470,10 @@ export default function LoginPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-xs text-blue-600 font-medium mb-0.5">אימות זהות</p>
               <p className="text-sm text-blue-800">ענה על השאלות הבאות כדי לאמת שזה החשבון שלך.</p>
+              <div className="mt-2 pt-2 border-t border-blue-200 flex items-center justify-between">
+                <p className="text-xs text-blue-700">מאמת עבור: <span className="font-semibold">{forgotEmail}</span></p>
+                <button type="button" onClick={() => { setForgotStep(1); setError('') }} className="text-xs text-blue-600 underline hover:text-blue-800">שנה</button>
+              </div>
             </div>
             <div>
               <label className="label">מספר תעודת זהות</label>
