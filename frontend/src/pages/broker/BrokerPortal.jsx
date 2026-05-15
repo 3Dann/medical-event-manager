@@ -127,7 +127,7 @@ export default function BrokerPortal() {
           <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
             <p className="text-xs text-slate-500 mb-1">סה"כ תביעות</p>
             <p className="text-3xl font-bold text-slate-800">
-              {Object.values(claimsMap).reduce((s, arr) => s + arr.length, 0)}
+              {Object.values(claimsMap).reduce((s, entry) => s + (entry?.total ?? entry?.items?.length ?? 0), 0)}
             </p>
           </div>
         </div>
