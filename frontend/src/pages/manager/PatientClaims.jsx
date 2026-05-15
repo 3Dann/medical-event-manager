@@ -181,7 +181,15 @@ export default function PatientClaims() {
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" dir="rtl">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
-            <h3 className="font-semibold mb-4">{t('new_claim')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold">{t('new_claim')}</h3>
+              {hasClaimDraft && (
+                <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
+                  <span>📝 טיוטה שמורה</span>
+                  <button type="button" onClick={() => clearClaimDraft(true)} className="underline hover:no-underline">נקה</button>
+                </div>
+              )}
+            </div>
             <form onSubmit={handleCreate} className="space-y-3">
               <div><label className="label">{t('insurance_source')}</label>
                 <select className="input" value={form.insurance_source_id} onChange={e => setForm({...form, insurance_source_id: e.target.value})}>
