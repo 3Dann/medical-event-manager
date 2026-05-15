@@ -58,6 +58,7 @@ export default function PatientClaims() {
     setCreating(true)
     try {
       await axios.post(`/api/patients/${id}/claims`, payload)
+      clearClaimDraft(true)
       setShowForm(false); fetchAll().catch(() => {})
     } catch { showToast('שגיאה ביצירת התביעה. נסה שוב.') }
     finally { setCreating(false) }
