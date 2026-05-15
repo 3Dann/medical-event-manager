@@ -55,12 +55,38 @@ export default function BrokerPortal() {
       setClaimsLoading(prev => ({ ...prev, [patientId]: true }))
       try {
         const r = await axios.get(`/api/broker/patients/${patientId}/claims`)
-        setClaimsMap(prev => ({ ...prev, [patientId]: r.data }))
+        const data = r.data
+        setClaimsMap(prev => ({ ...prev, [patientId]: {
+          items: data.items ?? data,
+          total: data.total ?? (data.items ?? data).length,
+          has_more: data.has_more ?? false,
+          offset: data.limit ?? 50,
+        }}))
       } catch {
-        setClaimsMap(prev => ({ ...prev, [patientId]: [] }))
+        setClaimsMap(prev => ({ ...prev, [patientId]: { items: [], total: 0, has_more: false, offset: 50 } }))
       } finally {
         setClaimsLoading(prev => ({ ...prev, [patientId]: false }))
       }
+    }
+  }
+
+  const loadMoreClaims = async (patientId) => {
+    const current = claimsMap[patientId]
+    if (!current?.has_more) return
+    setClaimsLoading(prev => ({ ...prev, [patientId]: true }))
+    try {
+      const r = await axios.get(`/api/broker/patients/${patientId}/claims`, {
+        params: { offset: current.offset }
+      })
+      const data = r.data
+      setClaimsMap(prev => ({ ...prev, [patientId]: {
+        items: [...(prev[patientId]?.items ?? []), ...(data.items ?? [])],
+        total: data.total,
+        has_more: data.has_more,
+        offset: current.offset + (data.limit ?? 50),
+      }}))
+    } catch { /* silent */ } finally {
+      setClaimsLoading(prev => ({ ...prev, [patientId]: false }))
     }
   }
 
