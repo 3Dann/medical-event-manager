@@ -148,7 +148,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await axios.post('/api/auth/forgot-password/verify', {
-        email: forgotEmail,
+        email: forgotEmail.toLowerCase().trim(),
         id_number: idNumber,
         extra_answer: extraAnswer,
       })
