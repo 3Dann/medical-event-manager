@@ -65,7 +65,25 @@ export default function LoginPage() {
         params.append('password', form.password)
         res = await axios.post('/api/auth/login', params)
       } else {
-        res = await axios.post('/api/auth/register', { full_name: form.full_name, email: form.email, password: form.password, role: form.role })
+        // ולידציה מקומית לפני שליחה
+        if (!form.full_name.trim()) { setError('יש להזין שם מלא'); setLoading(false); return }
+        if (form.id_number && validateIsraeliId(form.id_number) === false) {
+          setError('מספר ת"ז אינו תקין'); setLoading(false); return
+        }
+        if (form.phone && form.phone.replace(/\D/g,'').length !== 7) {
+          setError('מספר טלפון חייב להכיל 7 ספרות (ללא קידומת)'); setLoading(false); return
+        }
+        const phone = form.phone ? `${form.phone_prefix}${form.phone.replace(/\D/g,'')}` : undefined
+        res = await axios.post('/api/auth/register', {
+          full_name: form.full_name,
+          email: form.email,
+          password: form.password,
+          role: form.role,
+          id_number: form.id_number || undefined,
+          phone,
+          org_name: form.org_name || undefined,
+          applicant_message: form.applicant_message || undefined,
+        })
       }
       if (res.data.requires_2fa) {
         setTempToken(res.data.temp_token)
