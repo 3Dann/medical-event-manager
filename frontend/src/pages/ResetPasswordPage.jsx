@@ -51,7 +51,13 @@ export default function ResetPasswordPage() {
         <div className="text-5xl mb-4">⛔</div>
         <h1 className="text-xl font-bold text-slate-800 mb-2">קישור לא תקין</h1>
         <p className="text-slate-600 mb-6">הקישור פג תוקף, כבר נוצל, או אינו תקין.</p>
-        <button onClick={() => navigate('/')} className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors">
+        <button
+          onClick={() => navigate('/', { state: { openLogin: true, openForgot: true } })}
+          className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors mb-3"
+        >
+          בקשת קישור חדש
+        </button>
+        <button onClick={() => navigate('/')} className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
           חזרה לדף הבית
         </button>
       </div>
