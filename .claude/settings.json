@@ -11,5 +11,18 @@
       "WebSearch(*)"
     ],
     "deny": []
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd '/Users/DannyT/Desktop/Claude Code Test/medical-event-manager' && git diff --quiet HEAD 2>/dev/null || echo '\n⚠️  יש שינויים שלא נשמרו — הרץ ./save.sh ואז ./deploy.sh'"
+          }
+        ]
+      }
+    ]
   }
 }
