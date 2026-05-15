@@ -54,6 +54,22 @@ class UserCreate(BaseModel):
     role: str = "manager"
     org_name: Optional[str] = None
     applicant_message: Optional[str] = None
+    id_number: Optional[str] = None   # ת"ז ישראלי
+    phone: Optional[str] = None       # טלפון (כולל קידומת, e.g. 0501234567)
+
+
+def _validate_israeli_id(id_number: str) -> bool:
+    """אלגוריתם לון לבדיקת תקינות ת"ז ישראלי."""
+    clean = ''.join(c for c in id_number if c.isdigit())
+    if len(clean) != 9:
+        return False
+    total = 0
+    for i, digit in enumerate(clean):
+        d = int(digit) * ((i % 2) + 1)
+        if d > 9:
+            d -= 9
+        total += d
+    return total % 10 == 0
 
 
 class Token(BaseModel):
