@@ -194,6 +194,30 @@ export default function PatientClaims() {
                   </select>
                 </div>
                 <div><label className="label">{t('priority')} (#)</label><input type="number" className="input" value={form.priority_order} onChange={e => setForm({...form, priority_order: e.target.value})} placeholder="1, 2, 3..." /></div>
+              </div>
+
+              {/* מחלות קשות — guidance banner */}
+              {form.category === 'critical_illness' && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm" dir="rtl">
+                  <p className="font-semibold text-amber-800 mb-2">💛 תביעת פיצוי מחלה קשה</p>
+                  <p className="text-amber-700 mb-3">
+                    ביטוח מחלות קשות משלם <strong>פיצוי חד-פעמי קבוע</strong> שנקבע בפוליסה — ללא קשר לעלות הטיפול בפועל.
+                    הכסף מתקבל לאחר אישור האבחנה, ללא הגשת קבלות.
+                  </p>
+                  <p className="text-amber-800 font-medium mb-1">מסמכים נדרשים:</p>
+                  <ul className="text-amber-700 space-y-0.5 mb-3">
+                    <li>◀ מכתב אבחנה חתום על ידי רופא מומחה</li>
+                    <li>◀ העתק הפוליסה (עמוד פירוט הכיסוי)</li>
+                    <li>◀ צילום תעודת זהות</li>
+                    <li>◀ טופס תביעה של חברת הביטוח (לבקש מהסוכן)</li>
+                  </ul>
+                  <p className="text-amber-600 text-xs">
+                    ⚠ שים לב: לרוב הפוליסות יש תקופת המתנה של 90 ימים מהחתימה. ודא שהפוליסה פעילה מעל 90 יום.
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
                 <div><label className="label">{t('amount_requested_label')}</label><input type="number" className="input" value={form.amount_requested} onChange={e => setForm({...form, amount_requested: e.target.value})} /></div>
                 <div><label className="label">{t('status_label')}</label>
                   <select className="input" value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
