@@ -133,7 +133,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail })
+      const res = await axios.post('/api/auth/forgot-password', { email: forgotEmail.toLowerCase().trim() })
       setExtraField(res.data.extra_field || 'מה שמך המלא?')
       setForgotStep(2)
     } catch (err) {
