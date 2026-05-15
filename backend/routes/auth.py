@@ -708,14 +708,14 @@ def forgot_password_verify(request: Request, data: ForgotPasswordVerifyRequest, 
     email_key = data.email.lower().strip()
     user = db.query(models.User).filter(sqlfunc.lower(models.User.email) == email_key).first()
     if not user:
-        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
+        raise HTTPException(status_code=400, detail="כתובת המייל אינה רשומה במערכת — חזור לשלב הראשון ובדוק את כתובת האימייל")
     expires = user.reset_challenge_expires
     if not expires or not user.reset_challenge_field:
-        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
+        raise HTTPException(status_code=400, detail="לא נמצאה בקשת אימות פעילה — חזור לשלב הראשון")
     if expires.tzinfo is None:
         expires = expires.replace(tzinfo=tz.utc)
     if datetime.now(tz.utc) > expires:
-        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי — חזור לשלב הראשון")
+        raise HTTPException(status_code=400, detail="פג תוקף הזיהוי (10 דקות) — חזור לשלב הראשון")
     if (user.reset_verify_attempts or 0) >= 3:
         raise HTTPException(status_code=429, detail="החשבון חסום. פנה לאדמין.")
     pending_reg = db.query(models.PendingRegistration).filter(
