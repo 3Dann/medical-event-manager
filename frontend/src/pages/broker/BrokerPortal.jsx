@@ -219,6 +219,11 @@ export default function BrokerPortal() {
                     )}
                     {!isLoadingClaims && claims.length > 0 && (
                       <div className="space-y-2">
+                        {claimsEntry.total > claims.length && (
+                          <p className="text-xs text-slate-400 mb-1">
+                            מוצגות {claims.length} מתוך {claimsEntry.total} תביעות
+                          </p>
+                        )}
                         {claims.map(c => {
                           const st = STATUS_LABELS[c.status] || { label: c.status, color: 'bg-slate-100 text-slate-600' }
                           return (
@@ -247,6 +252,15 @@ export default function BrokerPortal() {
                             </div>
                           )
                         })}
+                        {claimsEntry.has_more && (
+                          <button
+                            onClick={() => loadMoreClaims(p.id)}
+                            disabled={isLoadingClaims}
+                            className="w-full py-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {isLoadingClaims ? 'טוען...' : `טען עוד תביעות (${claimsEntry.total - claims.length} נותרו)`}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
