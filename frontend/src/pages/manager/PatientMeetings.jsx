@@ -6,6 +6,7 @@ import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 import AppToast from '../../components/AppToast'
 import { useToast } from '../../hooks/useToast'
+import { useDraft } from '../../hooks/useDraft'
 
 // ── Patient Requests Panel ─────────────────────────────────────────────────────
 const REQ_STATUS_COLORS = {
