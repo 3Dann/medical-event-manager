@@ -1187,16 +1187,51 @@ export default function IntakeWizard() {
 }
 
 // ── FunctionalStep sub-component ──────────────────────────────────────────────
-function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
+const FUNC_SUB_STEPS = [
+  { key: 'adl',  label: 'ADL',  desc: 'תפקוד יומיומי',    color: 'blue',  range: '0–100' },
+  { key: 'iadl', label: 'IADL', desc: 'תפקוד עצמאי',      color: 'green', range: '0–8'   },
+  { key: 'mmse', label: 'MMSE', desc: 'תפקוד קוגניטיבי',  color: 'purple', range: '0–30' },
+]
+
+function FunctionalStep({ adlScore, iadlScore, mmseScore, subStep }) {
   const { form, set } = useContext(FormCtx)
+  const scores = [adlScore, iadlScore, mmseScore]
+  const maxes  = [100, 8, 30]
+  const current = FUNC_SUB_STEPS[subStep]
+
   return (
-    <div className="space-y-6">
-      {/* ADL */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-slate-800">ADL <span className="text-slate-600 font-normal text-sm">(0-100)</span></h3>
-          <span className="text-lg font-bold text-blue-600">{adlScore}/100</span>
+    <div className="space-y-5">
+      {/* Sub-step progress */}
+      <div className="flex gap-2 items-center">
+        {FUNC_SUB_STEPS.map((s, i) => (
+          <React.Fragment key={s.key}>
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              i === subStep
+                ? 'bg-blue-600 text-white shadow-sm'
+                : i < subStep
+                ? 'bg-blue-100 text-blue-700'
+                : 'bg-slate-100 text-slate-400'
+            }`}>
+              {i < subStep ? '✓ ' : ''}{s.label}
+            </div>
+            {i < 2 && <div className={`flex-1 h-0.5 ${i < subStep ? 'bg-blue-400' : 'bg-slate-200'}`} />}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Section header */}
+      <div className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+        <div>
+          <p className="font-bold text-slate-800">{current.label} — {current.desc}</p>
+          <p className="text-xs text-slate-500">טווח ניקוד: {current.range} • {subStep + 1} מתוך 3</p>
         </div>
+        <span className="text-2xl font-bold text-blue-600">
+          {scores[subStep]}<span className="text-sm font-normal text-slate-500">/{maxes[subStep]}</span>
+        </span>
+      </div>
+
+      {/* ADL */}
+      {subStep === 0 && (
         <div className="space-y-3">
           {ADL_ITEMS.map(item => (
             <fieldset key={item.key} className="grid grid-cols-3 gap-3 items-center">
@@ -1208,11 +1243,8 @@ function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
                       ? 'bg-blue-600 text-white border-blue-600'
                       : 'border-slate-200 hover:border-blue-300 text-slate-600'
                   }`}>
-                    <input
-                      type="radio"
-                      className="sr-only"
-                      name={`adl_${item.key}`}
-                      value={opt.v}
+                    <input type="radio" className="sr-only"
+                      name={`adl_${item.key}`} value={opt.v}
                       checked={Number(form.adl_answers[item.key]) === opt.v}
                       onChange={() => set('adl_answers', { ...form.adl_answers, [item.key]: opt.v })}
                       aria-label={`${item.label}: ${opt.l}`}
@@ -1224,16 +1256,10 @@ function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
             </fieldset>
           ))}
         </div>
-      </div>
-
-      <hr className="border-slate-200" />
+      )}
 
       {/* IADL */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-slate-800">IADL <span className="text-slate-600 font-normal text-sm">(0-8)</span></h3>
-          <span className="text-lg font-bold text-blue-600">{iadlScore}/8</span>
-        </div>
+      {subStep === 1 && (
         <div className="space-y-3">
           {IADL_ITEMS.map(item => (
             <fieldset key={item.key} className="grid grid-cols-3 gap-3 items-center">
@@ -1245,11 +1271,8 @@ function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
                       ? 'bg-green-600 text-white border-green-600'
                       : 'border-slate-200 hover:border-green-300 text-slate-600'
                   }`}>
-                    <input
-                      type="radio"
-                      className="sr-only"
-                      name={`iadl_${item.key}`}
-                      value={opt.v}
+                    <input type="radio" className="sr-only"
+                      name={`iadl_${item.key}`} value={opt.v}
                       checked={Number(form.iadl_answers[item.key]) === opt.v}
                       onChange={() => set('iadl_answers', { ...form.iadl_answers, [item.key]: opt.v })}
                       aria-label={`${item.label}: ${opt.l}`}
@@ -1261,42 +1284,41 @@ function FunctionalStep({ adlScore, iadlScore, mmseScore }) {
             </fieldset>
           ))}
         </div>
-      </div>
-
-      <hr className="border-slate-200" />
+      )}
 
       {/* MMSE */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-slate-800">MMSE <span className="text-slate-600 font-normal text-sm">(0-30)</span></h3>
-          <span className={`text-lg font-bold ${mmseScore >= 24 ? 'text-green-600' : mmseScore >= 18 ? 'text-amber-600' : 'text-red-600'}`}>
-            {mmseScore}/30
-          </span>
-        </div>
+      {subStep === 2 && (
         <div className="space-y-3">
           {MMSE_SECTIONS.map(sec => (
             <div key={sec.key} className="flex items-center gap-4">
               <div className="flex-1">
                 <p className="text-sm text-slate-700">{sec.label}</p>
-                <p className="text-xs text-slate-600">{sec.hint}</p>
+                <p className="text-xs text-slate-500">{sec.hint}</p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-600">0</span>
+                <span className="text-xs text-slate-500">0</span>
                 <input
                   type="range" min={0} max={sec.max} step={1}
                   value={form.mmse_answers[sec.key] ?? 0}
                   onChange={e => set('mmse_answers', { ...form.mmse_answers, [sec.key]: Number(e.target.value) })}
                   className="w-24"
+                  aria-label={sec.label}
                 />
-                <span className="text-xs text-slate-600">{sec.max}</span>
-                <span className="text-sm font-bold text-slate-800 w-5 text-center">
+                <span className="text-xs text-slate-500">{sec.max}</span>
+                <span className="text-sm font-bold text-slate-800 w-6 text-center">
                   {form.mmse_answers[sec.key] ?? 0}
                 </span>
               </div>
             </div>
           ))}
+          {mmseScore < 24 && mmseScore > 0 && (
+            <div className={`mt-4 px-4 py-3 rounded-xl text-sm font-medium ${mmseScore >= 18 ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+              {mmseScore >= 18 ? '⚠ ירידה קלה-בינונית — שקול הפניה לנוירולוג' : '🔴 ירידה משמעותית — נדרש הערכה נוירולוגית'}
+              <span className="mr-2 font-normal">({mmseScore}/30)</span>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   )
 }
