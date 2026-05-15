@@ -42,11 +42,12 @@ def broker_patients(
 @router.get("/patients/{patient_id}/claims")
 def broker_patient_claims(
     patient_id: int,
+    offset: int = 0,
+    limit: int = 50,
     db: Session = Depends(get_db),
     current_user=Depends(require_broker),
 ):
     """Claims summary for a patient the broker has access to."""
-    # Admin bypasses permission check
     if not current_user.is_admin:
         perm = db.query(models.PatientPermission).filter(
             models.PatientPermission.manager_id == current_user.id,
@@ -54,15 +55,23 @@ def broker_patient_claims(
         ).first()
         if not perm:
             raise HTTPException(403, "אין גישה למטופל זה")
-    claims = db.query(models.Claim).filter(models.Claim.patient_id == patient_id).limit(100).all()
-    return [
-        {
-            "id": c.id,
-            "category": c.category,
-            "status": c.status,
-            "amount_requested": c.amount_requested,
-            "amount_approved": c.amount_approved,
-            "description": c.description,
-        }
-        for c in claims
-    ]
+    q = db.query(models.Claim).filter(models.Claim.patient_id == patient_id)
+    total = q.count()
+    claims = q.order_by(models.Claim.id.desc()).offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": offset + limit < total,
+        "items": [
+            {
+                "id": c.id,
+                "category": c.category,
+                "status": c.status,
+                "amount_requested": c.amount_requested,
+                "amount_approved": c.amount_approved,
+                "description": c.description,
+            }
+            for c in claims
+        ],
+    }
