@@ -219,6 +219,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
         await axios.put(`/api/patients/${patientId}/meetings/${meeting.id}`, payload)
       } else {
         await axios.post(`/api/patients/${patientId}/meetings`, payload)
+        clearMeetingDraft(true)
       }
       onSaved(); onClose()
     } finally { setSaving(false) }
