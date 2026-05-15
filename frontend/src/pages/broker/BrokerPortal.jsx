@@ -158,7 +158,8 @@ export default function BrokerPortal() {
             const diag = DIAGNOSIS_LABELS[p.diagnosis_status] || { label: p.diagnosis_status, color: 'bg-slate-100 text-slate-600' }
             const tags = p.condition_tags ? p.condition_tags.split(',').filter(Boolean) : []
             const isExpanded = expandedId === p.id
-            const claims = claimsMap[p.id] || []
+            const claimsEntry = claimsMap[p.id] || { items: [], total: 0, has_more: false }
+            const claims = claimsEntry.items || []
             const isLoadingClaims = claimsLoading[p.id]
 
             return (
