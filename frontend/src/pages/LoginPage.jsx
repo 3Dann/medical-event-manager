@@ -434,7 +434,7 @@ export default function LoginPage() {
 
         {/* ── Forgot — שלב 1: הזן מייל ──────────────────────────────────── */}
         {!twoFAStep && tab === 'forgot' && forgotStep === 1 && (
-          <form onSubmit={handleForgotStep1} className="space-y-4">
+          <form onSubmit={handleForgotStep1} className="space-y-4" noValidate>
             <p className="text-sm text-slate-600">הזן את האימייל שלך. תישאל שאלת אימות כדי לאמת את זהותך.</p>
             <div>
               <label className="label">אימייל</label>
