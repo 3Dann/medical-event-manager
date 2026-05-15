@@ -415,6 +415,7 @@ export default function PatientInsurance() {
           notes:          cov.notes      || null,
         })
       }
+      clearInsDraft(true)
       setShowForm(false); setCoverages(emptyCoverages()); setCustomCompany(false); fetchAll().catch(() => {})
     } catch {
       showToast('שגיאה בשמירת מקור הביטוח. נסה שוב.')
