@@ -5,6 +5,7 @@ import { useConfirm } from '../../components/ConfirmDialog'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
 import AppToast from '../../components/AppToast'
+import { useDraft } from '../../hooks/useDraft'
 
 // SOURCE_TYPE_LABELS defined inside component for i18n
 const CATEGORIES = [
