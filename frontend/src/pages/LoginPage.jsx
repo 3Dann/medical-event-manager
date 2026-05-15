@@ -497,7 +497,7 @@ export default function LoginPage() {
             <button type="submit" disabled={loading || !idNumber || !extraAnswer} className="btn-primary w-full py-3">
               {loading ? 'בודק...' : 'שלח קישור לאיפוס'}
             </button>
-            <button type="button" onClick={() => { setForgotStep(1); setError('') }}
+            <button type="button" onClick={() => { setForgotStep(1); setError(''); setIdNumber(''); setExtraAnswer('') }}
               className="w-full py-2 text-sm text-slate-500 hover:text-slate-700">
               חזור
             </button>
