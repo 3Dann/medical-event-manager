@@ -31,7 +31,7 @@ export function useDraft(key, initialState, { debounce = 600 } = {}) {
   const isFirst = useRef(true)
 
   useEffect(() => {
-    // skip saving on the initial mount — only on actual user changes
+    if (!key) return
     if (isFirst.current) { isFirst.current = false; return }
     clearTimeout(timer.current)
     timer.current = setTimeout(() => {
