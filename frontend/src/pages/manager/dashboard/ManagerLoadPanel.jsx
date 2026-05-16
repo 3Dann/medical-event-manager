@@ -69,6 +69,20 @@ export default function ManagerLoadPanel({ managers }) {
           {mgr.patient_count === 0 && (
             <p className="text-xs text-slate-600 mt-2 text-center">אין תיקים פעילים</p>
           )}
+          <div className="flex gap-2 mt-2 pt-2 border-t border-slate-100">
+            <button
+              onClick={() => navigate('/manager/admin?tab=sessions')}
+              className="text-[11px] text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md transition-colors"
+            >
+              Sessions
+            </button>
+            <button
+              onClick={() => navigate('/manager/admin?tab=users')}
+              className="text-[11px] text-slate-500 hover:text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md transition-colors"
+            >
+              ניהול
+            </button>
+          </div>
         </div>
       ))}
     </div>
