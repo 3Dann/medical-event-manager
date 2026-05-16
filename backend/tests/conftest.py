@@ -59,14 +59,6 @@ def client(db, monkeypatch):
 
 # ─── IP ייחודי לכל טסט — מונע דליפת rate-limit בין טסטים ──────────────────
 
-@pytest.fixture(autouse=True)
-def _reset_rate_limiter():
-    """מאפס את כל מוני rate-limit לפני כל טסט."""
-    import main as _main
-    _main.limiter.reset()
-    yield
-
-
 # ─── Fixtures נוחים לטסטים ────────────────────────────────────────────────────
 
 @pytest.fixture
