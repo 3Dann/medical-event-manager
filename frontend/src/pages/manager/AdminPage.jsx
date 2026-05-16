@@ -13,6 +13,7 @@ export default function AdminPage() {
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
   const { toast, showToast, dismissToast } = useToast()
+  const [confirm, ConfirmUI] = useConfirm()
   const isDev = currentUser?.is_admin
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
