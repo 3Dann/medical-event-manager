@@ -158,7 +158,7 @@ export default function AdminPage() {
   const handleReset = async (user) => {
     try {
       const res = await axios.post(`/api/admin/users/${user.id}/reset`)
-      setResetResult({ userId: user.id, name: user.full_name, tempPassword: res.data.temp_password })
+      setResetResult({ userId: user.id, name: user.full_name, message: res.data.message, emailSent: res.data.email_sent })
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
