@@ -44,7 +44,10 @@ def db():
 
 @pytest.fixture
 def client(db, monkeypatch):
-    """TestClient עם DB בזיכרון. Seeds מנוטרלים."""
+    """TestClient עם DB בזיכרון. Seeds מנוטרלים. Rate limiter מאופס."""
+    import main as _main
+    _main.limiter.reset()  # מאפס לפני כל HTTP request בטסט
+
     monkeypatch.setattr("main._seed_drugs_on_startup", lambda: None)
     monkeypatch.setattr("main._seed_nsclc_drugs_on_startup", lambda: None)
 
