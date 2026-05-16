@@ -5,6 +5,7 @@ import StatsBar from './dashboard/StatsBar'
 import ManagerLoadPanel from './dashboard/ManagerLoadPanel'
 import AlertsPanel from './dashboard/AlertsPanel'
 import OverdueTasksPanel from './dashboard/OverdueTasksPanel'
+import SystemStatsPanel from './dashboard/SystemStatsPanel'
 
 /**
  * AdminDashboardPage — הדשבורד הניהולי.
