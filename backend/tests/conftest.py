@@ -61,11 +61,11 @@ def client(db, monkeypatch):
 
 @pytest.fixture(autouse=True)
 def _unique_ip_per_test(monkeypatch, request):
-    """כל טסט מקבל IP ייחודי."""
-    import routes.auth as _auth_route
+    """כל טסט מקבל IP ייחודי — rate-limits לא מדברים בין טסטים."""
+    import main as _main
     test_hash = abs(hash(request.node.nodeid)) % (256 ** 3)
     ip = f"10.{(test_hash >> 16) % 256}.{(test_hash >> 8) % 256}.{test_hash % 256}"
-    monkeypatch.setattr(_auth_route.limiter, "_key_func", lambda req: ip)
+    monkeypatch.setattr(_main.limiter, "_key_func", lambda req: ip)
 
 
 # ─── Fixtures נוחים לטסטים ────────────────────────────────────────────────────
