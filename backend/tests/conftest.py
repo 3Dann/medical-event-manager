@@ -21,9 +21,11 @@ from tests.helpers import make_admin, make_manager, full_login
 # ─── DB בזיכרון — חדש לכל טסט ───────────────────────────────────────────────
 
 def _make_engine():
+    # StaticPool — כל ה-sessions משתמשים באותו חיבור → אותו DB בזיכרון
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
     return engine
