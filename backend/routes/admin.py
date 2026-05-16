@@ -661,19 +661,25 @@ def delete_user(
         raise HTTPException(404, "משתמש לא נמצא")
     if user.preserve_data:
         raise HTTPException(403, "המשתמש ביקש לשמור את מידעו — בטל את הגדרת שמירת נתונים לפני המחיקה")
+    # Remove PatientPermission rows where this user is manager_id or granted_by (no CASCADE on these FKs)
+    db.query(models.PatientPermission).filter(
+        (models.PatientPermission.manager_id == user_id) |
+        (models.PatientPermission.granted_by == user_id)
+    ).delete(synchronize_session=False)
     patients = db.query(models.Patient).filter(models.Patient.manager_id == user_id).all()
     for p in patients:
         db.delete(p)
+    from datetime import datetime, timezone as _tz
+    now = datetime.now(_tz.utc)
     sessions = db.query(models.ActiveSession).filter(
         models.ActiveSession.user_id == user_id,
         models.ActiveSession.is_active == True,
     ).all()
-    from datetime import datetime, timezone as _tz
-    now = datetime.now(_tz.utc)
     for s in sessions:
         s.is_active = False
         s.revoked_at = now
         s.revoked_by = current_user.id
+    db.flush()
     name = user.full_name
     db.delete(user)
     db.commit()
