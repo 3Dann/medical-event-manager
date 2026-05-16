@@ -62,7 +62,7 @@ def _unique_ip_per_test(monkeypatch, request):
     import routes.auth as _auth_route
     test_hash = abs(hash(request.node.nodeid)) % (256 ** 3)
     ip = f"10.{(test_hash >> 16) % 256}.{(test_hash >> 8) % 256}.{test_hash % 256}"
-    monkeypatch.setattr(_auth_route.limiter, "key_func", lambda req: ip)
+    monkeypatch.setattr(_auth_route.limiter, "_key_func", lambda req: ip)
 
 
 # ─── Fixtures נוחים לטסטים ────────────────────────────────────────────────────
