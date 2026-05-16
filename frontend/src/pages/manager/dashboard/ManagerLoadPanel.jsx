@@ -35,6 +35,7 @@ function Badge({ children, color }) {
  * להוספת עמודה/מדד: הוסף שדה ב-backend ועיין כאן.
  */
 export default function ManagerLoadPanel({ managers }) {
+  const navigate = useNavigate()
   const maxPatients = Math.max(1, ...managers.map(m => m.patient_count))
 
   if (managers.length === 0)
