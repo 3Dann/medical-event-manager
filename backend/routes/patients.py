@@ -356,6 +356,8 @@ def get_my_patient(db: Session = Depends(get_db), current_user: models.User = De
 
 @router.post("")
 def create_patient(data: PatientCreate, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    if not auth_utils.has_permission(current_user, "create_patient"):
+        raise HTTPException(status_code=403, detail="אין לך הרשאה ליצור תיקים חדשים")
     if data.id_number:
         existing = (db.query(models.Patient)
                     .filter(models.Patient.manager_id == current_user.id,
