@@ -492,6 +492,8 @@ def create_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
+    if not auth_utils.has_permission(current_user, "manage_workflows"):
+        raise HTTPException(status_code=403, detail="אין לך הרשאה להפעיל זרימות עבודה")
     try:
         instance = FlowEngine.create_instance(
             db=db,
