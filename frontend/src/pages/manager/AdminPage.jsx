@@ -192,15 +192,6 @@ export default function AdminPage() {
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
-  // Tab sync with URL
-  const VALID_TABS = ['users', 'permissions', 'activity', 'sessions', 'funds', 'registrations']
-  const urlTab = searchParams.get('tab')
-  const [tab, setTab] = useState(VALID_TABS.includes(urlTab) ? urlTab : 'users')
-  const handleTabChange = (key) => {
-    setTab(key)
-    setSearchParams({ tab: key }, { replace: true })
-  }
-
   // Permissions state
   const [permEditorUserId, setPermEditorUserId] = useState(null)
   const [permEditorValues, setPermEditorValues] = useState([])
