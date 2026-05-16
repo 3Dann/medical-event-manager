@@ -11,7 +11,7 @@
 """
 from datetime import datetime, timedelta, timezone
 import pytest
-from conftest import make_admin, make_manager, full_login
+from tests.helpers import make_admin, make_manager, full_login
 
 
 # ═══════════════════════════════════════════════════════
