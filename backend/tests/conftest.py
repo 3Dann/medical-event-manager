@@ -2,6 +2,8 @@
 הגדרות בסיס לטסטים — DB בזיכרון, TestClient, fixtures משותפים.
 """
 import os
+import importlib
+import pkgutil
 
 # חייב להיות לפני כל ייבוא של קוד האפליקציה
 os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing-only-not-production!")
@@ -15,13 +17,12 @@ from fastapi.testclient import TestClient
 
 from database import Base, get_db
 from main import app
-from tests.helpers import make_admin, make_manager, full_login
+from tests.helpers import make_admin, make_manager, full_login, TEST_MANAGER_PASSWORD
 
 
-# ─── DB בזיכרון — חדש לכל טסט ───────────────────────────────────────────────
+# ─── DB בזיכרון — חדש לכל טסט (StaticPool = חיבור יחיד → DB יחיד) ─────────
 
 def _make_engine():
-    # StaticPool — כל ה-sessions משתמשים באותו חיבור → אותו DB בזיכרון
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
@@ -33,30 +34,40 @@ def _make_engine():
 
 @pytest.fixture
 def db():
-    """Session נקייה לכל טסט — נסגרת בסוף."""
+    """Session נקייה לכל טסט — rollback + dispose בסוף."""
     engine = _make_engine()
     Session = sessionmaker(bind=engine)
     session = Session()
     yield session
+    session.rollback()
     session.close()
     engine.dispose()
 
 
-def _reset_all_limiters():
-    """מאפס את כל ה-Limiter objects בכל הרוטים — כל אחד מחזיק storage עצמאי."""
-    import main as _main
-    import routes.auth as _route_auth
-    import routes.doctors as _route_doctors
-    import routes.documents as _route_documents
-    _main.limiter.reset()
-    _route_auth.limiter.reset()
-    _route_doctors.limiter.reset()
-    _route_documents.limiter.reset()
+# ─── איפוס rate limiters ──────────────────────────────────────────────────────
 
+def _reset_all_limiters():
+    """מאפס כל Limiter בכל מודולי routes + main.
+    גישה גנרית — לא תלויה ברשימה ידנית שצריך לעדכן."""
+    import routes
+    import main as _main
+    for _, mod_name, _ in pkgutil.iter_modules(routes.__path__):
+        try:
+            mod = importlib.import_module(f"routes.{mod_name}")
+            lim = getattr(mod, "limiter", None)
+            if lim and hasattr(lim, "reset"):
+                lim.reset()
+        except Exception:
+            pass
+    if hasattr(_main, "limiter"):
+        _main.limiter.reset()
+
+
+# ─── TestClient עם DB מבודד ───────────────────────────────────────────────────
 
 @pytest.fixture
 def client(db, monkeypatch):
-    """TestClient עם DB בזיכרון. Seeds מנוטרלים. Rate limiters מאופסים."""
+    """TestClient עם DB בזיכרון. Seeds מנוטרלים. כל rate limiters מאופסים."""
     _reset_all_limiters()
 
     monkeypatch.setattr("main._seed_drugs_on_startup", lambda: None)
@@ -71,9 +82,7 @@ def client(db, monkeypatch):
     app.dependency_overrides.pop(get_db, None)
 
 
-# ─── IP ייחודי לכל טסט — מונע דליפת rate-limit בין טסטים ──────────────────
-
-# ─── Fixtures נוחים לטסטים ────────────────────────────────────────────────────
+# ─── Fixtures למשתמשים ────────────────────────────────────────────────────────
 
 @pytest.fixture
 def admin_user(db):
@@ -81,14 +90,14 @@ def admin_user(db):
 
 
 @pytest.fixture
-def manager_user(db):
-    make_admin(db)
+def manager_user(admin_user, db):
+    """Manager רגיל. admin_user כתלות מפורשת — app מצריך אדמין קיים להרשמה."""
     return make_manager(db)
 
 
 @pytest.fixture
 def manager_token(client, manager_user):
-    return full_login(client, manager_user.email, "Manager1!")
+    return full_login(client, manager_user.email, TEST_MANAGER_PASSWORD)
 
 
 @pytest.fixture
