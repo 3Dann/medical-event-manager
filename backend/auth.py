@@ -83,6 +83,8 @@ def get_current_user(
         jti: str = payload.get("jti")
         if user_id is None:
             raise credentials_exception
+        if payload.get("2fa_pending"):
+            raise credentials_exception  # temp_token — תקף רק ל-verify-2fa
         if jti and is_token_revoked(jti, db):
             raise credentials_exception
     except JWTError:
