@@ -130,6 +130,8 @@ def approve_claim(patient_id: int, claim_id: int, db: Session = Depends(get_db),
 
 @router.delete("/{claim_id}")
 def delete_claim(patient_id: int, claim_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(auth_utils.require_manager)):
+    if not auth_utils.has_permission(current_user, "manage_claims"):
+        raise HTTPException(status_code=403, detail="אין לך הרשאה לנהל תביעות")
     auth_utils.get_patient_with_access(patient_id, current_user, db)
     claim = db.query(models.Claim).filter(models.Claim.id == claim_id, models.Claim.patient_id == patient_id).first()
     if not claim:
