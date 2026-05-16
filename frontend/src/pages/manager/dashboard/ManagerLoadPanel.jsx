@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function LoadBar({ value, max }) {
   const pct = max ? Math.min(100, Math.round((value / max) * 100)) : 0
