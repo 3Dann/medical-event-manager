@@ -42,11 +42,22 @@ def db():
     engine.dispose()
 
 
+def _reset_all_limiters():
+    """מאפס את כל ה-Limiter objects בכל הרוטים — כל אחד מחזיק storage עצמאי."""
+    import main as _main
+    import routes.auth as _route_auth
+    import routes.doctors as _route_doctors
+    import routes.documents as _route_documents
+    _main.limiter.reset()
+    _route_auth.limiter.reset()
+    _route_doctors.limiter.reset()
+    _route_documents.limiter.reset()
+
+
 @pytest.fixture
 def client(db, monkeypatch):
-    """TestClient עם DB בזיכרון. Seeds מנוטרלים. Rate limiter מאופס."""
-    import main as _main
-    _main.limiter.reset()  # מאפס לפני כל HTTP request בטסט
+    """TestClient עם DB בזיכרון. Seeds מנוטרלים. Rate limiters מאופסים."""
+    _reset_all_limiters()
 
     monkeypatch.setattr("main._seed_drugs_on_startup", lambda: None)
     monkeypatch.setattr("main._seed_nsclc_drugs_on_startup", lambda: None)
