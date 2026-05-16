@@ -60,12 +60,11 @@ def client(db, monkeypatch):
 # ─── IP ייחודי לכל טסט — מונע דליפת rate-limit בין טסטים ──────────────────
 
 @pytest.fixture(autouse=True)
-def _unique_ip_per_test(monkeypatch, request):
-    """כל טסט מקבל IP ייחודי — rate-limits לא מדברים בין טסטים."""
+def _reset_rate_limiter():
+    """מאפס את כל מוני rate-limit לפני כל טסט."""
     import main as _main
-    test_hash = abs(hash(request.node.nodeid)) % (256 ** 3)
-    ip = f"10.{(test_hash >> 16) % 256}.{(test_hash >> 8) % 256}.{test_hash % 256}"
-    monkeypatch.setattr(_main.limiter, "_key_func", lambda req: ip)
+    _main.limiter.reset()
+    yield
 
 
 # ─── Fixtures נוחים לטסטים ────────────────────────────────────────────────────
