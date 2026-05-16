@@ -308,6 +308,7 @@ export default function AdminPage() {
   return (
     <div className="p-4 md:p-8" dir="rtl">
       <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
+      {ConfirmUI}
       <h1 className="text-2xl font-bold text-slate-800 mb-1">{t('title')}</h1>
 
       {/* Tab bar */}
