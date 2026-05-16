@@ -11,7 +11,8 @@
 """
 from datetime import datetime, timedelta, timezone
 import pytest
-from tests.helpers import make_admin, make_manager, full_login
+import json as _json
+from tests.helpers import make_admin, make_manager, full_login, TEST_MANAGER_PASSWORD
 
 
 # ═══════════════════════════════════════════════════════
