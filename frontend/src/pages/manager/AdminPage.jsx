@@ -182,20 +182,52 @@ export default function AdminPage() {
     } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
   }
 
-  // Download permissions state
+  // Permissions state
   const [permEditorUserId, setPermEditorUserId] = useState(null)
   const [permEditorValues, setPermEditorValues] = useState([])
   const [permSaving, setPermSaving] = useState(false)
 
   const PERM_OPTIONS = [
-    { key: 'download_docs', label: 'הורדת מסמכים' },
-    { key: 'export_pdf',    label: 'ייצוא PDF' },
-    { key: 'view_financials', label: 'צפייה בנתונים פיננסיים' },
+    { key: 'create_patient',   label: 'יצירת תיק מטופל',         group: 'עבודה' },
+    { key: 'manage_claims',    label: 'ניהול תביעות',              group: 'עבודה' },
+    { key: 'manage_workflows', label: 'הפעלת זרימות עבודה',       group: 'עבודה' },
+    { key: 'download_docs',    label: 'הורדת מסמכים',             group: 'ייצוא' },
+    { key: 'export_pdf',       label: 'ייצוא PDF',                 group: 'ייצוא' },
+    { key: 'export_excel',     label: 'ייצוא Excel',               group: 'ייצוא' },
+    { key: 'view_financials',  label: 'צפייה בנתונים פיננסיים',  group: 'נתונים' },
+  ]
+
+  const PERM_PRESETS = [
+    {
+      key: 'senior',
+      label: 'מלווה בכיר',
+      desc: 'כל ההרשאות',
+      color: 'purple',
+      perms: ['create_patient','manage_claims','manage_workflows','download_docs','export_pdf','export_excel','view_financials'],
+    },
+    {
+      key: 'standard',
+      label: 'מלווה סטנדרטי',
+      desc: 'עבודה + הורדות',
+      color: 'blue',
+      perms: ['create_patient','manage_claims','manage_workflows','download_docs','export_pdf'],
+    },
+    {
+      key: 'readonly',
+      label: 'צופה בלבד',
+      desc: 'נתונים פיננסיים בלבד',
+      color: 'slate',
+      perms: ['view_financials'],
+    },
   ]
 
   const openPermEditor = (user) => {
     setPermEditorUserId(user.id)
     setPermEditorValues(Array.isArray(user.permissions) ? [...user.permissions] : [])
+  }
+
+  const applyPreset = (preset) => {
+    setPermEditorValues([...preset.perms])
   }
 
   const savePerms = async (userId) => {
@@ -213,6 +245,47 @@ export default function AdminPage() {
   }
 
   const managers = users.filter(u => u.role === 'manager' && !u.is_admin)
+
+  // ── Create user ──────────────────────────────────────────────────────────────
+  const [showCreateUser, setShowCreateUser] = useState(false)
+  const [createForm, setCreateForm] = useState({ full_name: '', email: '', password: '', role: 'manager', is_admin: false, permissions: [] })
+  const [createSaving, setCreateSaving] = useState(false)
+  const [createError, setCreateError] = useState(null)
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault()
+    setCreateSaving(true)
+    setCreateError(null)
+    try {
+      await axios.post('/api/admin/users', createForm)
+      setShowCreateUser(false)
+      setCreateForm({ full_name: '', email: '', password: '', role: 'manager', is_admin: false, permissions: [] })
+      showToast('משתמש נוצר בהצלחה')
+      fetchUsers()
+    } catch (err) {
+      setCreateError(err.response?.data?.detail || 'שגיאה ביצירת משתמש')
+    } finally {
+      setCreateSaving(false)
+    }
+  }
+
+  // ── Delete account ───────────────────────────────────────────────────────────
+  const handleDeleteAccount = async (user) => {
+    const ok = await confirm({
+      title: 'מחיקת חשבון',
+      message: `האם למחוק לצמיתות את החשבון של ${user.full_name}? פעולה זו תמחק גם את כל תיקי המטופלים שלו.`,
+      confirmLabel: 'מחק חשבון',
+      danger: true,
+    })
+    if (!ok) return
+    try {
+      await axios.delete(`/api/admin/users/${user.id}`)
+      showToast(`החשבון של ${user.full_name} נמחק`)
+      fetchUsers()
+    } catch (e) {
+      showToast(e.response?.data?.detail || 'שגיאה במחיקה')
+    }
+  }
 
   // ── Email test ───────────────────────────────────────────────────────────────
   const [emailTesting, setEmailTesting] = useState(false)
