@@ -12,6 +12,7 @@ export default function AdminPage() {
   const { t } = useTranslation('admin')
   const { user: currentUser } = useAuth()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { toast, showToast, dismissToast } = useToast()
   const [confirm, ConfirmUI] = useConfirm()
   const isDev = currentUser?.is_admin
