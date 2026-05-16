@@ -314,7 +314,8 @@ class TestCouncilSecurity:
 
         db.refresh(manager_user)
         assert manager_user.locked_until is not None
-        assert manager_user.locked_until > datetime.now(timezone.utc)
+        # SQLite מחזיר naive datetime — משווים ל-utcnow() (גם naive)
+        assert manager_user.locked_until > datetime.utcnow()
 
     def test_correct_password_during_lockout_still_rejected(self, client, db, manager_user):
         """סיסמה נכונה בזמן נעילה → עדיין 429."""
