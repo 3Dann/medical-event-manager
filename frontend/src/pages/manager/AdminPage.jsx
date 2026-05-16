@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import FundManagementPanel from './FundManagementPanel'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '../../hooks/useToast'
