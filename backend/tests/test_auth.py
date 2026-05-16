@@ -53,9 +53,8 @@ class TestLogin:
         })
         assert r.status_code == 401
 
-    def test_nonexistent_user_returns_401(self, client, db):
+    def test_nonexistent_user_returns_401(self, client, admin_user):
         """מייל שלא קיים → 401 (לא 404, למניעת username enumeration)."""
-        make_admin(db)  # לפחות משתמש אחד ב-DB
         r = client.post("/api/auth/login", data={
             "username": "ghost@nothere.com",
             "password": "Password1!",
