@@ -475,14 +475,15 @@ export default function AdminPage() {
           )}
 
           {resetResult && (
-            <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className={`mb-6 p-4 rounded-xl border ${resetResult.emailSent ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-amber-800 text-sm">{t('temp_password_for', { name: resetResult.name })}</p>
-                  <p className="text-2xl font-mono font-bold text-amber-900 mt-1 tracking-wider">{resetResult.tempPassword}</p>
-                  <p className="text-xs text-amber-600 mt-1">{t('temp_password_hint')}</p>
+                  <p className={`font-semibold text-sm ${resetResult.emailSent ? 'text-green-800' : 'text-amber-800'}`}>
+                    {resetResult.emailSent ? '✅' : '⚠️'} איפוס סיסמה — {resetResult.name}
+                  </p>
+                  <p className={`text-xs mt-1 ${resetResult.emailSent ? 'text-green-700' : 'text-amber-700'}`}>{resetResult.message}</p>
                 </div>
-                <button onClick={() => setResetResult(null)} className="text-amber-500 hover:text-amber-700 text-xl font-bold p-2 -m-2 rounded-lg">✕</button>
+                <button onClick={() => setResetResult(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold p-2 -m-2 rounded-lg">✕</button>
               </div>
             </div>
           )}
