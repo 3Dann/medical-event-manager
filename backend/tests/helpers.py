@@ -2,8 +2,12 @@
 import models
 import auth as auth_utils
 
+# קבועים — שינוי פה ישפיע על כל הטסטים
+TEST_ADMIN_PASSWORD = "Admin1!Admin"
+TEST_MANAGER_PASSWORD = "Manager1!"
 
-def make_admin(db, email="admin@test.com", password="Admin1!Admin"):
+
+def make_admin(db, email="admin@test.com", password=TEST_ADMIN_PASSWORD):
     user = models.User(
         full_name="Admin Test",
         email=email,
@@ -17,7 +21,7 @@ def make_admin(db, email="admin@test.com", password="Admin1!Admin"):
     return user
 
 
-def make_manager(db, email="manager@test.com", password="Manager1!"):
+def make_manager(db, email="manager@test.com", password=TEST_MANAGER_PASSWORD):
     user = models.User(
         full_name="Test Manager",
         email=email,
