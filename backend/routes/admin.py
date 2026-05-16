@@ -15,6 +15,32 @@ import auth as auth_utils
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
+VALID_PERMS = frozenset({
+    "download_docs",
+    "export_pdf",
+    "view_financials",
+    "create_patient",
+    "export_excel",
+    "manage_claims",
+    "manage_workflows",
+})
+
+PERM_LABELS = {
+    "download_docs":    "הורדת מסמכים",
+    "export_pdf":       "ייצוא PDF",
+    "view_financials":  "צפייה בנתונים פיננסיים",
+    "create_patient":   "יצירת תיק מטופל",
+    "export_excel":     "ייצוא Excel",
+    "manage_claims":    "ניהול תביעות",
+    "manage_workflows": "ניהול זרימות עבודה",
+}
+
+ROLE_PRESETS = {
+    "senior":   list(VALID_PERMS),
+    "standard": ["download_docs", "export_pdf", "create_patient", "manage_claims", "manage_workflows"],
+    "readonly": ["view_financials"],
+}
+
 
 def user_to_dict(u: models.User) -> dict:
     import json as _uj
