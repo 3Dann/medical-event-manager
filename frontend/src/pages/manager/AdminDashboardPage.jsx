@@ -76,6 +76,14 @@ export default function AdminDashboardPage() {
           </DashboardWidget>
         </div>
 
+        <div className="lg:col-span-2">
+          <DashboardWidget title="בריאות מערכת">
+            <SystemStatsPanel />
+          </DashboardWidget>
+        </div>
+
+        <div className="lg:col-span-3" />
+
       </div>
     </div>
   )
