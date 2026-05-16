@@ -125,6 +125,11 @@ def get_optional_current_user(
         user_id = payload.get("sub")
         if user_id is None:
             return None
+        if payload.get("2fa_pending"):
+            return None
+        jti = payload.get("jti")
+        if jti and is_token_revoked(jti, db):
+            return None
     except JWTError:
         return None
     return db.query(models.User).filter(models.User.id == int(user_id)).first()
