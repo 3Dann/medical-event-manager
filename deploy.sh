@@ -2,6 +2,8 @@
 # Deploy לפרודקשן ב-Railway
 cd "$(dirname "$0")"
 
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 echo "🚀 מבצע deploy ל-Railway..."
 railway up --detach
 
