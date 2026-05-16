@@ -585,38 +585,61 @@ export default function AdminPage() {
 
                   {/* Inline permissions editor */}
                   {permEditorUserId === user.id && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-4">
-                      <span className="text-xs font-medium text-slate-600">הרשאות הורדה:</span>
-                      {PERM_OPTIONS.map(opt => (
-                        <label key={opt.key} className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700 select-none">
-                          <input
-                            type="checkbox"
-                            checked={permEditorValues.includes(opt.key)}
-                            onChange={e => {
-                              if (e.target.checked) {
-                                setPermEditorValues(prev => [...prev, opt.key])
-                              } else {
-                                setPermEditorValues(prev => prev.filter(p => p !== opt.key))
-                              }
-                            }}
-                            className="w-3.5 h-3.5 rounded"
-                          />
-                          {opt.label}
-                        </label>
-                      ))}
-                      <button
-                        onClick={() => savePerms(user.id)}
-                        disabled={permSaving}
-                        className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        {permSaving ? 'שומר...' : 'שמור'}
-                      </button>
-                      <button
-                        onClick={() => setPermEditorUserId(null)}
-                        className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1"
-                      >
-                        ביטול
-                      </button>
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-slate-700">הרשאות גישה</span>
+                        <div className="flex gap-1.5">
+                          {PERM_PRESETS.map(p => (
+                            <button
+                              key={p.key} type="button"
+                              onClick={() => applyPreset(p)}
+                              className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
+                                JSON.stringify([...p.perms].sort()) === JSON.stringify([...permEditorValues].sort())
+                                  ? 'bg-blue-100 border-blue-400 text-blue-700 font-semibold'
+                                  : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-1.5 mb-3">
+                        {['עבודה','ייצוא','נתונים'].map(group => (
+                          <div key={group}>
+                            <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1">{group}</p>
+                            {PERM_OPTIONS.filter(o => o.group === group).map(opt => (
+                              <label key={opt.key} className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700 select-none mb-1">
+                                <input
+                                  type="checkbox"
+                                  checked={permEditorValues.includes(opt.key)}
+                                  onChange={e => {
+                                    if (e.target.checked) setPermEditorValues(prev => [...prev, opt.key])
+                                    else setPermEditorValues(prev => prev.filter(p => p !== opt.key))
+                                  }}
+                                  className="w-3.5 h-3.5 rounded"
+                                />
+                                {opt.label}
+                              </label>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => savePerms(user.id)}
+                          disabled={permSaving}
+                          className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                        >
+                          {permSaving ? 'שומר...' : 'שמור הרשאות'}
+                        </button>
+                        <button
+                          onClick={() => setPermEditorUserId(null)}
+                          className="text-xs text-slate-500 hover:text-slate-700 px-2 py-1.5"
+                        >
+                          ביטול
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
