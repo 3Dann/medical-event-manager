@@ -617,13 +617,16 @@ def create_user(
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
     """Create a new user directly (no registration flow required)."""
+    if not data.full_name.strip():
+        raise HTTPException(400, "שם מלא הוא שדה חובה")
     if data.role not in ["manager", "patient", "broker"]:
         raise HTTPException(400, "תפקיד לא חוקי")
     existing = db.query(models.User).filter(models.User.email == data.email.lower().strip()).first()
     if existing:
         raise HTTPException(400, "כתובת המייל כבר קיימת במערכת")
-    if len(data.password) < 8:
-        raise HTTPException(400, "הסיסמה חייבת להכיל לפחות 8 תווים")
+    pwd = data.password
+    if len(pwd) < 8 or not any(c.isupper() for c in pwd) or not any(c.islower() for c in pwd) or not any(c.isdigit() for c in pwd):
+        raise HTTPException(400, "הסיסמה חייבת להכיל לפחות 8 תווים, אות גדולה, אות קטנה וספרה")
     perms = data.permissions or []
     invalid = [p for p in perms if p not in VALID_PERMS]
     if invalid:
