@@ -135,6 +135,8 @@ def delete_user_data(
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
     """Delete user data only if preserve_data is False."""
+    if user_id == current_user.id:
+        raise HTTPException(status_code=400, detail="לא ניתן למחוק את הנתונים של עצמך")
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="משתמש לא נמצא")
