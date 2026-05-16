@@ -572,19 +572,165 @@ def update_user_permissions(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
-    """Set permissions list for a user. data: {"permissions": ["export_pdf","download_docs"]}"""
-    _VALID_PERMS = {"export_pdf", "download_docs", "view_financials"}
+    """Set permissions list for a user. data: {"permissions": ["export_pdf","download_docs",...]}"""
     user = db.get(models.User, user_id)
     if not user:
         raise HTTPException(404, "משתמש לא נמצא")
     import json as _j
     perms = data.get("permissions", [])
-    invalid = [p for p in perms if p not in _VALID_PERMS]
+    invalid = [p for p in perms if p not in VALID_PERMS]
     if invalid:
         raise HTTPException(400, f"הרשאות לא חוקיות: {invalid}")
     user.permissions = _j.dumps(perms)
     db.commit()
     return {"ok": True, "permissions": perms}
+
+
+@router.get("/permissions/options")
+def list_permission_options(
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """Return available permission keys, labels, and presets."""
+    return {
+        "permissions": [{"key": k, "label": v} for k, v in PERM_LABELS.items()],
+        "presets": {
+            "senior":   {"label": "מלווה בכיר",      "permissions": ROLE_PRESETS["senior"]},
+            "standard": {"label": "מלווה סטנדרטי",   "permissions": ROLE_PRESETS["standard"]},
+            "readonly": {"label": "צופה בלבד",        "permissions": ROLE_PRESETS["readonly"]},
+        },
+    }
+
+
+class CreateUserRequest(BaseModel):
+    full_name: str
+    email: str
+    password: str
+    role: str = "manager"
+    is_admin: bool = False
+    permissions: Optional[List[str]] = None
+
+
+@router.post("/users")
+def create_user(
+    data: CreateUserRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """Create a new user directly (no registration flow required)."""
+    if data.role not in ["manager", "patient", "broker"]:
+        raise HTTPException(400, "תפקיד לא חוקי")
+    existing = db.query(models.User).filter(models.User.email == data.email.lower().strip()).first()
+    if existing:
+        raise HTTPException(400, "כתובת המייל כבר קיימת במערכת")
+    if len(data.password) < 8:
+        raise HTTPException(400, "הסיסמה חייבת להכיל לפחות 8 תווים")
+    perms = data.permissions or []
+    invalid = [p for p in perms if p not in VALID_PERMS]
+    if invalid:
+        raise HTTPException(400, f"הרשאות לא חוקיות: {invalid}")
+    import json as _j
+    user = models.User(
+        full_name=data.full_name,
+        email=data.email.lower().strip(),
+        hashed_password=auth_utils.get_password_hash(data.password),
+        role=data.role,
+        is_admin=data.is_admin,
+        permissions=_j.dumps(perms),
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    logger.info("Admin %s created user %s (%s)", current_user.email, user.email, user.role)
+    return user_to_dict(user)
+
+
+@router.delete("/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """Delete user account entirely. Deletes owned patients if preserve_data=False."""
+    if user_id == current_user.id:
+        raise HTTPException(400, "לא ניתן למחוק את החשבון שלך")
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(404, "משתמש לא נמצא")
+    if user.preserve_data:
+        raise HTTPException(403, "המשתמש ביקש לשמור את מידעו — בטל את הגדרת שמירת נתונים לפני המחיקה")
+    patients = db.query(models.Patient).filter(models.Patient.manager_id == user_id).all()
+    for p in patients:
+        db.delete(p)
+    sessions = db.query(models.ActiveSession).filter(
+        models.ActiveSession.user_id == user_id,
+        models.ActiveSession.is_active == True,
+    ).all()
+    from datetime import datetime, timezone as _tz
+    now = datetime.now(_tz.utc)
+    for s in sessions:
+        s.is_active = False
+        s.revoked_at = now
+        s.revoked_by = current_user.id
+    name = user.full_name
+    db.delete(user)
+    db.commit()
+    logger.info("Admin %s deleted user %s (id=%d)", current_user.email, name, user_id)
+    return {"ok": True, "message": f"החשבון של {name} נמחק", "patients_deleted": len(patients)}
+
+
+@router.get("/system-stats")
+def system_stats(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """System health metrics for the admin dashboard."""
+    from sqlalchemy import func as sqlfunc
+    from datetime import datetime, timezone as _tz, timedelta
+
+    users_by_role = {
+        "manager": db.query(models.User).filter(models.User.role == "manager").count(),
+        "patient":  db.query(models.User).filter(models.User.role == "patient").count(),
+        "broker":   db.query(models.User).filter(models.User.role == "broker").count(),
+        "admin":    db.query(models.User).filter(models.User.is_admin == True).count(),
+    }
+    total_patients  = db.query(models.Patient).count()
+    total_documents = db.query(models.PatientDocument).count()
+    total_claims    = db.query(models.Claim).count()
+    active_sessions = db.query(models.ActiveSession).filter(models.ActiveSession.is_active == True).count()
+
+    cutoff_24h = datetime.now(_tz.utc) - timedelta(hours=24)
+    active_users_24h = db.query(models.ActiveSession).filter(
+        models.ActiveSession.last_seen >= cutoff_24h,
+        models.ActiveSession.is_active == True,
+    ).count()
+
+    db_path = os.environ.get("DB_PATH", "/data/medical_event_manager.db")
+    db_size_bytes = 0
+    try:
+        db_size_bytes = os.path.getsize(db_path)
+    except Exception:
+        pass
+
+    last_backup = None
+    try:
+        backup_dir = "/data/backups"
+        files = sorted([f for f in os.listdir(backup_dir) if f.endswith(".gz")], reverse=True)
+        if files:
+            last_backup = files[0]
+    except Exception:
+        pass
+
+    return {
+        "users_by_role":    users_by_role,
+        "total_patients":   total_patients,
+        "total_documents":  total_documents,
+        "total_claims":     total_claims,
+        "active_sessions":  active_sessions,
+        "active_users_24h": active_users_24h,
+        "db_size_bytes":    db_size_bytes,
+        "db_size_mb":       round(db_size_bytes / (1024 * 1024), 2),
+        "last_backup":      last_backup,
+    }
 
 
 @router.post("/test-email")
