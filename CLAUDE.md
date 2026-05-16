@@ -144,6 +144,7 @@ medical-event-manager/
 - [x] **הרשאות הורדה (2026-05-13)** — User.permissions JSON field, has_permission() ב-auth.py, whitelist validation ב-PATCH /api/admin/users/{id}/permissions, enforcement ב-documents download, AdminPage permissions editor (3 checkboxes)
 - [x] **מערכת התראות (2026-05-13)** — GET /api/notifications (manager-only: overdue+SLA+requests), NotificationBell.jsx עם badge+dropdown+polling 60s, מחובר ל-ManagerLayout
 - [x] **פורטל ברוקר (2026-05-13)** — UserRole.broker, routes/broker.py (PatientPermission-based access), BrokerPortal.jsx (patient list+claims accordion), route /broker ב-App.jsx
+- [x] **מערכת הרשאות מורחבת + שליטת אדמין (2026-05-16)** — ראה פירוט בסעיף "מערכת הרשאות מורחבת" למטה.
 
 ### פירוט: מערכת בקרת משתמשים
 
