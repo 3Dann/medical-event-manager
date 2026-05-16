@@ -371,7 +371,108 @@ export default function AdminPage() {
             )}
           </div>
 
-          <p className="text-slate-500 text-sm mb-6">{t('users_registered', { count: users.length })}</p>
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-slate-500 text-sm">{t('users_registered', { count: users.length })}</p>
+            <button
+              onClick={() => setShowCreateUser(true)}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              הוסף משתמש
+            </button>
+          </div>
+
+          {/* Create user modal */}
+          {showCreateUser && (
+            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" dir="rtl">
+              <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-lg font-bold text-slate-800">יצירת משתמש חדש</h2>
+                  <button onClick={() => { setShowCreateUser(false); setCreateError(null) }} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+                </div>
+                <form onSubmit={handleCreateUser} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">שם מלא</label>
+                    <input className="input w-full" required value={createForm.full_name} onChange={e => setCreateForm(f => ({...f, full_name: e.target.value}))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">אימייל</label>
+                    <input type="email" className="input w-full" required value={createForm.email} onChange={e => setCreateForm(f => ({...f, email: e.target.value}))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">סיסמה זמנית (מינימום 8 תווים)</label>
+                    <input type="password" className="input w-full" required minLength={8} value={createForm.password} onChange={e => setCreateForm(f => ({...f, password: e.target.value}))} />
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-slate-600 mb-1">תפקיד</label>
+                      <select className="input w-full" value={createForm.role} onChange={e => setCreateForm(f => ({...f, role: e.target.value}))}>
+                        <option value="manager">מנהל אירוע</option>
+                        <option value="patient">מטופל</option>
+                        <option value="broker">ברוקר / סוכן</option>
+                      </select>
+                    </div>
+                    <div className="flex items-end pb-1">
+                      <label className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700">
+                        <input type="checkbox" checked={createForm.is_admin} onChange={e => setCreateForm(f => ({...f, is_admin: e.target.checked}))} className="w-3.5 h-3.5" />
+                        מנהל מערכת
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Quick presets */}
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-2">הרשאות — בחר preset או הגדר ידנית</label>
+                    <div className="flex gap-2 mb-3 flex-wrap">
+                      {PERM_PRESETS.map(p => (
+                        <button
+                          key={p.key} type="button"
+                          onClick={() => setCreateForm(f => ({...f, permissions: [...p.perms]}))}
+                          className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                            JSON.stringify([...p.perms].sort()) === JSON.stringify([...(createForm.permissions||[])].sort())
+                              ? 'bg-blue-100 border-blue-400 text-blue-700 font-medium'
+                              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                          }`}
+                        >
+                          {p.label}
+                          <span className="text-slate-400 mr-1 text-[10px]">— {p.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {PERM_OPTIONS.map(opt => (
+                        <label key={opt.key} className="flex items-center gap-1.5 cursor-pointer text-xs text-slate-700 select-none">
+                          <input
+                            type="checkbox"
+                            checked={(createForm.permissions||[]).includes(opt.key)}
+                            onChange={e => setCreateForm(f => ({
+                              ...f,
+                              permissions: e.target.checked
+                                ? [...(f.permissions||[]), opt.key]
+                                : (f.permissions||[]).filter(p => p !== opt.key)
+                            }))}
+                            className="w-3.5 h-3.5 rounded"
+                          />
+                          {opt.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {createError && <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg">{createError}</p>}
+
+                  <div className="flex justify-end gap-3 pt-2">
+                    <button type="button" onClick={() => { setShowCreateUser(false); setCreateError(null) }} className="btn-secondary text-sm">ביטול</button>
+                    <button type="submit" disabled={createSaving} className="btn-primary text-sm disabled:opacity-50">
+                      {createSaving ? 'יוצר...' : 'צור משתמש'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
 
           {resetResult && (
             <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
