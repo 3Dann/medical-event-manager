@@ -34,7 +34,6 @@ export default function AdminPage() {
   }, [currentUser])
 
   // Permissions state
-  const [tab, setTab] = useState('users') // 'users' | 'permissions' | 'activity' | 'registrations'
   const [patients, setPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
   const [permissions, setPermissions] = useState([])
