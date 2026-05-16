@@ -388,22 +388,24 @@ class TestCouncilSecurity:
         assert r2.status_code == 401
 
     # 📋 תאימות — שדות רגישים לא נחשפים
+    def _assert_no_sensitive_fields(self, raw_json: str):
+        """בודק ב-raw JSON שאין שדות רגישים — גם ב-nested objects."""
+        for field in ("hashed_password", "totp_secret"):
+            assert field not in raw_json, f"שדה רגיש '{field}' נמצא ב-response"
+
     def test_login_response_has_no_sensitive_fields(self, client, manager_user):
         """Response של login לא מכיל hashed_password / totp_secret."""
         r = client.post("/api/auth/login", data={
             "username": manager_user.email,
-            "password": "Manager1!",
+            "password": TEST_MANAGER_PASSWORD,
         })
-        d = r.json()
-        assert "hashed_password" not in d
-        assert "totp_secret" not in d
-        assert "password" not in d
+        self._assert_no_sensitive_fields(r.text)
 
     def test_verify_2fa_response_has_no_sensitive_fields(self, client, manager_user):
         """Response של verify-2fa לא מכיל שדות רגישים."""
         r1 = client.post("/api/auth/login", data={
             "username": manager_user.email,
-            "password": "Manager1!",
+            "password": TEST_MANAGER_PASSWORD,
         })
         temp_token = r1.json()["temp_token"]
 
@@ -415,10 +417,7 @@ class TestCouncilSecurity:
             "code": code,
             "method": "email",
         })
-        d = r3.json()
-        assert "hashed_password" not in d
-        assert "totp_secret" not in d
-        assert "password" not in d
+        self._assert_no_sensitive_fields(r3.text)
 
     # 📋 תאימות — token revocation מלא
     def test_revoked_token_rejected_on_subsequent_request(self, client, manager_user):
