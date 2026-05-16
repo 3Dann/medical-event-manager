@@ -184,6 +184,8 @@ def export_doctors_excel(
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
     """Export full doctors database as RTL Excel file."""
+    if not auth_utils.has_permission(current_user, "export_excel"):
+        raise HTTPException(status_code=403, detail="אין לך הרשאה לייצא נתונים ל-Excel")
     from fastapi.responses import StreamingResponse
     if not openpyxl:
         raise HTTPException(status_code=500, detail="openpyxl לא מותקן")
