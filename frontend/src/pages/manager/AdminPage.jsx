@@ -33,6 +33,15 @@ export default function AdminPage() {
     return () => ctrl.abort()
   }, [currentUser])
 
+  // Tab sync with URL — defined early, before any useEffect that uses `tab`
+  const VALID_TABS = ['users', 'permissions', 'activity', 'sessions', 'funds', 'registrations']
+  const urlTab = searchParams.get('tab')
+  const [tab, setTab] = useState(VALID_TABS.includes(urlTab) ? urlTab : 'users')
+  const handleTabChange = (key) => {
+    setTab(key)
+    setSearchParams({ tab: key }, { replace: true })
+  }
+
   // Permissions state
   const [patients, setPatients] = useState([])
   const [selectedPatient, setSelectedPatient] = useState(null)
