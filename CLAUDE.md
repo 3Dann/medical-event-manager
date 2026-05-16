@@ -287,6 +287,8 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **CSP header** — Content-Security-Policy מוגדר ב-SecurityHeadersMiddleware. default-src 'self', script-src 'self' 'unsafe-inline'.
 - **Calendar tokens** — ברירת מחדל TTL 365 יום. backfill אוטומטי לטוקנים ישנים ללא תפוגה.
 - **Admin temp password** — נשלח למייל בלבד (send_temp_password ב-email_utils.py). אינו מוחזר ב-API response.
+- **Permissions system** — `User.permissions` הוא JSON field. `VALID_PERMS` (frozenset) ו-`ROLE_PRESETS` מוגדרים ב-`routes/admin.py` ברמת המודול. `has_permission(user, perm)` ב-`auth.py` — מחזיר `True` אוטומטית לאדמין. כל endpoint כתיבה חייב לבדוק: `create_patient`, `manage_claims`, `manage_workflows`, `export_excel`. לא לשנות `_VALID_PERMS` מקומי — להשתמש ב-`VALID_PERMS` ברמת המודול.
+- **Admin create/delete user** — `POST /api/admin/users` יוצר משתמש ישיר. `DELETE /api/admin/users/{id}` מוחק: PatientPermission → Patients → Sessions → User (סדר חשוב לשלמות FK). חסום אם `preserve_data=True`.
 - **Tasks pagination** — GET /api/tasks/my מחזיר `{"total": N, "items": [...]}` עם limit/offset params.
 - **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
 - **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
