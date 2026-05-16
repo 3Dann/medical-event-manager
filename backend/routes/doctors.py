@@ -181,7 +181,7 @@ def get_filter_options(
 def export_doctors_excel(
     request: Request,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.get_current_user),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     """Export full doctors database as RTL Excel file."""
     if not auth_utils.has_permission(current_user, "export_excel"):
