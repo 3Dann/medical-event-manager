@@ -567,19 +567,23 @@ def admin_tasks(
     return result
 
 
+class UpdatePermissionsRequest(BaseModel):
+    permissions: List[str] = []
+
+
 @router.patch("/users/{user_id}/permissions")
 def update_user_permissions(
     user_id: int,
-    data: dict,
+    data: UpdatePermissionsRequest,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_admin),
 ):
-    """Set permissions list for a user. data: {"permissions": ["export_pdf","download_docs",...]}"""
+    """Set permissions list for a user."""
     user = db.get(models.User, user_id)
     if not user:
         raise HTTPException(404, "משתמש לא נמצא")
     import json as _j
-    perms = data.get("permissions", [])
+    perms = data.permissions
     invalid = [p for p in perms if p not in VALID_PERMS]
     if invalid:
         raise HTTPException(400, f"הרשאות לא חוקיות: {invalid}")
