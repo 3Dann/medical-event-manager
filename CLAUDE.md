@@ -179,6 +179,39 @@ medical-event-manager/
 
 ---
 
+### מערכת הרשאות מורחבת + שליטת אדמין ✅ בוצע (2026-05-16)
+
+**Backend (`routes/admin.py`):**
+- `VALID_PERMS` — 7 הרשאות גרנולריות: `create_patient`, `manage_claims`, `manage_workflows`, `download_docs`, `export_pdf`, `export_excel`, `view_financials`
+- `ROLE_PRESETS` — 3 תבניות מוגדרות מראש: `senior` (הכל), `standard` (עבודה+הורדות), `readonly` (פיננסי בלבד)
+- `POST /api/admin/users` — יצירת משתמש ישיר ע"י אדמין (ללא רישום עצמי). ולידציה: שם מלא, אימייל ייחודי, סיסמה חזקה (8 תווים + upper+lower+digit)
+- `DELETE /api/admin/users/{id}` — מחיקת חשבון מלאה: PatientPermission (manager_id + granted_by), Patients, Sessions, User. חסום אם `preserve_data=True`
+- `GET /api/admin/permissions/options` — רשימת הרשאות + presets מ-backend
+- `GET /api/admin/system-stats` — מטריקות מערכת: משתמשים לפי תפקיד, תיקים, מסמכים, תביעות, sessions פעילים, גודל DB, גיבוי אחרון
+- `UpdatePermissionsRequest` — Pydantic model (לא dict גולמי)
+- Self-protection ב-`delete_user_data`: אדמין אינו יכול למחוק נתוני עצמו
+
+**Enforcement — בדיקת הרשאה בכל endpoint:**
+- `routes/patients.py` — `create_patient` דורש `create_patient`
+- `routes/claims.py` — `create/update/approve/delete_claim` דורשים `manage_claims`
+- `routes/workflows.py` — `create_instance` דורש `manage_workflows`
+- `routes/doctors.py` — `export_doctors_excel` דורש `export_excel` + `require_manager`
+- `routes/documents.py` — `download_document` דורש `download_docs` (היה קיים)
+- **אדמין עובר את כל הבדיקות אוטומטית** (`has_permission` מחזיר `True` ל-`is_admin=True`)
+
+**Frontend (`AdminPage.jsx`):**
+- עורך הרשאות מחולק ל-3 קבוצות: עבודה / ייצוא / נתונים
+- 3 כפתורי preset מהירים (מלווה בכיר / סטנדרטי / צופה)
+- Badge על כפתור הרשאות — מציג מספר הרשאות פעילות
+- Modal יצירת משתמש עם preset selector ו-7 checkboxes
+- כפתור "מחק חשבון" עם ConfirmDialog (חסום אם `preserve_data=True`)
+- Tab URL sync: `useSearchParams` — ניווט ל-`/manager/admin?tab=sessions` עובד
+- `handleReset` מציג הודעת מייל (לא `tempPassword` שהוא `undefined`)
+
+**Frontend (`AdminDashboardPage.jsx` + `SystemStatsPanel.jsx`):**
+- פאנל "בריאות מערכת": משתמשים לפי תפקיד, נתוני מערכת, sessions, גודל DB, גיבוי
+- ManagerLoadPanel — כפתורי quick action (Sessions / ניהול) מנווטים ל-AdminPage עם tab נכון
+
 ### עדיפות גבוהה
 - [x] **WorkflowsPage (קיים)** — TemplateEditorModal (create/edit), instances list, tabs — שלם
 - [x] **מערכת התראות (2026-05-13)** — NotificationBell.jsx + GET /api/notifications + polling 60s
