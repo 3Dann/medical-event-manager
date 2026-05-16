@@ -547,14 +547,14 @@ export default function AdminPage() {
                       </button>
                       <button
                         onClick={() => openPermEditor(user)}
-                        className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg hover:bg-blue-100 flex items-center gap-1"
-                        title="ניהול הרשאות הורדה"
+                        className={`text-xs px-3 py-1.5 rounded-lg hover:bg-blue-100 flex items-center gap-1 ${permEditorUserId === user.id ? 'bg-blue-100 text-blue-700' : 'bg-blue-50 text-blue-600'}`}
+                        title="ניהול הרשאות"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        הרשאות
+                        הרשאות {Array.isArray(user.permissions) && user.permissions.length > 0 && <span className="bg-blue-200 text-blue-800 rounded-full px-1 text-[10px]">{user.permissions.length}</span>}
                       </button>
                       <button
                         onClick={() => handleReset(user)}
@@ -570,6 +570,16 @@ export default function AdminPage() {
                       >
                         {t('delete_data')}
                       </button>
+                      {!user.is_admin && (
+                        <button
+                          onClick={() => handleDeleteAccount(user)}
+                          disabled={user.preserve_data}
+                          className={`text-xs px-3 py-1.5 rounded-lg ${user.preserve_data ? 'bg-slate-50 text-slate-300 cursor-not-allowed' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                          title={user.preserve_data ? 'אין אפשרות למחוק — שמירת נתונים פעילה' : 'מחק חשבון לצמיתות'}
+                        >
+                          מחק חשבון
+                        </button>
+                      )}
                     </div>
                   </div>
 
