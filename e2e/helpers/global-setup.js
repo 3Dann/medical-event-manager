@@ -3,8 +3,11 @@
  */
 const { chromium } = require('@playwright/test')
 const path = require('path')
+const fs   = require('fs')
 const https = require('https')
 const http  = require('http')
+
+if (!process.env.BASE_URL) throw new Error('BASE_URL env var is required')
 
 const AUTH_FILE = path.join(__dirname, '.auth.json')
 
