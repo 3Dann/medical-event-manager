@@ -198,6 +198,7 @@ export default function App() {
         <AuthProvider>
           <DemoModeProvider>
             <BrowserRouter>
+              <ScrollToTop />
               <LangDirectionSync />
               <IdleWatcher />
               {/* Skip to main content — IS 5568 requirement */}
