@@ -266,6 +266,16 @@ async def lifespan(app: FastAPI):
         max_instances=1,
     )
     scheduler.add_job(
+        _weekly_israeli_drug_update,
+        trigger="cron",
+        day_of_week="sun",
+        hour=4,
+        minute=0,
+        id="weekly_israeli_drug_update",
+        replace_existing=True,
+        max_instances=1,
+    )
+    scheduler.add_job(
         _daily_overdue_check,
         trigger="cron",
         hour=8,
