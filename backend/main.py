@@ -696,6 +696,19 @@ def seed_israeli_drug_data():
 seed_israeli_drug_data()
 
 
+def _weekly_israeli_drug_update():
+    """עדכון שבועי של נתוני סל הבריאות הישראלי."""
+    from israeli_drug_fetcher import update_israeli_drug_data
+    db = SessionLocal()
+    try:
+        stats = update_israeli_drug_data(db)
+        logger.info(f"Israeli drug update: {stats}")
+    except Exception as e:
+        logger.exception(f"Israeli drug update failed: {e}")
+    finally:
+        db.close()
+
+
 JOURNEY_STAGES = [
     {"description": "גילוי ואבחון",   "stage_order": 10},
     {"description": "תכנון הטיפול",   "stage_order": 20},
