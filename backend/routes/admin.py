@@ -793,20 +793,20 @@ def drug_basket_summary(
     from sqlalchemy import func as sqlfunc
     total = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).count()
     with_israeli_data = db.query(models.DrugEntry).filter(
-        models.DrugEntry.sal_habriut_status != None
+        models.DrugEntry.sal_habriut_status.isnot(None)
     ).count()
     by_status = db.query(
         models.DrugEntry.sal_habriut_status,
         sqlfunc.count(models.DrugEntry.id)
     ).filter(
-        models.DrugEntry.sal_habriut_status != None
+        models.DrugEntry.sal_habriut_status.isnot(None)
     ).group_by(models.DrugEntry.sal_habriut_status).all()
 
     by_rx = db.query(
         models.DrugEntry.prescription_type,
         sqlfunc.count(models.DrugEntry.id)
     ).filter(
-        models.DrugEntry.prescription_type != None
+        models.DrugEntry.prescription_type.isnot(None)
     ).group_by(models.DrugEntry.prescription_type).all()
 
     return {
