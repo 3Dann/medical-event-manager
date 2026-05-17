@@ -18,6 +18,10 @@ export default function ChangePasswordPage() {
   const [error, setError]   = useState('')
   const [loading, setLoading] = useState(false)
 
+  useEffect(() => {
+    if (i18n.language !== 'he') i18n.changeLanguage('he')
+  }, [])
+
   const role = user?.role
   const dest  = role === 'manager' ? '/manager' : role === 'broker' ? '/broker' : '/patient'
 
