@@ -534,7 +534,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
 
           {/* Language Switcher + CTA */}
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
+            <LanguageSwitcher transparent={!scrolled} />
             {user ? (
               <button onClick={() => navigate(user.role === 'patient' ? '/patient' : '/manager')}
                 className="btn-primary text-sm py-1.5 px-4 whitespace-nowrap">
@@ -543,11 +543,11 @@ function Navbar({ onLoginClick, onRegisterClick }) {
             ) : (
               <div className="flex items-center gap-2">
                 <button onClick={onRegisterClick}
-                  className={`text-sm py-1.5 px-4 rounded-lg border transition-colors ${scrolled ? 'border-blue-600 text-blue-600 hover:bg-blue-50' : 'border-white/40 text-white hover:bg-white/10'}`}>
+                  className={`text-sm py-1.5 px-4 rounded-lg border transition-colors whitespace-nowrap ${scrolled ? 'border-blue-600 text-blue-600 hover:bg-blue-50' : 'border-white/50 text-white hover:bg-white/10'}`}>
                   {t('auth:register')}
                 </button>
                 <button onClick={onLoginClick}
-                  className={`text-sm py-1.5 px-4 rounded-lg font-medium transition-colors ${scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white/15 text-white hover:bg-white/25 border border-white/30'}`}>
+                  className={`text-sm py-1.5 px-4 rounded-lg font-medium transition-colors whitespace-nowrap ${scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white/20 text-white hover:bg-white/30 border border-white/40'}`}>
                   {t('auth:login')}
                 </button>
               </div>
