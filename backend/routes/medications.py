@@ -111,6 +111,8 @@ def _search_db(q: str, db: Session) -> list[dict]:
                 "is_otc":              d.is_otc,
                 "generics_available":  d.generics_available,
                 "pregnancy_category":  d.pregnancy_category or "",
+                "atc_code":           d.atc_code or "",
+                "drug_category":      d.drug_category or "",
             }))
     scored.sort(key=lambda x: (x[0], x[1]))
     return [r for _, _, r in scored]
