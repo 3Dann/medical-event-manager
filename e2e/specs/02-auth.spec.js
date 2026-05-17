@@ -4,7 +4,7 @@
  */
 const { test, expect } = require('@playwright/test')
 
-test.use({ storageState: { cookies: [], origins: [] } }) // fresh login
+test.use({ storageState: { cookies: [], origins: [] } })
 
 test('login with valid credentials reaches dashboard', async ({ page }) => {
   const email    = process.env.E2E_EMAIL    || 'e2e@careflow.test'
