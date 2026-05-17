@@ -329,6 +329,8 @@ class DrugEntry(Base):
     generics_available  = Column(Boolean, nullable=True)  # האם קיימות חלופות גנריות בישראל
     pregnancy_category  = Column(String, nullable=True)   # A | B | C | D | X
     moh_reg_number      = Column(String, nullable=True)   # מספר רישום משרד הבריאות
+    atc_code            = Column(String, nullable=True)   # ATC classification code
+    drug_category       = Column(String, nullable=True)   # קטגוריה תרפויטית עברית
 
 
 class DrugUpdateLog(Base):
