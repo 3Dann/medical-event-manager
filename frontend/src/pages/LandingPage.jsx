@@ -573,6 +573,7 @@ export default function LandingPage() {
   // דף הכניסה תמיד בעברית — ללא תלות בהגדרות דפדפן או localStorage
   useEffect(() => {
     if (i18n.language !== 'he') i18n.changeLanguage('he')
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }, [])
 
   // Reload overrides when language changes
