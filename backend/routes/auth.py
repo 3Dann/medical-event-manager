@@ -50,7 +50,7 @@ def _validate_password(password: str) -> None:
 class UserCreate(BaseModel):
     full_name: str
     email: str
-    password: str
+    password: Optional[str] = None   # לא נדרש בהרשמה — סיסמה זמנית נוצרת בעת אישור האדמין
     role: str = "manager"
     org_name: Optional[str] = None
     applicant_message: Optional[str] = None
