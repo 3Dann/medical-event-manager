@@ -639,6 +639,63 @@ def seed_responsiveness():
 seed_responsiveness()
 
 
+def seed_israeli_drug_data():
+    """מעשיר DrugEntry בנתוני סל הבריאות וסוג מרשם מהמאגר הישראלי."""
+    ISRAELI_DATA = {
+        # שם תרופה (כפי שמופיע ב-drug_entries.name) → נתוני MoH
+        "Acamol":       {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "B"},
+        "Paracetamol":  {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "B"},
+        "Optalgin":     {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "C"},
+        "Dipyrone":     {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "C"},
+        "Metamizole":   {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "C"},
+        "Ibufen":       {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "C"},
+        "Ibuprofen":    {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "C"},
+        "Lipitor":      {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "X"},
+        "Atorvastatin": {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "X"},
+        "Losec":        {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "C"},
+        "Omeprazole":   {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "C"},
+        "Norvasc":      {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "C"},
+        "Amlodipine":   {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "C"},
+        "Clexane":      {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Enoxaparin":   {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Glucophage":   {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Metformin":    {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Warfarin":     {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "X"},
+        "Aspirin":      {"sal": "in_basket", "copay": "minimal", "rx": "otc",          "is_otc": True,  "generics": True,  "preg": "D"},
+        "Amoxicillin":  {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Augmentin":    {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Azithromycin": {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "B"},
+        "Prednisone":   {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": True,  "preg": "C"},
+        "Insulin":      {"sal": "in_basket", "copay": "fixed",   "rx": "prescription", "is_otc": False, "generics": False, "preg": "B"},
+        "Keytruda":     {"sal": "specific_indication", "copay": "percentage", "rx": "prescription", "is_otc": False, "generics": False, "preg": "D"},
+        "Pembrolizumab":{"sal": "specific_indication", "copay": "percentage", "rx": "prescription", "is_otc": False, "generics": False, "preg": "D"},
+        "Tagrisso":     {"sal": "specific_indication", "copay": "percentage", "rx": "restricted",   "is_otc": False, "generics": False, "preg": "D"},
+        "Osimertinib":  {"sal": "specific_indication", "copay": "percentage", "rx": "restricted",   "is_otc": False, "generics": False, "preg": "D"},
+    }
+    db = SessionLocal()
+    try:
+        updated = 0
+        for drug_name, data in ISRAELI_DATA.items():
+            drug = db.query(models.DrugEntry).filter(
+                models.DrugEntry.name.ilike(drug_name)
+            ).first()
+            if drug and drug.sal_habriut_status is None:
+                drug.sal_habriut_status = data["sal"]
+                drug.sal_habriut_copay  = data["copay"]
+                drug.prescription_type  = data["rx"]
+                drug.is_otc             = data["is_otc"]
+                drug.generics_available = data["generics"]
+                drug.pregnancy_category = data["preg"]
+                updated += 1
+        if updated:
+            db.commit()
+            logger.info(f"Israeli drug data seeded: {updated} entries updated")
+    finally:
+        db.close()
+
+seed_israeli_drug_data()
+
+
 JOURNEY_STAGES = [
     {"description": "גילוי ואבחון",   "stage_order": 10},
     {"description": "תכנון הטיפול",   "stage_order": 20},
