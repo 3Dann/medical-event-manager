@@ -651,6 +651,39 @@ def seed_responsiveness():
 seed_responsiveness()
 
 
+def seed_e2e_test_user():
+    """יוצר test user לבדיקות E2E אם לא קיים. מופעל רק כשמוגדר E2E_SEED=1."""
+    if not os.getenv("E2E_SEED"):
+        return
+    db = SessionLocal()
+    try:
+        import auth as _auth
+        existing = db.query(models.User).filter(models.User.email == "e2e@careflow.test").first()
+        if not existing:
+            user = models.User(
+                full_name="E2E Test User",
+                email="e2e@careflow.test",
+                hashed_password=_auth.get_password_hash("E2eTest2026!"),
+                role="manager",
+                is_admin=False,
+                must_change_password=False,
+            )
+            db.add(user)
+            db.flush()
+            patient = models.Patient(full_name="מטופל בדיקה E2E", manager_id=user.id)
+            db.add(patient)
+            db.commit()
+            logger.info("E2E test user created: e2e@careflow.test")
+        else:
+            logger.info("E2E test user already exists")
+    except Exception:
+        logger.exception("seed_e2e_test_user failed")
+    finally:
+        db.close()
+
+seed_e2e_test_user()
+
+
 def seed_israeli_drug_data():
     """מעשיר DrugEntry בנתוני סל הבריאות וסוג מרשם מהמאגר הישראלי."""
     try:
