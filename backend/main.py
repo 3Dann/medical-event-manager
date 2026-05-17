@@ -564,6 +564,14 @@ def run_migrations():
         ("pending_registrations", "phone",     "TEXT"),
         ("users", "reset_challenge_field",   "TEXT"),
         ("users", "reset_challenge_expires", "DATETIME"),
+        # ── Israeli MoH / Sal Habriut fields ───────────────────────────────
+        ("drug_entries", "sal_habriut_status", "TEXT"),
+        ("drug_entries", "sal_habriut_copay",  "TEXT"),
+        ("drug_entries", "prescription_type",  "TEXT"),
+        ("drug_entries", "is_otc",             "BOOLEAN"),
+        ("drug_entries", "generics_available", "BOOLEAN"),
+        ("drug_entries", "pregnancy_category", "TEXT"),
+        ("drug_entries", "moh_reg_number",     "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
