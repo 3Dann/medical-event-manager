@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "E2E smoke tests for CareFlow",
   "scripts": {
-    "test":       "playwright test",
-    "test:smoke": "playwright test --project=smoke",
+    "test":       "playwright test && /opt/homebrew/bin/python3.13 generate_report.py",
+    "test:smoke": "playwright test --project=smoke && /opt/homebrew/bin/python3.13 generate_report.py",
     "test:ui":    "playwright test --ui",
-    "report":     "playwright show-report"
+    "report":     "playwright show-report",
+    "report:pdf": "/opt/homebrew/bin/python3.13 generate_report.py"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
