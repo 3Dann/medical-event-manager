@@ -50,6 +50,14 @@ const ChangePasswordPage    = lazy(() => import('./pages/ChangePasswordPage'))
 const ResetPasswordPage     = lazy(() => import('./pages/ResetPasswordPage'))
 const BrokerPortal       = lazy(() => import('./pages/broker/BrokerPortal'))
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
+
 function PageLoader() {
   return (
     <div className="flex items-center justify-center h-screen text-slate-400" aria-live="polite" aria-busy="true">
