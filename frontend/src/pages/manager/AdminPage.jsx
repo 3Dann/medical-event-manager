@@ -907,6 +907,14 @@ function RegistrationsPanel({ onCountChange, showToast }) {
                     {reg.org_name && (
                       <p className="text-xs text-slate-600 mt-0.5">ארגון: {reg.org_name}</p>
                     )}
+                    <div className="flex gap-4 mt-0.5 flex-wrap">
+                      {reg.id_number && (
+                        <p className="text-xs text-slate-600">ת"ז: <span className="font-mono">{reg.id_number.slice(0,3) + '***' + reg.id_number.slice(-2)}</span></p>
+                      )}
+                      {reg.phone && (
+                        <p className="text-xs text-slate-600">טלפון: <span className="font-mono">****{reg.phone.slice(-4)}</span></p>
+                      )}
+                    </div>
                     {reg.applicant_message && (
                       <p className="text-xs text-slate-600 mt-1 bg-slate-50 rounded p-2 border border-slate-100">{reg.applicant_message}</p>
                     )}
