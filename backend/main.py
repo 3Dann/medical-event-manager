@@ -653,14 +653,17 @@ seed_responsiveness()
 
 def seed_israeli_drug_data():
     """מעשיר DrugEntry בנתוני סל הבריאות וסוג מרשם מהמאגר הישראלי."""
-    from israeli_drug_fetcher import update_israeli_drug_data
-    db = SessionLocal()
     try:
-        stats = update_israeli_drug_data(db)
-        if stats["updated"]:
-            logger.info(f"Israeli drug seed: {stats}")
-    finally:
-        db.close()
+        from israeli_drug_fetcher import update_israeli_drug_data
+        db = SessionLocal()
+        try:
+            stats = update_israeli_drug_data(db)
+            if stats["updated"]:
+                logger.info(f"Israeli drug seed: {stats}")
+        finally:
+            db.close()
+    except Exception:
+        logger.exception("seed_israeli_drug_data failed — skipping")
 
 seed_israeli_drug_data()
 
