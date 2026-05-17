@@ -82,6 +82,11 @@ module.exports = async function globalSetup() {
   await page.waitForLoadState('networkidle', { timeout: 15_000 })
   console.log('✅ Navigated to:', page.url())
 
+  fs.writeFileSync(
+    path.join(__dirname, '.e2e-context.json'),
+    JSON.stringify({ patientId: 2 })
+  )
+
   await context.storageState({ path: AUTH_FILE })
   console.log('💾 Auth saved to', AUTH_FILE)
 
