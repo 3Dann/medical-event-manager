@@ -1,0 +1,55 @@
+name: E2E Smoke Tests — Daily
+
+on:
+  schedule:
+    # כל יום ב-18:00 שעון ישראל (15:00 UTC)
+    - cron: '0 15 * * *'
+  workflow_dispatch:  # הרצה ידנית מ-GitHub
+
+jobs:
+  smoke:
+    name: Smoke Tests vs Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install dependencies
+        working-directory: e2e
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install chromium --with-deps
+
+      - name: Run smoke tests
+        working-directory: e2e
+        env:
+          BASE_URL:     ${{ secrets.E2E_BASE_URL }}
+          E2E_EMAIL:    ${{ secrets.E2E_EMAIL }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          E2E_SEED:     ${{ secrets.E2E_SEED }}
+        run: npx playwright test --project=smoke
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_number }}
+          path: e2e/playwright-report/
+          retention-days: 14
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: e2e/test-results/
+          retention-days: 7
