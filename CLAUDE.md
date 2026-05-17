@@ -146,6 +146,7 @@ medical-event-manager/
 - [x] **מערכת התראות (2026-05-13)** — GET /api/notifications (manager-only: overdue+SLA+requests), NotificationBell.jsx עם badge+dropdown+polling 60s, מחובר ל-ManagerLayout
 - [x] **פורטל ברוקר (2026-05-13)** — UserRole.broker, routes/broker.py (PatientPermission-based access), BrokerPortal.jsx (patient list+claims accordion), route /broker ב-App.jsx
 - [x] **מערכת הרשאות מורחבת + שליטת אדמין (2026-05-16)** — ראה פירוט בסעיף "מערכת הרשאות מורחבת" למטה.
+- [x] **ריברנד CareFlow + עיצוב דף נחיתה (2026-05-17)** — ראה פירוט בסעיף "שינויי 2026-05-17" למטה.
 
 ### פירוט: מערכת בקרת משתמשים
 
