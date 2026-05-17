@@ -7,6 +7,7 @@ import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
 import i18n from '../i18n'
 import { getLandingOverrides, LANDING_DEFAULTS } from '../components/LandingEditor'
+import HeroSection from '../components/HeroSection'
 
 // Returns translated value when override matches the Hebrew default (not customized by admin)
 function ovOrT(overrides, field, tVal) {
