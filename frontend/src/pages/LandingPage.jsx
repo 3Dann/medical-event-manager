@@ -317,11 +317,17 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         {!twoFAStep && tab !== 'forgot' && (
           <form onSubmit={handleSubmit} className="space-y-4">
             {tab === 'register' && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800 leading-relaxed">
+                זוהי בקשת הצטרפות למערכת. לאחר אישור האדמין תישלח סיסמה זמנית לאימייל שלך. הסיסמה חייבת להשתנות בכניסה הראשונה.
+              </div>
+            )}
+            {tab === 'register' && (
               <div><label className="label">{t('auth:full_name')}</label>
                 <input className="input" value={form.full_name} onChange={e => setForm({...form, full_name: e.target.value})} required /></div>
             )}
             <div><label className="label">{tab === 'login' ? t('auth:email_or_id') : t('auth:email')}</label>
               <input type={tab === 'login' ? 'text' : 'email'} className="input" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required /></div>
+            {tab === 'login' && (
             <div><label className="label">{t('auth:password')}</label>
               <div className="relative">
                 <input type={showPassword ? 'text' : 'password'} className="input w-full pl-10" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
@@ -329,6 +335,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                   {showPassword ? '🙈' : '👁️'}
                 </button>
               </div></div>
+            )}
             {tab === 'register' && (
               <div><label className="label">{t('auth:role')}</label>
                 <select className="input" value={form.role} onChange={e => setForm({...form, role: e.target.value})}>
