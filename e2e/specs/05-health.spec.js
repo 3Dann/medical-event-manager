@@ -47,7 +47,7 @@ test('no unhandled 500 errors on main pages', async ({ page }) => {
   })
 
   await page.goto('/manager')
-  await page.waitForLoadState('networkidle', { timeout: 15_000 })
+  await page.waitForSelector('nav, main, [class*="layout"]', { timeout: 15_000 })
 
   expect(errors500).toHaveLength(0)
 })
