@@ -5,6 +5,7 @@ import axios from 'axios'
 import PasskeyLoginButton from '../components/PasskeyLoginButton'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useTranslation } from 'react-i18next'
+import i18n from '../i18n'
 import { getLandingOverrides, LANDING_DEFAULTS } from '../components/LandingEditor'
 
 // Returns translated value when override matches the Hebrew default (not customized by admin)
