@@ -27,7 +27,7 @@ test('patients list accessible', async ({ page }) => {
   const patientsLink = page.locator('a, button', { hasText: /מטופל/ }).first()
   if (await patientsLink.isVisible()) {
     await patientsLink.click()
-    await page.waitForLoadState('networkidle', { timeout: 10_000 })
+    await page.waitForSelector('nav, main, [class*="layout"]', { timeout: 10_000 })
   }
 
   // אין שגיאה
