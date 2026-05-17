@@ -111,6 +111,9 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
              current_user: Optional[models.User] = Depends(auth_utils.get_optional_current_user)):
     is_first_user = db.query(models.User).count() == 0
     if is_first_user:
+        # המשתמש הראשון — נוצר כאדמין. סיסמה נדרשת כאן בלבד.
+        if not user_data.password:
+            raise HTTPException(status_code=400, detail="סיסמה נדרשת להגדרת החשבון הראשון")
         _validate_password(user_data.password)
         existing = db.query(models.User).filter(models.User.email == user_data.email).first()
         if existing:
@@ -128,7 +131,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
         token = auth_utils.create_access_token({"sub": str(user.id)})
         return Token(access_token=token, token_type="bearer", user_id=user.id, full_name=user.full_name, email=user.email, role=user.role, is_admin=user.is_admin, demo_mode_allowed=bool(user.demo_mode_allowed))
 
-    _validate_password(user_data.password)
+    # הרשמה רגילה — אין סיסמה. סיסמה זמנית תישלח בעת אישור האדמין.
 
     # ── ת"ז — ולידציה ובדיקת כפילות ──────────────────────────────────────────
     clean_id = None
