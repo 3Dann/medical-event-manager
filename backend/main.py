@@ -582,6 +582,8 @@ def run_migrations():
         ("drug_entries", "generics_available", "BOOLEAN"),
         ("drug_entries", "pregnancy_category", "TEXT"),
         ("drug_entries", "moh_reg_number",     "TEXT"),
+        ("drug_entries", "atc_code",           "TEXT"),
+        ("drug_entries", "drug_category",      "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
