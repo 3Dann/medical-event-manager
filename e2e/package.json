@@ -1,0 +1,15 @@
+{
+  "name": "careflow-e2e",
+  "version": "1.0.0",
+  "description": "E2E smoke tests for CareFlow",
+  "scripts": {
+    "test":       "playwright test",
+    "test:smoke": "playwright test --project=smoke",
+    "test:ui":    "playwright test --ui",
+    "report":     "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0",
+    "dotenv": "^16.4.0"
+  }
+}
