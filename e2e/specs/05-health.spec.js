@@ -4,10 +4,8 @@
  */
 const { test, expect } = require('@playwright/test')
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5173'
-
 test('API health check returns ok', async ({ request }) => {
-  const res = await request.get(`${BASE_URL}/api/health`)
+  const res = await request.get('/api/health')
   expect(res.status()).toBe(200)
 
   const body = await res.json()
