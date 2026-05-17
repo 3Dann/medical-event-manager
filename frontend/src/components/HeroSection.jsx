@@ -17,9 +17,9 @@ const CSS = `
 .hs-mesh {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(ellipse 70% 55% at 15% 55%, rgba(0,102,204,.18) 0%, transparent 60%),
-    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(0,190,255,.07) 0%, transparent 55%),
-    radial-gradient(ellipse 45% 45% at 65% 85%, rgba(6,182,212,.06) 0%, transparent 50%);
+    radial-gradient(ellipse 70% 55% at 15% 55%, rgba(0,120,240,.22) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 70% at 85% 15%, rgba(0,200,255,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 45% at 65% 85%, rgba(6,182,212,.09) 0%, transparent 50%);
 }
 .hs-grid {
   position: absolute; inset: 0; pointer-events: none;
