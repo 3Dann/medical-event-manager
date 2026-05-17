@@ -31,6 +31,7 @@ function apiPost(url, body) {
       })
     })
     req.on('error', reject)
+    req.setTimeout(10_000, () => { req.destroy(new Error('E2E API timeout')) })
     req.write(payload)
     req.end()
   })
