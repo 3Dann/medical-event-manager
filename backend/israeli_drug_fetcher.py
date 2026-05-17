@@ -272,7 +272,7 @@ ISRAELI_DRUG_DATA: dict[str, dict] = {
     # ── בלוטת התריס ──────────────────────────────────────────────────────────
     "Levothyroxine":    {"sal":"in_basket","copay":"fixed","rx":"prescription","otc":False,"gen":True,"preg":"A","atc":"H03AA01","cat":"בלוטת התריס"},
     "Eltroxin":         {"sal":"in_basket","copay":"fixed","rx":"prescription","otc":False,"gen":True,"preg":"A","atc":"H03AA01","cat":"בלוטת התריס"},
-    "Methimazole":      {"sal":"in_basket","copay":"fixed","rx":"prescription","otc":False,"gen":True,"gen":True,"preg":"D","atc":"H03BB02","cat":"בלוטת התריס"},
+    "Methimazole":      {"sal":"in_basket","copay":"fixed","rx":"prescription","otc":False,"gen":True,"preg":"D","atc":"H03BB02","cat":"בלוטת התריס"},
     "Propylthiouracil": {"sal":"in_basket","copay":"fixed","rx":"prescription","otc":False,"gen":True,"preg":"D","atc":"H03BA02","cat":"בלוטת התריס"},
 
     # ── עצמות / אוסטאופורוזיס ───────────────────────────────────────────────
