@@ -478,7 +478,15 @@ function Navbar({ onLoginClick, onRegisterClick }) {
   const { user }    = useAuth()
   const navigate    = useNavigate()
   const { t }       = useTranslation()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]       = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const navLinks = [
     { label: t('landing:feat_journey'),    href: '#journey'    },
@@ -494,25 +502,31 @@ function Navbar({ onLoginClick, onRegisterClick }) {
     document.getElementById(href.slice(1))?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const navBg   = scrolled ? 'bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm' : 'bg-transparent border-b border-transparent'
+  const linkCls = scrolled ? 'text-slate-600 hover:text-blue-600 hover:bg-blue-50' : 'text-white/80 hover:text-white hover:bg-white/10'
+  const logoCls = scrolled ? 'text-slate-800' : 'text-white'
+  const iconBg  = scrolled ? 'from-blue-600 to-blue-700' : 'from-white/20 to-white/10'
+  const iconStroke = scrolled ? 'text-white' : 'text-white'
+
   return (
-    <nav className="fixed top-0 right-0 left-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <nav className={`fixed top-0 right-0 left-0 z-40 transition-all duration-300 ${navBg}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${iconBg} flex items-center justify-center shadow-sm border border-white/20`}>
+              <svg className={`w-4 h-4 ${iconStroke}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <span className="font-bold text-slate-800 text-sm leading-tight">{t('landing:hero_title')}</span>
+            <span className={`font-bold text-sm leading-tight transition-colors ${logoCls}`}>CareFlow</span>
           </Link>
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-0.5">
             {navLinks.map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
-                className="text-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
+                className={`text-sm px-3 py-1.5 rounded-lg transition-colors ${linkCls}`}>
                 {l.label}
               </button>
             ))}
@@ -528,16 +542,18 @@ function Navbar({ onLoginClick, onRegisterClick }) {
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <button onClick={onRegisterClick} className="text-sm py-1.5 px-4 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+                <button onClick={onRegisterClick}
+                  className={`text-sm py-1.5 px-4 rounded-lg border transition-colors ${scrolled ? 'border-blue-600 text-blue-600 hover:bg-blue-50' : 'border-white/40 text-white hover:bg-white/10'}`}>
                   {t('auth:register')}
                 </button>
-                <button onClick={onLoginClick} className="btn-primary text-sm py-1.5 px-4 whitespace-nowrap">
+                <button onClick={onLoginClick}
+                  className={`text-sm py-1.5 px-4 rounded-lg font-medium transition-colors ${scrolled ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white/15 text-white hover:bg-white/25 border border-white/30'}`}>
                   {t('auth:login')}
                 </button>
               </div>
             )}
-            <button onClick={() => setOpen(v => !v)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100">
-              <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={() => setOpen(v => !v)} className={`lg:hidden p-2 rounded-lg transition-colors ${scrolled ? 'hover:bg-slate-100' : 'hover:bg-white/10'}`}>
+              <svg className={`w-5 h-5 ${scrolled ? 'text-slate-600' : 'text-white'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={open ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
               </svg>
             </button>
@@ -546,10 +562,10 @@ function Navbar({ onLoginClick, onRegisterClick }) {
 
         {/* Mobile menu */}
         {open && (
-          <div className="lg:hidden border-t border-slate-100 py-3 space-y-0.5">
+          <div className={`lg:hidden border-t py-3 space-y-0.5 ${scrolled ? 'border-slate-100' : 'border-white/10 bg-slate-900/95'}`}>
             {navLinks.map(l => (
               <button key={l.href} onClick={() => scrollTo(l.href)}
-                className="w-full text-right text-sm text-slate-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition-colors block">
+                className={`w-full text-right text-sm px-3 py-2 rounded-lg transition-colors block ${scrolled ? 'text-slate-600 hover:text-blue-600 hover:bg-blue-50' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
                 {l.label}
               </button>
             ))}
