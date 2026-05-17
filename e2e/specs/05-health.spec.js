@@ -5,7 +5,6 @@
 const { test, expect } = require('@playwright/test')
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173'
-const API_BASE = BASE_URL.replace(':5173', ':8000').replace(':5174', ':8000')
 
 test('API health check returns ok', async ({ request }) => {
   const res = await request.get(`${BASE_URL}/api/health`)
