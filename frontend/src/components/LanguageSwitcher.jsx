@@ -37,9 +37,7 @@ export default function LanguageSwitcher({ compact = false, transparent = false 
       <button
         onClick={() => changeLang('he')}
         className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium transition-colors
-          ${i18n.language === 'he'
-            ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
-            : 'text-slate-600 hover:bg-slate-100'}`}
+          ${i18n.language === 'he' ? btnActive : btnInactive}`}
         title="עברית"
       >
         <span>🇮🇱</span>
@@ -50,9 +48,7 @@ export default function LanguageSwitcher({ compact = false, transparent = false 
       <button
         onClick={() => changeLang('en')}
         className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium transition-colors
-          ${i18n.language === 'en'
-            ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
-            : 'text-slate-600 hover:bg-slate-100'}`}
+          ${i18n.language === 'en' ? btnActive : btnInactive}`}
         title="English"
       >
         <span>🇬🇧</span>
@@ -64,9 +60,7 @@ export default function LanguageSwitcher({ compact = false, transparent = false 
         <button
           onClick={() => setOpen(o => !o)}
           className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium transition-colors
-            ${open || (!PRIMARY.includes(i18n.language))
-              ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
-              : 'text-slate-600 hover:bg-slate-100'}`}
+            ${open || (!PRIMARY.includes(i18n.language)) ? btnActive : btnInactive}`}
           title="More languages"
         >
           {!PRIMARY.includes(i18n.language) ? (
