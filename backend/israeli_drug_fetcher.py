@@ -380,10 +380,11 @@ def _names_are_duplicate(a: str, b: str) -> bool:
 # עדכון מסד הנתונים מהמאגר הישראלי
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def update_israeli_drug_data(db) -> dict:
+def update_israeli_drug_data(db, force: bool = False) -> dict:
     """
     מעדכן DrugEntry בנתוני סל הבריאות הישראלי.
     מסנן כפילויות לפי שם מנורמל.
+    force=True — מעדכן את כל השדות ללא תנאי is None.
     מחזיר סטטיסטיקה: {updated, skipped, not_found}
     """
     import models
@@ -397,6 +398,7 @@ def update_israeli_drug_data(db) -> dict:
         # סינון כפילויות — אם כבר עדכנו תרופה עם שם דומה, דלג
         if any(_names_are_duplicate(drug_name, s) for s in seen_normalized):
             stats["skipped"] += 1
+            seen_normalized.add(norm)
             continue
 
         drug = db.query(models.DrugEntry).filter(
@@ -411,21 +413,26 @@ def update_israeli_drug_data(db) -> dict:
 
         if not drug:
             stats["not_found"] += 1
+            seen_normalized.add(norm)
             continue
 
-        # עדכון שדות ישראליים — רק אם אין ערך קיים (לא מחליף נתון ידני)
-        if drug.sal_habriut_status is None:
+        # עדכון שדות ישראליים — רק אם אין ערך קיים (לא מחליף נתון ידני), אלא אם force=True
+        if force or drug.sal_habriut_status is None:
             drug.sal_habriut_status = data.get("sal")
-        if drug.sal_habriut_copay is None:
+        if force or drug.sal_habriut_copay is None:
             drug.sal_habriut_copay = data.get("copay")
-        if drug.prescription_type is None:
+        if force or drug.prescription_type is None:
             drug.prescription_type = data.get("rx")
-        if drug.is_otc is None:
+        if force or drug.is_otc is None:
             drug.is_otc = data.get("otc")
-        if drug.generics_available is None:
+        if force or drug.generics_available is None:
             drug.generics_available = data.get("gen")
-        if drug.pregnancy_category is None:
+        if force or drug.pregnancy_category is None:
             drug.pregnancy_category = data.get("preg")
+        if force or drug.atc_code is None:
+            drug.atc_code = data.get("atc")
+        if force or drug.drug_category is None:
+            drug.drug_category = data.get("cat")
 
         seen_normalized.add(norm)
         stats["updated"] += 1
