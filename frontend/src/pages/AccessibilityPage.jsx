@@ -5,7 +5,7 @@ export default function AccessibilityPage() {
 
       <section className="space-y-4 text-slate-700 leading-relaxed">
         <p>
-          Orly Medical מחויבת לנגישות הדיגיטלית לאנשים עם מוגבלות.
+          CareFlow מחויבת לנגישות הדיגיטלית לאנשים עם מוגבלות.
           אנו שואפים לעמוד בדרישות תקן IS 5568 ו-WCAG 2.1 ברמה AA.
         </p>
 

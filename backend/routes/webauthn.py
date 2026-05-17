@@ -28,7 +28,7 @@ import auth as auth_utils
 router = APIRouter(prefix="/api/auth/webauthn", tags=["webauthn"])
 
 RP_ID  = os.getenv("WEBAUTHN_RP_ID",   "localhost")
-RP_NAME = "Orly Medical"
+RP_NAME = "CareFlow"
 ORIGIN = os.getenv("WEBAUTHN_ORIGIN",  "http://localhost:5173")
 
 # ── in-memory challenge store (single-instance Railway deployment) ─────────────

@@ -715,7 +715,7 @@ export default function LandingPage() {
             </div>
             <span className="text-slate-300 font-medium text-sm">{t('landing:hero_title')}</span>
           </div>
-          <p className="text-xs text-slate-500">Orly Medical © {new Date().getFullYear()}</p>
+          <p className="text-xs text-slate-500">CareFlow © {new Date().getFullYear()}</p>
           <div className="flex gap-4 text-xs">
             {[
               { label: t('landing:feat_journey'),   href: '#journey'   },

@@ -58,7 +58,7 @@ export default function DevGate({ children }) {
             <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mb-4 text-3xl">
               🏗️
             </div>
-            <h1 className="text-white text-2xl font-bold tracking-tight">Orly Medical</h1>
+            <h1 className="text-white text-2xl font-bold tracking-tight">CareFlow</h1>
             <p className="text-slate-400 text-sm mt-1">מנהל אירוע רפואי</p>
           </div>
 

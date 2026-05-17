@@ -81,10 +81,10 @@ def _build_ics(user: models.User, db: Session) -> str:
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//Orly Medical//Calendar Feed//HE",
+        "PRODID:-//CareFlow//Calendar Feed//HE",
         "CALSCALE:GREGORIAN",
         "METHOD:PUBLISH",
-        f"X-WR-CALNAME:Orly Medical — {_ics_escape(user.full_name)}",
+        f"X-WR-CALNAME:CareFlow — {_ics_escape(user.full_name)}",
         "X-WR-TIMEZONE:Asia/Jerusalem",
     ]
 

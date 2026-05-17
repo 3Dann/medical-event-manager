@@ -422,7 +422,7 @@ export default function HeroSection({ onLogin, onRegister }) {
         <div className="hs-text">
           <div className="hs-badge">
             <span className="hs-badge-dot"/>
-            מערכת ניהול אירוע רפואי
+            CareFlow
           </div>
 
           <h1 className="hs-title">

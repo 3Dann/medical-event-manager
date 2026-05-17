@@ -377,7 +377,7 @@ export default function LandingEditorPage() {
       {/* ── Footer preview ── */}
       <footer className="bg-slate-900 text-slate-400 py-8">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-center">
-          <p className="text-xs text-slate-500">תצוגת תחתית — Orly Medical © {new Date().getFullYear()}</p>
+          <p className="text-xs text-slate-500">תצוגת תחתית — CareFlow © {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>

@@ -759,7 +759,7 @@ def test_email(
         return {"ok": False, "message": "Resend לא מוגדר — הגדר SMTP_PASS ב-Railway עם מפתח API של Resend (re_...)"}
     sent = email_utils.send_email(
         to=current_user.email,
-        subject="✅ בדיקת מייל — Orly Medical",
+        subject="✅ בדיקת מייל — CareFlow",
         body_html=f"<p>המייל עובד. נשלח אל: {current_user.email}</p>",
     )
     return {"ok": sent, "message": "מייל נשלח בהצלחה" if sent else "שגיאה בשליחת מייל — בדוק את מפתח ה-API"}

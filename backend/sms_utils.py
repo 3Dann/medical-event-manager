@@ -29,7 +29,7 @@ def send_2fa_sms(phone: str, code: str) -> bool:
         from twilio.rest import Client
         client = Client(_SID, _TOKEN)
         client.messages.create(
-            body=f"קוד האימות שלך ל-Orly Medical: {code}\nתקף ל-10 דקות.",
+            body=f"קוד האימות שלך ל-CareFlow: {code}\nתקף ל-10 דקות.",
             from_=_FROM,
             to=phone,
         )
