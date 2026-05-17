@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LANGUAGES } from '../i18n/index.js'
 
-export default function LanguageSwitcher({ compact = false }) {
+export default function LanguageSwitcher({ compact = false, transparent = false }) {
   const { i18n } = useTranslation()
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
@@ -10,6 +10,10 @@ export default function LanguageSwitcher({ compact = false }) {
 
   const PRIMARY = ['he', 'en']
   const secondary = LANGUAGES.filter(l => !PRIMARY.includes(l.code))
+
+  // צבעי כפתור לפי רקע
+  const btnActive   = transparent ? 'bg-white/25 text-white ring-1 ring-white/60 font-bold' : 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
+  const btnInactive = transparent ? 'text-white/80 hover:bg-white/15 hover:text-white' : 'text-slate-600 hover:bg-slate-100'
 
   function changeLang(code) {
     i18n.changeLanguage(code)
