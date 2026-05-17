@@ -7,15 +7,9 @@ import i18n from '../i18n'
 export default function ChangePasswordPage() {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
-
-  // חסימה: רק משתמשים עם must_change_password=True מורשים לדף זה
-  if (!user) return <Navigate to="/" replace />
-  if (!user.must_change_password) {
-    const dest = user.role === 'manager' ? '/manager' : user.role === 'broker' ? '/broker' : '/patient'
-    return <Navigate to={dest} replace />
-  }
-  const [form, setForm]     = useState({ password: '', confirm: '' })
-  const [error, setError]   = useState('')
+  // כל ה-hooks לפני כל return מותנה
+  const [form, setForm]       = useState({ password: '', confirm: '' })
+  const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -23,14 +17,18 @@ export default function ChangePasswordPage() {
   }, [])
 
   const role = user?.role
-  const dest  = role === 'manager' ? '/manager' : role === 'broker' ? '/broker' : '/patient'
+  const dest = role === 'manager' ? '/manager' : role === 'broker' ? '/broker' : '/patient'
+
+  // Guards — אחרי כל ה-hooks
+  if (!user) return <Navigate to="/" replace />
+  if (!user.must_change_password) return <Navigate to={dest} replace />
 
   const validate = () => {
-    if (form.password.length < 8)          return 'הסיסמה חייבת להכיל לפחות 8 תווים'
-    if (!/[A-Z]/.test(form.password))      return 'הסיסמה חייבת להכיל לפחות אות גדולה אחת'
-    if (!/[a-z]/.test(form.password))      return 'הסיסמה חייבת להכיל לפחות אות קטנה אחת'
-    if (!/[0-9]/.test(form.password))      return 'הסיסמה חייבת להכיל לפחות ספרה אחת'
-    if (form.password !== form.confirm)    return 'הסיסמאות אינן תואמות'
+    if (form.password.length < 8)       return 'הסיסמה חייבת להכיל לפחות 8 תווים'
+    if (!/[A-Z]/.test(form.password))   return 'הסיסמה חייבת להכיל לפחות אות גדולה אחת'
+    if (!/[a-z]/.test(form.password))   return 'הסיסמה חייבת להכיל לפחות אות קטנה אחת'
+    if (!/[0-9]/.test(form.password))   return 'הסיסמה חייבת להכיל לפחות ספרה אחת'
+    if (form.password !== form.confirm) return 'הסיסמאות אינן תואמות'
     return null
   }
 
@@ -68,9 +66,7 @@ export default function ChangePasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              סיסמה חדשה
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">סיסמה חדשה</label>
             <input
               type="password"
               value={form.password}
@@ -83,9 +79,7 @@ export default function ChangePasswordPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              אימות סיסמה
-            </label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">אימות סיסמה</label>
             <input
               type="password"
               value={form.confirm}
@@ -97,10 +91,10 @@ export default function ChangePasswordPage() {
           </div>
 
           <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600 space-y-1">
-            <p className={form.password.length >= 8         ? 'text-green-600' : ''}>✓ לפחות 8 תווים</p>
-            <p className={/[A-Z]/.test(form.password)       ? 'text-green-600' : ''}>✓ אות גדולה באנגלית</p>
-            <p className={/[a-z]/.test(form.password)       ? 'text-green-600' : ''}>✓ אות קטנה באנגלית</p>
-            <p className={/[0-9]/.test(form.password)       ? 'text-green-600' : ''}>✓ ספרה אחת לפחות</p>
+            <p className={form.password.length >= 8       ? 'text-green-600' : ''}>✓ לפחות 8 תווים</p>
+            <p className={/[A-Z]/.test(form.password)     ? 'text-green-600' : ''}>✓ אות גדולה באנגלית</p>
+            <p className={/[a-z]/.test(form.password)     ? 'text-green-600' : ''}>✓ אות קטנה באנגלית</p>
+            <p className={/[0-9]/.test(form.password)     ? 'text-green-600' : ''}>✓ ספרה אחת לפחות</p>
           </div>
 
           {error && (
