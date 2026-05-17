@@ -586,11 +586,6 @@ export default function LandingPage() {
   const [loginTab,  setLoginTab]    = useState('login')
   const [overrides, setOverrides]   = useState(() => getLandingOverrides(i18n.language))
 
-  // אפס scroll לראש הדף בכל כניסה ל-LandingPage (client-side navigation)
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
-
   // דף הכניסה תמיד בעברית — ללא תלות בהגדרות דפדפן או localStorage
   useEffect(() => {
     if (i18n.language !== 'he') i18n.changeLanguage('he')
