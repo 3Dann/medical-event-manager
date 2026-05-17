@@ -9,35 +9,26 @@ module.exports = defineConfig({
   expect: { timeout: 8_000 },
   fullyParallel: false,
   retries: 1,
+  globalSetup:  './helpers/global-setup.js',
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
 
   use: {
-    baseURL: BASE_URL,
-    screenshot: 'only-on-failure',
-    trace:      'retain-on-failure',
-    video:      'off',
-    locale:     'he-IL',
-    timezoneId: 'Asia/Jerusalem',
+    baseURL:      BASE_URL,
+    screenshot:   'only-on-failure',
+    trace:        'retain-on-failure',
+    video:        'off',
+    locale:       'he-IL',
+    timezoneId:   'Asia/Jerusalem',
+    storageState: './helpers/.auth.json',
   },
 
   projects: [
-    // Setup: login once, save auth state
-    {
-      name: 'setup',
-      testMatch: '**/helpers/auth.setup.js',
-    },
-
-    // Smoke tests — run against production
     {
       name: 'smoke',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: './helpers/.auth.json',
-      },
-      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 })
