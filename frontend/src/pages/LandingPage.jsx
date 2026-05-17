@@ -21,7 +21,7 @@ function LoginModal({ onClose, initialTab = 'login' }) {
   const { t } = useTranslation()
 
   const [tab, setTab]                 = useState(initialTab)
-  const [form, setForm]               = useState({ email: '', password: '', full_name: '', role: 'manager', org_name: '', applicant_message: '' })
+  const [form, setForm]               = useState({ email: '', password: '', full_name: '', role: 'manager', org_name: '', applicant_message: '', id_number: '', phone: '' })
   const [forgotEmail, setForgotEmail]   = useState('')
   const [resetForm, setResetForm]       = useState({ token: '', new_password: '', confirm: '' })
   const [forgotStep, setForgotStep]     = useState(1)
