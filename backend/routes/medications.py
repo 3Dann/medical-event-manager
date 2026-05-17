@@ -104,6 +104,13 @@ def _search_db(q: str, db: Session) -> list[dict]:
                 "treatment_line":      d.treatment_line or "",
                 "indication_oncology": indications,
                 "openfda_indication":  d.openfda_indication or "",
+                # Israeli MoH fields
+                "sal_habriut_status":  d.sal_habriut_status or "",
+                "sal_habriut_copay":   d.sal_habriut_copay or "",
+                "prescription_type":   d.prescription_type or "",
+                "is_otc":              d.is_otc,
+                "generics_available":  d.generics_available,
+                "pregnancy_category":  d.pregnancy_category or "",
             }))
     scored.sort(key=lambda x: (x[0], x[1]))
     return [r for _, _, r in scored]
