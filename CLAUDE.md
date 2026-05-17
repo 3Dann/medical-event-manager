@@ -214,6 +214,35 @@ medical-event-manager/
 - פאנל "בריאות מערכת": משתמשים לפי תפקיד, נתוני מערכת, sessions, גודל DB, גיבוי
 - ManagerLoadPanel — כפתורי quick action (Sessions / ניהול) מנווטים ל-AdminPage עם tab נכון
 
+### שינויי 2026-05-17
+
+**ריברנד — CareFlow:**
+- כל הופעות "Orly Medical" הוחלפו ב-"CareFlow" בכל הקוד (frontend + backend)
+- `index.html` title, SMS, מיילים, WebAuthn RP_NAME, calendar feed, דוחות PDF, DevGate, Navbar, Footer
+
+**דף נחיתה — עיצוב חדש:**
+- `frontend/src/components/HeroSection.jsx` — קומפוננטה חדשה: רקע navy כהה עם gradient mesh, SVG isometric journey pathway (3 milestones: אבחון/טיפול/החלמה), 3 floating stats cards, אנימציות dots על נתיב, דמויות רופא+מטופל
+- Navbar שקוף מעל ה-hero → לבן אחרי גלילה 80px (`scrolled` state + transition)
+- `LanguageSwitcher` מקבל `transparent={!scrolled}` — צבעים לבנים על רקע כהה, כחול על לבן
+- Google Fonts (Heebo + Syne) מועברו ל-`<link>` ב-`index.html` (לא `@import` ב-JS)
+- כפתורי Navbar — `whitespace-nowrap` כדי למנוע שבירת שורה
+
+**זרימת הרשמה — שינוי מהותי:**
+- אין יותר סיסמה בטופס הרישום — `UserCreate.password` הפך ל-`Optional`
+- סיסמה זמנית נוצרת **רק** ב-`approve_registration()` ונשלחת במייל
+- `hashed_password="__pending__"` ב-`PendingRegistration` (placeholder)
+- Placeholder bcrypt הוסר (ביצועים)
+- טופס הרישום: banner הסבר + שדות ת"ז + טלפון (חדשים) + ולידציית סיסמה חיה
+- `ChangePasswordPage` — תוקן hooks violation (useState/useEffect אחרי conditional return גרם לקריסת React)
+- `ChangePasswordPage` — guards מועברים **אחרי** כל ה-hooks
+
+**Scroll & Navigation:**
+- `DevGate` — הוסר מסך האזהרה, pass-through פשוט
+- `index.html` — `overflow-anchor:none` + `scrollRestoration='manual'` בscript ראש הדף
+- `main.jsx` — `scrollRestoration='manual'` + `scrollTo(0,0)` לפני React render
+- `App.jsx` — `ScrollToTop` component בתוך BrowserRouter: מאפס scroll לפי `topLevel = pathname.split('/').slice(0,4)` — מאפס בניווט ראשי, שומר scroll בין טאבים של אותו מטופל
+- `backend/.env` — נוצר למפתח מקומי עם `SECRET_KEY` (ב-.gitignore)
+
 ### עדיפות גבוהה
 - [x] **WorkflowsPage (קיים)** — TemplateEditorModal (create/edit), instances list, tabs — שלם
 - [x] **מערכת התראות (2026-05-13)** — NotificationBell.jsx + GET /api/notifications + polling 60s
