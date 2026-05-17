@@ -1,9 +1,9 @@
 ---
 name: israeli-drug-database
-description: Query the Israeli pharmaceutical database for drug information, health basket coverage, generic alternatives, and pricing. Use when user asks about Israeli medications, "trufot", drug names, "sal briut" drug coverage, generic drugs, drug prices in Israel, prescription requirements, or medication safety info. Enhances israel-drugs-mcp server with health basket context and patient-facing guidance. Do NOT use for medical advice, dosage recommendations, or diagnosis. Do NOT use for non-Israeli drug registries.
+description: Query the Israeli pharmaceutical database for drug information, health basket coverage, generic alternatives, and pricing. Use when user asks about Israeli medications, "trufot", drug names, "sal briut" drug coverage, generic drugs, drug prices in Israel, prescription requirements, or medication safety info. Enhances the israel-drugs MCP server with health basket context and patient-facing guidance. Do NOT use for medical advice, dosage recommendations, or diagnosis. Do NOT use for non-Israeli drug registries.
 license: MIT
 allowed-tools: WebFetch
-compatibility: Network access helpful for drug registry lookups. Enhanced by israel-drugs-mcp server.
+compatibility: Network access helpful for drug registry lookups. Enhanced by the israel-drugs MCP server.
 ---
 
 # Israeli Drug Database
@@ -42,7 +42,7 @@ Search the MoH drug registry:
 | Manufacturer | yatzran | Company holding marketing authorization |
 | ATC code | kod ATC | WHO anatomical therapeutic chemical code |
 | Registration status | matzav rishum | Active, suspended, or cancelled |
-| Prescription type | sug mircham | Prescription (mircham), OTC (lli mircham), restricted |
+| Prescription type | sug mircham | Prescription (mircham), OTC (lo mircham), restricted |
 
 ### Step 3: Health Basket Coverage
 Check if a drug is covered in the national health basket:
@@ -61,6 +61,8 @@ Check if a drug is covered in the national health basket:
 - Specialty/biologic: Variable, often subsidized for qualifying patients
 
 **How to check:** Query sal briut formulary via MoH data, or check kupat cholim website
+
+**Freshness note:** The national health basket (sal briut) is updated once a year. A public committee (vaadat sal ha-briut) reviews candidate drugs and technologies, and the new list takes effect in January. The current year's basket additions and the committee's recommendations are published on gov.il under the health basket topic: https://www.gov.il/he/departments/topics/health_basket_drugs. Always confirm coverage against the most recent annual list, since a drug's status can change between basket cycles.
 
 ### Step 4: Generic Alternatives
 To find generic alternatives:
@@ -86,7 +88,7 @@ To find generic alternatives:
 ### Step 5: Drug Safety Information
 Provide safety context (NOT medical advice):
 
-**Patient information leaflet (alon la-mitan):**
+**Patient information leaflet (alon la-tzarchan):**
 - Available in Hebrew for all registered drugs
 - Published on MoH website and inside drug packaging
 - Contains: Indications, contraindications, side effects, dosage
@@ -105,15 +107,17 @@ Provide safety context (NOT medical advice):
 | D | Evidence of risk, may be used when benefit outweighs |
 | X | Contraindicated in pregnancy |
 
+Note: the FDA retired the A/B/C/D/X letter categories in 2015 in favour of narrative pregnancy and lactation labelling. Many Israeli patient leaflets still reference the letter system, so users may encounter it, but treat it as legacy and always defer to the current leaflet and the prescribing physician.
+
 **Recall and safety alerts:**
-- MoH publishes drug safety alerts at `health.gov.il`
+- MoH publishes drug safety alerts at `gov.il` (Ministry of Health) and `israeldrugs.health.gov.il`
 - Pharmacovigilance reports via Yellow Card system
 
 ### Step 6: Prescription Status
 Israeli prescription categories:
 | Type | Hebrew | Meaning |
 |------|--------|---------|
-| OTC (lli mircham) | llo mircham | Available without prescription at pharmacies |
+| OTC (lo mircham) | lo mircham | Available without prescription at pharmacies |
 | Prescription (mircham) | mircham | Requires physician prescription |
 | Restricted (mircham meyuchad) | mircham meyuchad | Specialist prescription or hospital-only |
 | Narcotic (sam mefakach) | sam mefakach | Controlled substance, special prescription form |
@@ -135,10 +139,16 @@ Result: Keytruda (pembrolizumab) is partially in the health basket for specific 
 ## Bundled Resources
 
 ### Scripts
-- `scripts/lookup_drug.py` — Look up common Israeli medications with health basket coverage status, find generic alternatives for brand-name drugs, and display pregnancy risk categories and Israeli prescription classification types. Supports subcommands: `common-drugs`, `generics`, `pregnancy-categories`, `prescription-types`. Run: `python scripts/lookup_drug.py --help`
+- `scripts/lookup_drug.py` - Look up common Israeli medications with health basket coverage status, find generic alternatives for brand-name drugs, and display pregnancy risk categories and Israeli prescription classification types. Supports subcommands: `common-drugs`, `generics`, `pregnancy-categories`, `prescription-types`. Run: `python scripts/lookup_drug.py --help`
 
 ### References
-- `references/drug-registry-guide.md` — MoH drug registry field definitions (trade name, ATC code, registration status, etc.), Israeli prescription category breakdown (OTC, mircham, mircham meyuchad, sam mefakach), health basket copay tiers, and generic drug switching guidance. Consult when interpreting registry data fields or explaining coverage tiers to users.
+- `references/drug-registry-guide.md` - MoH drug registry field definitions (trade name, ATC code, registration status, etc.), Israeli prescription category breakdown (OTC, mircham, mircham meyuchad, sam mefakach), health basket copay tiers, and generic drug switching guidance. Consult when interpreting registry data fields or explaining coverage tiers to users.
+
+## Recommended MCP Servers
+
+| MCP Server | What it adds | Link |
+|------------|--------------|------|
+| israel-drugs | Tools for querying the Israeli MoH drug registry (trade names, active ingredients, registration status) to pair with this skill's health-basket context and patient-facing guidance | https://agentskills.co.il/he/mcp/israel-drugs |
 
 ## Gotchas
 - Israeli drug registration uses local brand names that differ from international names. The same active ingredient may have different trade names in Israel vs. the US or Europe. Agents may use international brand names that Israeli pharmacies will not recognize.
@@ -150,10 +160,11 @@ Result: Keytruda (pembrolizumab) is partially in the health basket for specific 
 
 | Source | URL | What to Check |
 |--------|-----|---------------|
-| Ministry of Health – Pharma | https://www.gov.il/he/departments/units/pharmaceuticals/govil-landing-page | Pharmaceuticals Division landing page, registry entry points |
-| Pharmaceutical Division (legacy) | https://www.health.gov.il/UnitsOffice/HD/PH/Drugs/Pages/default.aspx | Public Israeli drug registry search UI |
-| Health basket (Sal Briut) | https://www.gov.il/he/departments/topics/health_basket_drugs | Coverage list and updates for subsidized drugs |
-| data.gov.il – health datasets | https://data.gov.il/organization/ministry-health | Machine-readable drug registry and price lists |
+| Israeli drug index (service page) | https://www.gov.il/he/service/israeli-drug-index | Primary gov.il entry point for the national drug registry |
+| Drug registry search UI | https://israeldrugs.health.gov.il/ | Live search by trade name, active ingredient, or registration number |
+| Ministry of Health - Pharma | https://www.gov.il/he/departments/units/pharmaceuticals/govil-landing-page | Pharmaceuticals Division landing page, registry entry points |
+| Health basket (Sal Briut) | https://www.gov.il/he/departments/topics/health_basket_drugs | Annual coverage list, committee recommendations, and updates for subsidized drugs |
+| data.gov.il - health datasets | https://data.gov.il/organization/ministry-health | Machine-readable drug registry and price lists |
 | ATC / WHO drug classification | https://www.whocc.no/atc_ddd_index/ | International ATC codes for cross-referencing active ingredients |
 
 ## Troubleshooting

@@ -100,7 +100,7 @@ PREGNANCY_CATEGORIES = {
 }
 
 PRESCRIPTION_TYPES = {
-    "OTC (llo mircham)": "Available without prescription at pharmacies",
+    "OTC (lo mircham)": "Available without prescription at pharmacies",
     "Prescription (mircham)": "Requires physician prescription",
     "Restricted (mircham meyuchad)": "Specialist prescription or hospital-only",
     "Narcotic (sam mefakach)": "Controlled substance, special prescription form",
@@ -138,7 +138,9 @@ def find_generics(brand_name: str) -> None:
     if not drug:
         print(f"Drug '{brand_name}' not found in reference data.")
         print("Try searching by brand name (e.g., Acamol, Lipitor, Losec).")
-        print("For full registry search, use the MoH drug database at data.health.gov.il")
+        print("For full registry search, use the MoH drug registry at "
+              "https://israeldrugs.health.gov.il/ (service page: "
+              "https://www.gov.il/he/service/israeli-drug-index)")
         return
 
     print(f"Brand: {brand_name}")

@@ -1,9 +1,11 @@
 # Israeli Drug Registry Guide
 
 ## Ministry of Health Drug Registry
-- URL: https://data.health.gov.il/
+- Service page: https://www.gov.il/he/service/israeli-drug-index
+- Registry search UI: https://israeldrugs.health.gov.il/
 - Public access, searchable
 - Covers all approved pharmaceuticals in Israel
+- Note: the old `data.health.gov.il` domain is no longer resolvable. Use the gov.il service page as the primary entry point and `israeldrugs.health.gov.il` for the live search UI.
 
 ## Key Fields
 | Field | Hebrew | Description |
