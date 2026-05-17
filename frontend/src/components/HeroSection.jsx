@@ -2,11 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 
 /* ─── Injected styles ─────────────────────────────────────────────────────── */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;800;900&family=Syne:wght@700;800&display=swap');
-
 .hs-root {
   min-height: 100vh;
-  background: linear-gradient(150deg, #0D2140 0%, #122B52 45%, #1A3A6A 100%);
+  background: linear-gradient(150deg, #162B4A 0%, #1E3A63 45%, #24487A 100%);
   position: relative;
   overflow: hidden;
   font-family: 'Heebo', sans-serif;
