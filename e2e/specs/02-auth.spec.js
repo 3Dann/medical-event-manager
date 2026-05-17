@@ -11,11 +11,10 @@ test.use({ storageState: { cookies: [], origins: [] } })
 test('login modal opens and form works', async ({ page }) => {
   await page.goto('/')
   await page.waitForLoadState('domcontentloaded')
-  await page.waitForTimeout(1500)
 
   // כפתור כניסה קיים
   const loginBtn = page.locator('button', { hasText: /כניסה/ }).first()
-  await expect(loginBtn).toBeVisible()
+  await expect(loginBtn).toBeVisible({ timeout: 8_000 })
   await loginBtn.click()
 
   // modal נפתח עם שדות
