@@ -4,6 +4,12 @@ import axios from 'axios'
 import App from './App'
 import './index.css'
 
+// מניעת שחזור scroll אוטומטי בדפדפן — הדף תמיד נפתח מלמעלה
+if ('scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+window.scrollTo(0, 0)
+
 // Global axios interceptor — handles auth expiry and server errors
 axios.interceptors.response.use(
   res => res,
