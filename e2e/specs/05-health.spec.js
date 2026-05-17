@@ -41,7 +41,7 @@ test('auth login endpoint accepts POST', async ({ request }) => {
 })
 
 test('no unhandled 500 errors on main pages', async ({ page }) => {
-  const errors500: string[] = []
+  const errors500 = []
 
   page.on('response', response => {
     if (response.status() >= 500) {
