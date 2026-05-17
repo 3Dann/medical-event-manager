@@ -37,23 +37,12 @@ jobs:
           E2E_SEED:  ${{ secrets.E2E_SEED }}
         run: npx playwright test --project=smoke
 
-      - name: Generate PDF report
-        if: always()
-        working-directory: e2e
-        run: |
-          pip install reportlab python-bidi --quiet
-          python3 generate_report.py
-        env:
-          PDF_OUT_DIR: ./reports
-
-      - name: Upload PDF report
+      - name: Upload HTML report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: e2e-report-${{ github.run_number }}
-          path: |
-            e2e/playwright-report/
-            e2e/reports/
+          path: e2e/playwright-report/
           retention-days: 30
 
       - name: Upload traces on failure
