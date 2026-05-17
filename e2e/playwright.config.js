@@ -35,7 +35,7 @@ module.exports = defineConfig({
       name: 'smoke',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'helpers/.auth.json',
+        storageState: './helpers/.auth.json',
       },
       dependencies: ['setup'],
     },
