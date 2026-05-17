@@ -625,16 +625,21 @@ def get_me(current_user: models.User = Depends(auth_utils.get_current_user)):
     return {"id": current_user.id, "full_name": current_user.full_name, "email": current_user.email, "role": current_user.role, "is_admin": current_user.is_admin, "demo_mode_allowed": getattr(current_user, 'demo_mode_allowed', False)}
 
 
+class E2ELoginRequest(BaseModel):
+    email: str
+    e2e_secret: str
+
+
 @router.post("/e2e-login")
-def e2e_login(request: Request, data: dict, db: Session = Depends(get_db)):
+def e2e_login(request: Request, data: E2ELoginRequest, db: Session = Depends(get_db)):
     """E2E test login — עוקף 2FA. פעיל רק כש-E2E_SEED מוגדר ב-env."""
     import os as _os
     e2e_secret = _os.getenv("E2E_SEED", "")
     if not e2e_secret:
         raise HTTPException(status_code=404, detail="Not found")
-    if data.get("e2e_secret") != e2e_secret:
+    if data.e2e_secret != e2e_secret:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    email = data.get("email", "")
+    email = data.email
     user = db.query(models.User).filter(models.User.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
