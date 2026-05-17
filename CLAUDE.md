@@ -320,6 +320,11 @@ WorkflowStepCoverage — כיסוי ביטוחי לשלב
 - **Admin temp password** — נשלח למייל בלבד (send_temp_password ב-email_utils.py). אינו מוחזר ב-API response.
 - **Permissions system** — `User.permissions` הוא JSON field. `VALID_PERMS` (frozenset) ו-`ROLE_PRESETS` מוגדרים ב-`routes/admin.py` ברמת המודול. `has_permission(user, perm)` ב-`auth.py` — מחזיר `True` אוטומטית לאדמין. כל endpoint כתיבה חייב לבדוק: `create_patient`, `manage_claims`, `manage_workflows`, `export_excel`. לא לשנות `_VALID_PERMS` מקומי — להשתמש ב-`VALID_PERMS` ברמת המודול.
 - **Admin create/delete user** — `POST /api/admin/users` יוצר משתמש ישיר. `DELETE /api/admin/users/{id}` מוחק: PatientPermission → Patients → Sessions → User (סדר חשוב לשלמות FK). חסום אם `preserve_data=True`.
+- **Registration flow** — טופס הרישום אינו מקבל סיסמה. `hashed_password="__pending__"` ב-PendingRegistration. סיסמה זמנית נוצרת ב-`approve_registration()` בלבד. `must_change_password=True` בכניסה ראשונה. `ChangePasswordPage` מגן על כל routes מוגנים.
+- **ScrollToTop** — `App.jsx` מכיל `ScrollToTop` component ב-BrowserRouter. משתמש ב-`topLevel = pathname.split('/').slice(0,4)` כdependency — לא מאפס scroll בין טאבים של אותו מטופל (`/manager/patients/5/claims` → `/manager/patients/5/insurance`), כן מאפס בין מטופלים שונים ובניווט ראשי.
+- **LanguageSwitcher** — מקבל prop `transparent={bool}`. כששקוף: `bg-white/25 text-white ring-white/60`. כשרגיל: `bg-blue-100 text-blue-700`. תמיד להעביר `transparent={!scrolled}` מNavbar.
+- **HeroSection** — `frontend/src/components/HeroSection.jsx`. CSS מוזרק ב-`<style>` בתוך הקומפוננטה. Google Fonts דרך `<link>` ב-`index.html` (לא `@import`). Props: `onLogin`, `onRegister`.
+- **Scroll anchoring** — `index.html` מכיל `<style>html,body{overflow-anchor:none;scroll-behavior:auto}</style>` למניעת Chrome scroll anchoring ו-`<script>scrollRestoration='manual'</script>` למניעת שחזור scroll.
 - **Tasks pagination** — GET /api/tasks/my מחזיר `{"total": N, "items": [...]}` עם limit/offset params.
 - **Drug search** — משתמש ב-`ilike()` DB-level pre-filter + LIMIT 100, לא `.all()`. scoring algorithm שמור לדירוג.
 - **slowapi בroutes** — להשתמש ב-`from slowapi.util import get_ipaddr` (לא `get_remote_address` שלא קיים ב-0.1.9). ליצור `limiter = Limiter(key_func=get_ipaddr)` בתוך כל route file שצריך rate limiting.
