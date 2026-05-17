@@ -636,49 +636,10 @@ export default function LandingPage() {
       {showLogin && <LoginModal onClose={closeLogin} initialTab={loginTab} />}
 
       {/* ── Hero ── */}
-      <section className="relative pt-16 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-600 via-blue-700 to-slate-800" />
-        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500 rounded-full opacity-20 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-slate-600 rounded-full opacity-20 blur-3xl pointer-events-none" />
-
-        <div className="relative max-w-5xl mx-auto px-6 py-24 text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 text-blue-100 text-sm px-4 py-1.5 rounded-full mb-6 border border-white/20">
-            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            {ovOrT(overrides, 'heroBadge', t('landing:hero_badge'))}
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight mb-6">
-            {ovOrT(overrides, 'heroTitle', t('landing:hero_title'))}
-          </h1>
-          <p className="text-blue-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            {ovOrT(overrides, 'heroSubtitle', t('landing:hero_subtitle'))}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {user && (
-              <button onClick={toDashboard}
-                className="bg-white text-blue-700 font-semibold px-8 py-3.5 rounded-xl hover:bg-blue-50 transition-colors shadow-lg text-base whitespace-nowrap">
-                {user.role === 'patient' ? t('patient_portal:title') : t('nav:dashboard')} ←
-              </button>
-            )}
-            <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-              className="border border-white/30 text-white font-medium px-8 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-base">
-              {t('landing:discover_features')}
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-6 max-w-lg mx-auto">
-            {overrides.stats.map(s => (
-                <div key={s.label} className="text-center">
-                  <p className="text-3xl font-bold text-white">{s.val}</p>
-                  <p className="text-blue-200 text-xs mt-0.5">{s.label}</p>
-                </div>
-              ))}
-          </div>
-        </div>
-        <svg viewBox="0 0 1440 60" className="w-full block" preserveAspectRatio="none" style={{ height: 60 }}>
-          <path d="M0,60 C360,0 1080,0 1440,60 L1440,60 L0,60 Z" fill="white" />
-        </svg>
-      </section>
+      <HeroSection
+        onLogin={() => { setLoginTab('login'); setShowLogin(true) }}
+        onRegister={() => { setLoginTab('register'); setShowLogin(true) }}
+      />
 
       {/* ── How it works ── */}
       <section className="py-16 max-w-5xl mx-auto px-6">
