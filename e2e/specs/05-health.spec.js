@@ -14,7 +14,7 @@ test('API health check returns ok', async ({ request }) => {
 })
 
 test('frontend serves index.html', async ({ request }) => {
-  const res = await request.get(BASE_URL)
+  const res = await request.get('/')
   expect(res.status()).toBe(200)
 
   const html = await res.text()
