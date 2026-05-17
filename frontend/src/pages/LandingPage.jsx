@@ -343,6 +343,60 @@ function LoginModal({ onClose, initialTab = 'login' }) {
                 </select></div>
             )}
             {tab === 'register' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">מספר ת"ז <span className="text-slate-400 text-xs">(אופציונלי)</span></label>
+                  <input
+                    className="input"
+                    maxLength={9}
+                    inputMode="numeric"
+                    placeholder="123456782"
+                    value={form.id_number}
+                    onChange={e => setForm({...form, id_number: e.target.value.replace(/\D/g, '')})}
+                  />
+                </div>
+                <div>
+                  <label className="label">טלפון <span className="text-slate-400 text-xs">(אופציונלי)</span></label>
+                  <input
+                    className="input"
+                    inputMode="tel"
+                    placeholder="0501234567"
+                    value={form.phone}
+                    onChange={e => setForm({...form, phone: e.target.value.replace(/[^\d+]/g, '')})}
+                  />
+                </div>
+              </div>
+            )}
+            {tab === 'register' && (() => {
+              const pwd = form.password
+              const checks = [
+                pwd.length >= 8,
+                /[A-Z]/.test(pwd),
+                /[a-z]/.test(pwd),
+                /[0-9]/.test(pwd),
+              ]
+              const strength = checks.filter(Boolean).length
+              if (!pwd) return null
+              const colors = ['', 'bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500']
+              const labels = ['', 'חלשה', 'בינונית', 'טובה', 'חזקה']
+              return (
+                <div className="space-y-1">
+                  <div className="flex gap-1">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= strength ? colors[strength] : 'bg-slate-200'}`} />
+                    ))}
+                  </div>
+                  <div className="flex gap-3 text-[11px] text-slate-500 flex-wrap">
+                    <span className={checks[0] ? 'text-green-600' : 'text-slate-400'}>8+ תווים</span>
+                    <span className={checks[1] ? 'text-green-600' : 'text-slate-400'}>אות גדולה</span>
+                    <span className={checks[2] ? 'text-green-600' : 'text-slate-400'}>אות קטנה</span>
+                    <span className={checks[3] ? 'text-green-600' : 'text-slate-400'}>ספרה</span>
+                    <span className={`font-medium ${strength === 4 ? 'text-green-600' : 'text-slate-500'}`}>{labels[strength]}</span>
+                  </div>
+                </div>
+              )
+            })()}
+            {tab === 'register' && (
               <div><label className="label">שם ארגון / מרפאה <span className="text-slate-400 text-xs">(אופציונלי)</span></label>
                 <input className="input" value={form.org_name} onChange={e => setForm({...form, org_name: e.target.value})} placeholder="לדוגמה: מרפאת הדסה, אסף הרופא..." /></div>
             )}
