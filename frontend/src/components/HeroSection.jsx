@@ -6,7 +6,7 @@ const CSS = `
 
 .hs-root {
   min-height: 100vh;
-  background: linear-gradient(150deg, #020C1B 0%, #051829 45%, #0A2440 100%);
+  background: linear-gradient(150deg, #0D2140 0%, #122B52 45%, #1A3A6A 100%);
   position: relative;
   overflow: hidden;
   font-family: 'Heebo', sans-serif;
