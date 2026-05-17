@@ -30,7 +30,7 @@ test('auth login endpoint accepts POST', async ({ request }) => {
   params.append('username', 'nonexistent@test.com')
   params.append('password', 'wrongpassword')
 
-  const res = await request.post(`${BASE_URL}/api/auth/login`, {
+  const res = await request.post('/api/auth/login', {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data:    params.toString(),
   })
