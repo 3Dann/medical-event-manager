@@ -4,7 +4,7 @@
  */
 const { test, expect } = require('@playwright/test')
 
-test.use({ storageState: { cookies: [], origins: [] } }) // ללא auth — דף ציבורי
+test.use({ storageState: { cookies: [], origins: [] } })
 
 test('landing page loads with hero at top', async ({ page }) => {
   await page.goto('/')
