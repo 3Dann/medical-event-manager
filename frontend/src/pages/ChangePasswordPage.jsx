@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import i18n from '../i18n'
 
 export default function ChangePasswordPage() {
   const { user, setUser } = useAuth()
