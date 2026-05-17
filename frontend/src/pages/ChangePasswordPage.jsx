@@ -1,11 +1,18 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
 export default function ChangePasswordPage() {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
+
+  // חסימה: רק משתמשים עם must_change_password=True מורשים לדף זה
+  if (!user) return <Navigate to="/" replace />
+  if (!user.must_change_password) {
+    const dest = user.role === 'manager' ? '/manager' : user.role === 'broker' ? '/broker' : '/patient'
+    return <Navigate to={dest} replace />
+  }
   const [form, setForm]     = useState({ password: '', confirm: '' })
   const [error, setError]   = useState('')
   const [loading, setLoading] = useState(false)
