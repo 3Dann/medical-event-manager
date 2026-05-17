@@ -52,7 +52,7 @@ const BrokerPortal       = lazy(() => import('./pages/broker/BrokerPortal'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
-  const topLevel = pathname.split('/').slice(0, 3).join('/')
+  const topLevel = pathname.split('/').slice(0, 4).join('/')
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [topLevel])
