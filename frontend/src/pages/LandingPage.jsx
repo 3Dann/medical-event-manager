@@ -64,24 +64,17 @@ function LoginModal({ onClose, initialTab = 'login' }) {
         params.append('password', form.password)
         res = await axios.post('/api/auth/login', params)
       } else {
-        // client-side password strength check before sending
-        const pwd = form.password
-        if (pwd.length < 8 || !/[A-Z]/.test(pwd) || !/[a-z]/.test(pwd) || !/[0-9]/.test(pwd)) {
-          setError('הסיסמה חייבת להכיל לפחות 8 תווים, אות גדולה באנגלית, אות קטנה וספרה')
-          setLoading(false)
-          return
-        }
         res = await axios.post('/api/auth/register', {
           full_name: form.full_name, email: form.email,
-          password: form.password, role: form.role,
+          role: form.role,
           org_name: form.org_name || null,
           applicant_message: form.applicant_message || null,
           id_number: form.id_number || null,
           phone: form.phone || null,
         })
         if (res.data.pending) {
-          setSuccess('בקשתך התקבלה! נשלח אליך מייל לאחר אישור האדמין.')
-          setForm({ email: '', password: '', full_name: '', role: 'manager', org_name: '', applicant_message: '', id_number: '', phone: '' })
+          setSuccess('בקשתך התקבלה! לאחר אישור האדמין תקבל סיסמה זמנית לאימייל שלך.')
+          setForm(emptyRegisterForm)
           return
         }
       }
