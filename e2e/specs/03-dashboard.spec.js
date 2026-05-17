@@ -6,7 +6,7 @@ const { test, expect } = require('@playwright/test')
 
 test('manager dashboard loads', async ({ page }) => {
   await page.goto('/manager')
-  await page.waitForLoadState('networkidle', { timeout: 15_000 })
+  await page.waitForSelector('nav, main, [class*="layout"]', { timeout: 15_000 })
 
   // ניווט בצד שמאל קיים
   await expect(page.locator('nav, [class*="layout"], [class*="sidebar"]').first()).toBeVisible()
@@ -21,7 +21,7 @@ test('manager dashboard loads', async ({ page }) => {
 
 test('patients list accessible', async ({ page }) => {
   await page.goto('/manager')
-  await page.waitForLoadState('networkidle', { timeout: 15_000 })
+  await page.waitForSelector('nav, main, [class*="layout"]', { timeout: 15_000 })
 
   // לחץ על "מטופלים" בניווט
   const patientsLink = page.locator('a, button', { hasText: /מטופל/ }).first()
@@ -36,7 +36,7 @@ test('patients list accessible', async ({ page }) => {
 
 test('notification bell visible', async ({ page }) => {
   await page.goto('/manager')
-  await page.waitForLoadState('networkidle', { timeout: 15_000 })
+  await page.waitForSelector('nav, main, [class*="layout"]', { timeout: 15_000 })
 
   // פעמון התראות קיים ב-navbar
   const bell = page.locator('[class*="notification"], [aria-label*="התראה"], svg[class*="bell"]')
