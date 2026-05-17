@@ -569,6 +569,11 @@ export default function LandingPage() {
   const [loginTab,  setLoginTab]    = useState('login')
   const [overrides, setOverrides]   = useState(() => getLandingOverrides(i18n.language))
 
+  // דף הכניסה תמיד בעברית — ללא תלות בהגדרות דפדפן או localStorage
+  useEffect(() => {
+    if (i18n.language !== 'he') i18n.changeLanguage('he')
+  }, [])
+
   // Reload overrides when language changes
   useEffect(() => {
     setOverrides(getLandingOverrides(i18n.language))
