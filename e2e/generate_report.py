@@ -19,8 +19,16 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from bidi.algorithm import get_display
 
 # ── פונטים ───────────────────────────────────────────────────────────────────
-pdfmetrics.registerFont(TTFont('Arial',      '/System/Library/Fonts/Supplemental/Arial.ttf'))
-pdfmetrics.registerFont(TTFont('Arial-Bold', '/System/Library/Fonts/Supplemental/Arial Bold.ttf'))
+import platform
+if platform.system() == 'Darwin':
+    pdfmetrics.registerFont(TTFont('Arial',      '/System/Library/Fonts/Supplemental/Arial.ttf'))
+    pdfmetrics.registerFont(TTFont('Arial-Bold', '/System/Library/Fonts/Supplemental/Arial Bold.ttf'))
+else:
+    # Linux (CI) — fallback to bundled Helvetica
+    from reportlab.lib.fonts import addMapping
+    from reportlab.pdfbase.pdfmetrics import registerFontFamily
+    pdfmetrics.registerFont(TTFont('Arial',      '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'))
+    pdfmetrics.registerFont(TTFont('Arial-Bold', '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'))
 
 W, H = A4
 MARGIN = 1.8 * cm
