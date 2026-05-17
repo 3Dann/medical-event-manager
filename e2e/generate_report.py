@@ -198,7 +198,9 @@ if __name__ == '__main__':
         print('❌ results.json לא נמצא — הרץ תחילה: npx playwright test')
         sys.exit(1)
 
-    out_dir = Path.home() / 'Desktop' / 'בדיקות'
+    # CI: PDF_OUT_DIR env var; local: ~/Desktop/בדיקות
+    ci_dir = os.environ.get('PDF_OUT_DIR')
+    out_dir = Path(ci_dir) if ci_dir else Path.home() / 'Desktop' / 'בדיקות'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     out_file = out_dir / f'e2e_{DATE}.pdf'
