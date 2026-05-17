@@ -321,6 +321,14 @@ class DrugEntry(Base):
     access_type    = Column(String, nullable=True)  # basket | compassion | eap | research
     treatment_line = Column(String, nullable=True)  # 1st | 2nd | maintenance | any
     indication_oncology = Column(Text, nullable=True)  # JSON: ["EGFR","ALK"] — biomarker targets
+    # ── Israeli MoH / Sal Habriut fields (from israeli-drug-database skill) ──
+    sal_habriut_status  = Column(String, nullable=True)   # in_basket | partial | not_in_basket | specific_indication
+    sal_habriut_copay   = Column(String, nullable=True)   # "minimal" | "fixed" | "percentage" | "none"
+    prescription_type   = Column(String, nullable=True)   # otc | prescription | restricted | narcotic
+    is_otc              = Column(Boolean, nullable=True)  # True = lo mircham
+    generics_available  = Column(Boolean, nullable=True)  # האם קיימות חלופות גנריות בישראל
+    pregnancy_category  = Column(String, nullable=True)   # A | B | C | D | X
+    moh_reg_number      = Column(String, nullable=True)   # מספר רישום משרד הבריאות
 
 
 class DrugUpdateLog(Base):
