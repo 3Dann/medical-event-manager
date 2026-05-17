@@ -186,10 +186,11 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
         raise HTTPException(status_code=400, detail="קיים משתמש פעיל בשם זה. אם שכחת סיסמה — השתמש ב'שכחתי סיסמה'.")
 
     # ── יצירת הבקשה ──────────────────────────────────────────────────────────
+    # hashed_password הוא placeholder — הסיסמה האמיתית (זמנית) נוצרת בעת אישור האדמין
     pending = models.PendingRegistration(
         full_name=user_data.full_name,
         email=user_data.email,
-        hashed_password=auth_utils.get_password_hash(user_data.password),
+        hashed_password=auth_utils.get_password_hash(secrets.token_urlsafe(16)),
         role=user_data.role,
         org_name=user_data.org_name,
         applicant_message=user_data.applicant_message,
