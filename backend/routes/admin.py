@@ -782,3 +782,37 @@ def revoke_patient_permission(
     db.delete(perm)
     db.commit()
     return {"ok": True}
+
+
+@router.get("/drugs/basket-status")
+def drug_basket_summary(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_admin),
+):
+    """סיכום סטטיסטי של נתוני סל הבריאות במאגר."""
+    from sqlalchemy import func as sqlfunc
+    total = db.query(models.DrugEntry).filter(models.DrugEntry.is_active == True).count()
+    with_israeli_data = db.query(models.DrugEntry).filter(
+        models.DrugEntry.sal_habriut_status != None
+    ).count()
+    by_status = db.query(
+        models.DrugEntry.sal_habriut_status,
+        sqlfunc.count(models.DrugEntry.id)
+    ).filter(
+        models.DrugEntry.sal_habriut_status != None
+    ).group_by(models.DrugEntry.sal_habriut_status).all()
+
+    by_rx = db.query(
+        models.DrugEntry.prescription_type,
+        sqlfunc.count(models.DrugEntry.id)
+    ).filter(
+        models.DrugEntry.prescription_type != None
+    ).group_by(models.DrugEntry.prescription_type).all()
+
+    return {
+        "total_drugs": total,
+        "with_israeli_data": with_israeli_data,
+        "coverage_percent": round(with_israeli_data / total * 100, 1) if total else 0,
+        "by_sal_status": dict(by_status),
+        "by_prescription_type": dict(by_rx),
+    }
