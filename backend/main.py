@@ -107,7 +107,7 @@ def _daily_sla_check():
             models.WorkflowStep.sla_deadline < now,
             models.WorkflowStep.sla_alerted.is_(False),
             models.WorkflowStep.status == "active",
-        ).all()
+        ).limit(500).all()   # safety cap — prevents OOM on large datasets
         if not breached:
             logger.info("SLA check: 0 breached steps")
             return
