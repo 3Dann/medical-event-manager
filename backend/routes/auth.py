@@ -133,16 +133,17 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     # הרשמה רגילה — אין סיסמה. סיסמה זמנית תישלח בעת אישור האדמין.
 
     # ── ת"ז — ולידציה ובדיקת כפילות ──────────────────────────────────────────
+    # id_number and phone are EncryptedText — SQL equality comparison is not possible
+    # (Fernet is non-deterministic). Duplicate check is done in Python over pending rows.
     clean_id = None
     if user_data.id_number:
         clean_id = ''.join(c for c in user_data.id_number if c.isdigit())
         if not _validate_israeli_id(clean_id):
             raise HTTPException(status_code=400, detail="מספר ת\"ז אינו תקין — בדוק את הספרות")
-        dup_id = db.query(models.PendingRegistration).filter(
-            models.PendingRegistration.id_number == clean_id,
-            models.PendingRegistration.status == "pending",
-        ).first()
-        if dup_id:
+        pending_rows = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.status == "pending"
+        ).all()
+        if any(r.id_number == clean_id for r in pending_rows):
             raise HTTPException(status_code=400, detail="קיימת בקשת רישום ממתינה עם מספר ת\"ז זה. אם שכחת סיסמה — חזור להתחברות.")
 
     # ── טלפון — בדיקת כפילות ─────────────────────────────────────────────────
@@ -151,11 +152,10 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
         clean_phone = ''.join(c for c in user_data.phone if c.isdigit())
         if len(clean_phone) < 9:
             raise HTTPException(status_code=400, detail="מספר הטלפון קצר מדי — יש להזין לפחות 9 ספרות")
-        dup_phone = db.query(models.PendingRegistration).filter(
-            models.PendingRegistration.phone == clean_phone,
-            models.PendingRegistration.status == "pending",
-        ).first()
-        if dup_phone:
+        pending_rows_phone = db.query(models.PendingRegistration).filter(
+            models.PendingRegistration.status == "pending"
+        ).all()
+        if any(r.phone == clean_phone for r in pending_rows_phone):
             raise HTTPException(status_code=400, detail="קיימת בקשת רישום ממתינה עם מספר טלפון זה. אם שכחת סיסמה — חזור להתחברות.")
 
     # ── מייל — כפילות ────────────────────────────────────────────────────────
