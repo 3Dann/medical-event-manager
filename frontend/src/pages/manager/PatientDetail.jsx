@@ -102,14 +102,11 @@ export default function PatientDetail() {
       setPatient(p.data)
       let conditionTags = []
       try { conditionTags = typeof p.data.condition_tags === 'string' ? JSON.parse(p.data.condition_tags || '[]') : (p.data.condition_tags || []) } catch { conditionTags = [] }
-      const patientData = {
-        ...p.data,
-        condition_tags: conditionTags,
-      }
-      setEditForm(patientData)
+      setEditForm({ ...p.data, condition_tags: conditionTags })
       setNodes(n.data)
       setJourneyTemplates(tpls.data)
       if (p.data.hmo_name) {
+        // cfg carries the AbortController signal so this call is also cancellable
         const plans = await axios.get(`/api/patients/hmo-plans/${p.data.hmo_name}`, cfg)
         setHmoPlans(plans.data)
       }
