@@ -122,7 +122,7 @@ export default function PatientDetail() {
       }
       await axios.put(`/api/patients/${id}`, payload)
       setEditingInfo(false)
-      fetchAll().catch(() => {})
+      fetchAll().catch(e => { if (!axios.isCancel(e)) showToast('לא ניתן לרענן נתונים. רענן את הדף.') })
     } catch {
       showToast('שגיאה בשמירת פרטי המטופל. נסה שוב.')
     } finally {
