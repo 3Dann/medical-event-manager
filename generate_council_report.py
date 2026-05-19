@@ -909,6 +909,65 @@ def build(out_path):
             story.append(finding_card(*f))
         story.append(sp(0.3))
 
+    # ── CRITICAL FIXES APPLIED ──────────────────────────────────────────────
+    story.append(p('Critical Fixes Applied — 2026-05-19', SEC_HEAD))
+    story.append(p(
+        'All critical findings from this report were remediated on 2026-05-19, '
+        'verified through 3 independent review cycles (Developer → Reviewer → Reviewer). '
+        'Each fix was signed off as production-ready before the next was started.',
+        BODY))
+    story.append(sp(0.2))
+
+    FIXED = [
+        ('E2E Test Backdoor removed from production route registration',
+         'routes/auth.py + main.py — conditional router, rate limit 5/hr, audit log'),
+        ('IDOR: Workflow instance endpoints now verify patient ownership',
+         'routes/workflows.py — _get_instance_or_403() applied to 6 endpoints'),
+        ('IDOR: Patient portal explicit owner assertion added',
+         'routes/patient_portal.py — patient_user_id == current_user.id enforced'),
+        ('Patient deletion wrapped in transaction with rollback on failure',
+         'routes/admin.py — try/except + db.rollback() prevents partial deletes'),
+        ('PendingRegistration id_number and phone encrypted at rest',
+         'models.py — Column(EncryptedText); duplicate check moved to Python-level comparison'),
+        ('Admin role/privilege changes now require confirmation dialog',
+         'AdminPage.jsx — handleAdminToggle + handleRoleChange gated by useConfirm()'),
+        ('Medication modal closes only after confirmed API success',
+         'PatientMedications.jsx — setShowForm(false) moved inside success block'),
+        ('RTL back-button arrow corrected (→ → ←)',
+         'IntakeWizard.jsx — line 1162'),
+        ('Language switcher dir="ltr" removed',
+         'LanguageSwitcher.jsx — inherits RTL from page context'),
+        ('triggerSuggest timer cleanup on unmount',
+         'IntakeWizard.jsx — useEffect cleanup prevents state update after unmount'),
+        ('Landing page backend fetch dependency corrected',
+         'LandingPage.jsx — i18n.language added to useEffect deps + AbortController'),
+    ]
+
+    fix_rows = [[p('<b>#</b>', LABEL), p('<b>Fix</b>', LABEL), p('<b>Location</b>', LABEL)]]
+    for i, (fix, loc) in enumerate(FIXED, 1):
+        fix_rows.append([
+            p(str(i), BODY_SMALL),
+            Paragraph(f'<font color="#16A34A">✓</font> {fix}',
+                      s(f'fx{i}', fontSize=9, leading=13)),
+            p(loc, s(f'fl{i}', fontSize=8, leading=11, textColor=GRAY)),
+        ])
+
+    fix_tbl = Table(fix_rows, colWidths=[0.6*cm, CW*0.55, CW*0.38])
+    fix_tbl.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0),(-1,0), NAVY),
+        ('TEXTCOLOR',     (0,0),(-1,0), WHITE),
+        ('FONTNAME',      (0,0),(-1,0), 'Arial-Bold'),
+        ('FONTSIZE',      (0,0),(-1,0), 9),
+        ('ROWBACKGROUNDS',(0,1),(-1,-1), [WHITE, colors.HexColor('#F0FDF4')]),
+        ('GRID',          (0,0),(-1,-1), 0.3, BORDER),
+        ('TOPPADDING',    (0,0),(-1,-1), 5),
+        ('BOTTOMPADDING', (0,0),(-1,-1), 5),
+        ('LEFTPADDING',   (0,0),(-1,-1), 7),
+        ('RIGHTPADDING',  (0,0),(-1,-1), 7),
+        ('VALIGN',        (0,0),(-1,-1), 'TOP'),
+    ]))
+    story.extend([fix_tbl, sp(0.3), PageBreak()])
+
     # ── SECTION 1: SECURITY ─────────────────────────────────────────────────
     render_section(
         '1. Security',
