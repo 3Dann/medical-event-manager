@@ -530,11 +530,7 @@ def get_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.get_current_user),
 ):
-    instance = db.query(models.WorkflowInstance).filter(
-        models.WorkflowInstance.id == instance_id
-    ).first()
-    if not instance:
-        raise HTTPException(404, "Instance not found")
+    instance = _get_instance_or_403(instance_id, current_user, db)
     return FlowEngine.get_summary(instance)
 
 
@@ -545,6 +541,7 @@ def pause_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
+    _get_instance_or_403(instance_id, current_user, db)
     try:
         instance = FlowEngine.pause_instance(db, instance_id, current_user.id, data.reason)
         return FlowEngine.get_summary(instance)
@@ -558,6 +555,7 @@ def resume_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
+    _get_instance_or_403(instance_id, current_user, db)
     try:
         instance = FlowEngine.resume_instance(db, instance_id, current_user.id)
         return FlowEngine.get_summary(instance)
@@ -572,6 +570,7 @@ def cancel_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
+    _get_instance_or_403(instance_id, current_user, db)
     try:
         instance = FlowEngine.cancel_instance(db, instance_id, current_user.id, data.reason)
         return FlowEngine.get_summary(instance)
@@ -585,11 +584,7 @@ def delete_instance(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth_utils.require_manager),
 ):
-    instance = db.query(models.WorkflowInstance).filter(
-        models.WorkflowInstance.id == instance_id
-    ).first()
-    if not instance:
-        raise HTTPException(404, "Instance not found")
+    instance = _get_instance_or_403(instance_id, current_user, db)
     db.delete(instance)
     db.commit()
     return {"ok": True}
