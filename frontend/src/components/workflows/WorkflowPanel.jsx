@@ -84,6 +84,7 @@ export default function WorkflowPanel({ patientId }) {
   const [showNew, setShowNew] = useState(false)
   const [loading, setLoading] = useState(true)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [actionInProgress, setActionInProgress] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
   const [confirm, ConfirmUI] = useConfirm()
   const hasSetInitial = useRef(false)
