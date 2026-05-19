@@ -269,23 +269,31 @@ def list_patients(
 ):
     base_q = db.query(models.Patient).options(joinedload(models.Patient.manager))
     if current_user.role == "manager":
-        own = base_q.filter(models.Patient.manager_id == current_user.id).all()
-        # Also include patients the admin explicitly shared with this manager
-        permitted_ids = [
+        # Fetch permitted patient IDs in a single query
+        permitted_ids = {
             r.patient_id for r in db.query(models.PatientPermission).filter(
                 models.PatientPermission.manager_id == current_user.id
             ).all()
-        ]
-        shared = []
+        }
         if permitted_ids:
-            seen = {p.id for p in own}
-            shared = [p for p in base_q.filter(models.Patient.id.in_(permitted_ids)).all()
-                      if p.id not in seen]
-        patients = own + shared
+            # Combine own + shared in one query, then paginate
+            from sqlalchemy import or_
+            patients = base_q.filter(
+                or_(
+                    models.Patient.manager_id == current_user.id,
+                    models.Patient.id.in_(permitted_ids),
+                )
+            ).limit(limit).offset(offset).all()
+        else:
+            patients = base_q.filter(
+                models.Patient.manager_id == current_user.id
+            ).limit(limit).offset(offset).all()
     elif current_user.is_admin:
         patients = base_q.limit(limit).offset(offset).all()
     else:
-        patients = base_q.filter(models.Patient.patient_user_id == current_user.id).all()
+        patients = base_q.filter(
+            models.Patient.patient_user_id == current_user.id
+        ).limit(limit).offset(offset).all()
     return [patient_to_dict(p) for p in patients]
 
 
