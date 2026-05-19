@@ -152,7 +152,7 @@ export default function PatientDetail() {
       await axios.post(`/api/patients/${id}/nodes/${nodeId}/subitems`, {
         text: text.trim(), sort_order: 99,
       })
-      fetchAll().catch(() => {})
+      fetchAll().catch(e => { if (!axios.isCancel(e)) showToast('לא ניתן לרענן נתונים. רענן את הדף.') })
     } catch (err) {
       showToast('שגיאה בהוספת פריט. נסה שוב.')
     }
