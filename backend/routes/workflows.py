@@ -480,10 +480,11 @@ def list_instances(
         q = q.filter(models.Patient.patient_user_id == current_user.id)
     elif not current_user.is_admin:
         q = q.filter(models.Patient.manager_id == current_user.id)
+    from sqlalchemy.orm import selectinload as _sil
     instances = q.options(
-        joinedload(models.WorkflowInstance.patient),
-        joinedload(models.WorkflowInstance.steps),
-        joinedload(models.WorkflowInstance.template),
+        joinedload(models.WorkflowInstance.patient),   # many-to-one: safe with limit
+        _sil(models.WorkflowInstance.steps),           # one-to-many: must use selectinload to avoid wrong pagination
+        joinedload(models.WorkflowInstance.template),  # many-to-one: safe with limit
     ).order_by(models.WorkflowInstance.started_at.desc()).limit(limit).offset(offset).all()
 
     result = []
