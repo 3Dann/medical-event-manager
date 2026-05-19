@@ -630,13 +630,14 @@ class E2ELoginRequest(BaseModel):
 
 
 # Separate router — registered in main.py ONLY when E2E_SEED env var is set.
-# This router is never included in a production deployment where E2E_SEED is absent.
+# This router is never included in a deployment where E2E_SEED is absent.
+# Uses the same limiter instance as the rest of auth.py (key_func=_get_real_ip),
+# preventing IP spoofing on the rate limit.
 e2e_router = APIRouter(prefix="/api/auth", tags=["e2e"])
-_e2e_limiter = Limiter(key_func=get_remote_address)
 
 
 @e2e_router.post("/e2e-login")
-@_e2e_limiter.limit("5/hour")
+@limiter.limit("5/hour")
 def e2e_login(request: Request, data: E2ELoginRequest, db: Session = Depends(get_db)):
     """E2E test login — bypasses 2FA. Registered only when E2E_SEED is set at startup."""
     e2e_secret = os.getenv("E2E_SEED", "")
