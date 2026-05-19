@@ -561,8 +561,12 @@ export default function AdminPage() {
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => handleAdminToggle(user)}
-                        className={`text-xs px-3 py-1.5 rounded-lg ${user.is_admin ? 'bg-purple-50 text-purple-600 hover:bg-purple-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                        disabled={adminTogglingId === user.id}
+                        className={`text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 disabled:opacity-50 ${user.is_admin ? 'bg-purple-50 text-purple-600 hover:bg-purple-100' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                       >
+                        {adminTogglingId === user.id && (
+                          <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        )}
                         {user.is_admin ? t('revoke_admin') : t('grant_admin')}
                       </button>
                       <button
