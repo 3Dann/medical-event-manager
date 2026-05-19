@@ -200,7 +200,9 @@ def _daily_insurance_gap_check():
     try:
         from sqlalchemy.orm import selectinload
         patients = db.query(models.Patient).options(
-            selectinload(models.Patient.insurance_sources)
+            selectinload(models.Patient.insurance_sources).selectinload(
+                models.InsuranceSource.coverages
+            )
         ).all()
 
         if not patients:
