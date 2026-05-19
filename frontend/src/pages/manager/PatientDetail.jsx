@@ -235,7 +235,7 @@ export default function PatientDetail() {
     if (!ok) return
     try {
       await axios.delete(`/api/patients/${id}/nodes/${nodeId}`)
-      fetchAll().catch(() => {})
+      fetchAll().catch(e => { if (!axios.isCancel(e)) showToast('לא ניתן לרענן נתונים. רענן את הדף.') })
     } catch (err) {
       showToast('שגיאה במחיקת הצומת. נסה שוב.')
     }
