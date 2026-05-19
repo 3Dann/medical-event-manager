@@ -442,6 +442,21 @@ def apply_suggest(
     )
 
 
+# ── Instance access helper ────────────────────────────────────────────────────
+
+def _get_instance_or_403(instance_id: int, current_user, db) -> models.WorkflowInstance:
+    """Fetch a workflow instance and verify the caller has access to its patient.
+    Raises 404 if not found, 403 if the patient belongs to a different manager.
+    Admin users bypass the patient-ownership check via get_patient_with_access."""
+    instance = db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.id == instance_id
+    ).first()
+    if not instance:
+        raise HTTPException(404, "Instance not found")
+    auth_utils.get_patient_with_access(instance.patient_id, current_user, db)
+    return instance
+
+
 # ── Instances ──────────────────────────────────────────────────────────────────
 
 @router.get("/instances")
