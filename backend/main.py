@@ -674,6 +674,21 @@ def run_migrations():
             conn.commit()
             logger.info(f"Schema version recorded: {version}")
 
+        # ── Named data-cleanup migrations ────────────────────────────────────
+        # v1001: fix sla_alerted=1 rows that have no sla_deadline (schema inconsistency)
+        if not conn.execute(sqlalchemy.text(
+            "SELECT version FROM schema_versions WHERE version = 1001"
+        )).fetchone():
+            result = conn.execute(sqlalchemy.text(
+                "UPDATE workflow_steps SET sla_alerted = 0 "
+                "WHERE sla_alerted = 1 AND sla_deadline IS NULL"
+            ))
+            conn.execute(sqlalchemy.text(
+                "INSERT INTO schema_versions (version, description) VALUES (1001, :d)"
+            ), {"d": f"cleanup: reset sla_alerted on {result.rowcount} steps missing deadline"})
+            conn.commit()
+            logger.info("Migration 1001: cleared sla_alerted on %d steps with no deadline", result.rowcount)
+
 run_migrations()
 
 # Seed default responsiveness scores
