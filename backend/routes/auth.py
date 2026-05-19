@@ -16,7 +16,6 @@ import io
 import base64
 from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter
-from slowapi.util import get_ipaddr  # noqa: F401 — used by other route modules via star-import pattern
 from database import get_db
 import models
 import auth as auth_utils
