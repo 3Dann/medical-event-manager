@@ -154,6 +154,8 @@ export default function WorkflowPanel({ patientId }) {
       setInstances(prev => prev.map(i => i.id === res.data.id ? res.data : i))
     } catch (e) {
       showToast('שגיאה בעדכון הזרימה. נסה שוב.')
+    } finally {
+      setActionInProgress(false)
     }
   }
 
