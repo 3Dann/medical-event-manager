@@ -108,6 +108,31 @@ def _daily_sla_check():
             models.WorkflowStep.sla_alerted.is_(False),
             models.WorkflowStep.status == "active",
         ).all()
+        if not breached:
+            logger.info("SLA check: 0 breached steps")
+            return
+
+        # Batch-load all related instances, patients, and existing tasks in 3 queries
+        instance_ids = list({s.instance_id for s in breached})
+        instances_by_id = {
+            i.id: i for i in db.query(models.WorkflowInstance).filter(
+                models.WorkflowInstance.id.in_(instance_ids)
+            ).all()
+        }
+        patient_ids = list({i.patient_id for i in instances_by_id.values() if i.patient_id})
+        patients_by_id = {
+            p.id: p for p in db.query(models.Patient).filter(
+                models.Patient.id.in_(patient_ids)
+            ).all()
+        } if patient_ids else {}
+        step_ids = [s.id for s in breached]
+        existing_tasks_by_step = {
+            t.source_id: t for t in db.query(models.Task).filter(
+                models.Task.source_id.in_(step_ids),
+                models.Task.source_type == "sla_breach",
+            ).all()
+        }
+
         for step in breached:
             # Normalize timezone-naive deadlines (legacy data before timezone support)
             deadline = step.sla_deadline
@@ -130,17 +155,14 @@ def _daily_sla_check():
                 step.id, step.step_key, step.instance_id,
                 deadline.isoformat(),
             )
-            # Auto-create a task for the patient's manager
+            # Auto-create a task for the patient's manager using pre-loaded data
             try:
-                instance = db.get(models.WorkflowInstance, step.instance_id)
+                instance = instances_by_id.get(step.instance_id)
                 if instance:
-                    patient = db.get(models.Patient, instance.patient_id)
+                    patient = patients_by_id.get(instance.patient_id)
                     manager_id = patient.manager_id if patient else None
                     if manager_id:
-                        existing = db.query(models.Task).filter(
-                            models.Task.source_id == step.id,
-                            models.Task.source_type == "sla_breach",
-                        ).first()
+                        existing = existing_tasks_by_step.get(step.id)
                         if not existing:
                             db.add(models.Task(
                                 title=f"חריגת SLA — {step.name}",
@@ -154,13 +176,12 @@ def _daily_sla_check():
                                 status="pending",
                                 due_date=now,
                             ))
-                        elif existing and existing.status != "done":
+                        elif existing.status != "done":
                             existing.due_date = now  # refresh deadline
             except Exception:
                 logger.exception("Failed to create SLA task for step %s", step.id)
-        if breached:
-            db.commit()
-            logger.info(f"SLA check: {len(breached)} steps marked as breached")
+        db.commit()
+        logger.info("SLA check: %d steps marked as breached", len(breached))
     except Exception:
         logger.exception("SLA check job failed")
     finally:
