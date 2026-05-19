@@ -901,7 +901,7 @@ def build(out_path):
                 ('BACKGROUND',    (0,0),(-1,-1), LGRAY),
                 ('BOX',           (0,0),(-1,-1), 0.5, BORDER),
             ]))
-            story += [sp(0.15), sr, sp(0.25)]
+            story.extend([sp(0.15), sr, sp(0.25)])
         else:
             story.append(sp(0.25))
 
