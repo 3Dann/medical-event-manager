@@ -540,19 +540,24 @@ export default function IntakeWizard() {
   const [saving, setSaving] = useState(false)
   const [draftSaved, setDraftSaved] = useState(false)
   const draftTimer = useRef(null)
+  const draftFadeTimer = useRef(null)
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
 
   useEffect(() => {
     clearTimeout(draftTimer.current)
+    clearTimeout(draftFadeTimer.current)
     draftTimer.current = setTimeout(() => {
       try {
         sessionStorage.setItem(DRAFT_KEY, JSON.stringify(form))
         setDraftSaved(true)
-        setTimeout(() => setDraftSaved(false), 1500)
+        draftFadeTimer.current = setTimeout(() => setDraftSaved(false), 1500)
       } catch {}
     }, 800)
-    return () => clearTimeout(draftTimer.current)
+    return () => {
+      clearTimeout(draftTimer.current)
+      clearTimeout(draftFadeTimer.current)
+    }
   }, [form])
 
   const clearDraft = () => {
