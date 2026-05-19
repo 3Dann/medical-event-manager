@@ -688,6 +688,7 @@ class WorkflowInstance(Base):
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
+    __table_args__ = (Index('ix_ws_instance_status', 'instance_id', 'status'),)
     id                    = Column(Integer, primary_key=True, index=True)
     instance_id = Column(Integer, ForeignKey("workflow_instances.id", ondelete="CASCADE"), index=True)
     step_key              = Column(String, nullable=False)
