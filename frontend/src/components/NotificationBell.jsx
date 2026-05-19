@@ -15,6 +15,7 @@ export default function NotificationBell() {
     let emptyStreak = 0
 
     const load = () => {
+      clearTimeout(timeoutId)  // always cancel pending timeout before scheduling a new one
       if (document.visibilityState === 'hidden') {
         // Skip while tab is in background; reschedule for when it becomes visible
         timeoutId = setTimeout(load, backoffMs)
