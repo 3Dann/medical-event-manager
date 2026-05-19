@@ -644,30 +644,31 @@ def e2e_login(request: Request, data: E2ELoginRequest, db: Session = Depends(get
     client_ip = _get_real_ip(request)
     user_agent = (request.headers.get("user-agent") or "")[:200]
 
+    def _audit(action: str, status: int, user_id=None, user_name=None):
+        """Write to audit trail without ever breaking the auth flow."""
+        try:
+            db.add(models.UserActivityLog(
+                user_id=user_id, user_name=user_name,
+                action_type=action, ip_address=client_ip,
+                user_agent=user_agent, status_code=status,
+            ))
+            db.commit()
+        except Exception:
+            logger.exception("E2E audit write failed (action=%s) — auth continues", action)
+            db.rollback()
+
     if not e2e_secret or data.e2e_secret != e2e_secret:
         logger.warning("E2E login rejected: wrong secret from %s for %s", client_ip, data.email)
-        db.add(models.UserActivityLog(
-            action_type="e2e_login_failed",
-            ip_address=client_ip,
-            user_agent=user_agent,
-            status_code=401,
-        ))
-        db.commit()
+        _audit("e2e_login_failed", 401)
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
+        logger.warning("E2E login rejected: user not found %s from %s", data.email, client_ip)
+        _audit("e2e_login_user_not_found", 404)
         raise HTTPException(status_code=404, detail="User not found")
 
-    db.add(models.UserActivityLog(
-        user_id=user.id,
-        user_name=user.full_name,
-        action_type="e2e_login_success",
-        ip_address=client_ip,
-        user_agent=user_agent,
-        status_code=200,
-    ))
-    db.commit()
+    _audit("e2e_login_success", 200, user_id=user.id, user_name=user.full_name)
     logger.info("E2E login granted: %s from %s", data.email, client_ip)
     token = auth_utils.create_access_token({"sub": str(user.id)})
     return Token(
