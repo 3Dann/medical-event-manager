@@ -463,6 +463,42 @@ def build(out):
         BODY))
     story.extend([sp(0.3), hr()])
 
+    # ── DELTA: COMPARISON TO PREVIOUS AUDIT ────────────────────────────────
+    story.append(p('Delta — Comparison to Previous Audit (2026-05-19)', SEC))
+    story.append(p(
+        'A second council run was performed after the initial efficiency report. '
+        'The table below shows what changed: fixes confirmed, issues that persist, '
+        'and newly discovered findings not in the original report.',
+        BODY))
+    story.append(sp(0.25))
+
+    def delta_table(title, data, header_col, header_bg):
+        rows = [[p(f'<b>{title}</b>', s(f'dh{title}', fontName='Arial-Bold', fontSize=9,
+                                         textColor=WHITE)),
+                 p('<b>Location</b>', s('dhl', fontName='Arial-Bold', fontSize=9, textColor=WHITE)),
+                 p('<b>Detail</b>', s('dhd', fontName='Arial-Bold', fontSize=9, textColor=WHITE))]]
+        for item, loc, detail in data:
+            rows.append([p(item, BODY), p(loc, SMALL), p(detail, SMALL)])
+        tbl = Table(rows, colWidths=[CW*0.3, CW*0.25, CW*0.45])
+        tbl.setStyle(TableStyle([
+            ('BACKGROUND', (0,0),(-1,0), header_bg),
+            ('ROWBACKGROUNDS', (0,1),(-1,-1), [WHITE, LGRAY]),
+            ('GRID', (0,0),(-1,-1), 0.3, BORDER),
+            ('TOPPADDING', (0,0),(-1,-1), 4), ('BOTTOMPADDING', (0,0),(-1,-1), 4),
+            ('LEFTPADDING', (0,0),(-1,-1), 6), ('RIGHTPADDING', (0,0),(-1,-1), 6),
+            ('VALIGN', (0,0),(-1,-1), 'TOP'),
+        ]))
+        return tbl
+
+    story.extend([
+        delta_table('✅  FIXED (6)', DELTA_FIXED, 'Fixed', GREEN),
+        sp(0.2),
+        delta_table('⚠️  PERSISTS (9)', DELTA_PERSISTS, 'Persists', AMBER),
+        sp(0.2),
+        delta_table('🆕  NEW FINDINGS (8)', DELTA_NEW, 'New', RED),
+        sp(0.3), PageBreak(),
+    ])
+
     # ── PRIORITY QUICK WINS ─────────────────────────────────────────────────
     story.append(p('Priority Action Plan', SEC))
     story.append(p('Sorted by effort — easiest first. Each item is self-contained '
