@@ -131,6 +131,8 @@ export default function WorkflowPanel({ patientId }) {
   }
 
   const handleAction = async (action, instanceId) => {
+    if (actionInProgress) return
+    setActionInProgress(true)
     try {
       if (action === 'pause')  await axios.post(`/api/workflows/instances/${instanceId}/pause`,  { reason: '' })
       if (action === 'resume') await axios.post(`/api/workflows/instances/${instanceId}/resume`)
