@@ -348,6 +348,39 @@ STRUCTURE = [
      '1 hour'),
 ]
 
+# ── Delta data from second council run (2026-05-19 comparison) ────────────────
+DELTA_FIXED = [
+    ('admin.py delete rollback', 'routes/admin.py : 145', 'Transaction rollback added — partial delete prevented'),
+    ('IntakeWizard triggerSuggest cleanup', 'IntakeWizard.jsx : 592', 'useEffect cleanup clears timer on unmount'),
+    ('LandingPage i18n dependency', 'LandingPage.jsx : 608', 'i18n.language added to useEffect deps + AbortController'),
+    ('LandingPage event listeners', 'LandingPage.jsx : 51, 484, 614', 'All 3 listeners have correct cleanup functions'),
+    ('PatientMedications modal close timing', 'PatientMedications.jsx : 100', 'Modal closes only after confirmed API success'),
+    ('AdminPage confirmation dialogs', 'AdminPage.jsx : 158, 150', 'handleAdminToggle + handleRoleChange gated by useConfirm()'),
+]
+
+DELTA_PERSISTS = [
+    ('_daily_insurance_gap_check N+1', 'main.py : 180', 'Full table scan + per-patient node queries — not batched'),
+    ('_daily_sla_check 3 queries/step', 'main.py : 135', '3 DB queries per breached step — no batch loading'),
+    ('list_instances dead steps_map', 'workflows.py : 487', 'steps_map built and discarded — dead code'),
+    ('list_instances incomplete joinedload', 'workflows.py : 483', 'steps + template still lazy-loaded — N+1 per instance'),
+    ('list_patients pagination broken', 'patients.py : 272', 'Manager query uses .all() — ignores limit/offset'),
+    ('NotificationBell 60s no backoff', 'NotificationBell.jsx : 21', 'Polls every 60s unconditionally — no backoff or visibility check'),
+    ('PatientMedications debounce', 'PatientMedications.jsx : 102', 'checkInBackground() called immediately after every save'),
+    ('PatientDetail silent catches', 'PatientDetail.jsx : 128+', '8 instances of .catch(() => {}) hiding errors'),
+    ('4 compound indexes missing', 'models.py', 'WorkflowStep, WorkflowInstance, PatientMedication, Node'),
+]
+
+DELTA_NEW = [
+    ('IntakeWizard draftTimer nested', 'IntakeWizard.jsx : 553', 'Inner setTimeout not tracked — fires on unmounted component'),
+    ('PatientDetail HMO fetch no signal', 'PatientDetail.jsx : 113', 'HMO plans axios call has no AbortController signal'),
+    ('PatientDetail derived state', 'PatientDetail.jsx : 265', 'sorted/customNodes/counts not in useMemo — recalcs every render'),
+    ('WorkflowPanel unprotected buttons', 'WorkflowPanel.jsx : 222', 'pause/resume/cancel have no disabled guard — double-submit risk'),
+    ('AdminPage button during confirm', 'AdminPage.jsx : 557', 'Button not disabled while ConfirmDialog is open'),
+    ('AdminPage toggle no spinner', 'AdminPage.jsx : 165', 'No loading state after user confirms admin toggle'),
+    ('applyTemplate modal spinner lock', 'PatientDetail.jsx : 193', 'Modal stuck with spinner if fetchAll fails after apply'),
+    ('No HTTP cache headers', 'routes/medications.py', 'Browser re-downloads medication list on every tab switch'),
+]
+
 QUICK_WINS = [
     ('15 min',  'Remove unused steps_map in list_instances()',           'backend/routes/workflows.py : 487'),
     ('10 min',  'Wrap dashboard stats in useMemo',                       'frontend/src/pages/manager/ManagerDashboard.jsx : 88'),
