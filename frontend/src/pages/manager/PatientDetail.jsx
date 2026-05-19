@@ -137,7 +137,7 @@ export default function PatientDetail() {
       await axios.post(`/api/patients/${id}/nodes`, addForm)
       setShowAddForm(false)
       setAddForm({ description: '', node_type: 'medical', status: 'future', planned_date: '', notes: '', stage_order: 15 })
-      fetchAll().catch(() => {})
+      fetchAll().catch(e => { if (!axios.isCancel(e)) showToast('לא ניתן לרענן נתונים. רענן את הדף.') })
     } catch (err) {
       showToast('שגיאה בהוספת הצומת. נסה שוב.')
     } finally {
