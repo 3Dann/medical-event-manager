@@ -174,11 +174,16 @@ export default function AdminPage() {
       danger: true,
     })
     if (!ok) return
+    setAdminTogglingId(user.id)
     try {
       await axios.put(`/api/admin/users/${user.id}/role`, { role: user.role, is_admin: !user.is_admin })
       setStatus(user.id, true, !user.is_admin ? 'הוגדר כאדמין' : 'הוסרה הרשאת אדמין')
-      fetchUsers()
-    } catch (err) { setStatus(user.id, false, err.response?.data?.detail || 'שגיאה') }
+      await fetchUsers()
+    } catch (err) {
+      setStatus(user.id, false, err.response?.data?.detail || 'שגיאה')
+    } finally {
+      setAdminTogglingId(null)
+    }
   }
 
 
