@@ -383,6 +383,7 @@ class PatientDocument(Base):
 
 class Node(Base):
     __tablename__ = "nodes"
+    __table_args__ = (Index('ix_node_patient_type', 'patient_id', 'node_type'),)
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"), index=True)
     node_type = Column(String, nullable=False)   # medical / financial / stage
