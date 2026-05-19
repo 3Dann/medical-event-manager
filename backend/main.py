@@ -836,6 +836,17 @@ app.include_router(broker_routes.router)
 app.include_router(address_routes.router)
 app.include_router(patient_auth_router)
 
+# E2E test backdoor — registered ONLY when E2E_SEED is present in the environment.
+# If E2E_SEED is absent (standard production), this route does not exist and any
+# request to /api/auth/e2e-login returns a generic 404 from FastAPI routing.
+if os.getenv("E2E_SEED"):
+    from routes.auth import e2e_router
+    app.include_router(e2e_router)
+    logger.warning(
+        "⚠️  E2E test endpoint is ACTIVE (/api/auth/e2e-login). "
+        "Ensure E2E_SEED is a strong secret and is not set in standard production deployments."
+    )
+
 
 def _seed_step_task_templates(db, step_template, tasks):
     """Idempotent: create task templates for a step template if not already present."""
