@@ -10,16 +10,46 @@ export default function NotificationBell() {
 
   useEffect(() => {
     let ctrl = new AbortController()
+    let timeoutId = null
+    let backoffMs = 120000   // base: 2 minutes
+    let emptyStreak = 0
+
     const load = () => {
+      if (document.visibilityState === 'hidden') {
+        // Skip while tab is in background; reschedule for when it becomes visible
+        timeoutId = setTimeout(load, backoffMs)
+        return
+      }
       ctrl.abort()
       ctrl = new AbortController()
       axios.get('/api/notifications', { signal: ctrl.signal })
-        .then(r => setData(r.data))
-        .catch(e => { if (!axios.isCancel(e)) console.error('notifications fetch failed', e) })
+        .then(r => {
+          setData(r.data)
+          if ((r.data?.count ?? 0) === 0) {
+            emptyStreak = Math.min(emptyStreak + 1, 5)
+            // After 5 empty responses back off up to 5 minutes
+            backoffMs = Math.min(120000 * Math.pow(1.5, emptyStreak - 1), 300000)
+          } else {
+            emptyStreak = 0
+            backoffMs = 120000  // reset on new notifications
+          }
+          timeoutId = setTimeout(load, backoffMs)
+        })
+        .catch(e => {
+          if (!axios.isCancel(e)) {
+            backoffMs = Math.min(backoffMs * 2, 300000)  // backoff on error
+            timeoutId = setTimeout(load, backoffMs)
+          }
+        })
     }
+
     load()
-    const id = setInterval(load, 60000)
-    return () => { clearInterval(id); ctrl.abort() }
+    document.addEventListener('visibilitychange', load)
+    return () => {
+      clearTimeout(timeoutId)
+      ctrl.abort()
+      document.removeEventListener('visibilitychange', load)
+    }
   }, [])
 
   // Close on outside click
