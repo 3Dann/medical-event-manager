@@ -481,15 +481,10 @@ def list_instances(
     elif not current_user.is_admin:
         q = q.filter(models.Patient.manager_id == current_user.id)
     instances = q.options(
-        joinedload(models.WorkflowInstance.patient)
+        joinedload(models.WorkflowInstance.patient),
+        joinedload(models.WorkflowInstance.steps),
+        joinedload(models.WorkflowInstance.template),
     ).order_by(models.WorkflowInstance.started_at.desc()).limit(limit).offset(offset).all()
-
-    inst_ids = [i.id for i in instances]
-    all_steps = db.query(models.WorkflowStep).filter(
-        models.WorkflowStep.instance_id.in_(inst_ids)).all() if inst_ids else []
-    steps_map = {}
-    for s in all_steps:
-        steps_map.setdefault(s.instance_id, []).append(s)
 
     result = []
     for i in instances:
