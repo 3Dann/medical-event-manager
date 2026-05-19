@@ -630,19 +630,25 @@ class E2ELoginRequest(BaseModel):
     e2e_secret: str
 
 
-@router.post("/e2e-login")
+# Separate router — registered in main.py ONLY when E2E_SEED env var is set.
+# This router is never included in a production deployment where E2E_SEED is absent.
+e2e_router = APIRouter(prefix="/api/auth", tags=["e2e"])
+_e2e_limiter = Limiter(key_func=get_remote_address)
+
+
+@e2e_router.post("/e2e-login")
+@_e2e_limiter.limit("5/hour")
 def e2e_login(request: Request, data: E2ELoginRequest, db: Session = Depends(get_db)):
-    """E2E test login — עוקף 2FA. פעיל רק כש-E2E_SEED מוגדר ב-env."""
-    import os as _os
-    e2e_secret = _os.getenv("E2E_SEED", "")
-    if not e2e_secret:
-        raise HTTPException(status_code=404, detail="Not found")
-    if data.e2e_secret != e2e_secret:
+    """E2E test login — bypasses 2FA. Registered only when E2E_SEED is set at startup."""
+    e2e_secret = os.getenv("E2E_SEED", "")
+    client_ip = _get_real_ip(request)
+    if not e2e_secret or data.e2e_secret != e2e_secret:
+        logger.warning("E2E login rejected: wrong secret from %s for %s", client_ip, data.email)
         raise HTTPException(status_code=401, detail="Unauthorized")
-    email = data.email
-    user = db.query(models.User).filter(models.User.email == email).first()
+    user = db.query(models.User).filter(models.User.email == data.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    logger.info("E2E login granted: %s from %s", data.email, client_ip)
     token = auth_utils.create_access_token({"sub": str(user.id)})
     return Token(
         access_token=token, token_type="bearer",
