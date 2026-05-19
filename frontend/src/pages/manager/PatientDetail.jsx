@@ -209,7 +209,7 @@ export default function PatientDetail() {
     if (!ok) return
     try {
       await axios.delete(`/api/patients/${id}/journey-templates/${key}`)
-      await fetchAll().catch(() => {})
+      await fetchAll().catch(e => { if (!axios.isCancel(e)) showToast('לא ניתן לרענן נתונים. רענן את הדף.') })
       setSelectedTplPreview(prev => prev?.key === key ? null : prev)
     } catch (err) {
       showToast('שגיאה בהסרת המסע. נסה שוב.')
