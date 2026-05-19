@@ -326,19 +326,24 @@ def med_to_dict(m):
 @router.get("/api/patients/{patient_id}/medications")
 def list_medications(
     patient_id: int,
+    limit: int = Query(100, le=500),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
 ):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
-    meds = (
+    q = (
         db.query(models.PatientMedication)
         .filter(models.PatientMedication.patient_id == patient_id)
         .order_by(models.PatientMedication.is_active.desc(), models.PatientMedication.created_at.desc())
-        .all()
     )
+    total = q.count()
+    meds = q.limit(limit).offset(offset).all()
     result = [med_to_dict(m) for m in meds]
     interactions = check_interactions(result)
-    return {"medications": result, "interactions": interactions}
+    response = JSONResponse({"medications": result, "interactions": interactions, "total": total})
+    response.headers["Cache-Control"] = "private, max-age=60"
+    return response
 
 
 @router.post("/api/patients/{patient_id}/medications")
