@@ -598,13 +598,17 @@ export default function LandingPage() {
 
   // Fetch overrides from backend; re-run when language changes so content is always fresh
   useEffect(() => {
-    axios.get('/api/settings/landing').then(res => {
-      const data = res.data
-      if (data && Object.keys(data).length > 0) {
-        localStorage.setItem('landing_overrides', JSON.stringify(data))
-        setOverrides(getLandingOverrides(i18n.language))
-      }
-    }).catch(() => { /* use localStorage fallback */ })
+    const ctrl = new AbortController()
+    axios.get('/api/settings/landing', { signal: ctrl.signal })
+      .then(res => {
+        const data = res.data
+        if (data && Object.keys(data).length > 0) {
+          localStorage.setItem('landing_overrides', JSON.stringify(data))
+          setOverrides(getLandingOverrides(i18n.language))
+        }
+      })
+      .catch(e => { if (!axios.isCancel(e)) { /* use localStorage fallback */ } })
+    return () => ctrl.abort()
   }, [i18n.language])
 
   useEffect(() => {
