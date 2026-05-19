@@ -187,7 +187,12 @@ export default function PatientDetail() {
     setApplyingTemplate(key)
     try {
       await axios.post(`/api/patients/${id}/journey-templates/${key}/apply`)
-      await fetchAll().catch(() => {})
+      try {
+        await fetchAll()
+      } catch (fetchErr) {
+        if (!axios.isCancel(fetchErr))
+          showToast('המסע הוחל, אך לא ניתן לרענן את הנתונים. רענן את הדף.')
+      }
       setShowJourneyModal(false)
       setSelectedTplPreview(null)
     } catch (e) {
