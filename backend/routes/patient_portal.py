@@ -65,6 +65,8 @@ def get_patient_summary(
     ).first()
     if not patient:
         raise HTTPException(404, "לא נמצא תיק מטופל מקושר")
+    if patient.patient_user_id != current_user.id:
+        raise HTTPException(403, "אין גישה לתיק זה")
 
     # Claims (no drafts)
     claims = db.query(models.Claim).filter(
