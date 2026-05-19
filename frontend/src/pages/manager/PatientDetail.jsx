@@ -262,14 +262,18 @@ export default function PatientDetail() {
 
   const idValid = validateIsraeliId(editForm.id_number)
 
-  if (!patient) return <div className="p-8 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
+  // Memoised before early return so hooks are never called conditionally
+  const sorted = useMemo(() => sortNodes(nodes), [nodes])
+  const appliedTemplateKeys = useMemo(
+    () => new Set(nodes.filter(n => n.source_template_key).map(n => n.source_template_key)),
+    [nodes]
+  )
+  const patientConditionTags = useMemo(() => editForm.condition_tags || [], [editForm.condition_tags])
+  const customNodes = useMemo(() => sorted.filter(n => n.node_type !== 'stage'), [sorted])
+  const completedCount = useMemo(() => customNodes.filter(n => n.status === 'completed').length, [customNodes])
+  const activeCount = useMemo(() => customNodes.filter(n => n.status === 'active').length, [customNodes])
 
-  const sorted = sortNodes(nodes)
-  const appliedTemplateKeys = new Set(nodes.filter(n => n.source_template_key).map(n => n.source_template_key))
-  const patientConditionTags = editForm.condition_tags || []
-  const customNodes = sorted.filter(n => n.node_type !== 'stage')
-  const completedCount = customNodes.filter(n => n.status === 'completed').length
-  const activeCount = customNodes.filter(n => n.status === 'active').length
+  if (!patient) return <div className="p-8 text-slate-500">{t('common:loading', { ns: 'common' })}</div>
 
   return (
     <>
