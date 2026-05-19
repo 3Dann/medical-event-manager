@@ -16,7 +16,7 @@ import io
 import base64
 from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter
-from slowapi.util import get_remote_address
+from slowapi.util import get_ipaddr
 from database import get_db
 import models
 import auth as auth_utils
