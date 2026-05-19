@@ -596,7 +596,7 @@ export default function LandingPage() {
     setOverrides(getLandingOverrides(i18n.language))
   }, [i18n.language])
 
-  // Fetch overrides from backend on load; cache in localStorage for next visit
+  // Fetch overrides from backend; re-run when language changes so content is always fresh
   useEffect(() => {
     axios.get('/api/settings/landing').then(res => {
       const data = res.data
@@ -605,7 +605,7 @@ export default function LandingPage() {
         setOverrides(getLandingOverrides(i18n.language))
       }
     }).catch(() => { /* use localStorage fallback */ })
-  }, [])
+  }, [i18n.language])
 
   useEffect(() => {
     const handler = () => setOverrides(getLandingOverrides(i18n.language))
