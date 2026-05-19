@@ -688,7 +688,13 @@ class WorkflowInstance(Base):
 
 class WorkflowStep(Base):
     __tablename__ = "workflow_steps"
-    __table_args__ = (Index('ix_ws_instance_status', 'instance_id', 'status'),)
+    __table_args__ = (
+        Index('ix_ws_instance_status', 'instance_id', 'status'),
+        CheckConstraint(
+            'sla_alerted = 0 OR sla_deadline IS NOT NULL',
+            name='ck_sla_alerted_requires_deadline',
+        ),
+    )
     id                    = Column(Integer, primary_key=True, index=True)
     instance_id = Column(Integer, ForeignKey("workflow_instances.id", ondelete="CASCADE"), index=True)
     step_key              = Column(String, nullable=False)
