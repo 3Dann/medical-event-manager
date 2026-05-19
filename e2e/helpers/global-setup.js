@@ -39,8 +39,9 @@ function apiPost(url, body) {
 
 module.exports = async function globalSetup() {
   const BASE_URL   = process.env.BASE_URL   || 'http://localhost:5173'
-  const email      = process.env.E2E_EMAIL    || 'e2e@careflow.test'
-  const e2eSecret  = process.env.E2E_SEED     || '1'
+  const email      = process.env.E2E_EMAIL  || 'e2e@careflow.test'
+  const e2eSecret  = process.env.E2E_SEED
+  if (!e2eSecret) throw new Error('E2E_SEED env var is required — refusing to run without a secret')
 
   console.log(`\n🔐 E2E Setup: getting token for ${email} on ${BASE_URL}`)
 
