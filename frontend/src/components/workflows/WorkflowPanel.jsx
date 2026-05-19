@@ -225,19 +225,22 @@ export default function WorkflowPanel({ patientId }) {
                     {selected.status === 'active' && (
                       <>
                         <button onClick={() => handleAction('pause', selected.id)}
-                          className="text-xs px-2 py-1 text-amber-600 hover:bg-amber-50 rounded border border-amber-200">
-                          השהה
+                          disabled={actionInProgress}
+                          className="text-xs px-2 py-1 text-amber-600 hover:bg-amber-50 rounded border border-amber-200 disabled:opacity-40">
+                          {actionInProgress ? '...' : 'השהה'}
                         </button>
                         <button onClick={() => handleAction('cancel', selected.id)}
-                          className="text-xs px-2 py-1 text-red-500 hover:bg-red-50 rounded border border-red-200">
-                          בטל
+                          disabled={actionInProgress}
+                          className="text-xs px-2 py-1 text-red-500 hover:bg-red-50 rounded border border-red-200 disabled:opacity-40">
+                          {actionInProgress ? '...' : 'בטל'}
                         </button>
                       </>
                     )}
                     {selected.status === 'paused' && (
                       <button onClick={() => handleAction('resume', selected.id)}
-                        className="text-xs px-2 py-1 text-blue-600 hover:bg-blue-50 rounded border border-blue-200">
-                        חדש
+                        disabled={actionInProgress}
+                        className="text-xs px-2 py-1 text-blue-600 hover:bg-blue-50 rounded border border-blue-200 disabled:opacity-40">
+                        {actionInProgress ? '...' : 'חדש'}
                       </button>
                     )}
                     {!deleteConfirm ? (
