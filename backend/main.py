@@ -198,13 +198,35 @@ def _daily_insurance_gap_check():
     import json as _json
     db = SessionLocal()
     try:
-        patients = db.query(models.Patient).all()
-        for patient in patients:
-            nodes = db.query(models.Node).filter(
-                models.Node.patient_id == patient.id,
-                models.Node.node_type != "stage",
-                models.Node.overlay_global.is_(False),
+        from sqlalchemy.orm import selectinload
+        patients = db.query(models.Patient).options(
+            selectinload(models.Patient.insurance_sources)
+        ).all()
+
+        if not patients:
+            return
+
+        # Batch-load all non-stage nodes for all patients in one query
+        patient_ids = [p.id for p in patients]
+        all_nodes = db.query(models.Node).filter(
+            models.Node.patient_id.in_(patient_ids),
+            models.Node.node_type != "stage",
+            models.Node.overlay_global.is_(False),
+        ).all()
+        nodes_by_patient: dict = {}
+        for node in all_nodes:
+            nodes_by_patient.setdefault(node.patient_id, []).append(node)
+
+        # Batch-load existing insurance-gap red flags for all patients
+        existing_flags_by_patient = {
+            f.patient_id: f for f in db.query(models.PatientRedFlag).filter(
+                models.PatientRedFlag.patient_id.in_(patient_ids),
+                models.PatientRedFlag.title == "פער ביטוחי משמעותי",
             ).all()
+        }
+
+        for patient in patients:
+            nodes = nodes_by_patient.get(patient.id, [])
             total_cost = 0.0
             total_covered = 0.0
             for node in nodes:
@@ -218,33 +240,29 @@ def _daily_insurance_gap_check():
 
             insurance_gap = max(0.0, total_cost - total_covered)
             gap_pct = insurance_gap / total_cost
-
-            existing_flag = db.query(models.PatientRedFlag).filter(
-                models.PatientRedFlag.patient_id == patient.id,
-                models.PatientRedFlag.title == "פער ביטוחי משמעותי",
-            ).first()
+            existing_flag = existing_flags_by_patient.get(patient.id)
 
             if gap_pct > 0.3:
+                pct_label = round(gap_pct * 100)
+                desc = f"פער ביטוחי של {pct_label}% ({insurance_gap:,.0f} ₪) — מעל 30% מהעלות הכוללת."
                 if not existing_flag:
-                    pct_label = round(gap_pct * 100)
                     db.add(models.PatientRedFlag(
                         patient_id=patient.id,
                         flag_type="financial",
                         severity="warning",
                         title="פער ביטוחי משמעותי",
-                        description=f"פער ביטוחי של {pct_label}% ({insurance_gap:,.0f} ₪) — מעל 30% מהעלות הכוללת.",
+                        description=desc,
                         is_active=True,
                     ))
                 elif not existing_flag.is_active:
                     existing_flag.is_active = True
-                    pct_label = round(gap_pct * 100)
-                    existing_flag.description = f"פער ביטוחי של {pct_label}% ({insurance_gap:,.0f} ₪) — מעל 30% מהעלות הכוללת."
+                    existing_flag.description = desc
             else:
                 if existing_flag and existing_flag.is_active:
                     existing_flag.is_active = False
 
         db.commit()
-        logger.info("Insurance gap check completed for %s patients", len(patients))
+        logger.info("Insurance gap check completed for %d patients", len(patients))
     except Exception:
         logger.exception("Insurance gap check job failed")
     finally:
