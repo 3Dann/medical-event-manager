@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, Enum, Index
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, Text, ForeignKey, Enum, Index, CheckConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import TypeDecorator
