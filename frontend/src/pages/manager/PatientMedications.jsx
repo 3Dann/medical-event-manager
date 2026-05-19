@@ -54,11 +54,15 @@ export default function PatientMedications() {
   }
 
   const checkCtrlRef = useRef(null)
+  const checkDebounceRef = useRef(null)
   const checkInBackground = () => {
-    checkCtrlRef.current?.abort()
-    checkCtrlRef.current = new AbortController()
-    setCheckingInteractions(true)
-    fetchAll(checkCtrlRef.current.signal)
+    clearTimeout(checkDebounceRef.current)
+    checkDebounceRef.current = setTimeout(() => {
+      checkCtrlRef.current?.abort()
+      checkCtrlRef.current = new AbortController()
+      setCheckingInteractions(true)
+      fetchAll(checkCtrlRef.current.signal)
+    }, 400)
   }
 
   const fetchDocuments = async (signal) => {
