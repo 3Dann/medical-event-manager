@@ -148,6 +148,13 @@ export default function AdminPage() {
   }
 
   const handleRoleChange = async (user, newRole) => {
+    const ok = await confirm({
+      title: 'שינוי תפקיד',
+      message: `לשנות את תפקיד ${user.full_name} ל-${newRole}?`,
+      confirmLabel: 'שנה תפקיד',
+      danger: false,
+    })
+    if (!ok) return
     try {
       await axios.put(`/api/admin/users/${user.id}/role`, { role: newRole, is_admin: user.is_admin })
       setStatus(user.id, true, 'תפקיד עודכן')
@@ -156,6 +163,16 @@ export default function AdminPage() {
   }
 
   const handleAdminToggle = async (user) => {
+    const removing = user.is_admin
+    const ok = await confirm({
+      title: removing ? 'הסרת הרשאת אדמין' : 'הגדרה כאדמין',
+      message: removing
+        ? `להסיר את הרשאת האדמין מ-${user.full_name}? פעולה זו לא ניתנת לביטול ידני.`
+        : `להגדיר את ${user.full_name} כמנהל מערכת? הם יקבלו גישה מלאה לכל הנתונים.`,
+      confirmLabel: removing ? 'הסר הרשאות' : 'הגדר כאדמין',
+      danger: true,
+    })
+    if (!ok) return
     try {
       await axios.put(`/api/admin/users/${user.id}/role`, { role: user.role, is_admin: !user.is_admin })
       setStatus(user.id, true, !user.is_admin ? 'הוגדר כאדמין' : 'הוסרה הרשאת אדמין')
