@@ -20,6 +20,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [resetResult, setResetResult] = useState(null)
   const [actionStatus, setActionStatus] = useState({})
+  const [adminTogglingId, setAdminTogglingId] = useState(null)
 
   // Registrations badge
   const [pendingRegCount, setPendingRegCount] = useState(0)
