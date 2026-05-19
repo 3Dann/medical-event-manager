@@ -1159,7 +1159,7 @@ export default function IntakeWizard() {
               disabled={step === 0 && funcSubStep === 0}
               className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium min-h-[44px]"
             >
-              → חזרה
+              ← חזרה
             </button>
             {(step < STEPS.length - 1 || (step === 5 && funcSubStep < 2)) ? (
               <button
