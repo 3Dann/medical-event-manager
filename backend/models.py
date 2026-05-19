@@ -661,6 +661,7 @@ class WorkflowStepTemplate(Base):
 
 class WorkflowInstance(Base):
     __tablename__ = "workflow_instances"
+    __table_args__ = (Index('ix_wi_patient_status', 'patient_id', 'status'),)
     id               = Column(Integer, primary_key=True, index=True)
     template_id      = Column(Integer, ForeignKey("workflow_templates.id"))
     patient_id       = Column(Integer, ForeignKey("patients.id", ondelete="CASCADE"))
