@@ -347,6 +347,7 @@ class DrugUpdateLog(Base):
 
 class PatientMedication(Base):
     __tablename__ = "patient_medications"
+    __table_args__ = (Index('ix_pm_patient_active', 'patient_id', 'is_active'),)
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False, index=True)
     name = Column(String, nullable=False)           # trade/brand name as entered
