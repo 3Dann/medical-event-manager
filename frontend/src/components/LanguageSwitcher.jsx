@@ -32,7 +32,7 @@ export default function LanguageSwitcher({ compact = false, transparent = false 
   }, [])
 
   return (
-    <div ref={ref} className="relative flex items-center gap-1" dir="ltr">
+    <div ref={ref} className="relative flex items-center gap-1">
       {/* Hebrew button */}
       <button
         onClick={() => changeLang('he')}
