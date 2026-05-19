@@ -588,6 +588,9 @@ export default function IntakeWizard() {
     }, 600)
   }, [])
 
+  // Clear debounce timer on unmount to prevent state updates on unmounted component
+  useEffect(() => () => clearTimeout(suggestTimer.current), [])
+
   // ── Validation per step ─────────────────────────────────────────────────────
   const validate = (stepIdx) => {
     if (isDemoMode) return {}
