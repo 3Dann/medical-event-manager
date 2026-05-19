@@ -97,12 +97,13 @@ export default function PatientMedications() {
       } else {
         await axios.post(`/api/patients/${id}/medications`, form)
       }
-      setShowForm(false)   // close modal immediately
       setSaving(false)
+      setShowForm(false)   // close only after confirmed success
       checkInBackground()  // check interactions without blocking UI
     } catch {
       showToast('שגיאה בשמירת התרופה. נסה שוב.')
       setSaving(false)
+      // modal stays open so user can correct and retry
     }
   }
 
