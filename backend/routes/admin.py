@@ -143,9 +143,13 @@ def delete_user_data(
     if user.preserve_data:
         raise HTTPException(status_code=403, detail="המשתמש ביקש לשמור את המידע שלו — לא ניתן למחוק")
     patients = db.query(models.Patient).filter(models.Patient.manager_id == user_id).all()
-    for p in patients:
-        db.delete(p)
-    db.commit()
+    try:
+        for p in patients:
+            db.delete(p)
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise HTTPException(500, "שגיאה במחיקת הנתונים — הנתונים לא נמחקו. נסה שוב.")
     return {"message": f"נמחקו {len(patients)} תיקים"}
 
 
