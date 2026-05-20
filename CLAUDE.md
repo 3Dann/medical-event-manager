@@ -435,6 +435,15 @@ railway up --detach   # deploy ידני (webhook GitHub שבור)
 - **Backup** — `backup.py`: sqlite3.backup → gzip → R2 (אם מוגדר) + /data/backups/ מקומי, שומר 7 גיבויים. `POST /api/admin/backup` לטריגר ידני. Job יומי 03:00 UTC.
 - **schema_versions** — טבלת מעקב migrations נוספה
 - **railway.toml** — numReplicas=1, healthcheckPath, restartPolicy
+- **E2E endpoint** — `e2e_router` נפרד ב-`routes/auth.py`; נרשם ב-`main.py` רק אם `os.getenv("E2E_SEED")`. rate limit 5/hour (limiter עם `_get_real_ip`). audit ל-UserActivityLog לכל ניסיון (success/fail/not_found)
+- **IDOR workflow fix** — `_get_instance_or_403(instance_id, current_user, db)` ב-`routes/workflows.py` — קורא ל-`auth_utils.get_patient_with_access`. מוחל על 6 endpoints
+- **Batch jobs** — `_daily_sla_check`: 3 IN-clause queries לפני הלולאה (limit 500). `_daily_insurance_gap_check`: selectinload chain (insurance_sources→coverages) + batch nodes + batch flags
+- **compound indexes** — `ix_ws_instance_status`, `ix_wi_patient_status`, `ix_pm_patient_active`, `ix_node_patient_type` ב-`models.py`
+- **sla constraint** — `CheckConstraint('sla_alerted=0 OR sla_deadline IS NOT NULL')` ב-WorkflowStep. migration 1001 מנקה legacy data
+- **joinedload vs selectinload** — one-to-many עם limit/offset חייב `selectinload` (לא `joinedload`). `WorkflowInstance.steps` משתמש ב-selectinload. many-to-one (patient, template) בטוח עם joinedload
+- **medications pagination** — `list_medications` מחזיר `{medications, interactions, total}` עם `Cache-Control: private, max-age=60`
+- **NotificationBell** — setTimeout + exponential backoff (max 5 min) + visibilityState check. לא setInterval
+- **deploy workflow** — `.github/workflows/deploy.yml` **נמחק**. deploy ידני בלבד: `railway up --detach`
 
 ### Frontend
 - **ErrorBoundary.jsx** — class component עם Hebrew fallback UI, עוטף את AppRoutes
