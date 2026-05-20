@@ -243,6 +243,54 @@ medical-event-manager/
 - `App.jsx` — `ScrollToTop` component בתוך BrowserRouter: מאפס scroll לפי `topLevel = pathname.split('/').slice(0,4)` — מאפס בניווט ראשי, שומר scroll בין טאבים של אותו מטופל
 - `backend/.env` — נוצר למפתח מקומי עם `SECRET_KEY` (ב-.gitignore)
 
+### שינויי 2026-05-19 — ביקורת מועצה + תיקוני ביצועים
+
+**ביקורת מועצת 7 סוכנים (קריטיים):**
+כל 17 הממצאים הקריטיים תוקנו ועברו 3 סבבי ביקורת. דוח: `~/Desktop/CareFlow_Council_Audit_2026-05-19.pdf`.
+
+**אבטחה:**
+- `routes/auth.py` — `e2e_login` הועבר ל-`e2e_router` נפרד. נרשם ב-`main.py` **רק** אם `E2E_SEED` מוגדר. rate limit 5/hour + audit ל-UserActivityLog לכל ניסיון
+- `routes/workflows.py` — `_get_instance_or_403()` helper נוסף; מוחל על 6 endpoints: get, pause, resume, cancel, delete, force-gate
+- `routes/patient_portal.py` — assertion מפורש: `patient.patient_user_id == current_user.id`
+- `routes/admin.py` — מחיקת patients עטופה ב-try/except + db.rollback()
+- `models.py` — `PendingRegistration.id_number` + `phone` → `EncryptedText`. duplicate check עבר לפייתון
+
+**UX:**
+- `AdminPage.jsx` — `handleAdminToggle` + `handleRoleChange` דורשים ConfirmDialog לפני ביצוע. `adminTogglingId` state + spinner בזמן toggle
+- `PatientMedications.jsx` — modal נסגר רק אחרי success (לא לפני)
+- `IntakeWizard.jsx` — כפתור חזרה שונה מ-`→` ל-`←` (RTL)
+- `LanguageSwitcher.jsx` — הוסר `dir="ltr"` מה-container
+
+**React / Frontend:**
+- `IntakeWizard.jsx` — `draftFadeTimer` ref נוסף; cleanup מנקה שני timers
+- `LandingPage.jsx` — `i18n.language` נוסף ל-dependency array + AbortController
+- `IntakeWizard.jsx` — cleanup `suggestTimer` על unmount (כבר היה, אומת)
+
+**ביקורת מועצת 3 סוכני יעילות:**
+17 ממצאי ביצועים תוקנו. דוח: `~/Desktop/CareFlow_Efficiency_2026-05-19.pdf`. מדריך תיקונים: `FIXES_GUIDE.md`.
+
+**Backend ביצועים:**
+- `routes/workflows.py` — dead `steps_map` block הוסר; `joinedload(steps)` שונה ל-`selectinload` (מונע pagination שגוי עם one-to-many + limit)
+- `main.py _daily_sla_check` — 3 batch queries לפני הלולאה (instances, patients, tasks) במקום 3 queries לכל step. limit(500) כcap בטיחות
+- `main.py _daily_insurance_gap_check` — `selectinload(insurance_sources).selectinload(coverages)` + batch load כל nodes בquery אחת + batch load existing flags. ביטול N+1
+- `routes/patients.py` — pagination (`limit`/`offset`) מוחל על כל roles כולל manager; OR filter מחליף 2 queries + Python dedup
+- `routes/medications.py` — pagination (`limit`/`offset`) + `Cache-Control: private, max-age=60` header
+- `models.py` — 4 compound indexes נוספו: `WorkflowStep(instance_id,status)`, `WorkflowInstance(patient_id,status)`, `PatientMedication(patient_id,is_active)`, `Node(patient_id,node_type)`
+- `models.py` — `CheckConstraint('sla_alerted=0 OR sla_deadline IS NOT NULL')` ב-WorkflowStep
+- `main.py migration 1001` — cleanup: `UPDATE workflow_steps SET sla_alerted=0 WHERE sla_deadline IS NULL AND sla_alerted=1`
+
+**Frontend ביצועים:**
+- `NotificationBell.jsx` — `setInterval(60s)` הוחלף ב-`setTimeout` + exponential backoff (עד 5 דק') + `visibilityState` check + `clearTimeout` לפני כל scheduling
+- `PatientMedications.jsx` — `checkInBackground()` מקבל debounce 400ms (`checkDebounceRef`)
+- `PatientDetail.jsx` — `sorted`, `appliedTemplateKeys`, `customNodes`, `completedCount`, `activeCount` עטופים ב-`useMemo` לפני early return; 8 silent `.catch(()=>{})` הוחלפו; `applyTemplate` לא נותר תקוע עם spinner אם fetchAll נכשל; HMO fetch מקבל AbortController signal
+- `WorkflowPanel.jsx` — `actionInProgress` state; pause/resume/cancel מושבתים בזמן action; `finally` מנקה
+- `AdminPage.jsx` — `adminTogglingId` state; button מושבת + spinner בזמן admin toggle
+
+**תשתית:**
+- `.github/workflows/deploy.yml` — **נמחק**. webhook GitHub היה שבור (Not Authorized). deploy ידני בלבד: `railway up --detach`
+- Railway CLI עודכן: 4.58.0 → 4.59.0
+- Deploy בוצע בהצלחה (2026-05-19)
+
 ### עדיפות גבוהה
 - [x] **WorkflowsPage (קיים)** — TemplateEditorModal (create/edit), instances list, tabs — שלם
 - [x] **מערכת התראות (2026-05-13)** — NotificationBell.jsx + GET /api/notifications + polling 60s
