@@ -14,17 +14,12 @@ fs.mkdirSync(OUT, { recursive: true })
 async function generatePNG (size, outPath) {
   const img = new Jimp(size, size, 0x1E3A5FFF)
 
-  // Background: navy gradient approximated as solid
-  const bg = 0x1E3A5FFF
+  // Background gradient: #162B4A → #24487A
   img.scan(0, 0, size, size, function (x, y, idx) {
     const t = y / size
-    // Interpolate #162B4A → #24487A
-    const r = Math.round(0x16 + t * (0x24 - 0x16))
-    const g = Math.round(0x2B + t * (0x48 - 0x2B))
-    const b = Math.round(0x4A + t * (0x7A - 0x4A))
-    this.bitmap.data[idx]     = r
-    this.bitmap.data[idx + 1] = g
-    this.bitmap.data[idx + 2] = b
+    this.bitmap.data[idx]     = Math.round(0x16 + t * (0x24 - 0x16))
+    this.bitmap.data[idx + 1] = Math.round(0x2B + t * (0x48 - 0x2B))
+    this.bitmap.data[idx + 2] = Math.round(0x4A + t * (0x7A - 0x4A))
     this.bitmap.data[idx + 3] = 255
   })
 
