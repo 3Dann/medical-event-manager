@@ -1,0 +1,54 @@
+{
+  "name": "careflow",
+  "version": "1.0.0",
+  "description": "CareFlow — מנהל אירוע רפואי",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icon": "node generate-icon.js",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist": "electron-builder --mac --win"
+  },
+  "build": {
+    "appId": "com.careflow.app",
+    "productName": "CareFlow",
+    "copyright": "CareFlow",
+    "files": [
+      "main.js",
+      "preload.js",
+      "loading.html",
+      "offline.html",
+      "icons/**"
+    ],
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "icon": "icons/icon.icns",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ],
+      "dmg": {
+        "title": "CareFlow",
+        "window": { "width": 540, "height": 380 }
+      }
+    },
+    "win": {
+      "icon": "icons/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CareFlow"
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "jimp": "^0.22.12"
+  }
+}
