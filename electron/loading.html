@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>CareFlow</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Heebo', sans-serif;
+    background: linear-gradient(150deg, #162B4A 0%, #1E3A63 50%, #24487A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: white;
+    user-select: none;
+  }
+  .container {
+    text-align: center;
+  }
+  .logo {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, #93C5FD 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .tagline {
+    font-size: 14px;
+    color: #93C5FD;
+    margin-bottom: 40px;
+    letter-spacing: 0.5px;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255,255,255,0.15);
+    border-top-color: #60A5FA;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .connecting {
+    margin-top: 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.45);
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">CareFlow</div>
+    <div class="tagline">מנהל אירוע רפואי</div>
+    <div class="spinner"></div>
+    <div class="connecting">מתחבר...</div>
+  </div>
+</body>
+</html>
