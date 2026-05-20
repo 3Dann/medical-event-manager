@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>CareFlow — אין חיבור</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Heebo', sans-serif;
+    background: linear-gradient(150deg, #162B4A 0%, #1E3A63 50%, #24487A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: white;
+    user-select: none;
+  }
+  .container { text-align: center; max-width: 360px; }
+  .icon { font-size: 52px; margin-bottom: 20px; }
+  .logo { font-size: 28px; font-weight: 700; color: #93C5FD; margin-bottom: 8px; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
+  p { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 28px; }
+  button {
+    background: #3B82F6;
+    color: white;
+    border: none;
+    padding: 11px 28px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #2563EB; }
+  button:active { background: #1D4ED8; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <div class="logo">CareFlow</div>
+    <h1>אין חיבור לשרת</h1>
+    <p>לא ניתן להתחבר לשרת CareFlow.<br>בדוק שיש חיבור לאינטרנט ונסה שוב.</p>
+    <button onclick="retry()">נסה שוב</button>
+  </div>
+  <script>
+    function retry() {
+      if (window.careflow) {
+        window.careflow.retry()
+      } else {
+        location.reload()
+      }
+    }
+  </script>
+</body>
+</html>
