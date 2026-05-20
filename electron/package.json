@@ -26,11 +26,11 @@
       "icon": "icons/icon.icns",
       "target": [
         { "target": "dmg", "arch": ["arm64", "x64"] }
-      ],
-      "dmg": {
-        "title": "CareFlow",
-        "window": { "width": 540, "height": 380 }
-      }
+      ]
+    },
+    "dmg": {
+      "title": "CareFlow",
+      "window": { "width": 540, "height": 380 }
     },
     "win": {
       "icon": "icons/icon.ico",
