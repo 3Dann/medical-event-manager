@@ -12,7 +12,7 @@ const OUT = path.join(__dirname, 'icons')
 fs.mkdirSync(OUT, { recursive: true })
 
 async function generatePNG (size, outPath) {
-  const img = new Jimp({ width: size, height: size })
+  const img = new Jimp(size, size, 0x1E3A5FFF)
 
   // Background: navy gradient approximated as solid
   const bg = 0x1E3A5FFF
