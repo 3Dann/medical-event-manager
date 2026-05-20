@@ -3,7 +3,7 @@
  * Run: node generate-icon.js
  * Requires: npm install  (jimp is in devDependencies)
  */
-const { Jimp, loadFont } = require('jimp')
+const Jimp = require('jimp')
 const path = require('path')
 const fs   = require('fs')
 const { execSync } = require('child_process')
