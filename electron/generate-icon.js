@@ -79,7 +79,7 @@ async function generatePNG (size, outPath) {
   // left side
   drawRect(cx_f, ty, stroke, lh)
 
-  await img.write(outPath)
+  await img.writeAsync(outPath)
   console.log(`✅  ${path.basename(outPath)} (${size}×${size})`)
 }
 
