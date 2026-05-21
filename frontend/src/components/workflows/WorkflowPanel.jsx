@@ -260,6 +260,7 @@ export default function WorkflowPanel({ patientId }) {
         setInstances(remaining)
         setSelected(remaining[0] || null)
         setDeleteConfirm(false)
+        // Must reach finally to reset actionInProgress — fall through.
         return
       }
       const res = await axios.get(`/api/workflows/instances/${instanceId}`)
