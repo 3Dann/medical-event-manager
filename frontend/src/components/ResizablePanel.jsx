@@ -76,6 +76,23 @@ export default function ResizablePanel({
     e.preventDefault()
   }, [direction])
 
+  // Keyboard resize: Arrow keys move by 20px, Shift+Arrow by 80px.
+  const onKeyDown = useCallback((e) => {
+    const STEP = e.shiftKey ? 80 : 20
+    const grow   = direction === 'vertical' ? 'ArrowUp'   : 'ArrowRight'
+    const shrink = direction === 'vertical' ? 'ArrowDown'  : 'ArrowLeft'
+    if (e.key !== grow && e.key !== shrink) return
+    e.preventDefault()
+    setSize(prev => {
+      const max = maxRef.current
+      const next = e.key === grow
+        ? Math.min(max, prev + STEP)
+        : Math.max(minRef.current, prev - STEP)
+      persist(next)
+      return next
+    })
+  }, [direction, persist])
+
   useEffect(() => {
     const onMove = (e) => {
       if (!drag.current.active) return
