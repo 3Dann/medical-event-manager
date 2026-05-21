@@ -66,7 +66,9 @@ class TestPatientCRUD:
         client.post("/api/patients", json=PATIENT_PAYLOAD, headers=admin_headers)
         r = client.get("/api/patients", headers=admin_headers)
         assert r.status_code == 200
-        names = [p["full_name"] for p in r.json().get("items", r.json())]
+        data = r.json()
+        patients = data["items"] if isinstance(data, dict) else data
+        names = [p["full_name"] for p in patients]
         assert PATIENT_PAYLOAD["full_name"] in names
 
     def test_get_patient_by_id(self, client, admin_headers, patient):
