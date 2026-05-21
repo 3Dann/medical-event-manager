@@ -767,9 +767,9 @@ export default function PatientDetail() {
     {/* Full-width resizable workflow panel */}
     <ResizablePanel
       direction="vertical"
-      defaultSize={380}
-      minSize={200}
-      maxSize={750}
+      defaultSize={520}
+      minSize={260}
+      storageKey="workflow-panel-height"
       className="border-t-2 border-slate-200 bg-white"
     >
       <WorkflowPanel patientId={id} />
