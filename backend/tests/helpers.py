@@ -6,6 +6,48 @@ import auth as auth_utils
 TEST_ADMIN_PASSWORD = "Admin1!Admin"
 TEST_MANAGER_PASSWORD = "Manager1!"
 
+PATIENT_PAYLOAD = {
+    "full_name": "ישראל ישראלי",
+    "diagnosis_status": "no",
+}
+
+INSURANCE_SOURCE_PAYLOAD = {
+    "source_type": "private",
+    "company_name": "מגדל",
+    "policy_number": "POL-001",
+}
+
+
+def make_patient(db, manager_id: int, full_name: str = "ישראל ישראלי") -> models.Patient:
+    """יוצר מטופל בDB ישירות — לשימוש ב-fixtures."""
+    patient = models.Patient(
+        full_name=full_name,
+        manager_id=manager_id,
+        diagnosis_status="no",
+    )
+    db.add(patient)
+    db.commit()
+    db.refresh(patient)
+    return patient
+
+
+def make_insurance_source(
+    db,
+    patient_id: int,
+    source_type: str = "private",
+) -> models.InsuranceSource:
+    """יוצר מקור ביטוח בDB ישירות — לשימוש ב-fixtures."""
+    source = models.InsuranceSource(
+        patient_id=patient_id,
+        source_type=source_type,
+        company_name="מגדל",
+        policy_number="POL-001",
+    )
+    db.add(source)
+    db.commit()
+    db.refresh(source)
+    return source
+
 
 def make_admin(db, email="admin@test.com", password=TEST_ADMIN_PASSWORD):
     user = models.User(
