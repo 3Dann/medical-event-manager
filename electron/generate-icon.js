@@ -1,5 +1,5 @@
 /**
- * Generates CareFlow app icons for Mac (.icns) and Windows (.ico)
+ * Generates OrMed app icons for Mac (.icns) and Windows (.ico)
  * Run: node generate-icon.js
  * Requires: npm install  (jimp is in devDependencies)
  */

@@ -27,14 +27,14 @@ function buildMenu (win) {
   const isMac = process.platform === 'darwin'
   const template = [
     ...(isMac ? [{
-      label: 'CareFlow',
+      label: 'OrMed',
       submenu: [
-        { role: 'about', label: 'אודות CareFlow' },
+        { role: 'about', label: 'אודות OrMed' },
         { type: 'separator' },
         { role: 'hide', label: 'הסתר' },
         { role: 'hideOthers', label: 'הסתר אחרים' },
         { type: 'separator' },
-        { role: 'quit', label: 'סגור CareFlow' },
+        { role: 'quit', label: 'סגור OrMed' },
       ],
     }] : []),
     {
@@ -87,7 +87,7 @@ function createWindow () {
     ...bounds,
     minWidth:  900,
     minHeight: 600,
-    title: 'CareFlow',
+    title: 'OrMed',
     icon: path.join(__dirname, 'icons', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     backgroundColor: '#1E3A5F',
     show: false,                 // shown after ready-to-show

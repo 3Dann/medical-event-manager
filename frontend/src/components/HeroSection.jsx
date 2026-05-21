@@ -420,7 +420,7 @@ export default function HeroSection({ onLogin, onRegister }) {
         <div className="hs-text">
           <div className="hs-badge">
             <span className="hs-badge-dot"/>
-            CareFlow
+            OrMed
           </div>
 
           <h1 className="hs-title">

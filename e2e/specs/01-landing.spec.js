@@ -25,7 +25,7 @@ test('landing page loads with hero at top', async ({ page }) => {
   await expect(page.locator('nav')).toBeVisible()
 
   // שם המוצר מוצג
-  await expect(page.locator('nav')).toContainText('CareFlow')
+  await expect(page.locator('nav')).toContainText('OrMed')
 })
 
 test('login and register buttons visible', async ({ page }) => {

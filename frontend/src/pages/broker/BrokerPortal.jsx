@@ -98,7 +98,7 @@ export default function BrokerPortal() {
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-slate-800">פורטל ברוקר</h1>
-          <p className="text-sm text-slate-500 mt-0.5">CareFlow — תצוגת סוכן ביטוח</p>
+          <p className="text-sm text-slate-500 mt-0.5">OrMed — תצוגת סוכן ביטוח</p>
         </div>
         <div className="flex items-center gap-4">
           {user && (

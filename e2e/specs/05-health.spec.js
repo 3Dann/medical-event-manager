@@ -18,7 +18,7 @@ test('frontend serves index.html', async ({ request }) => {
   expect(res.status()).toBe(200)
 
   const html = await res.text()
-  expect(html).toContain('CareFlow')
+  expect(html).toContain('OrMed')
   expect(html).toContain('<div id="root">')
 })
 

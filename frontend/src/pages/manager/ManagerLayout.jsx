@@ -307,7 +307,7 @@ export default function ManagerLayout() {
           letterSpacing: '0.15em', pointerEvents: 'none',
           userSelect: 'none', zIndex: 0, whiteSpace: 'nowrap',
         }}>
-          CareFlow
+          OrMed
         </div>
 
         <div className="flex-1 relative z-10">

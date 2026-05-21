@@ -1,7 +1,7 @@
 {
   "name": "careflow-e2e",
   "version": "1.0.0",
-  "description": "E2E smoke tests for CareFlow",
+  "description": "E2E smoke tests for OrMed",
   "scripts": {
     "test":       "playwright test && /opt/homebrew/bin/python3.13 generate_report.py",
     "test:smoke": "playwright test --project=smoke && /opt/homebrew/bin/python3.13 generate_report.py",

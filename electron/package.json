@@ -1,7 +1,7 @@
 {
   "name": "careflow",
   "version": "1.0.0",
-  "description": "CareFlow — מנהל אירוע רפואי",
+  "description": "OrMed — ניהול מסע מטופל",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -12,8 +12,8 @@
   },
   "build": {
     "appId": "com.careflow.app",
-    "productName": "CareFlow",
-    "copyright": "CareFlow",
+    "productName": "OrMed",
+    "copyright": "OrMed",
     "files": [
       "main.js",
       "preload.js",
@@ -29,7 +29,7 @@
       ]
     },
     "dmg": {
-      "title": "CareFlow",
+      "title": "OrMed",
       "window": { "width": 540, "height": 380 }
     },
     "win": {
@@ -43,7 +43,7 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "CareFlow"
+      "shortcutName": "OrMed"
     }
   },
   "devDependencies": {

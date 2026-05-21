@@ -519,7 +519,7 @@ function Navbar({ onLoginClick, onRegisterClick }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <span className={`font-bold text-sm leading-tight transition-colors ${logoCls}`}>CareFlow</span>
+            <span className={`font-bold text-sm leading-tight transition-colors ${logoCls}`}>OrMed</span>
           </Link>
 
           {/* Desktop links */}
@@ -734,7 +734,7 @@ export default function LandingPage() {
             </div>
             <span className="text-slate-300 font-medium text-sm">{t('landing:hero_title')}</span>
           </div>
-          <p className="text-xs text-slate-500">CareFlow © {new Date().getFullYear()}</p>
+          <p className="text-xs text-slate-500">OrMed © {new Date().getFullYear()}</p>
           <div className="flex gap-4 text-xs">
             {[
               { label: t('landing:feat_journey'),   href: '#journey'   },

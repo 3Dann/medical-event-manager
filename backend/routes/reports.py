@@ -632,7 +632,7 @@ def _build_pdf(patient: models.Patient, db: Session) -> bytes:
     story.append(Spacer(1, 12))
     story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
     story.append(Paragraph(
-        _r(f'דוח זה הופק אוטומטית ע"י מנהל האירוע הרפואי — CareFlow | {gen}'),
+        _r(f'דוח זה הופק אוטומטית ע"י מנהל האירוע הרפואי — OrMed | {gen}'),
         ST["center"],
     ))
     story.append(Paragraph(
@@ -719,7 +719,7 @@ def _footer_disclaimer(story, ST, gen):
     story.append(Spacer(1, 12))
     story.append(HRFlowable(width="100%", thickness=0.5, color=SLATE_LINE))
     story.append(Paragraph(
-        _r(f'דוח זה הופק אוטומטית ע"י מנהל האירוע הרפואי — CareFlow | {gen}'),
+        _r(f'דוח זה הופק אוטומטית ע"י מנהל האירוע הרפואי — OrMed | {gen}'),
         ST["center"],
     ))
     story.append(Paragraph(

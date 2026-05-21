@@ -5,7 +5,7 @@ import { useDev } from '../context/DevContext'
 const STORAGE_KEY = 'landing_overrides'
 
 export const LANDING_DEFAULTS = {
-  heroBadge:     'CareFlow — ניהול מסע רפואי',
+  heroBadge:     'OrMed — ניהול מסע מטופל',
   heroTitle:     'ניהול אירוע רפואי',
   heroSubtitle:  'ניהול מסע המטופל מרגע האבחון ועד ההחלמה',
   stats: [

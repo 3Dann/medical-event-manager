@@ -204,7 +204,7 @@ def register(request: Request, user_data: UserCreate, db: Session = Depends(get_
     for admin in admins:
         email_utils.send_email(
             to=admin.email,
-            subject="בקשת רישום חדשה — CareFlow",
+            subject="בקשת רישום חדשה — OrMed",
             body_html=f"""
             <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 540px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
               <h2 style="color: #1e3a5f;">בקשת רישום חדשה</h2>
@@ -288,18 +288,18 @@ def approve_registration(
     db.commit()
     email_utils.send_email(
         to=reg.email,
-        subject="בקשתך אושרה — CareFlow",
+        subject="בקשתך אושרה — OrMed",
         body_html=f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
           <h2 style="color: #1e3a5f;">בקשתך אושרה!</h2>
           <p style="color: #374151;">שלום {reg.full_name},</p>
-          <p style="color: #374151;">בקשתך לרישום ל-CareFlow אושרה.</p>
+          <p style="color: #374151;">בקשתך לרישום ל-OrMed אושרה.</p>
           <p style="color: #374151; margin-top: 16px;">הסיסמה הזמנית שלך:</p>
           <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px 20px; margin: 12px 0; font-size: 20px; font-weight: bold; letter-spacing: 2px; text-align: center; direction: ltr;">
             {temp_password}
           </div>
           <p style="color: #dc2626; font-weight: bold;">יש לשנות את הסיסמה בכניסה הראשונה.</p>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">צוות CareFlow</p>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">צוות OrMed</p>
         </div>
         """,
     )
@@ -331,16 +331,16 @@ def reject_registration(
     db.commit()
     email_utils.send_email(
         to=reg.email,
-        subject="עדכון לגבי בקשת הרישום שלך — CareFlow",
+        subject="עדכון לגבי בקשת הרישום שלך — OrMed",
         body_html=f"""
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #f8fafc; border-radius: 12px;">
           <h2 style="color: #1e3a5f;">עדכון לגבי בקשת הרישום</h2>
           <p style="color: #374151;">שלום {reg.full_name},</p>
-          <p style="color: #374151;">בקשתך לרישום ל-CareFlow נדחתה.</p>
+          <p style="color: #374151;">בקשתך לרישום ל-OrMed נדחתה.</p>
           <div style="background: #fef2f2; border-radius: 8px; padding: 16px; border: 1px solid #fecaca; margin: 16px 0;">
             <p style="margin: 0; color: #7f1d1d;"><strong>סיבה:</strong> {body.reason}</p>
           </div>
-          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">לשאלות נוספות, פנה לצוות CareFlow.</p>
+          <p style="color: #6b7280; font-size: 13px; margin-top: 20px;">לשאלות נוספות, פנה לצוות OrMed.</p>
         </div>
         """,
     )
@@ -580,7 +580,7 @@ def setup_totp_during_login(request: Request, data: RequestEmailCodeRequest, db:
         user.totp_method = "totp"
         db.commit()
     totp_obj = pyotp.TOTP(secret)
-    uri = totp_obj.provisioning_uri(name=user.email, issuer_name="CareFlow")
+    uri = totp_obj.provisioning_uri(name=user.email, issuer_name="OrMed")
     img = qrcode.make(uri)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
@@ -871,7 +871,7 @@ def setup_2fa(current_user: models.User = Depends(auth_utils.get_current_user), 
     """Generate a new TOTP secret and return a QR code for scanning."""
     secret = pyotp.random_base32()
     totp = pyotp.TOTP(secret)
-    uri = totp.provisioning_uri(name=current_user.email, issuer_name="CareFlow")
+    uri = totp.provisioning_uri(name=current_user.email, issuer_name="OrMed")
     img = qrcode.make(uri)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
