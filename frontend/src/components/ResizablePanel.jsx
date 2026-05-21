@@ -5,44 +5,68 @@ import { useState, useRef, useEffect, useCallback } from 'react'
  *
  * direction="vertical"   → handle at top edge, drag up/down to change height
  * direction="horizontal" → handle at left edge (in RTL layouts), drag left/right to change width
+ *
+ * storageKey — if provided, persists the user's chosen size in localStorage across sessions.
+ * maxSize    — if omitted, defaults to 85% of the relevant viewport dimension.
  */
 export default function ResizablePanel({
   children,
   direction = 'vertical',
   defaultSize = 380,
   minSize = 180,
-  maxSize = 750,
+  maxSize,
+  storageKey,
   className = '',
 }) {
-  const [size, setSize] = useState(defaultSize)
-  const drag = useRef({ active: false, startPos: 0, startSize: 0 })
-  const minRef = useRef(minSize)
-  const maxRef = useRef(maxSize)
-  useEffect(() => { minRef.current = minSize; maxRef.current = maxSize }, [minSize, maxSize])
+  const computedMax = maxSize ?? Math.floor(
+    (direction === 'vertical' ? window.innerHeight : window.innerWidth) * 0.85
+  )
+
+  const [size, setSize] = useState(() => {
+    if (storageKey) {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        const parsed = parseInt(saved, 10)
+        if (!isNaN(parsed) && parsed >= minSize && parsed <= computedMax) return parsed
+      }
+    }
+    return defaultSize
+  })
+
+  const drag      = useRef({ active: false, startPos: 0, startSize: 0 })
+  const sizeRef   = useRef(size)
+  const minRef    = useRef(minSize)
+  const maxRef    = useRef(computedMax)
+
+  useEffect(() => { minRef.current = minSize }, [minSize])
+  useEffect(() => { maxRef.current = computedMax }, [computedMax])
+  useEffect(() => { sizeRef.current = size }, [size])
+
+  const persist = useCallback((value) => {
+    if (storageKey) localStorage.setItem(storageKey, String(value))
+  }, [storageKey])
 
   const onDragStart = useCallback((e) => {
     drag.current = {
       active: true,
       startPos: direction === 'vertical' ? e.clientY : e.clientX,
-      startSize: size,
+      startSize: sizeRef.current,
     }
-    // Lock cursor + suppress text selection globally for the duration of the drag
     document.documentElement.style.cursor = direction === 'vertical' ? 'ns-resize' : 'ew-resize'
     document.documentElement.style.userSelect = 'none'
     e.preventDefault()
-  }, [size, direction])
+  }, [direction])
 
   useEffect(() => {
     const onMove = (e) => {
       if (!drag.current.active) return
       const pos = direction === 'vertical' ? e.clientY : e.clientX
-      // vertical:   drag up   → bigger  (startPos > pos → positive delta)
-      // horizontal: drag left → smaller, drag right → bigger
       const delta = direction === 'vertical'
         ? drag.current.startPos - pos
         : pos - drag.current.startPos
-      setSize(Math.max(minRef.current, Math.min(maxRef.current, drag.current.startSize + delta)))
-      // Critical: prevent page scroll while resizing
+      const next = Math.max(minRef.current, Math.min(maxRef.current, drag.current.startSize + delta))
+      sizeRef.current = next
+      setSize(next)
       e.preventDefault()
     }
 
@@ -51,16 +75,16 @@ export default function ResizablePanel({
       drag.current.active = false
       document.documentElement.style.cursor = ''
       document.documentElement.style.userSelect = ''
+      persist(sizeRef.current)
     }
 
-    // passive: false is required so preventDefault() is honoured on scroll-capable targets
     document.addEventListener('mousemove', onMove, { passive: false })
-    document.addEventListener('mouseup', onUp)
+    document.addEventListener('mouseup',   onUp)
     return () => {
       document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
+      document.removeEventListener('mouseup',   onUp)
     }
-  }, [direction])
+  }, [direction, persist])
 
   const isVertical = direction === 'vertical'
 
@@ -69,7 +93,7 @@ export default function ResizablePanel({
       className={`flex overflow-hidden ${isVertical ? 'flex-col' : 'flex-row'} ${className}`}
       style={isVertical ? { height: size } : { width: size, minWidth: minSize }}
     >
-      {/* Drag handle — top for vertical, right edge for horizontal (RTL: visually left) */}
+      {/* Drag handle */}
       <div
         onMouseDown={onDragStart}
         title="גרור לשינוי גודל"
@@ -79,7 +103,6 @@ export default function ResizablePanel({
           isVertical
             ? 'h-3 w-full cursor-ns-resize border-t border-slate-200'
             : 'w-3 h-full cursor-ew-resize border-l border-slate-200',
-          // touch-action none prevents mobile scroll hijack
           '[touch-action:none]',
         ].join(' ')}
       >
@@ -89,7 +112,7 @@ export default function ResizablePanel({
         ].join(' ')} />
       </div>
 
-      {/* Content area */}
+      {/* Content */}
       <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
         {children}
       </div>
