@@ -34,12 +34,9 @@ export default function ResizablePanel({
   storageKey,
   className = '',
 }) {
-  // Compute the effective maximum size. Falls back to 85% of viewport if not supplied.
-  // Evaluated lazily (inside useState) so window is always available at call time.
   const [size, setSize] = useState(() => {
     const dim = viewportDim(direction)
     const max = maxSize ?? (dim > 0 ? Math.floor(dim * 0.85) : defaultSize * 2)
-
     const saved = lsGet(storageKey)
     if (saved) {
       const parsed = parseInt(saved, 10)
@@ -51,15 +48,18 @@ export default function ResizablePanel({
   const drag    = useRef({ active: false, startPos: 0, startSize: 0 })
   const sizeRef = useRef(size)
   const minRef  = useRef(minSize)
-  // maxRef is recomputed on every render so drag never exceeds current viewport.
   const maxRef  = useRef(0)
 
-  // Keep refs in sync with latest render values.
+  // Compute effective max synchronously on every render so drag/keyboard always
+  // see an up-to-date ceiling. Using a local variable (not just the ref) ensures
+  // aria-valuemax in JSX also reflects the current value.
+  const vp         = viewportDim(direction)
+  const currentMax = maxSize ?? (vp > 0 ? Math.floor(vp * 0.85) : size * 2)
+
+  // Keep refs in sync — safe to mutate inline (no side-effects, no re-render triggered).
   sizeRef.current = size
   minRef.current  = minSize
-  maxRef.current  = maxSize ?? (viewportDim(direction) > 0
-    ? Math.floor(viewportDim(direction) * 0.85)
-    : size * 2)
+  maxRef.current  = currentMax
 
   const persist = useCallback((value) => {
     lsSet(storageKey, value)
@@ -71,26 +71,24 @@ export default function ResizablePanel({
       startPos:  direction === 'vertical' ? e.clientY : e.clientX,
       startSize: sizeRef.current,
     }
-    document.documentElement.style.cursor    = direction === 'vertical' ? 'ns-resize' : 'ew-resize'
+    document.documentElement.style.cursor     = direction === 'vertical' ? 'ns-resize' : 'ew-resize'
     document.documentElement.style.userSelect = 'none'
     e.preventDefault()
   }, [direction])
 
-  // Keyboard resize: Arrow keys move by 20px, Shift+Arrow by 80px.
+  // Keyboard resize: Arrow keys ±20px, Shift+Arrow ±80px.
+  // persist is called outside the state updater to avoid side-effects inside updaters.
   const onKeyDown = useCallback((e) => {
-    const STEP = e.shiftKey ? 80 : 20
+    const STEP   = e.shiftKey ? 80 : 20
     const grow   = direction === 'vertical' ? 'ArrowUp'   : 'ArrowRight'
     const shrink = direction === 'vertical' ? 'ArrowDown'  : 'ArrowLeft'
     if (e.key !== grow && e.key !== shrink) return
     e.preventDefault()
-    setSize(prev => {
-      const max = maxRef.current
-      const next = e.key === grow
-        ? Math.min(max, prev + STEP)
-        : Math.max(minRef.current, prev - STEP)
-      persist(next)
-      return next
-    })
+    const next = e.key === grow
+      ? Math.min(maxRef.current, sizeRef.current + STEP)
+      : Math.max(minRef.current, sizeRef.current - STEP)
+    setSize(next)
+    persist(next)
   }, [direction, persist])
 
   useEffect(() => {
@@ -109,7 +107,7 @@ export default function ResizablePanel({
     const onUp = () => {
       if (!drag.current.active) return
       drag.current.active = false
-      document.documentElement.style.cursor    = ''
+      document.documentElement.style.cursor     = ''
       document.documentElement.style.userSelect = ''
       persist(sizeRef.current)
     }
@@ -137,7 +135,7 @@ export default function ResizablePanel({
         aria-orientation={isVertical ? 'horizontal' : 'vertical'}
         aria-valuenow={size}
         aria-valuemin={minSize}
-        aria-valuemax={maxRef.current}
+        aria-valuemax={currentMax}
         aria-label="שינוי גודל — גרור עם העכבר או השתמש במקשי חץ"
         tabIndex={0}
         title="גרור לשינוי גודל (מקשי חץ: ±20px, Shift+חץ: ±80px)"
