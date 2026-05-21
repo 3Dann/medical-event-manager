@@ -132,12 +132,15 @@ export default function ResizablePanel({
       {/* Drag handle */}
       <div
         onMouseDown={onDragStart}
+        onKeyDown={onKeyDown}
         role="separator"
         aria-orientation={isVertical ? 'horizontal' : 'vertical'}
         aria-valuenow={size}
         aria-valuemin={minSize}
+        aria-valuemax={maxRef.current}
+        aria-label="שינוי גודל — גרור עם העכבר או השתמש במקשי חץ"
         tabIndex={0}
-        title="גרור לשינוי גודל"
+        title="גרור לשינוי גודל (מקשי חץ: ±20px, Shift+חץ: ±80px)"
         className={[
           'flex-shrink-0 flex items-center justify-center',
           'bg-slate-50 hover:bg-blue-50 transition-colors group select-none',
