@@ -671,25 +671,106 @@ def delete_user(
         raise HTTPException(404, "משתמש לא נמצא")
     if user.preserve_data:
         raise HTTPException(403, "המשתמש ביקש לשמור את מידעו — בטל את הגדרת שמירת נתונים לפני המחיקה")
-    # Remove PatientPermission rows where this user is manager_id or granted_by (no CASCADE on these FKs)
-    db.query(models.PatientPermission).filter(
-        (models.PatientPermission.manager_id == user_id) |
-        (models.PatientPermission.granted_by == user_id)
+    from datetime import datetime, timezone as _tz
+    from sqlalchemy import or_
+
+    # ── Step 1: Nullify nullable FKs pointing to this user ────────────────────
+    # PendingRegistration.reviewed_by_id
+    db.query(models.PendingRegistration).filter(
+        models.PendingRegistration.reviewed_by_id == user_id
+    ).update({"reviewed_by_id": None}, synchronize_session=False)
+
+    # DocumentViewToken.created_by
+    db.query(models.DocumentViewToken).filter(
+        models.DocumentViewToken.created_by == user_id
+    ).update({"created_by": None}, synchronize_session=False)
+
+    # WorkflowTemplate.created_by
+    db.query(models.WorkflowTemplate).filter(
+        models.WorkflowTemplate.created_by == user_id
+    ).update({"created_by": None}, synchronize_session=False)
+
+    # WorkflowInstance.created_by
+    db.query(models.WorkflowInstance).filter(
+        models.WorkflowInstance.created_by == user_id
+    ).update({"created_by": None}, synchronize_session=False)
+
+    # WorkflowStep.assignee_id
+    db.query(models.WorkflowStep).filter(
+        models.WorkflowStep.assignee_id == user_id
+    ).update({"assignee_id": None}, synchronize_session=False)
+
+    # WorkflowAction.user_id
+    db.query(models.WorkflowAction).filter(
+        models.WorkflowAction.user_id == user_id
+    ).update({"user_id": None}, synchronize_session=False)
+
+    # WorkflowStepTask.completed_by
+    db.query(models.WorkflowStepTask).filter(
+        models.WorkflowStepTask.completed_by == user_id
+    ).update({"completed_by": None}, synchronize_session=False)
+
+    # FamilyShareToken.revoked_by
+    db.query(models.FamilyShareToken).filter(
+        models.FamilyShareToken.revoked_by == user_id
+    ).update({"revoked_by": None}, synchronize_session=False)
+
+    # Patient.patient_user_id — if this user is a portal account for someone's patient
+    db.query(models.Patient).filter(
+        models.Patient.patient_user_id == user_id
+    ).update({"patient_user_id": None}, synchronize_session=False)
+
+    # ── Step 2: Delete records with non-nullable FKs ──────────────────────────
+    # WebAuthn credentials
+    db.query(models.WebAuthnCredential).filter(
+        models.WebAuthnCredential.user_id == user_id
     ).delete(synchronize_session=False)
+
+    # Calendar token
+    db.query(models.CalendarToken).filter(
+        models.CalendarToken.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # Specialty feedback
+    db.query(models.MedicalSpecialtyFeedback).filter(
+        models.MedicalSpecialtyFeedback.user_id == user_id
+    ).delete(synchronize_session=False)
+
+    # Tasks (assigned_to / created_by — both non-nullable)
+    db.query(models.Task).filter(
+        or_(models.Task.assigned_to == user_id, models.Task.created_by == user_id)
+    ).delete(synchronize_session=False)
+
+    # Documents uploaded by this user that belong to OTHER managers' patients
+    # (documents on own patients will cascade when patients are deleted in step 3)
+    db.query(models.PatientDocument).filter(
+        models.PatientDocument.uploaded_by == user_id
+    ).delete(synchronize_session=False)
+
+    # ── Step 3: PatientPermission rows ────────────────────────────────────────
+    db.query(models.PatientPermission).filter(
+        or_(
+            models.PatientPermission.manager_id == user_id,
+            models.PatientPermission.granted_by == user_id,
+        )
+    ).delete(synchronize_session=False)
+
+    # ── Step 4: Delete owned patients (cascades their children) ───────────────
     patients = db.query(models.Patient).filter(models.Patient.manager_id == user_id).all()
     for p in patients:
         db.delete(p)
-    from datetime import datetime, timezone as _tz
+
+    # ── Step 5: Revoke all active sessions ────────────────────────────────────
     now = datetime.now(_tz.utc)
-    sessions = db.query(models.ActiveSession).filter(
+    db.query(models.ActiveSession).filter(
         models.ActiveSession.user_id == user_id,
         models.ActiveSession.is_active == True,
-    ).all()
-    for s in sessions:
-        s.is_active = False
-        s.revoked_at = now
-        s.revoked_by = current_user.id
+    ).update({"is_active": False, "revoked_at": now, "revoked_by": current_user.id},
+             synchronize_session=False)
+
     db.flush()
+
+    # ── Step 6: Delete the user ───────────────────────────────────────────────
     name = user.full_name
     db.delete(user)
     db.commit()
