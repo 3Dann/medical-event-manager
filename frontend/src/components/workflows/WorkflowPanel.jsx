@@ -232,11 +232,13 @@ export default function WorkflowPanel({ patientId }) {
     const fresh = res.data
     setSelected(fresh)
     setInstances(prev => prev.map(i => i.id === fresh.id ? fresh : i))
-    // Keep activeStep in sync with refreshed data
-    if (activeStep) {
-      const refreshed = fresh.steps?.find(s => s.id === activeStep.id)
-      if (refreshed) setActiveStep(refreshed)
-    }
+    // Sync activeStep regardless of whether it was previously set:
+    // if a step was active, refresh it; otherwise auto-select the active one.
+    const currentId = activeStep?.id
+    const refreshed = currentId
+      ? fresh.steps?.find(s => s.id === currentId)
+      : fresh.steps?.find(s => s.status === 'active') || fresh.steps?.[0]
+    setActiveStep(refreshed ?? null)
   }
 
   const handleAction = async (action, instanceId) => {
