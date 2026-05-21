@@ -331,9 +331,9 @@ class TestCouncilSecurity:
         })
         assert r.status_code == 429
 
-    # 🧑‍💻 מתכנת בכיר — ולידציית סיסמה
-    def test_password_too_short_rejected(self, client, admin_user):
-        """סיסמה קצרה מ-8 תווים → HTTP 400."""
+    # 🧑‍💻 מתכנת בכיר — ולידציית סיסמה (נבדקת רק על הרשמת המשתמש הראשון)
+    def test_password_too_short_rejected(self, client):
+        """סיסמה קצרה מ-8 תווים ברישום ראשון → HTTP 400."""
         r = client.post("/api/auth/register", json={
             "full_name": "Short Pass",
             "email": "shortpass@test.com",
@@ -343,8 +343,8 @@ class TestCouncilSecurity:
         assert r.status_code == 400
         assert "8" in r.json()["detail"] or "תווים" in r.json()["detail"]
 
-    def test_password_no_uppercase_rejected(self, client, admin_user):
-        """סיסמה ללא אות גדולה → HTTP 400."""
+    def test_password_no_uppercase_rejected(self, client):
+        """סיסמה ללא אות גדולה ברישום ראשון → HTTP 400."""
         r = client.post("/api/auth/register", json={
             "full_name": "No Upper",
             "email": "noupper@test.com",
@@ -353,8 +353,8 @@ class TestCouncilSecurity:
         })
         assert r.status_code == 400
 
-    def test_password_no_digit_rejected(self, client, admin_user):
-        """סיסמה ללא ספרה → HTTP 400."""
+    def test_password_no_digit_rejected(self, client):
+        """סיסמה ללא ספרה ברישום ראשון → HTTP 400."""
         r = client.post("/api/auth/register", json={
             "full_name": "No Digit",
             "email": "nodigit@test.com",
