@@ -15,17 +15,15 @@ const STATUS_COLORS = {
 }
 
 const STEP_STATUS = {
-  pending:   { circle: 'bg-slate-100 border-slate-300 text-slate-500',  line: 'bg-slate-200', label: 'text-slate-500' },
-  active:    { circle: 'bg-blue-600  border-blue-600  text-white',       line: 'bg-slate-200', label: 'text-blue-700 font-semibold' },
-  completed: { circle: 'bg-green-500 border-green-500 text-white',       line: 'bg-green-400', label: 'text-green-700' },
-  skipped:   { circle: 'bg-slate-200 border-slate-300 text-slate-500',   line: 'bg-slate-200', label: 'text-slate-500 line-through' },
+  pending:   { circle: 'bg-slate-100 border-slate-300 text-slate-500', label: 'text-slate-500',              row: '' },
+  active:    { circle: 'bg-blue-600  border-blue-600  text-white',     label: 'text-blue-700 font-semibold', row: 'bg-blue-50' },
+  completed: { circle: 'bg-green-500 border-green-500 text-white',     label: 'text-green-700',              row: '' },
+  skipped:   { circle: 'bg-slate-200 border-slate-300 text-slate-400', label: 'text-slate-400 line-through', row: '' },
 }
-
-const STEP_ICON = { pending: null, active: null, completed: '✓', skipped: '⇢' }
+const STEP_ICON = { completed: '✓', skipped: '⇢' }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-/** Group steps by parallel_group. Steps without a group are returned as solo items. */
 function groupSteps(steps) {
   if (!steps) return []
   const result = []
@@ -42,19 +40,18 @@ function groupSteps(steps) {
   return result
 }
 
-/** Return true if deadline is in the past. */
 function isOverdue(deadline) {
   if (!deadline) return false
   return new Date(deadline) < new Date()
 }
 
-/** Format ISO date to Hebrew locale short form. */
 function fmtDate(d) {
   if (!d) return null
   return new Date(d).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' })
 }
 
-// ── GateBlockBadge ─────────────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────
+
 function GateBlockBadge({ gate }) {
   if (!gate || gate.fulfilled !== false) return null
   const msg = gate.error_msg || 'שלב זה נעול'
@@ -66,28 +63,134 @@ function GateBlockBadge({ gate }) {
   )
 }
 
-// ── SlaWarning ────────────────────────────────────────────────────────────
-function SlaWarning({ deadline, status }) {
+function SlaTag({ deadline, status }) {
   if (!deadline || status === 'completed' || status === 'skipped') return null
-  if (!isOverdue(deadline)) return (
-    <div className="text-[10px] text-slate-500 mt-0.5">⏱ {fmtDate(deadline)}</div>
-  )
+  if (isOverdue(deadline))
+    return <span className="text-[10px] text-red-600 font-semibold">⚠ {fmtDate(deadline)}</span>
+  return <span className="text-[10px] text-slate-400">⏱ {fmtDate(deadline)}</span>
+}
+
+// ── Vertical Step List Item ────────────────────────────────────────────────
+
+function StepListItem({ step, globalIdx, isSelected, onClick, isParallel }) {
+  const st = STEP_STATUS[step.status] || STEP_STATUS.pending
+  const icon = STEP_ICON[step.status]
+  const gateBlocked = step.gate?.fulfilled === false
+
   return (
-    <div className="text-[10px] text-red-600 font-semibold mt-0.5 animate-pulse">⚠ חריגת SLA {fmtDate(deadline)}</div>
+    <button
+      onClick={onClick}
+      className={[
+        'w-full text-right px-2 py-2 border-b border-slate-100',
+        'flex items-start gap-2 transition-colors min-h-[44px]',
+        isSelected
+          ? 'bg-blue-50 border-r-2 border-r-blue-500'
+          : `hover:bg-slate-50 ${st.row}`,
+        isParallel ? 'pr-4' : '',
+      ].join(' ')}
+    >
+      {/* Status circle */}
+      <div className={[
+        'flex-shrink-0 w-7 h-7 rounded-full border-2',
+        'flex items-center justify-center text-xs font-bold mt-0.5',
+        st.circle,
+        isSelected ? 'ring-2 ring-offset-1 ring-blue-400' : '',
+      ].join(' ')}>
+        {gateBlocked ? '🔒' : (icon || (globalIdx + 1))}
+      </div>
+
+      {/* Text */}
+      <div className="min-w-0 flex-1 text-right">
+        <div className={`text-xs leading-tight ${st.label} ${isSelected ? 'font-semibold' : ''}`}>
+          {step.name}
+        </div>
+        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+          {isParallel && (
+            <span className="text-[9px] text-slate-400 bg-slate-100 px-1 rounded">מקביל</span>
+          )}
+          <SlaTag deadline={step.sla_deadline} status={step.status} />
+        </div>
+      </div>
+    </button>
   )
 }
 
+// ── VerticalStepList ───────────────────────────────────────────────────────
+
+function VerticalStepList({ steps, activeStep, onSelect }) {
+  const grouped = groupSteps(steps)
+  let globalIdx = 0
+
+  return (
+    <div className="flex-1 overflow-y-auto" dir="rtl">
+      {grouped.map((item) => {
+        if (item.type === 'solo') {
+          const idx = globalIdx++
+          return (
+            <StepListItem
+              key={item.step.id}
+              step={item.step}
+              globalIdx={idx}
+              isSelected={activeStep?.id === item.step.id}
+              onClick={() => onSelect(item.step)}
+              isParallel={false}
+            />
+          )
+        }
+
+        // Parallel group
+        const groupStart = globalIdx
+        globalIdx += item.steps.length
+        const anyActive = item.steps.some(s => s.status === 'active')
+        const allDone   = item.steps.every(s => s.status === 'completed' || s.status === 'skipped')
+
+        return (
+          <div key={`pg-${item.group}`}>
+            {/* Group header */}
+            <div className={[
+              'px-2 py-1 border-b border-slate-100 flex items-center gap-1.5',
+              allDone   ? 'bg-green-50' :
+              anyActive ? 'bg-blue-50'  : 'bg-slate-50',
+            ].join(' ')}>
+              <span className={[
+                'text-[10px] font-semibold px-1.5 py-0.5 rounded-full',
+                allDone   ? 'bg-green-100 text-green-700' :
+                anyActive ? 'bg-blue-100 text-blue-700'   : 'bg-slate-100 text-slate-500',
+              ].join(' ')}>
+                שלבים מקבילים
+              </span>
+            </div>
+            {/* Parallel steps */}
+            {item.steps.map((step, pi) => (
+              <StepListItem
+                key={step.id}
+                step={step}
+                globalIdx={groupStart + pi}
+                isSelected={activeStep?.id === step.id}
+                onClick={() => onSelect(step)}
+                isParallel={true}
+              />
+            ))}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Main Component ─────────────────────────────────────────────────────────
+
 export default function WorkflowPanel({ patientId }) {
-  const [instances, setInstances] = useState([])
-  const [selected, setSelected] = useState(null)
-  const [activeStep, setActiveStep] = useState(null)   // step object currently expanded
-  const [showNew, setShowNew] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [instances, setInstances]         = useState([])
+  const [selected, setSelected]           = useState(null)
+  const [activeStep, setActiveStep]       = useState(null)
+  const [showNew, setShowNew]             = useState(false)
+  const [loading, setLoading]             = useState(true)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
   const [actionInProgress, setActionInProgress] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
-  const [confirm, ConfirmUI] = useConfirm()
-  const hasSetInitial = useRef(false)
+  const [confirm, ConfirmUI]              = useConfirm()
+  const hasSetInitial                     = useRef(false)
 
   useEffect(() => { hasSetInitial.current = false }, [patientId])
 
@@ -113,7 +216,7 @@ export default function WorkflowPanel({ patientId }) {
     return () => controller.abort()
   }, [fetchInstances])
 
-  // Auto-expand the active step when instance changes; reset delete confirm
+  // Auto-expand active step when instance changes
   useEffect(() => {
     setDeleteConfirm(false)
     if (selected?.steps) {
@@ -126,24 +229,32 @@ export default function WorkflowPanel({ patientId }) {
 
   const handleUpdated = async (updatedInstance) => {
     const res = await axios.get(`/api/workflows/instances/${updatedInstance.id}`)
-    setSelected(res.data)
-    setInstances(prev => prev.map(i => i.id === res.data.id ? res.data : i))
+    const fresh = res.data
+    setSelected(fresh)
+    setInstances(prev => prev.map(i => i.id === fresh.id ? fresh : i))
+    // Keep activeStep in sync with refreshed data
+    if (activeStep) {
+      const refreshed = fresh.steps?.find(s => s.id === activeStep.id)
+      if (refreshed) setActiveStep(refreshed)
+    }
   }
 
   const handleAction = async (action, instanceId) => {
     if (actionInProgress) return
     setActionInProgress(true)
     try {
-      if (action === 'pause')  await axios.post(`/api/workflows/instances/${instanceId}/pause`,  { reason: '' })
-      if (action === 'resume') await axios.post(`/api/workflows/instances/${instanceId}/resume`)
+      if (action === 'pause')
+        await axios.post(`/api/workflows/instances/${instanceId}/pause`, { reason: '' })
+      if (action === 'resume')
+        await axios.post(`/api/workflows/instances/${instanceId}/resume`)
       if (action === 'cancel') {
         const ok = await confirm({ title: 'ביטול זרימה', message: 'לבטל את הזרימה?', confirmLabel: 'בטל זרימה', danger: true })
-        if (!ok) return
+        if (!ok) { setActionInProgress(false); return }
         await axios.post(`/api/workflows/instances/${instanceId}/cancel`, { reason: '' })
       }
       if (action === 'delete') {
-        await axios.delete(`/api/workflows/instances/${instanceId}`)
         const remaining = instances.filter(i => i.id !== instanceId)
+        await axios.delete(`/api/workflows/instances/${instanceId}`)
         setInstances(remaining)
         setSelected(remaining[0] || null)
         setDeleteConfirm(false)
@@ -152,7 +263,7 @@ export default function WorkflowPanel({ patientId }) {
       const res = await axios.get(`/api/workflows/instances/${instanceId}`)
       setSelected(res.data)
       setInstances(prev => prev.map(i => i.id === res.data.id ? res.data : i))
-    } catch (e) {
+    } catch {
       showToast('שגיאה בעדכון הזרימה. נסה שוב.')
     } finally {
       setActionInProgress(false)
@@ -166,22 +277,23 @@ export default function WorkflowPanel({ patientId }) {
   return (
     <div className="h-full flex flex-col" dir="rtl">
       <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
-      {/* Header */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between flex-shrink-0">
+
+      {/* Panel header */}
+      <div className="px-4 py-2.5 border-b border-slate-200 flex items-center justify-between flex-shrink-0 bg-white">
         <button
           onClick={() => setShowNew(true)}
-          className="flex items-center gap-1.5 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-1.5 text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
         >
-          <span>+</span> זרימה חדשה
+          + זרימה חדשה
         </button>
-        <h3 className="font-semibold text-slate-800">זרימות עבודה</h3>
+        <h3 className="font-semibold text-slate-800 text-sm">זרימות עבודה</h3>
       </div>
 
       {instances.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <div className="text-4xl mb-3">⚡</div>
           <div className="text-slate-600 font-medium mb-1">אין זרימות עבודה</div>
-          <div className="text-slate-600 text-sm mb-4">הפעל זרימה לניהול תהליך מובנה</div>
+          <div className="text-slate-500 text-sm mb-4">הפעל זרימה לניהול תהליך מובנה</div>
           <button
             onClick={() => setShowNew(true)}
             className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
@@ -191,266 +303,144 @@ export default function WorkflowPanel({ patientId }) {
         </div>
       ) : (
         <div className="flex-1 flex overflow-hidden">
-          {/* Instance sidebar */}
-          <div className="w-44 border-l border-slate-200 overflow-y-auto flex-shrink-0 bg-slate-50">
+
+          {/* ── Column 1: Instances ────────────────────────────────────── */}
+          <div className="w-36 border-l border-slate-200 overflow-y-auto flex-shrink-0 bg-slate-50">
             {instances.map(inst => (
               <button
                 key={inst.id}
                 onClick={() => setSelected(inst)}
-                className={`w-full text-right p-3 border-b border-slate-200 transition-colors ${
-                  selected?.id === inst.id ? 'bg-white border-r-2 border-r-blue-500' : 'hover:bg-white'
-                }`}
+                className={[
+                  'w-full text-right p-2.5 border-b border-slate-100 transition-colors',
+                  selected?.id === inst.id
+                    ? 'bg-white border-r-2 border-r-blue-500'
+                    : 'hover:bg-white',
+                ].join(' ')}
               >
-                <div className="text-xs font-medium text-slate-700 truncate">{inst.title}</div>
-                <span className={`text-xs px-1.5 py-0.5 rounded-full mt-1 inline-block ${STATUS_COLORS[inst.status]}`}>
+                <div className="text-xs font-medium text-slate-700 leading-tight">{inst.title}</div>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full mt-1 inline-block ${STATUS_COLORS[inst.status]}`}>
                   {STATUS_LABELS[inst.status]}
                 </span>
                 <div className="mt-1.5">
                   <div className="h-1 bg-slate-200 rounded-full">
                     <div className="h-1 bg-blue-500 rounded-full" style={{ width: `${inst.progress}%` }} />
                   </div>
-                  <div className="text-xs text-slate-600 mt-0.5">{inst.progress}%</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">{inst.progress}%</div>
                 </div>
               </button>
             ))}
           </div>
 
-          {/* Main area */}
+          {/* ── Column 2: Steps (vertical) + Instance header ──────────── */}
           {selected && (
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="w-52 border-l border-slate-200 flex flex-col flex-shrink-0 bg-white overflow-hidden">
               {/* Instance header */}
-              <div className="px-5 py-3 border-b border-slate-200 flex-shrink-0">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex gap-1.5 flex-shrink-0">
+              <div className="px-3 py-2 border-b border-slate-100 flex-shrink-0">
+                <div className="font-semibold text-slate-800 text-xs truncate text-right">{selected.title}</div>
+                <div className="flex items-center justify-between mt-1">
+                  <div className="flex gap-1 flex-wrap">
                     {selected.status === 'active' && (
                       <>
-                        <button onClick={() => handleAction('pause', selected.id)}
+                        <button
+                          onClick={() => handleAction('pause', selected.id)}
                           disabled={actionInProgress}
-                          className="text-xs px-2 py-1 text-amber-600 hover:bg-amber-50 rounded border border-amber-200 disabled:opacity-40">
-                          {actionInProgress ? '...' : 'השהה'}
+                          className="text-[11px] px-1.5 py-0.5 text-amber-600 hover:bg-amber-50 rounded border border-amber-200 disabled:opacity-40 transition-colors"
+                        >
+                          השהה
                         </button>
-                        <button onClick={() => handleAction('cancel', selected.id)}
+                        <button
+                          onClick={() => handleAction('cancel', selected.id)}
                           disabled={actionInProgress}
-                          className="text-xs px-2 py-1 text-red-500 hover:bg-red-50 rounded border border-red-200 disabled:opacity-40">
-                          {actionInProgress ? '...' : 'בטל'}
+                          className="text-[11px] px-1.5 py-0.5 text-red-500 hover:bg-red-50 rounded border border-red-200 disabled:opacity-40 transition-colors"
+                        >
+                          בטל
                         </button>
                       </>
                     )}
                     {selected.status === 'paused' && (
-                      <button onClick={() => handleAction('resume', selected.id)}
+                      <button
+                        onClick={() => handleAction('resume', selected.id)}
                         disabled={actionInProgress}
-                        className="text-xs px-2 py-1 text-blue-600 hover:bg-blue-50 rounded border border-blue-200 disabled:opacity-40">
-                        {actionInProgress ? '...' : 'חדש'}
+                        className="text-[11px] px-1.5 py-0.5 text-blue-600 hover:bg-blue-50 rounded border border-blue-200 disabled:opacity-40 transition-colors"
+                      >
+                        חדש
                       </button>
                     )}
                     {!deleteConfirm ? (
                       <button
                         onClick={() => setDeleteConfirm(true)}
-                        className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded border border-red-200"
-                        title="מחק זרימה לצמיתות"
+                        className="text-[11px] px-1.5 py-0.5 text-red-600 hover:bg-red-50 rounded border border-red-200 transition-colors"
                       >
                         מחק
                       </button>
                     ) : (
-                      <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded px-2 py-1">
-                        <span className="text-xs text-red-700 font-medium">למחוק לצמיתות?</span>
+                      <div className="flex items-center gap-1 bg-red-50 border border-red-200 rounded px-1.5 py-0.5">
+                        <span className="text-[11px] text-red-700 font-medium">למחוק?</span>
                         <button
                           onClick={() => handleAction('delete', selected.id)}
-                          className="text-xs bg-red-600 text-white px-2 py-0.5 rounded hover:bg-red-700"
+                          className="text-[11px] bg-red-600 text-white px-1.5 py-0.5 rounded hover:bg-red-700"
                         >
-                          כן, מחק
+                          כן
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(false)}
-                          className="text-xs text-slate-500 hover:text-slate-700 px-1"
+                          className="text-[11px] text-slate-500 hover:text-slate-700 px-0.5"
                         >
                           ✕
                         </button>
                       </div>
                     )}
                   </div>
-                  <div className="text-right min-w-0">
-                    <div className="font-semibold text-slate-800 truncate">{selected.title}</div>
-                    <div className="flex items-center gap-2 mt-0.5 justify-end">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[selected.status]}`}>
-                        {STATUS_LABELS[selected.status]}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        {selected.completed_steps}/{selected.total_steps} שלבים
-                      </span>
-                    </div>
-                  </div>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full flex-shrink-0 ${STATUS_COLORS[selected.status]}`}>
+                    {STATUS_LABELS[selected.status]}
+                  </span>
                 </div>
-                {/* Progress bar */}
-                <div className="mt-2 h-1.5 bg-slate-200 rounded-full">
-                  <div className="h-1.5 bg-blue-500 rounded-full transition-all" style={{ width: `${selected.progress}%` }} />
+                {/* Progress */}
+                <div className="mt-1.5 h-1 bg-slate-200 rounded-full">
+                  <div className="h-1 bg-blue-500 rounded-full transition-all" style={{ width: `${selected.progress}%` }} />
+                </div>
+                <div className="text-[10px] text-slate-400 mt-0.5 text-right">
+                  {selected.completed_steps}/{selected.total_steps} שלבים · {selected.progress}%
                 </div>
               </div>
 
-              {/* Horizontal step track */}
-              <div className="px-5 py-5 border-b border-slate-100 flex-shrink-0 overflow-x-auto">
-                <div className="flex items-start gap-0 min-w-max" dir="ltr">
-                  {groupSteps(selected.steps).map((item, groupIdx, allGroups) => {
-                    const isLastGroup = groupIdx === allGroups.length - 1
-
-                    if (item.type === 'solo') {
-                      const step = item.step
-                      const idx = selected.steps.indexOf(step)
-                      const st = STEP_STATUS[step.status] || STEP_STATUS.pending
-                      const icon = STEP_ICON[step.status]
-                      const isSelected = activeStep?.id === step.id
-                      const gateBlocked = step.gate && step.gate.fulfilled === false
-
-                      return (
-                        <div key={step.id} className="flex items-start">
-                          <button
-                            onClick={() => setActiveStep(isSelected ? null : step)}
-                            className="flex flex-col items-center gap-1 group"
-                            style={{ width: 100 }}
-                          >
-                            <div className={`
-                              w-11 h-11 rounded-full border-2 flex items-center justify-center text-sm font-bold
-                              transition-all shadow-sm
-                              ${st.circle}
-                              ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
-                              ${gateBlocked ? 'opacity-60' : ''}
-                            `}>
-                              {gateBlocked ? '🔒' : (icon || (idx + 1))}
-                            </div>
-                            <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
-                              {step.name}
-                            </div>
-                            {step.duration_days && step.status !== 'completed' && step.status !== 'skipped' && (
-                              <div className="text-xs text-slate-600">~{step.duration_days}י׳</div>
-                            )}
-                            <SlaWarning deadline={step.sla_deadline} status={step.status} />
-                            {gateBlocked && (
-                              <div className="text-[10px] text-amber-600 text-center px-1 leading-tight"
-                                title={step.gate?.error_msg || 'שלב נעול'}>
-                                🔒 {step.gate?.error_msg ? step.gate.error_msg.slice(0, 18) : 'נעול'}
-                              </div>
-                            )}
-                          </button>
-                          {!isLastGroup && (
-                            <div className="flex items-center" style={{ width: 40, marginTop: 21 }}>
-                              <div className={`h-0.5 w-full rounded-full ${st.line}`} />
-                            </div>
-                          )}
-                        </div>
-                      )
-                    }
-
-                    // Parallel group
-                    const { group, steps: pSteps } = item
-                    const anyActive = pSteps.some(s => s.status === 'active')
-                    const allDone   = pSteps.every(s => s.status === 'completed' || s.status === 'skipped')
-
-                    return (
-                      <div key={`pg-${group}`} className="flex items-start">
-                        {/* Parallel lane */}
-                        <div
-                          className={`border-2 rounded-xl px-3 pt-1 pb-2 flex flex-col gap-2
-                            ${allDone   ? 'border-green-300 bg-green-50'
-                              : anyActive ? 'border-blue-300 bg-blue-50'
-                              : 'border-slate-200 bg-slate-50'}`}
-                          style={{ minWidth: 100 * pSteps.length + 40 * (pSteps.length - 1) }}
-                        >
-                          {/* Badge */}
-                          <div className="flex justify-center">
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full
-                              ${allDone ? 'bg-green-100 text-green-700' : anyActive ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>
-                              מקביל
-                            </span>
-                          </div>
-                          {/* Steps inside lane */}
-                          <div className="flex items-start gap-0">
-                            {pSteps.map((step, pi) => {
-                              const idx = selected.steps.indexOf(step)
-                              const st = STEP_STATUS[step.status] || STEP_STATUS.pending
-                              const icon = STEP_ICON[step.status]
-                              const isSelected = activeStep?.id === step.id
-                              const gateBlocked = step.gate && step.gate.fulfilled === false
-                              const isLast = pi === pSteps.length - 1
-
-                              return (
-                                <div key={step.id} className="flex items-start">
-                                  <button
-                                    onClick={() => setActiveStep(isSelected ? null : step)}
-                                    className="flex flex-col items-center gap-1 group"
-                                    style={{ width: 100 }}
-                                  >
-                                    <div className={`
-                                      w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-bold
-                                      transition-all shadow-sm
-                                      ${st.circle}
-                                      ${isSelected ? 'ring-2 ring-offset-2 ring-blue-400 scale-110' : 'group-hover:scale-105'}
-                                      ${gateBlocked ? 'opacity-60' : ''}
-                                    `}>
-                                      {gateBlocked ? '🔒' : (icon || (idx + 1))}
-                                    </div>
-                                    <div className={`text-xs text-center leading-tight w-full px-1 ${st.label}`}>
-                                      {step.name}
-                                    </div>
-                                    <SlaWarning deadline={step.sla_deadline} status={step.status} />
-                                    {gateBlocked && (
-                                      <div className="text-[10px] text-amber-600 text-center px-1 leading-tight"
-                                        title={step.gate?.error_msg || 'שלב נעול'}>
-                                        {step.gate?.error_msg ? step.gate.error_msg.slice(0, 16) : 'נעול'}
-                                      </div>
-                                    )}
-                                  </button>
-                                  {!isLast && (
-                                    <div className="flex items-center" style={{ width: 32, marginTop: 19 }}>
-                                      <div className={`h-0.5 w-full rounded-full ${st.line}`} />
-                                    </div>
-                                  )}
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Connector after the group */}
-                        {!isLastGroup && (
-                          <div className="flex items-center" style={{ width: 40, marginTop: 21 }}>
-                            <div className="h-0.5 w-full rounded-full bg-slate-200" />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Step detail panel */}
-              <div className="flex-1 overflow-y-auto">
-                {activeStep ? (
-                  <div className="p-4 space-y-3">
-                    {/* Gate block warning above card */}
-                    <GateBlockBadge gate={activeStep.gate} />
-                    {/* SLA overdue warning */}
-                    {isOverdue(activeStep.sla_deadline) && activeStep.status !== 'completed' && activeStep.status !== 'skipped' && (
-                      <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                        <span>⚠️</span>
-                        <span>חריגת SLA — דדליין היה ב-{fmtDate(activeStep.sla_deadline)}</span>
-                      </div>
-                    )}
-                    <StepCard
-                      key={activeStep.id}
-                      step={activeStep}
-                      instanceId={selected.id}
-                      onUpdated={handleUpdated}
-                      gateBlocked={activeStep.gate && activeStep.gate.fulfilled === false}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-slate-600 text-sm">
-                    לחץ על שלב לפרטים
-                  </div>
-                )}
-              </div>
+              {/* Vertical step list */}
+              {selected.steps?.length > 0
+                ? <VerticalStepList
+                    steps={selected.steps}
+                    activeStep={activeStep}
+                    onSelect={(step) => setActiveStep(activeStep?.id === step.id ? null : step)}
+                  />
+                : <div className="flex-1 flex items-center justify-center text-slate-400 text-xs">אין שלבים</div>
+              }
             </div>
           )}
+
+          {/* ── Column 3: Step Detail ─────────────────────────────────── */}
+          <div className="flex-1 overflow-y-auto bg-white">
+            {!selected ? (
+              <div className="flex items-center justify-center h-full text-slate-400 text-sm">בחר זרימה</div>
+            ) : !activeStep ? (
+              <div className="flex items-center justify-center h-full text-slate-400 text-sm">בחר שלב לפרטים</div>
+            ) : (
+              <div className="p-4 space-y-3">
+                <GateBlockBadge gate={activeStep.gate} />
+                {isOverdue(activeStep.sla_deadline) && activeStep.status !== 'completed' && activeStep.status !== 'skipped' && (
+                  <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <span>⚠️</span>
+                    <span>חריגת SLA — דדליין היה ב-{fmtDate(activeStep.sla_deadline)}</span>
+                  </div>
+                )}
+                <StepCard
+                  key={activeStep.id}
+                  step={activeStep}
+                  instanceId={selected.id}
+                  onUpdated={handleUpdated}
+                  gateBlocked={activeStep.gate?.fulfilled === false}
+                />
+              </div>
+            )}
+          </div>
         </div>
       )}
 
