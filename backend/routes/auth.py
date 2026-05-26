@@ -678,6 +678,27 @@ def e2e_login(request: Request, data: E2ELoginRequest, db: Session = Depends(get
     )
 
 
+def _revoke_all_user_sessions(user_id: int, db: Session) -> None:
+    """Revoke all active sessions for a user. Call before db.commit() on password change."""
+    now = datetime.now(tz_module.utc)
+    sessions = db.query(models.ActiveSession).filter(
+        models.ActiveSession.user_id == user_id,
+        models.ActiveSession.is_active == True,
+    ).all()
+    for s in sessions:
+        if s.jti:
+            exists = db.query(models.RevokedToken).filter(
+                models.RevokedToken.jti == s.jti
+            ).first()
+            if not exists:
+                db.add(models.RevokedToken(
+                    jti=s.jti,
+                    expires_at=now + timedelta(hours=3),
+                ))
+        s.is_active = False
+        s.revoked_at = now
+
+
 @router.post("/logout")
 def logout(
     request: Request,
