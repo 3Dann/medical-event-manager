@@ -3,7 +3,7 @@ import uuid
 import secrets
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query, Request
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from typing import Optional
 from database import get_db
@@ -11,8 +11,28 @@ from slowapi import Limiter
 from slowapi.util import get_ipaddr
 import models
 import auth as auth_utils
+from field_encrypt import _fernet as _file_fernet
 
 limiter = Limiter(key_func=get_ipaddr)
+
+_ENC_PREFIX = b"ENCV1:"
+
+
+def _encrypt_content(data: bytes) -> bytes:
+    if _file_fernet is None:
+        return data
+    return _ENC_PREFIX + _file_fernet.encrypt(data)
+
+
+def _decrypt_content(data: bytes) -> bytes:
+    if not data.startswith(_ENC_PREFIX):
+        return data  # legacy unencrypted file
+    if _file_fernet is None:
+        return data[len(_ENC_PREFIX):]
+    try:
+        return _file_fernet.decrypt(data[len(_ENC_PREFIX):])
+    except Exception:
+        return data
 
 def _cleanup_view_tokens(db: Session):
     db.query(models.DocumentViewToken).filter(
