@@ -210,30 +210,9 @@ function DateInput({ value, onChange, hasError }) {
   const months  = { maxLen: 2, options: MONTHS_HE.map((l,i)=>({ v: i+1, label: `${String(i+1).padStart(2,'0')} — ${l}` })) }
   const years   = { maxLen: 4, options: Array.from({length: CURRENT_YEAR-1919},(_,i)=>({ v: CURRENT_YEAR-i })) }
 
-  // Explicit dir="ltr" + DOM order [year][month][day] → year on LEFT, day on RIGHT
+  // dir="ltr" + DOM order [day][month][year] → day on LEFT, year on RIGHT
   return (
     <div className="flex items-center gap-1" dir="ltr">
-      <DateSegment
-        inputRef={yearRef}
-        value={year}
-        onChange={v => { setYear(v); emit(day, month, v) }}
-        items={years}
-        placeholder="שנה"
-        width={88}
-        hasError={hasError}
-      />
-      <span className="text-slate-600 font-medium">/</span>
-      <DateSegment
-        inputRef={monthRef}
-        value={month}
-        onChange={v => { setMonth(v); emit(day, v, year) }}
-        onFilled={() => dayRef.current?.focus()}
-        items={months}
-        placeholder="חודש"
-        width={74}
-        hasError={hasError}
-      />
-      <span className="text-slate-600 font-medium">/</span>
       <DateSegment
         inputRef={dayRef}
         value={day}
@@ -242,6 +221,27 @@ function DateInput({ value, onChange, hasError }) {
         items={days}
         placeholder="יום"
         width={68}
+        hasError={hasError}
+      />
+      <span className="text-slate-600 font-medium">/</span>
+      <DateSegment
+        inputRef={monthRef}
+        value={month}
+        onChange={v => { setMonth(v); emit(day, v, year) }}
+        onFilled={() => yearRef.current?.focus()}
+        items={months}
+        placeholder="חודש"
+        width={74}
+        hasError={hasError}
+      />
+      <span className="text-slate-600 font-medium">/</span>
+      <DateSegment
+        inputRef={yearRef}
+        value={year}
+        onChange={v => { setYear(v); emit(day, month, v) }}
+        items={years}
+        placeholder="שנה"
+        width={88}
         hasError={hasError}
       />
     </div>
@@ -408,11 +408,12 @@ const EMPTY_FORM = {
   full_name: '', id_number: '', father_name: '', id_issue_date: '', id_expiry_date: '',
   birth_date: '', gender: '',
   marital_status: '', num_children: '', height_cm: '', weight_kg: '',
-  referral_goal: '', referral_source: '',
+  referral_goal: '', referral_source: '', referral_name: '', referral_sub: '',
   city: '', city_code: '', street: '', house_number: '',
   entrance: '', floor: '', apartment: '', postal_code: '',
   phone_prefix: '050', phone: '', phone2_prefix: '050', phone2: '',
   ec_name: '', ec_phone_prefix: '050', ec_phone: '', ec_relation: '',
+  ec2_name: '', ec2_phone_prefix: '050', ec2_phone: '', ec2_relation: '',
   hmo_name: '', hmo_level: '', medical_stage: '',
   diagnosis_status: 'no', diagnosis_details: '', notes: '',
   specialty: '', sub_specialty: '',
@@ -578,6 +579,8 @@ export default function IntakeWizard() {
         weight_kg: p.weight_kg ?? '',
         referral_goal: p.referral_goal || '',
         referral_source: p.referral_source || '',
+        referral_name: p.referral_name || '',
+        referral_sub: p.referral_sub || '',
         city: p.city || '', city_code: p.city_code || '',
         street: p.street || '', house_number: p.house_number || '',
         entrance: p.entrance || '', floor: p.floor || '',
@@ -586,6 +589,8 @@ export default function IntakeWizard() {
         phone2_prefix: p.phone2_prefix || '050', phone2: p.phone2 || '',
         ec_name: p.ec_name || '', ec_phone_prefix: p.ec_phone_prefix || '050',
         ec_phone: p.ec_phone || '', ec_relation: p.ec_relation || '',
+        ec2_name: p.ec2_name || '', ec2_phone_prefix: p.ec2_phone_prefix || '050',
+        ec2_phone: p.ec2_phone || '', ec2_relation: p.ec2_relation || '',
         hmo_name: p.hmo_name || '', hmo_level: p.hmo_level || '',
         medical_stage: p.medical_stage || '',
         diagnosis_status: p.diagnosis_status || 'no',
@@ -626,12 +631,15 @@ export default function IntakeWizard() {
         phone2_prefix: form.phone2 ? (form.phone2_prefix || '050') : null, phone2: form.phone2 || null,
         ec_name: form.ec_name || null, ec_phone_prefix: form.ec_phone_prefix || null,
         ec_phone: form.ec_phone || null, ec_relation: form.ec_relation || null,
+        ec2_name: form.ec2_name || null, ec2_phone_prefix: form.ec2_phone ? (form.ec2_phone_prefix || '050') : null,
+        ec2_phone: form.ec2_phone || null, ec2_relation: form.ec2_relation || null,
         hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
         medical_stage: form.medical_stage || null,
         diagnosis_status: form.diagnosis_status || 'no',
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
         referral_goal: form.referral_goal || null, referral_source: form.referral_source || null,
+        referral_name: form.referral_name || null, referral_sub: form.referral_sub || null,
         notes: form.notes || null,
       }
       let pid = draftPatientId
@@ -825,12 +833,16 @@ export default function IntakeWizard() {
         phone2_prefix: form.phone2 ? (form.phone2_prefix || '050') : null, phone2: form.phone2 || null,
         ec_name: form.ec_name, ec_phone_prefix: form.ec_phone_prefix,
         ec_phone: form.ec_phone, ec_relation: form.ec_relation,
+        ec2_name: form.ec2_name || null, ec2_phone_prefix: form.ec2_phone ? (form.ec2_phone_prefix || '050') : null,
+        ec2_phone: form.ec2_phone || null, ec2_relation: form.ec2_relation || null,
         hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
         medical_stage: form.medical_stage || null,
         diagnosis_status: form.diagnosis_status,
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null,
         sub_specialty: form.sub_specialty || null,
+        referral_name: form.referral_name || null,
+        referral_sub: form.referral_sub || null,
         notes: form.notes || null,
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
@@ -966,10 +978,64 @@ export default function IntakeWizard() {
             <F label="מטרת הפניה" name="referral_goal">
               <input {...inp('referral_goal', { placeholder: 'מהי מטרת הפניה?' })} />
             </F>
-            <F label="כיצד הגיע" name="referral_source">
-              <input {...inp('referral_source', { placeholder: 'הפניה, עצמאי, גורם אחר...' })} />
+            <F label="כיצד הגיע/ה?" name="referral_source">
+              <select {...inp('referral_source')}>
+                <option value="">בחר...</option>
+                <option value="word_of_mouth">פה לאוזן</option>
+                <option value="social_media">רשתות חברתיות</option>
+                <option value="professional">גורם מקצועי</option>
+                <option value="case_manager">מנהל אירוע רפואי</option>
+                <option value="other">אחר</option>
+              </select>
             </F>
           </div>
+
+          {/* Referral sub-fields */}
+          {form.referral_source === 'word_of_mouth' && (
+            <F label="שם המפנה" name="referral_name">
+              <input {...inp('referral_name', { placeholder: 'שם מלא של המפנה' })} />
+            </F>
+          )}
+          {form.referral_source === 'social_media' && (
+            <F label="רשת חברתית" name="referral_sub">
+              <select {...inp('referral_sub')}>
+                <option value="">בחר רשת...</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="tiktok">TikTok</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="youtube">YouTube</option>
+                <option value="other">אחר</option>
+              </select>
+            </F>
+          )}
+          {form.referral_source === 'professional' && (
+            <div className="grid grid-cols-2 gap-4">
+              <F label="סוג הגורם" name="referral_sub">
+                <select {...inp('referral_sub')}>
+                  <option value="">בחר...</option>
+                  <option value="doctor">רופא</option>
+                  <option value="nurse">אחות</option>
+                  <option value="clinic">מרפאה</option>
+                  <option value="social_worker">עו"ס</option>
+                  <option value="hospital">בית חולים</option>
+                </select>
+              </F>
+              <F label="שם הגורם" name="referral_name">
+                <input {...inp('referral_name', { placeholder: 'שם הגורם המפנה' })} />
+              </F>
+            </div>
+          )}
+          {form.referral_source === 'case_manager' && (
+            <F label="שם המנהל/ת" name="referral_name">
+              <input {...inp('referral_name', { placeholder: 'שם מנהל האירוע הרפואי' })} />
+            </F>
+          )}
+          {form.referral_source === 'other' && (
+            <F label="פרט" name="referral_name">
+              <input {...inp('referral_name', { placeholder: 'כיצד הגיע/ה?' })} />
+            </F>
+          )}
         </div>
       )
 
@@ -1063,7 +1129,9 @@ export default function IntakeWizard() {
       // ── Step 3: פרטי קשר ────────────────────────────────────────────────────
       case 2: return (
         <div className="space-y-6">
+          {/* איש/אשת קשר ראשי/ת */}
           <div>
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">איש/אשת קשר ראשי/ת</h3>
             <div className="grid grid-cols-2 gap-4">
               <F label="שם מלא" name="ec_name" required>
                 <input {...inp('ec_name')} />
@@ -1085,6 +1153,38 @@ export default function IntakeWizard() {
                     className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
                     value={form.ec_phone_prefix}
                     onChange={e => set('ec_phone_prefix', e.target.value)}
+                  >
+                    {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </F>
+            </div>
+          </div>
+
+          {/* איש/אשת קשר נוסף/ת */}
+          <div className="border-t border-slate-200 pt-5">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">איש/אשת קשר נוסף/ת <span className="text-slate-400 font-normal">(אופציונלי)</span></h3>
+            <div className="grid grid-cols-2 gap-4">
+              <F label="שם מלא" name="ec2_name">
+                <input {...inp('ec2_name')} />
+              </F>
+              <F label="קשר למטופל" name="ec2_relation">
+                <input {...inp('ec2_relation', { placeholder: 'בן/בת זוג, ילד/ה, אח...' })} />
+              </F>
+              <F label="טלפון" name="ec2_phone">
+                <div className="flex gap-2">
+                  <input
+                    className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    value={form.ec2_phone}
+                    onChange={e => set('ec2_phone', e.target.value.replace(/\D/g, ''))}
+                    maxLength={7}
+                    placeholder="1234567"
+                    dir="ltr"
+                  />
+                  <select
+                    className="border border-slate-300 rounded-lg px-2 py-2 text-sm w-24 flex-shrink-0"
+                    value={form.ec2_phone_prefix}
+                    onChange={e => set('ec2_phone_prefix', e.target.value)}
                   >
                     {PHONE_PREFIXES.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>

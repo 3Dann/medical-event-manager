@@ -423,6 +423,30 @@ export default function PatientDetail() {
                 </div>
               )}
               {patient.notes && <div><dt className="text-slate-500">{t('notes_label')}</dt><dd>{patient.notes}</dd></div>}
+              {patient.referral_source && (
+                <div>
+                  <dt className="text-slate-500">כיצד הגיע/ה?</dt>
+                  <dd className="font-medium">
+                    {{'word_of_mouth':'פה לאוזן','social_media':'רשתות חברתיות','professional':'גורם מקצועי','case_manager':'מנהל אירוע רפואי','other':'אחר'}[patient.referral_source] || patient.referral_source}
+                    {patient.referral_sub && <span className="text-slate-500 font-normal mr-1">— {{'facebook':'Facebook','instagram':'Instagram','tiktok':'TikTok','linkedin':'LinkedIn','youtube':'YouTube','doctor':'רופא','nurse':'אחות','clinic':'מרפאה','social_worker':'עו"ס','hospital':'בית חולים','other':'אחר'}[patient.referral_sub] || patient.referral_sub}</span>}
+                  </dd>
+                  {patient.referral_name && <dd className="text-slate-600 text-xs mt-0.5">{patient.referral_name}</dd>}
+                </div>
+              )}
+              {(patient.ec_name || patient.ec_phone) && (
+                <div>
+                  <dt className="text-slate-500">איש/אשת קשר ראשי/ת</dt>
+                  <dd className="font-medium">{patient.ec_name}{patient.ec_relation && <span className="text-slate-500 font-normal mr-1">({patient.ec_relation})</span>}</dd>
+                  {patient.ec_phone && <dd className="text-slate-600 text-xs mt-0.5 font-mono" dir="ltr">{patient.ec_phone_prefix} {patient.ec_phone}</dd>}
+                </div>
+              )}
+              {(patient.ec2_name || patient.ec2_phone) && (
+                <div>
+                  <dt className="text-slate-500">איש/אשת קשר נוסף/ת</dt>
+                  <dd className="font-medium">{patient.ec2_name}{patient.ec2_relation && <span className="text-slate-500 font-normal mr-1">({patient.ec2_relation})</span>}</dd>
+                  {patient.ec2_phone && <dd className="text-slate-600 text-xs mt-0.5 font-mono" dir="ltr">{patient.ec2_phone_prefix} {patient.ec2_phone}</dd>}
+                </div>
+              )}
             </dl>
           )}
         </div>

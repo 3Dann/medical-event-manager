@@ -70,6 +70,14 @@ class PatientCreate(BaseModel):
     ec_phone_prefix: Optional[str] = None
     ec_phone: Optional[str] = None
     ec_relation: Optional[str] = None
+    # Second contact
+    ec2_name: Optional[str] = None
+    ec2_phone_prefix: Optional[str] = None
+    ec2_phone: Optional[str] = None
+    ec2_relation: Optional[str] = None
+    # Referral details
+    referral_name: Optional[str] = None
+    referral_sub: Optional[str] = None
     # Medical specialty
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
@@ -169,6 +177,12 @@ class PatientUpdate(BaseModel):
     ec_phone_prefix: Optional[str] = None
     ec_phone: Optional[str] = None
     ec_relation: Optional[str] = None
+    ec2_name: Optional[str] = None
+    ec2_phone_prefix: Optional[str] = None
+    ec2_phone: Optional[str] = None
+    ec2_relation: Optional[str] = None
+    referral_name: Optional[str] = None
+    referral_sub: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     medications: Optional[str] = None
@@ -260,6 +274,11 @@ def patient_to_dict(p):
         "ec_phone_prefix": p.ec_phone_prefix,
         "ec_phone": p.ec_phone,
         "ec_relation": p.ec_relation,
+        # Second contact
+        "ec2_name": p.ec2_name,
+        "ec2_phone_prefix": p.ec2_phone_prefix,
+        "ec2_phone": p.ec2_phone,
+        "ec2_relation": p.ec2_relation,
         # Phone 2
         "phone2_prefix": p.phone2_prefix,
         "phone2": p.phone2,
@@ -268,6 +287,8 @@ def patient_to_dict(p):
         "sub_specialty": p.sub_specialty,
         "referral_goal": p.referral_goal,
         "referral_source": p.referral_source,
+        "referral_name": p.referral_name,
+        "referral_sub": p.referral_sub,
         # Functional assessments (medications moved to patient_medications table)
         "adl_score": p.adl_score,
         "iadl_score": p.iadl_score,

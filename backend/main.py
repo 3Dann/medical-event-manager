@@ -630,6 +630,14 @@ def run_migrations():
         ("patients", "id_issue_date",  "VARCHAR"),
         ("patients", "id_expiry_date", "VARCHAR"),
         ("patients", "intake_step",    "INTEGER DEFAULT 0"),
+        # Referral source details
+        ("patients", "referral_name",  "VARCHAR"),
+        ("patients", "referral_sub",   "VARCHAR"),
+        # Second emergency contact
+        ("patients", "ec2_name",         "VARCHAR"),
+        ("patients", "ec2_phone_prefix", "VARCHAR"),
+        ("patients", "ec2_phone",        "VARCHAR"),
+        ("patients", "ec2_relation",     "VARCHAR"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────

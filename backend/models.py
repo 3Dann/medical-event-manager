@@ -268,6 +268,8 @@ class Patient(Base):
     sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"
     referral_goal = Column(String, nullable=True)
     referral_source = Column(String, nullable=True)
+    referral_name = Column(String, nullable=True)   # name of referrer / professional / manager
+    referral_sub = Column(String, nullable=True)    # social network / professional type
     financial_consent_agreed = Column(Boolean, default=False)
     financial_consent_signature_path = Column(String, nullable=True)
     financial_consent_signed_at = Column(DateTime(timezone=True), nullable=True)
@@ -275,6 +277,11 @@ class Patient(Base):
     signer_relation = Column(String, nullable=True)
     phone2_prefix = Column(String, nullable=True)
     phone2 = Column(String, nullable=True)
+    # Second emergency contact
+    ec2_name = Column(String, nullable=True)
+    ec2_phone_prefix = Column(String, nullable=True)
+    ec2_phone = Column(String, nullable=True)
+    ec2_relation = Column(String, nullable=True)
 
     # ── NSCLC / Oncology clinical fields ─────────────────────────────────────
     smoking_status   = Column(String, nullable=True)  # never | former | current
