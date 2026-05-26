@@ -258,7 +258,8 @@ def view_document_inline(
         raise HTTPException(status_code=404, detail="File not found on disk")
 
     with open(file_path, "rb") as f:
-        content = f.read()
+        raw = f.read()
+    content = _decrypt_content(raw)
 
     media_type = doc.file_type or "application/octet-stream"
     return Response(
