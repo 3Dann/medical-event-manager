@@ -868,6 +868,7 @@ def reset_password(request: Request, data: ResetPasswordRequest, db: Session = D
     user.reset_token = None
     user.reset_token_expires = None
     user.must_change_password = False
+    _revoke_all_user_sessions(user.id, db)
     db.commit()
     return {"message": "הסיסמה עודכנה בהצלחה"}
 
