@@ -149,19 +149,19 @@ def family_view(request: Request, token: str, db: Session = Depends(get_db)):
             "steps": [{"name": s.name, "status": s.status} for s in steps],
         }
 
-    # Red flags
+    # Red flags — description excluded (PHI)
     red_flags = [
-        {"flag_type": f.flag_type, "title": f.title, "description": f.description}
+        {"flag_type": f.flag_type, "title": f.title}
         for f in patient.red_flags if f.is_active
     ]
 
     return {
-        "patient_name": patient.full_name,
-        "diagnosis":    patient.diagnosis_details,
-        "expires_at":   share.expires_at.isoformat(),
-        "workflows":    [_wf_dict(wf) for wf in wf_instances],
-        "red_flags":    red_flags,
-        "claims_count": db.query(models.Claim).filter(
+        "patient_name":    patient.full_name,
+        "diagnosis_status": "active" if patient.diagnosis_details else "none",
+        "expires_at":      share.expires_at.isoformat(),
+        "workflows":       [_wf_dict(wf) for wf in wf_instances],
+        "red_flags":       red_flags,
+        "claims_count":    db.query(models.Claim).filter(
             models.Claim.patient_id == patient.id,
             models.Claim.status != "draft",
         ).count(),
