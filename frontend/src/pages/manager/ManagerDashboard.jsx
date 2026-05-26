@@ -7,17 +7,30 @@ import { useToast } from '../../hooks/useToast'
 import AppToast from '../../components/AppToast'
 import { useConfirm } from '../../components/ConfirmDialog'
 const DIAGNOSIS_COLORS = { yes: 'badge-blue', no: 'badge-gray', pending: 'badge-yellow' }
+const SESSION_DRAFT_KEY = 'intake_wizard_draft'
+const LOCAL_DRAFT_KEY   = 'intake_draft_patient_id'
+
+function hasSessionDraft() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_DRAFT_KEY)
+    if (!raw) return false
+    const parsed = JSON.parse(raw)
+    return !!(parsed?.full_name?.trim())
+  } catch { return false }
+}
 
 export default function ManagerDashboard() {
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
   const [globalInsights, setGlobalInsights] = useState(null)
+  const [sessionDraft, setSessionDraft] = useState(false)
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { toast, showToast, dismissToast } = useToast()
   const [confirmDelete, ConfirmUI] = useConfirm()
 
   useEffect(() => {
+    setSessionDraft(hasSessionDraft())
     const controller = new AbortController()
     fetchPatients(controller.signal)
     fetchInsights(controller.signal)
@@ -136,7 +149,34 @@ export default function ManagerDashboard() {
       )}
 
 
-      {/* Incomplete intakes */}
+      {/* Session draft — form data in progress, not yet saved to DB */}
+      {sessionDraft && (
+        <div className="mb-4 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-blue-500 text-lg">✏️</span>
+            <div>
+              <p className="font-semibold text-blue-800 text-sm">יש אינטייק שלא הסתיים</p>
+              <p className="text-blue-600 text-xs">המשך ממקום שעצרת — הנתונים שמורים זמנית בדפדפן</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { sessionStorage.removeItem(SESSION_DRAFT_KEY); localStorage.removeItem(LOCAL_DRAFT_KEY); setSessionDraft(false) }}
+              className="text-xs text-blue-400 hover:text-blue-600 px-2 py-1"
+            >
+              בטל
+            </button>
+            <button
+              onClick={() => navigate('/manager/patients/new')}
+              className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 font-medium whitespace-nowrap"
+            >
+              המשך אינטייק ←
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Incomplete intakes — saved to DB */}
       {!loading && patients.filter(p => !p.intake_completed).length > 0 && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
