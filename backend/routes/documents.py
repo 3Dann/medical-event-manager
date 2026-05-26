@@ -186,10 +186,13 @@ def download_document(
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found on disk")
 
-    return FileResponse(
-        file_path,
+    with open(file_path, "rb") as f:
+        raw = f.read()
+    content = _decrypt_content(raw)
+    return Response(
+        content=content,
         media_type=doc.file_type or "application/octet-stream",
-        filename=doc.original_name,
+        headers={"Content-Disposition": f'attachment; filename="{doc.original_name}"'},
     )
 
 
