@@ -625,6 +625,11 @@ def run_migrations():
         ("drug_entries", "moh_reg_number",     "TEXT"),
         ("drug_entries", "atc_code",           "TEXT"),
         ("drug_entries", "drug_category",      "TEXT"),
+        # ID card extended fields + intake draft tracking
+        ("patients", "father_name",    "VARCHAR"),
+        ("patients", "id_issue_date",  "VARCHAR"),
+        ("patients", "id_expiry_date", "VARCHAR"),
+        ("patients", "intake_step",    "INTEGER DEFAULT 0"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
