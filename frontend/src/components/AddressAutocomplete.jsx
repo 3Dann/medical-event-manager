@@ -37,7 +37,7 @@ async function fetchPostalCode(cityName, streetName) {
 
 // ── City autocomplete ─────────────────────────────────────────────────────────
 
-export function CityAutocomplete({ value, onChange, required, error }) {
+export function CityAutocomplete({ value, cityCode, onChange, required, error }) {
   const [input, setInput]   = useState(value || '')
   const [allCities, setAll] = useState(_citiesCache || [])
   const [loading, setLoad]  = useState(false)
@@ -67,23 +67,40 @@ export function CityAutocomplete({ value, onChange, required, error }) {
     ? allCities.filter(c => c.name.includes(input)).slice(0, 15)
     : []
 
-  const placeholder = loadErr ? 'שגיאה בטעינת ישובים — נסה לרענן'
+  const placeholder = loadErr ? 'שגיאה בטעינת ישובים — הקלד שם עיר ידנית'
     : loading ? 'טוען ישובים...'
     : 'הקלד שם עיר...'
+
+  const handleChange = (v) => {
+    setInput(v)
+    setOpen(v.length > 0)
+    onChange(v, '')
+  }
+
+  const handleBlur = () => {
+    const trimmed = input.trim()
+    if (trimmed) {
+      // Try exact match first
+      const exact = allCities.find(c => c.name === trimmed)
+      if (exact) {
+        onChange(exact.name, exact.code)
+      } else {
+        // Accept as manual entry — no city_code
+        onChange(trimmed, '')
+      }
+    }
+    setOpen(false)
+  }
 
   return (
     <div ref={ref} className="relative">
       <input
-        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${loadErr ? 'bg-red-50' : ''}`}
+        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${loadErr ? 'bg-yellow-50' : ''}`}
         value={input}
         placeholder={placeholder}
-        onChange={e => {
-          const v = e.target.value
-          setInput(v)
-          setOpen(v.length > 0)
-          if (!v) onChange('', '')
-        }}
+        onChange={e => handleChange(e.target.value)}
         onFocus={() => filtered.length > 0 && setOpen(true)}
+        onBlur={handleBlur}
         required={required}
         autoComplete="off"
       />
@@ -99,6 +116,12 @@ export function CityAutocomplete({ value, onChange, required, error }) {
             </li>
           ))}
         </ul>
+      )}
+      {/* Manual entry hint when no match found */}
+      {open && input.length > 1 && filtered.length === 0 && allCities.length > 0 && (
+        <div className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 px-3 py-2 text-sm text-slate-500">
+          לא נמצא ברשימה — הערך יישמר כהכנסה ידנית
+        </div>
       )}
     </div>
   )
@@ -135,6 +158,7 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
       .then(data => {
         const streets = (data.records || []).sort((a, b) => a.name.localeCompare(b.name, 'he'))
         setStreets(streets)
+        // loadErr only if city was selected but API returned nothing
         setErr(streets.length === 0 && !!cityCode)
       })
       .catch(e => { if (e.name !== 'AbortError') setErr(true) })
@@ -151,6 +175,8 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
     ? allStreets.filter(s => s.name.includes(input)).slice(0, 20)
     : []
 
+  const noMatch = input.length > 1 && allStreets.length > 0 && filtered.length === 0
+
   const selectStreet = async (street) => {
     setInput(street.name)
     setOpen(false)
@@ -165,14 +191,17 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
   }
 
   const placeholder = disabled ? 'בחר עיר תחילה'
-    : loadErr ? 'שגיאה בטעינת רחובות'
+    : loadErr ? 'שגיאה בטעינת רחובות — הקלד ידנית'
     : loading ? 'טוען רחובות...'
     : 'הקלד שם רחוב...'
+
+  // Allow manual entry when: no city selected (no cityCode), API error, or city entered manually
+  const isManualMode = !cityCode || loadErr
 
   return (
     <div ref={ref} className="relative">
       <input
-        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${disabled ? 'bg-slate-50 text-slate-400' : ''} ${loadErr ? 'bg-red-50' : ''}`}
+        className={`w-full border rounded-lg px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-slate-300'} ${disabled ? 'bg-slate-50 text-slate-400' : ''}`}
         value={input}
         placeholder={placeholder}
         onChange={e => {
@@ -181,14 +210,14 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
           onChange(v)
           onPostalCode?.('')
           selectedStreetRef.current = null
-          setOpen(v.length > 0 && allStreets.length > 0)
+          setOpen(v.length > 0 && allStreets.length > 0 && !isManualMode)
         }}
         onFocus={() => filtered.length > 0 && setOpen(true)}
         onBlur={() => {
           const trimmed = input.trim()
           if (trimmed && allStreets.length > 0) {
-            const exact = allStreets.filter(s => s.name === trimmed)
-            if (exact.length === 1) selectStreet(exact[0])
+            const exact = allStreets.find(s => s.name === trimmed)
+            if (exact) selectStreet(exact)
           }
         }}
         required={required}
@@ -210,6 +239,14 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
             </li>
           ))}
         </ul>
+      )}
+      {/* No match hint — manual entry is accepted */}
+      {noMatch && !open && (
+        <p className="mt-1 text-xs text-slate-500">לא נמצא ברשימה — הערך יישמר כהכנסה ידנית</p>
+      )}
+      {/* Manual mode hint */}
+      {isManualMode && !disabled && (
+        <p className="mt-1 text-xs text-slate-400">הכנסה ידנית</p>
       )}
     </div>
   )

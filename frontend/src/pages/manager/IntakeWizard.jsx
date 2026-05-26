@@ -718,8 +718,8 @@ export default function IntakeWizard() {
       if (!form.gender) e.gender = 'שדה חובה'
     }
     if (stepIdx === 1) {
-      if (!form.city || !form.city_code) e.city = 'יש לבחור עיר מהרשימה'
-      if (!form.street) e.street = 'יש לבחור רחוב מהרשימה'
+      if (!form.city) e.city = 'יש להזין עיר'
+      if (!form.street) e.street = 'יש להזין רחוב'
       if (!form.house_number) e.house_number = 'שדה חובה'
       else if (!/^\d+[א-ת]?$/.test(form.house_number.trim())) e.house_number = 'מספר בית לא תקין'
       if (!form.phone) e.phone = 'שדה חובה'
@@ -995,7 +995,7 @@ export default function IntakeWizard() {
                 onPostalCode={zip => set('postal_code', zip)}
                 required
                 error={!!errors.street}
-                disabled={!form.city_code}
+                disabled={!form.city}
               />
             </F>
             <F label="מספר בית" name="house_number" required>
