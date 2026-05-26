@@ -519,6 +519,7 @@ def change_required_password(
     _validate_password(body.new_password)
     current_user.hashed_password = auth_utils.get_password_hash(body.new_password)
     current_user.must_change_password = False
+    _revoke_all_user_sessions(current_user.id, db)
     db.commit()
     return {"changed": True}
 
