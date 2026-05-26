@@ -88,7 +88,7 @@ def mark_all_read(
 def toggle_handled(
     feedback_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_admin),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     item = db.query(models.ProjectFeedback).filter(models.ProjectFeedback.id == feedback_id).first()
     if not item:
