@@ -1073,6 +1073,7 @@ def change_own_password(request: Request, data: ChangePasswordRequest, db: Sessi
             if not totp.verify(data.tfa_code, valid_window=1):
                 raise HTTPException(status_code=400, detail="קוד אימות שגוי")
     current_user.hashed_password = auth_utils.get_password_hash(data.new_password)
+    _revoke_all_user_sessions(current_user.id, db)
     db.commit()
     return {"message": "הסיסמה עודכנה בהצלחה"}
 
