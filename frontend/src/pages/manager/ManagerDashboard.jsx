@@ -136,6 +136,37 @@ export default function ManagerDashboard() {
       )}
 
 
+      {/* Incomplete intakes */}
+      {!loading && patients.filter(p => !p.intake_completed).length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <h2 className="text-sm font-semibold text-amber-800">אינטייקים לא הושלמו</h2>
+          </div>
+          <div className="space-y-2">
+            {patients.filter(p => !p.intake_completed).map(p => (
+              <div key={p.id} className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
+                    <span className="text-amber-700 font-semibold text-sm">{p.full_name[0]}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-slate-800 text-sm">{p.full_name}</p>
+                    <p className="text-xs text-amber-700">שלב {(p.intake_step || 0) + 1} מתוך 7 — לא הושלם</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate(`/manager/patients/new?resume=${p.id}`)}
+                  className="text-xs bg-amber-600 text-white px-3 py-1.5 rounded-lg hover:bg-amber-700 font-medium whitespace-nowrap"
+                >
+                  המשך אינטייק ←
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Patients list */}
       {loading ? (
         <div className="space-y-3 mt-4">

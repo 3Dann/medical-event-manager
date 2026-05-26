@@ -31,6 +31,9 @@ class PatientCreate(BaseModel):
     # Core
     full_name: str
     id_number: Optional[str] = None
+    father_name: Optional[str] = None
+    id_issue_date: Optional[str] = None
+    id_expiry_date: Optional[str] = None
     diagnosis_status: str = "no"
 
     @field_validator('birth_date', mode='before', check_fields=False)
@@ -81,9 +84,62 @@ class PatientCreate(BaseModel):
     mmse_score: Optional[int] = None
 
 
+class IntakeDraftIn(BaseModel):
+    """Partial save during intake — only full_name required, no deep validation."""
+    full_name: str
+    intake_step: int = 0
+    id_number: Optional[str] = None
+    father_name: Optional[str] = None
+    id_issue_date: Optional[str] = None
+    id_expiry_date: Optional[str] = None
+    diagnosis_status: Optional[str] = None
+    diagnosis_details: Optional[str] = None
+    notes: Optional[str] = None
+    hmo_name: Optional[str] = None
+    hmo_level: Optional[str] = None
+    condition_tags: Optional[str] = None
+    medical_stage: Optional[str] = None
+    phone_prefix: Optional[str] = None
+    phone: Optional[str] = None
+    phone2_prefix: Optional[str] = None
+    phone2: Optional[str] = None
+    gender: Optional[str] = None
+    birth_date: Optional[str] = None
+    marital_status: Optional[str] = None
+    num_children: Optional[int] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    city: Optional[str] = None
+    city_code: Optional[str] = None
+    street: Optional[str] = None
+    house_number: Optional[str] = None
+    entrance: Optional[str] = None
+    floor: Optional[str] = None
+    apartment: Optional[str] = None
+    postal_code: Optional[str] = None
+    ec_name: Optional[str] = None
+    ec_phone_prefix: Optional[str] = None
+    ec_phone: Optional[str] = None
+    ec_relation: Optional[str] = None
+    specialty: Optional[str] = None
+    sub_specialty: Optional[str] = None
+    referral_goal: Optional[str] = None
+    referral_source: Optional[str] = None
+    medications: Optional[str] = None
+    adl_answers: Optional[str] = None
+    iadl_answers: Optional[str] = None
+    mmse_answers: Optional[str] = None
+    adl_score: Optional[int] = None
+    iadl_score: Optional[int] = None
+    mmse_score: Optional[int] = None
+
+
 class PatientUpdate(BaseModel):
     full_name: Optional[str] = None
     id_number: Optional[str] = None
+    father_name: Optional[str] = None
+    id_issue_date: Optional[str] = None
+    id_expiry_date: Optional[str] = None
     diagnosis_status: Optional[str] = None
     diagnosis_details: Optional[str] = None
     notes: Optional[str] = None
@@ -169,6 +225,9 @@ def patient_to_dict(p):
         "id": p.id,
         "full_name": p.full_name,
         "id_number": p.id_number,
+        "father_name": p.father_name,
+        "id_issue_date": p.id_issue_date,
+        "id_expiry_date": p.id_expiry_date,
         "diagnosis_status": p.diagnosis_status,
         "diagnosis_details": p.diagnosis_details,
         "notes": p.notes,
@@ -217,6 +276,7 @@ def patient_to_dict(p):
         "consent_agreed": p.consent_agreed,
         "poa_agreed": p.poa_agreed,
         "intake_completed": p.intake_completed,
+        "intake_step": p.intake_step,
         # NSCLC / Oncology clinical fields
         "smoking_status": p.smoking_status,
         "ngs_method": p.ngs_method,
@@ -513,6 +573,21 @@ def save_signatures(
 
     db.commit()
     return {"ok": True, "intake_completed": True}
+
+
+@router.patch("/{patient_id}/intake-draft")
+def save_intake_draft(
+    patient_id: int,
+    data: IntakeDraftIn,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth_utils.require_manager),
+):
+    """Save partial intake progress — no deep validation, only full_name required."""
+    patient = auth_utils.get_patient_with_access(patient_id, current_user, db)
+    for field, value in data.model_dump(exclude_none=True).items():
+        setattr(patient, field, value)
+    db.commit()
+    return {"ok": True, "patient_id": patient.id, "intake_step": patient.intake_step}
 
 
 @router.get("/{patient_id}")

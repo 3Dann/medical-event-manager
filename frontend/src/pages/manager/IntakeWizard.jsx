@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useContext, createContext, useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import { validateIsraeliId } from '../../utils/validateId'
@@ -405,7 +405,8 @@ function DocSign({ title, text, required, signerName, agreed, signature, onAgree
 // ── Wizard ────────────────────────────────────────────────────────────────────
 
 const EMPTY_FORM = {
-  full_name: '', id_number: '', birth_date: '', gender: '',
+  full_name: '', id_number: '', father_name: '', id_issue_date: '', id_expiry_date: '',
+  birth_date: '', gender: '',
   marital_status: '', num_children: '', height_cm: '', weight_kg: '',
   referral_goal: '', referral_source: '',
   city: '', city_code: '', street: '', house_number: '',
@@ -460,6 +461,11 @@ function MedicationsStep({ medications, onChange }) {
 
   return (
     <div className="space-y-4">
+      {/* Info box */}
+      <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-800">
+        <span className="text-lg leading-tight">ℹ️</span>
+        <span>שדה זה <strong>אינו חובה</strong> — התרופות יזוהו אוטומטית מהמסמכים הרפואיים שיועלו למערכת, או שניתן להוסיף ידנית בכל עת לאחר השלמת האינטייק.</span>
+      </div>
       {/* List */}
       {medications.length === 0 ? (
         <div className="text-center py-10 text-slate-600 bg-slate-50 rounded-xl text-sm">
@@ -521,15 +527,23 @@ function MedicationsStep({ medications, onChange }) {
 }
 
 const DRAFT_KEY = 'intake_wizard_draft'
+const DRAFT_PATIENT_KEY = 'intake_draft_patient_id'
 
 export default function IntakeWizard() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { isDemoMode } = useDemoMode()
   const { showToast } = useToast()
   const { t } = useTranslation(['intake', 'common'])
   const STEPS = STEP_KEYS.map(s => ({ ...s, label: t(`intake:${s.key}`) }))
   const [step, setStep] = useState(0)
   const [funcSubStep, setFuncSubStep] = useState(0) // 0=ADL 1=IADL 2=MMSE within step 5
+  // draftPatientId — patient already created in DB (draft mode)
+  const [draftPatientId, setDraftPatientId] = useState(() => {
+    const resumeId = searchParams.get('resume')
+    if (resumeId) return Number(resumeId)
+    return localStorage.getItem(DRAFT_PATIENT_KEY) ? Number(localStorage.getItem(DRAFT_PATIENT_KEY)) : null
+  })
   const [form, setForm] = useState(() => {
     try {
       const saved = sessionStorage.getItem(DRAFT_KEY)
@@ -538,11 +552,107 @@ export default function IntakeWizard() {
   })
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const [saveAndExiting, setSaveAndExiting] = useState(false)
   const [draftSaved, setDraftSaved] = useState(false)
   const draftTimer = useRef(null)
   const draftFadeTimer = useRef(null)
 
+  // Load existing patient data when resuming
+  useEffect(() => {
+    const resumeId = searchParams.get('resume')
+    if (!resumeId) return
+    axios.get(`/api/patients/${resumeId}`).then(res => {
+      const p = res.data
+      setForm(f => ({
+        ...f,
+        full_name: p.full_name || '',
+        id_number: p.id_number || '',
+        father_name: p.father_name || '',
+        id_issue_date: p.id_issue_date || '',
+        id_expiry_date: p.id_expiry_date || '',
+        birth_date: p.birth_date || '',
+        gender: p.gender || '',
+        marital_status: p.marital_status || '',
+        num_children: p.num_children ?? '',
+        height_cm: p.height_cm ?? '',
+        weight_kg: p.weight_kg ?? '',
+        referral_goal: p.referral_goal || '',
+        referral_source: p.referral_source || '',
+        city: p.city || '', city_code: p.city_code || '',
+        street: p.street || '', house_number: p.house_number || '',
+        entrance: p.entrance || '', floor: p.floor || '',
+        apartment: p.apartment || '', postal_code: p.postal_code || '',
+        phone_prefix: p.phone_prefix || '050', phone: p.phone || '',
+        phone2_prefix: p.phone2_prefix || '050', phone2: p.phone2 || '',
+        ec_name: p.ec_name || '', ec_phone_prefix: p.ec_phone_prefix || '050',
+        ec_phone: p.ec_phone || '', ec_relation: p.ec_relation || '',
+        hmo_name: p.hmo_name || '', hmo_level: p.hmo_level || '',
+        medical_stage: p.medical_stage || '',
+        diagnosis_status: p.diagnosis_status || 'no',
+        diagnosis_details: p.diagnosis_details || '',
+        specialty: p.specialty || '', sub_specialty: p.sub_specialty || '',
+        notes: p.notes || '',
+      }))
+      if (p.intake_step) setStep(p.intake_step)
+    }).catch(() => {})
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
+
+  // Save and exit — persist to DB and return to dashboard
+  const handleSaveAndExit = async () => {
+    if (!form.full_name.trim()) {
+      showToast('יש להזין שם מלא לפני השמירה', 'error')
+      return
+    }
+    setSaveAndExiting(true)
+    try {
+      const draftPayload = {
+        full_name: form.full_name.trim(),
+        intake_step: step,
+        id_number: form.id_number || null,
+        father_name: form.father_name || null,
+        id_issue_date: form.id_issue_date || null,
+        id_expiry_date: form.id_expiry_date || null,
+        birth_date: form.birth_date || null,
+        gender: form.gender || null,
+        marital_status: form.marital_status || null,
+        num_children: form.num_children !== '' ? Number(form.num_children) : null,
+        city: form.city || null, city_code: form.city_code || null,
+        street: form.street || null, house_number: form.house_number || null,
+        entrance: form.entrance || null, floor: form.floor || null,
+        apartment: form.apartment || null, postal_code: form.postal_code || null,
+        phone_prefix: form.phone_prefix || null, phone: form.phone || null,
+        phone2_prefix: form.phone2 ? (form.phone2_prefix || '050') : null, phone2: form.phone2 || null,
+        ec_name: form.ec_name || null, ec_phone_prefix: form.ec_phone_prefix || null,
+        ec_phone: form.ec_phone || null, ec_relation: form.ec_relation || null,
+        hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
+        medical_stage: form.medical_stage || null,
+        diagnosis_status: form.diagnosis_status || 'no',
+        diagnosis_details: form.diagnosis_details || null,
+        specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
+        referral_goal: form.referral_goal || null, referral_source: form.referral_source || null,
+        notes: form.notes || null,
+      }
+      let pid = draftPatientId
+      if (!pid) {
+        // First save — create patient
+        const res = await axios.post('/api/patients', draftPayload)
+        pid = res.data.id
+        setDraftPatientId(pid)
+        localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
+      } else {
+        await axios.patch(`/api/patients/${pid}/intake-draft`, draftPayload)
+      }
+      sessionStorage.removeItem(DRAFT_KEY)
+      showToast('האינטייק נשמר — תוכל להמשיך בכל עת', 'success')
+      navigate('/manager')
+    } catch (err) {
+      showToast('שגיאה בשמירה', 'error')
+    } finally {
+      setSaveAndExiting(false)
+    }
+  }
 
   useEffect(() => {
     clearTimeout(draftTimer.current)
@@ -698,6 +808,9 @@ export default function IntakeWizard() {
       const payload = {
         full_name: form.full_name.trim(),
         id_number: form.id_number,
+        father_name: form.father_name || null,
+        id_issue_date: form.id_issue_date || null,
+        id_expiry_date: form.id_expiry_date || null,
         birth_date: form.birth_date,
         gender: form.gender,
         marital_status: form.marital_status || null,
@@ -750,6 +863,7 @@ export default function IntakeWizard() {
         signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
       })
       sessionStorage.removeItem(DRAFT_KEY)
+      localStorage.removeItem(DRAFT_PATIENT_KEY)
       navigate(`/manager/patients/${patientId}`)
     } catch (err) {
       setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
@@ -810,6 +924,23 @@ export default function IntakeWizard() {
                 value={form.birth_date}
                 onChange={v => set('birth_date', v)}
                 hasError={!!errors.birth_date}
+              />
+            </F>
+            <F label="שם האב" name="father_name">
+              <input {...inp('father_name')} />
+            </F>
+            <F label="תאריך הנפקת ת״ז" name="id_issue_date">
+              <DateInput
+                value={form.id_issue_date}
+                onChange={v => set('id_issue_date', v)}
+                hasError={false}
+              />
+            </F>
+            <F label="תוקף ת״ז" name="id_expiry_date">
+              <DateInput
+                value={form.id_expiry_date}
+                onChange={v => set('id_expiry_date', v)}
+                hasError={false}
               />
             </F>
             <F label="מגדר" name="gender" required>
@@ -1161,13 +1292,21 @@ export default function IntakeWizard() {
           </div>
 
           {/* Navigation */}
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between items-center mt-6">
             <button
               onClick={back}
               disabled={step === 0 && funcSubStep === 0}
               className="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 disabled:opacity-40 text-sm font-medium min-h-[44px]"
             >
               ← חזרה
+            </button>
+            <button
+              onClick={handleSaveAndExit}
+              disabled={saveAndExiting}
+              className="px-4 py-2.5 rounded-xl border border-amber-300 text-amber-700 hover:bg-amber-50 text-sm font-medium min-h-[44px] disabled:opacity-50"
+              title="שמור את ההתקדמות וחזור לדשבורד — ניתן להמשיך מאוחר יותר"
+            >
+              {saveAndExiting ? 'שומר...' : '💾 שמור וצא'}
             </button>
             {(step < STEPS.length - 1 || (step === 5 && funcSubStep < 2)) ? (
               <button

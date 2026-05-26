@@ -280,6 +280,25 @@ export default function PatientDetail() {
     <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />
     <div className="p-4 md:p-6">
 
+      {/* Incomplete intake banner */}
+      {!patient.intake_completed && (
+        <div className="mb-4 flex items-center justify-between bg-amber-50 border border-amber-300 rounded-xl px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-amber-600 text-lg">⚠️</span>
+            <div>
+              <p className="font-semibold text-amber-800 text-sm">אינטייק לא הושלם</p>
+              <p className="text-amber-700 text-xs">יש להשלים את תהליך הקליטה כדי לאפשר ניהול מלא של התיק</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate(`/manager/patients/new?resume=${patient.id}`)}
+            className="text-sm bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 font-medium whitespace-nowrap"
+          >
+            המשך אינטייק ←
+          </button>
+        </div>
+      )}
+
       {/* Patient info + quick nav */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="card">
@@ -308,6 +327,11 @@ export default function PatientDetail() {
                 {editForm.id_number && idValid === true && (
                   <p className="text-green-600 text-xs mt-1">✓ {t('id_valid')}</p>
                 )}
+              </div>
+              <div><label className="label">שם האב</label><input className="input" value={editForm.father_name || ''} onChange={e => setEditForm({...editForm, father_name: e.target.value})} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><label className="label">תאריך הנפקת ת״ז</label><input className="input" type="date" value={editForm.id_issue_date || ''} onChange={e => setEditForm({...editForm, id_issue_date: e.target.value})} /></div>
+                <div><label className="label">תוקף ת״ז</label><input className="input" type="date" value={editForm.id_expiry_date || ''} onChange={e => setEditForm({...editForm, id_expiry_date: e.target.value})} /></div>
               </div>
               <div>
                 <label className="label">{t('diagnosis_status_label')}</label>
@@ -361,6 +385,10 @@ export default function PatientDetail() {
             </div>
           ) : (
             <dl className="space-y-3 text-sm">
+              {patient.id_number && <div><dt className="text-slate-500">{t('id_number_label')}</dt><dd className="font-medium font-mono">{patient.id_number}</dd></div>}
+              {patient.father_name && <div><dt className="text-slate-500">שם האב</dt><dd className="font-medium">{patient.father_name}</dd></div>}
+              {patient.id_issue_date && <div><dt className="text-slate-500">תאריך הנפקת ת״ז</dt><dd className="font-medium">{patient.id_issue_date}</dd></div>}
+              {patient.id_expiry_date && <div><dt className="text-slate-500">תוקף ת״ז</dt><dd className="font-medium">{patient.id_expiry_date}</dd></div>}
               <div><dt className="text-slate-500">{t('diagnosis_label')}</dt><dd className="font-medium">{patient.diagnosis_status === 'yes' ? t('diagnosis_yes') : patient.diagnosis_status === 'pending' ? t('diagnosis_pending') : t('diagnosis_no_short')}</dd></div>
               {patient.diagnosis_details && <div><dt className="text-slate-500">{t('details_label')}</dt><dd>{patient.diagnosis_details}</dd></div>}
               {patient.hmo_name && (

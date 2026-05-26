@@ -200,6 +200,9 @@ class Patient(Base):
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String, nullable=False)
     id_number = Column(EncryptedText, nullable=True)       # Israeli ID — encrypted
+    father_name = Column(String, nullable=True)
+    id_issue_date = Column(String, nullable=True)          # YYYY-MM-DD
+    id_expiry_date = Column(String, nullable=True)         # YYYY-MM-DD
     diagnosis_status = Column(String, default=DiagnosisStatus.no)
     diagnosis_details = Column(EncryptedText, nullable=True)  # PHI — encrypted
     notes = Column(EncryptedText, nullable=True)               # PHI — encrypted
@@ -258,6 +261,7 @@ class Patient(Base):
     poa_signature_path = Column(String, nullable=True)
     intake_completed = Column(Boolean, default=False)
     intake_completed_at = Column(DateTime(timezone=True), nullable=True)
+    intake_step = Column(Integer, default=0)               # 0–6, last saved step
 
     # ── Medical specialty (auto-suggested from diagnosis) ─────────────────────
     specialty = Column(String, nullable=True)          # e.g. "אונקולוגיה"
