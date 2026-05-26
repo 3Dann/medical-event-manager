@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useToast } from '../../hooks/useToast'
+import AppToast from '../../components/AppToast'
 import { useTranslation } from 'react-i18next'
 
-function FeedbackCard({ item, onToggle }) {
+function FeedbackCard({ item, onToggle, toggling }) {
   const { t } = useTranslation('feedback')
   const TYPE_META = {
     bug:     { label: t('type_bug'),     cls: 'bg-red-100 text-red-700' },
@@ -16,14 +17,30 @@ function FeedbackCard({ item, onToggle }) {
     : ''
 
   return (
-    <div className={`bg-white border rounded-xl p-4 space-y-3 transition-opacity ${item.is_handled ? 'opacity-60' : ''}`}>
+    <div className={`border rounded-xl p-4 space-y-3 transition-all duration-300 ${
+      item.is_handled
+        ? 'bg-green-50/40 border-green-100'
+        : 'bg-white border-slate-200'
+    }`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-slate-600 font-semibold text-sm">{item.name?.[0]?.toUpperCase() || '?'}</span>
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+            item.is_handled ? 'bg-green-100' : 'bg-slate-100'
+          }`}>
+            {item.is_handled
+              ? <span className="text-green-600 font-bold text-base">✓</span>
+              : <span className="text-slate-600 font-semibold text-sm">{item.name?.[0]?.toUpperCase() || '?'}</span>
+            }
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-slate-800 text-sm truncate">{item.name}</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className={`font-semibold text-sm truncate ${item.is_handled ? 'text-slate-500' : 'text-slate-800'}`}>
+                {item.name}
+              </p>
+              {item.is_handled && (
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">טופל</span>
+              )}
+            </div>
             <p className="text-xs text-slate-400">{date}</p>
           </div>
         </div>
@@ -31,46 +48,32 @@ function FeedbackCard({ item, onToggle }) {
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${type.cls}`}>{type.label}</span>
           <button
             onClick={() => onToggle(item.id)}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+            disabled={toggling}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-50 ${
               item.is_handled
                 ? 'border-slate-200 text-slate-500 hover:bg-slate-50'
                 : 'border-green-300 bg-green-50 text-green-700 hover:bg-green-100'
             }`}
           >
-            {item.is_handled ? t('mark_pending') : t('mark_handled')}
+            {toggling ? '...' : item.is_handled ? t('mark_pending') : t('mark_handled')}
           </button>
         </div>
       </div>
-      <p className="text-sm text-slate-700 bg-slate-50 rounded-lg px-4 py-3 leading-relaxed">{item.message}</p>
-    </div>
-  )
-}
-
-function Section({ title, items, emptyText, onToggle, accent }) {
-  return (
-    <div>
-      <div className={`flex items-center gap-2 mb-3`}>
-        <span className={`w-2.5 h-2.5 rounded-full ${accent}`} />
-        <h3 className="font-semibold text-slate-700 text-sm">{title}</h3>
-        <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{items.length}</span>
-      </div>
-      {items.length === 0 ? (
-        <p className="text-sm text-slate-400 py-4 text-center bg-slate-50 rounded-xl">{emptyText}</p>
-      ) : (
-        <div className="space-y-3">
-          {items.map(f => <FeedbackCard key={f.id} item={f} onToggle={onToggle} />)}
-        </div>
-      )}
+      <p className={`text-sm rounded-lg px-4 py-3 leading-relaxed ${
+        item.is_handled ? 'bg-green-50/60 text-slate-500' : 'bg-slate-50 text-slate-700'
+      }`}>{item.message}</p>
     </div>
   )
 }
 
 export default function FeedbackInbox() {
   const { t } = useTranslation('feedback')
-  const [feedback, setFeedback] = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [filter, setFilter]     = useState('all')
-  const { showToast } = useToast()
+  const [feedback, setFeedback]     = useState([])
+  const [loading, setLoading]       = useState(true)
+  const [filter, setFilter]         = useState('all')
+  const [togglingId, setTogglingId] = useState(null)
+  const [showHandled, setShowHandled] = useState(false)
+  const { toast, showToast, dismissToast } = useToast()
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -85,16 +88,20 @@ export default function FeedbackInbox() {
   }, [])
 
   const toggleHandled = async (id) => {
+    setTogglingId(id)
     try {
       const r = await axios.put(`/api/public/feedback/${id}/handle`)
       setFeedback(prev => prev.map(f => f.id === id ? r.data : f))
-    } catch (_) {}
+      if (r.data.is_handled) showToast('הרשומה סומנה כטופלה ועברה לארכיון', 'success')
+    } catch {
+      showToast('שגיאה בעדכון הסטטוס — נסה שוב', 'error')
+    } finally {
+      setTogglingId(null)
+    }
   }
 
   const filtered = filter === 'all' ? feedback : feedback.filter(f => f.feedback_type === filter)
-
-  const sorted = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-
+  const sorted   = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
   const pending  = sorted.filter(f => !f.is_handled)
   const handled  = sorted.filter(f => f.is_handled)
 
@@ -103,6 +110,8 @@ export default function FeedbackInbox() {
 
   return (
     <div className="p-4 md:p-8 space-y-6" dir="rtl">
+      {toast && <AppToast msg={toast?.msg} type={toast?.type} onDismiss={dismissToast} />}
+
       <div>
         <h2 className="text-xl font-bold text-slate-800">{t('title')}</h2>
         <p className="text-slate-500 text-sm mt-0.5">{t('subtitle')}</p>
@@ -115,17 +124,17 @@ export default function FeedbackInbox() {
             <p className="text-2xl font-bold text-slate-800">{feedback.length}</p>
             <p className="text-xs text-slate-500 mt-0.5">{t('stat_total')}</p>
           </div>
-          <div className="bg-white border border-orange-200 rounded-xl p-3 text-center">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-orange-500">{pending.length}</p>
             <p className="text-xs text-slate-500 mt-0.5">{t('stat_pending')}</p>
+          </div>
+          <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+            <p className="text-2xl font-bold text-green-600">{handled.length}</p>
+            <p className="text-xs text-slate-500 mt-0.5">טופלו</p>
           </div>
           <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center cursor-pointer hover:border-red-300 transition-colors" onClick={() => setFilter(f => f === 'bug' ? 'all' : 'bug')}>
             <p className="text-2xl font-bold text-red-500">{bugs}</p>
             <p className="text-xs text-slate-500 mt-0.5">{t('stat_bugs')}</p>
-          </div>
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-center cursor-pointer hover:border-blue-300 transition-colors" onClick={() => setFilter(f => f === 'feature' ? 'all' : 'feature')}>
-            <p className="text-2xl font-bold text-blue-500">{features}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{t('stat_ideas')}</p>
           </div>
         </div>
       )}
@@ -156,20 +165,49 @@ export default function FeedbackInbox() {
         </div>
       ) : (
         <div className="space-y-8">
-          <Section
-            title={t('section_pending')}
-            items={pending}
-            emptyText={t('section_pending_empty')}
-            onToggle={toggleHandled}
-            accent="bg-orange-400"
-          />
-          <Section
-            title={t('section_handled')}
-            items={handled}
-            emptyText={t('section_handled_empty')}
-            onToggle={toggleHandled}
-            accent="bg-green-400"
-          />
+
+          {/* Pending section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-400" />
+              <h3 className="font-semibold text-slate-700 text-sm">{t('section_pending')}</h3>
+              <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{pending.length}</span>
+            </div>
+            {pending.length === 0 ? (
+              <p className="text-sm text-slate-400 py-4 text-center bg-slate-50 rounded-xl">{t('section_pending_empty')}</p>
+            ) : (
+              <div className="space-y-3">
+                {pending.map(f => (
+                  <FeedbackCard key={f.id} item={f} onToggle={toggleHandled} toggling={togglingId === f.id} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Handled archive — collapsible */}
+          <div>
+            <button
+              onClick={() => setShowHandled(v => !v)}
+              className="flex items-center gap-2 mb-3 w-full text-right hover:opacity-80 transition-opacity"
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-green-400 flex-shrink-0" />
+              <h3 className="font-semibold text-slate-700 text-sm">ארכיון — טופלו</h3>
+              <span className="text-xs text-slate-400 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{handled.length}</span>
+              <span className="mr-auto text-xs text-slate-400">{showHandled ? '▲ הסתר' : '▼ הצג'}</span>
+            </button>
+            {showHandled && (
+              handled.length === 0 ? (
+                <p className="text-sm text-slate-400 py-4 text-center bg-slate-50 rounded-xl">{t('section_handled_empty')}</p>
+              ) : (
+                <div className="space-y-3">
+                  {handled.map(f => (
+                    <FeedbackCard key={f.id} item={f} onToggle={toggleHandled} toggling={togglingId === f.id} />
+                  ))}
+                </div>
+              )
+            )}
+          </div>
+
         </div>
       )}
     </div>
