@@ -654,6 +654,7 @@ def update_subitem(patient_id: int, node_id: int, item_id: int, data: SubItemUpd
 def delete_subitem(patient_id: int, node_id: int, item_id: int,
                    db: Session = Depends(get_db),
                    current_user: models.User = Depends(auth_utils.require_manager)):
+    auth_utils.get_patient_with_access(patient_id, current_user, db)
     item = db.query(models.NodeSubItem).filter(
         models.NodeSubItem.id == item_id,
         models.NodeSubItem.node_id == node_id).first()
