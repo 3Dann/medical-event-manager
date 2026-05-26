@@ -147,7 +147,7 @@ async def upload_document(
     file_path = os.path.join(patient_dir, stored_name)
 
     with open(file_path, "wb") as f:
-        f.write(content)
+        f.write(_encrypt_content(content))
 
     doc = models.PatientDocument(
         patient_id=patient_id,
