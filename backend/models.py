@@ -266,7 +266,9 @@ class Patient(Base):
     # ── Medical specialty (auto-suggested from diagnosis) ─────────────────────
     specialty = Column(String, nullable=True)          # e.g. "אונקולוגיה"
     sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"
-    referral_goal = Column(String, nullable=True)
+    referral_goal       = Column(String, nullable=True)
+    referral_goal_sub   = Column(String, nullable=True)   # comma-separated for financial_mapping
+    referral_goal_notes = Column(String, nullable=True)   # free text for "other"
     referral_source = Column(String, nullable=True)
     referral_name = Column(String, nullable=True)   # name of referrer / professional / manager
     referral_sub = Column(String, nullable=True)    # social network / professional type

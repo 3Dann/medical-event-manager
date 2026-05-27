@@ -78,6 +78,9 @@ class PatientCreate(BaseModel):
     # Referral details
     referral_name: Optional[str] = None
     referral_sub: Optional[str] = None
+    referral_goal: Optional[str] = None
+    referral_goal_sub: Optional[str] = None
+    referral_goal_notes: Optional[str] = None
     # Medical specialty
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
@@ -132,6 +135,8 @@ class IntakeDraftIn(BaseModel):
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     referral_goal: Optional[str] = None
+    referral_goal_sub: Optional[str] = None
+    referral_goal_notes: Optional[str] = None
     referral_source: Optional[str] = None
     medications: Optional[str] = None
     adl_answers: Optional[str] = None
@@ -183,6 +188,9 @@ class PatientUpdate(BaseModel):
     ec2_relation: Optional[str] = None
     referral_name: Optional[str] = None
     referral_sub: Optional[str] = None
+    referral_goal: Optional[str] = None
+    referral_goal_sub: Optional[str] = None
+    referral_goal_notes: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     medications: Optional[str] = None
@@ -286,6 +294,8 @@ def patient_to_dict(p):
         "specialty": p.specialty,
         "sub_specialty": p.sub_specialty,
         "referral_goal": p.referral_goal,
+        "referral_goal_sub": p.referral_goal_sub,
+        "referral_goal_notes": p.referral_goal_notes,
         "referral_source": p.referral_source,
         "referral_name": p.referral_name,
         "referral_sub": p.referral_sub,

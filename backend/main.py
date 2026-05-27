@@ -529,6 +529,8 @@ def run_migrations():
         ("patients", "sub_specialty",          "VARCHAR"),
         # Referral fields (replaced height/weight in intake form)
         ("patients", "referral_goal",                    "VARCHAR"),
+        ("patients", "referral_goal_sub",                "VARCHAR"),
+        ("patients", "referral_goal_notes",              "VARCHAR"),
         ("patients", "referral_source",                  "VARCHAR"),
         # Extended signatures
         ("patients", "financial_consent_agreed",         "BOOLEAN DEFAULT 0"),

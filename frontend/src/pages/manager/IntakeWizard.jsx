@@ -408,7 +408,8 @@ const EMPTY_FORM = {
   full_name: '', id_number: '', father_name: '', id_issue_date: '', id_expiry_date: '',
   birth_date: '', gender: '',
   marital_status: '', num_children: '', height_cm: '', weight_kg: '',
-  referral_goal: '', referral_source: '', referral_name: '', referral_sub: '',
+  referral_goal: '', referral_goal_sub: '', referral_goal_notes: '',
+  referral_source: '', referral_name: '', referral_sub: '',
   city: '', city_code: '', street: '', house_number: '',
   entrance: '', floor: '', apartment: '', postal_code: '',
   phone_prefix: '050', phone: '', phone2_prefix: '050', phone2: '',
@@ -578,6 +579,8 @@ export default function IntakeWizard() {
         height_cm: p.height_cm ?? '',
         weight_kg: p.weight_kg ?? '',
         referral_goal: p.referral_goal || '',
+        referral_goal_sub: p.referral_goal_sub || '',
+        referral_goal_notes: p.referral_goal_notes || '',
         referral_source: p.referral_source || '',
         referral_name: p.referral_name || '',
         referral_sub: p.referral_sub || '',
@@ -638,7 +641,10 @@ export default function IntakeWizard() {
         diagnosis_status: form.diagnosis_status || 'no',
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
-        referral_goal: form.referral_goal || null, referral_source: form.referral_source || null,
+        referral_goal: form.referral_goal || null,
+        referral_goal_sub: form.referral_goal_sub || null,
+        referral_goal_notes: form.referral_goal_notes || null,
+        referral_source: form.referral_source || null,
         referral_name: form.referral_name || null, referral_sub: form.referral_sub || null,
         notes: form.notes || null,
       }
@@ -841,6 +847,9 @@ export default function IntakeWizard() {
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null,
         sub_specialty: form.sub_specialty || null,
+        referral_goal: form.referral_goal || null,
+        referral_goal_sub: form.referral_goal_sub || null,
+        referral_goal_notes: form.referral_goal_notes || null,
         referral_name: form.referral_name || null,
         referral_sub: form.referral_sub || null,
         notes: form.notes || null,
@@ -976,7 +985,21 @@ export default function IntakeWizard() {
               <input {...inp('num_children', { type: 'number', min: 0 })} />
             </F>
             <F label="מטרת הפניה" name="referral_goal">
-              <input {...inp('referral_goal', { placeholder: 'מהי מטרת הפניה?' })} />
+              <select
+                {...inp('referral_goal')}
+                onChange={e => {
+                  set('referral_goal', e.target.value)
+                  if (e.target.value !== 'financial_mapping') set('referral_goal_sub', '')
+                  if (e.target.value !== 'other') set('referral_goal_notes', '')
+                }}
+              >
+                <option value="">בחר מטרה...</option>
+                <option value="initial_clarity">בהירות ראשונית — הסדרת סביבת מטופל</option>
+                <option value="financial_mapping">מיפוי פיננסי</option>
+                <option value="formal_diagnosis">אבחון סופי רשמי</option>
+                <option value="treatment_protocol">ליווי פרוטוקול טיפולי</option>
+                <option value="other">אחר...</option>
+              </select>
             </F>
             <F label="כיצד הגיע/ה?" name="referral_source">
               <select {...inp('referral_source')}>
@@ -989,6 +1012,44 @@ export default function IntakeWizard() {
               </select>
             </F>
           </div>
+
+          {/* Referral goal sub-fields */}
+          {form.referral_goal === 'financial_mapping' && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <p className="text-sm font-semibold text-blue-800 mb-3">נושאי המיפוי הפיננסי <span className="font-normal text-blue-600">(אפשר לבחור יותר מאחד)</span></p>
+              <div className="space-y-2">
+                {[
+                  { value: 'foreign_worker', label: 'היתרים עובד זר' },
+                  { value: 'national_insurance', label: 'זכאויות ביטוח לאומי' },
+                  { value: 'work_capacity', label: 'זכאויות כושר עבודה' },
+                ].map(opt => {
+                  const selected = (form.referral_goal_sub || '').split(',').filter(Boolean)
+                  const checked = selected.includes(opt.value)
+                  return (
+                    <label key={opt.value} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={e => {
+                          const next = e.target.checked
+                            ? [...selected, opt.value]
+                            : selected.filter(v => v !== opt.value)
+                          set('referral_goal_sub', next.join(','))
+                        }}
+                        className="w-4 h-4 rounded accent-blue-600"
+                      />
+                      <span className="text-sm text-slate-700">{opt.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+          {form.referral_goal === 'other' && (
+            <F label="פרט את מטרת הפניה" name="referral_goal_notes">
+              <input {...inp('referral_goal_notes', { placeholder: 'תאר את מטרת הפניה' })} />
+            </F>
+          )}
 
           {/* Referral sub-fields */}
           {form.referral_source === 'word_of_mouth' && (
@@ -1240,10 +1301,21 @@ export default function IntakeWizard() {
               </select>
             </F>
           </div>
-          <F label="פרטי אבחנה" name="diagnosis_details">
+          <F label={
+            form.diagnosis_status === 'yes' ? 'שם האבחון' :
+            form.diagnosis_status === 'pending' ? 'חשד ל...' :
+            'סיבת הפנייה / מצב רפואי'
+          } name="diagnosis_details">
             <textarea
               {...inp('diagnosis_details')}
               rows={3}
+              placeholder={
+                form.diagnosis_status === 'yes'
+                  ? 'למשל: סרטן ריאה (NSCLC) שלב IIIA'
+                  : form.diagnosis_status === 'pending'
+                  ? 'למשל: חשד לממאירות — ממתין לתוצאות ביופסיה'
+                  : 'למשל: תסמינים לא מוסברים, ייעוץ, מניעה'
+              }
               onChange={e => {
                 set('diagnosis_details', e.target.value)
                 setSpecialtyAutoFilled(false)

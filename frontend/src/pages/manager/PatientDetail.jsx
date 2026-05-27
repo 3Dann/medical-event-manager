@@ -423,6 +423,22 @@ export default function PatientDetail() {
                 </div>
               )}
               {patient.notes && <div><dt className="text-slate-500">{t('notes_label')}</dt><dd>{patient.notes}</dd></div>}
+              {patient.referral_goal && (
+                <div>
+                  <dt className="text-slate-500">מטרת הפניה</dt>
+                  <dd className="font-medium">
+                    {{'initial_clarity':'בהירות ראשונית — הסדרת סביבת מטופל','financial_mapping':'מיפוי פיננסי','formal_diagnosis':'אבחון סופי רשמי','treatment_protocol':'ליווי פרוטוקול טיפולי','other':'אחר'}[patient.referral_goal] || patient.referral_goal}
+                  </dd>
+                  {patient.referral_goal === 'financial_mapping' && patient.referral_goal_sub && (
+                    <dd className="text-slate-600 text-xs mt-0.5">
+                      {patient.referral_goal_sub.split(',').map(v => ({'foreign_worker':'עובד זר','national_insurance':'ביטוח לאומי','work_capacity':'כושר עבודה'}[v] || v)).join(' · ')}
+                    </dd>
+                  )}
+                  {patient.referral_goal === 'other' && patient.referral_goal_notes && (
+                    <dd className="text-slate-600 text-xs mt-0.5">{patient.referral_goal_notes}</dd>
+                  )}
+                </div>
+              )}
               {patient.referral_source && (
                 <div>
                   <dt className="text-slate-500">כיצד הגיע/ה?</dt>
