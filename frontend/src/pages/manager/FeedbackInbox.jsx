@@ -92,13 +92,19 @@ export default function FeedbackInbox() {
     try {
       const r = await axios.put(`/api/public/feedback/${id}/handle`)
       setFeedback(prev => prev.map(f => f.id === id ? r.data : f))
-      if (r.data.is_handled) showToast('הרשומה סומנה כטופלה ועברה לארכיון', 'success')
+      if (r.data.is_handled) {
+        showToast('הרשומה סומנה כטופלה ועברה לארכיון', 'success')
+        setShowHandled(true)
+      }
     } catch {
       showToast('שגיאה בעדכון הסטטוס — נסה שוב', 'error')
     } finally {
       setTogglingId(null)
     }
   }
+
+  const allPending = feedback.filter(f => !f.is_handled)
+  const allHandled = feedback.filter(f => f.is_handled)
 
   const filtered = filter === 'all' ? feedback : feedback.filter(f => f.feedback_type === filter)
   const sorted   = [...filtered].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -125,12 +131,12 @@ export default function FeedbackInbox() {
             <p className="text-xs text-slate-500 mt-0.5">{t('stat_total')}</p>
           </div>
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-orange-500">{pending.length}</p>
+            <p className="text-2xl font-bold text-orange-500">{allPending.length}</p>
             <p className="text-xs text-slate-500 mt-0.5">{t('stat_pending')}</p>
           </div>
           <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-green-600">{handled.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">טופלו</p>
+            <p className="text-2xl font-bold text-green-600">{allHandled.length}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{t('stat_handled')}</p>
           </div>
           <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center cursor-pointer hover:border-red-300 transition-colors" onClick={() => setFilter(f => f === 'bug' ? 'all' : 'bug')}>
             <p className="text-2xl font-bold text-red-500">{bugs}</p>
@@ -192,7 +198,7 @@ export default function FeedbackInbox() {
             >
               <span className="w-2.5 h-2.5 rounded-full bg-green-400 flex-shrink-0" />
               <h3 className="font-semibold text-slate-700 text-sm">ארכיון — טופלו</h3>
-              <span className="text-xs text-slate-400 bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{handled.length}</span>
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{allHandled.length}</span>
               <span className="mr-auto text-xs text-slate-400">{showHandled ? '▲ הסתר' : '▼ הצג'}</span>
             </button>
             {showHandled && (

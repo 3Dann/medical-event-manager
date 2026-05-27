@@ -900,6 +900,7 @@
     "no_feedback_hint": "משובים יישלחו דרך כפתור \"שלח משוב\" בסיידבר",
     "stat_total": "סה\"כ",
     "stat_pending": "ממתינים",
+    "stat_handled": "טופלו",
     "stat_bugs": "באגים",
     "stat_ideas": "רעיונות",
     "section_pending": "ממתינים לטיפול",

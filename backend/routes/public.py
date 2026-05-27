@@ -19,7 +19,7 @@ def _serialize(f):
         "feedback_type": getattr(f, 'feedback_type', 'general') or 'general',
         "is_read": getattr(f, 'is_read', False),
         "is_handled": getattr(f, 'is_handled', False),
-        "created_at": str(f.created_at) if f.created_at else None,
+        "created_at": f.created_at.isoformat() if f.created_at else None,
     }
 
 
@@ -64,7 +64,7 @@ def list_feedback(
 @router.get("/feedback/unread-count")
 def unread_count(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_admin),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     count = db.query(models.ProjectFeedback).filter(
         models.ProjectFeedback.is_read == False
@@ -75,7 +75,7 @@ def unread_count(
 @router.put("/feedback/mark-read")
 def mark_all_read(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth_utils.require_admin),
+    current_user: models.User = Depends(auth_utils.require_manager),
 ):
     db.query(models.ProjectFeedback).filter(
         models.ProjectFeedback.is_read == False
@@ -93,6 +93,7 @@ def toggle_handled(
     item = db.query(models.ProjectFeedback).filter(models.ProjectFeedback.id == feedback_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="לא נמצא")
-    item.is_handled = not getattr(item, 'is_handled', False)
+    item.is_handled = not item.is_handled
     db.commit()
+    db.refresh(item)
     return _serialize(item)

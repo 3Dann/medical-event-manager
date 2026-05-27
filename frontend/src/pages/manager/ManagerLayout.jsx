@@ -75,12 +75,11 @@ export default function ManagerLayout() {
   const [newTaskCount, setNewTaskCount] = useState(0)
 
   const fetchUnread = useCallback(async () => {
-    if (!user?.is_admin) return
     try {
       const r = await axios.get('/api/public/feedback/unread-count')
       setHasUnread(r.data.count > 0)
     } catch (_) {}
-  }, [user?.is_admin])
+  }, [])
 
   const fetchNewTasks = useCallback(async () => {
     if (user?.role !== 'manager') return
@@ -129,7 +128,7 @@ export default function ManagerLayout() {
       </div>
 
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
-        {[...navItems, ...(user?.is_admin ? [adminDashboardNavItem, adminNavItem, landingEditorNavItem, feedbackInboxNavItem] : [])].map(item => (
+        {[...navItems, ...(user?.is_admin ? [adminDashboardNavItem, adminNavItem, landingEditorNavItem] : []), feedbackInboxNavItem].map(item => (
           <NavLink key={item.to} to={item.to} end={item.end}
             className={({ isActive }) =>
               `flex items-center gap-3 px-2.5 py-2.5 rounded-lg transition-colors text-sm
