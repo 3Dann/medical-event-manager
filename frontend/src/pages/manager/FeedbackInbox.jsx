@@ -194,12 +194,14 @@ export default function FeedbackInbox() {
           <div>
             <button
               onClick={() => setShowHandled(v => !v)}
-              className="flex items-center gap-2 mb-3 w-full text-right hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition-colors mb-3"
             >
-              <span className="w-2.5 h-2.5 rounded-full bg-green-400 flex-shrink-0" />
-              <h3 className="font-semibold text-slate-700 text-sm">ארכיון — טופלו</h3>
-              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">{allHandled.length}</span>
-              <span className="mr-auto text-xs text-slate-400">{showHandled ? '▲ הסתר' : '▼ הצג'}</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0" />
+              <h3 className="font-semibold text-green-800 text-sm">ארכיון — טופלו</h3>
+              <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full font-medium">{allHandled.length}</span>
+              <span className="mr-auto flex items-center gap-1.5 text-xs font-medium text-green-700 bg-white border border-green-200 px-3 py-1 rounded-lg">
+                {showHandled ? '▲ הסתר' : '▼ הצג'}
+              </span>
             </button>
             {showHandled && (
               handled.length === 0 ? (
