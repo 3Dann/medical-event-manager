@@ -112,7 +112,6 @@ export default function FeedbackInbox() {
   const handled  = sorted.filter(f => f.is_handled)
 
   const bugs     = feedback.filter(f => f.feedback_type === 'bug').length
-  const features = feedback.filter(f => f.feedback_type === 'feature').length
 
   return (
     <div className="p-4 md:p-8 space-y-6" dir="rtl">
