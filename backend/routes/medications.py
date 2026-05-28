@@ -533,12 +533,12 @@ def _first_sentence(text: str, max_chars: int = 200) -> str:
     return text[:max_chars].strip()
 
 
-def _fetch_openfda_drug(name: str) -> dict | None:
+async def _fetch_openfda_drug(name: str) -> dict | None:
     """Fetch label data for a single drug from openFDA. Returns None on failure."""
     for search_field in ("openfda.brand_name", "openfda.generic_name"):
         try:
-            with httpx.Client(timeout=8.0) as client:
-                resp = client.get(
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                resp = await client.get(
                     _OPENFDA_LABEL_URL,
                     params={"search": f'{search_field}:"{name}"', "limit": 1},
                 )
@@ -553,7 +553,7 @@ def _fetch_openfda_drug(name: str) -> dict | None:
 
 
 @router.get("/api/medications/enrich")
-def enrich_drug(
+async def enrich_drug(
     name: str,
     db: Session = Depends(get_db),
     current_user=Depends(auth_utils.get_current_user),
@@ -583,9 +583,19 @@ def enrich_drug(
             "from_cache": True,
         }
 
-    # Fetch from openFDA
-    label = _fetch_openfda_drug(name)
+    # Fetch from openFDA — async to avoid blocking uvicorn workers
+    label = await _fetch_openfda_drug(name)
     if not label:
+        # Return stale cache on network failure rather than empty response
+        if entry and entry.openfda_indication:
+            dosages = json.loads(entry.openfda_dosages) if entry.openfda_dosages else []
+            return {
+                "name": name,
+                "indication": entry.openfda_indication,
+                "dosages": dosages,
+                "interactions_text": entry.openfda_interactions or "",
+                "from_cache": True,
+            }
         return {"name": name, "indication": None, "dosages": [], "interactions_text": "", "from_cache": False}
 
     raw_indication = " ".join(label.get("indications_and_usage", []))
