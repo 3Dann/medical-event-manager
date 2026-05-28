@@ -534,11 +534,16 @@ const DRAFT_PATIENT_KEY = 'intake_draft_patient_id'
 export default function IntakeWizard() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+  const resumeId = searchParams.get('resume')
+  const isEditMode = !!resumeId
   const { isDemoMode } = useDemoMode()
   const { showToast } = useToast()
   const { t } = useTranslation(['intake', 'common'])
   const STEPS = STEP_KEYS.map(s => ({ ...s, label: t(`intake:${s.key}`) }))
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(() => {
+    const stepParam = searchParams.get('step')
+    return stepParam !== null ? Number(stepParam) : 0
+  })
   const [funcSubStep, setFuncSubStep] = useState(0) // 0=ADL 1=IADL 2=MMSE within step 5
   // draftPatientId — patient already created in DB (draft mode)
   const [draftPatientId, setDraftPatientId] = useState(() => {
@@ -600,8 +605,13 @@ export default function IntakeWizard() {
         diagnosis_details: p.diagnosis_details || '',
         specialty: p.specialty || '', sub_specialty: p.sub_specialty || '',
         notes: p.notes || '',
+        adl_answers:  p.adl_answers  ? (() => { try { return JSON.parse(p.adl_answers)  } catch { return {} } })()  : {},
+        iadl_answers: p.iadl_answers ? (() => { try { return JSON.parse(p.iadl_answers) } catch { return {} } })() : {},
+        mmse_answers: p.mmse_answers ? (() => { try { return JSON.parse(p.mmse_answers) } catch { return Object.fromEntries(MMSE_SECTIONS.map(s => [s.key, 0])) } })() : Object.fromEntries(MMSE_SECTIONS.map(s => [s.key, 0])),
       }))
-      if (p.intake_step) setStep(p.intake_step)
+      const stepParam = searchParams.get('step')
+      if (stepParam !== null) setStep(Number(stepParam))
+      else if (p.intake_step) setStep(p.intake_step)
     }).catch(() => {})
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -660,7 +670,7 @@ export default function IntakeWizard() {
       }
       sessionStorage.removeItem(DRAFT_KEY)
       showToast('האינטייק נשמר — תוכל להמשיך בכל עת', 'success')
-      navigate('/manager')
+      navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')
     } catch (err) {
       showToast('שגיאה בשמירה', 'error')
     } finally {
@@ -761,7 +771,7 @@ export default function IntakeWizard() {
         if (total > 30) e.mmse_score = 'ניקוד MMSE חייב להיות 0-30'
       }
     }
-    if (stepIdx === 6) {
+    if (stepIdx === 6 && !isEditMode) {
       if (!form.signer_is_self && !form.signer_name.trim()) e.signer_name = 'יש להזין שם החותם'
       if (!form.consent_agreed) e.consent = 'יש לאשר ולחתום על ויתור סודיות רפואית'
       if (!form.consent_signature) e.consent_sig = 'יש לחתום'
@@ -818,6 +828,74 @@ export default function IntakeWizard() {
     const e = validate(6)
     if (Object.keys(e).length) { setErrors(e); return }
     setSaving(true)
+
+    // Edit mode — PATCH existing patient and return to intake tab
+    if (isEditMode) {
+      try {
+        await axios.patch(`/api/patients/${resumeId}`, {
+          full_name: form.full_name.trim(),
+          id_number: form.id_number,
+          father_name: form.father_name || null,
+          id_issue_date: form.id_issue_date || null,
+          id_expiry_date: form.id_expiry_date || null,
+          birth_date: form.birth_date,
+          gender: form.gender,
+          marital_status: form.marital_status || null,
+          num_children: form.num_children !== '' ? Number(form.num_children) : null,
+          city: form.city, city_code: form.city_code,
+          street: form.street, house_number: form.house_number,
+          entrance: form.entrance || null, floor: form.floor || null,
+          apartment: form.apartment || null, postal_code: form.postal_code || null,
+          phone_prefix: form.phone_prefix, phone: form.phone,
+          phone2_prefix: form.phone2 ? (form.phone2_prefix || '050') : null, phone2: form.phone2 || null,
+          ec_name: form.ec_name, ec_phone_prefix: form.ec_phone_prefix,
+          ec_phone: form.ec_phone, ec_relation: form.ec_relation,
+          ec2_name: form.ec2_name || null, ec2_phone_prefix: form.ec2_phone ? (form.ec2_phone_prefix || '050') : null,
+          ec2_phone: form.ec2_phone || null, ec2_relation: form.ec2_relation || null,
+          hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
+          medical_stage: form.medical_stage || null,
+          diagnosis_status: form.diagnosis_status,
+          diagnosis_details: form.diagnosis_details || null,
+          specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
+          referral_goal: form.referral_goal || null,
+          referral_goal_sub: form.referral_goal_sub || null,
+          referral_goal_notes: form.referral_goal_notes || null,
+          referral_source: form.referral_source || null,
+          referral_name: form.referral_name || null, referral_sub: form.referral_sub || null,
+          notes: form.notes || null,
+          adl_answers: JSON.stringify(form.adl_answers),
+          iadl_answers: JSON.stringify(form.iadl_answers),
+          mmse_answers: JSON.stringify(form.mmse_answers),
+          adl_score:  adlTouched  ? adlScore  : undefined,
+          iadl_score: iadlTouched ? iadlScore : undefined,
+          mmse_score: mmseTouched ? mmseScore : undefined,
+          intake_step: 6,
+          intake_completed: true,
+        })
+        // Save signatures only if newly signed
+        if (form.consent_agreed && form.consent_signature) {
+          await axios.post(`/api/patients/${resumeId}/signatures`, {
+            consent_agreed: form.consent_agreed,
+            consent_signature_b64: form.consent_signature,
+            financial_consent_agreed: form.financial_consent_agreed,
+            financial_consent_signature_b64: form.financial_consent_signature,
+            poa_agreed: form.poa_agreed,
+            poa_signature_b64: form.poa_signature,
+            signer_name: form.signer_is_self ? form.full_name : form.signer_name,
+            signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
+          })
+        }
+        sessionStorage.removeItem(DRAFT_KEY)
+        localStorage.removeItem(DRAFT_PATIENT_KEY)
+        navigate(`/manager/patients/${resumeId}/intake`)
+      } catch (err) {
+        setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
+
     try {
       const payload = {
         full_name: form.full_name.trim(),
@@ -1396,17 +1474,22 @@ export default function IntakeWizard() {
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="mb-6">
-            <button onClick={() => navigate('/manager')} className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1">
-              → {t('intake:back_to_dashboard')}
+            <button
+              onClick={() => navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')}
+              className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1"
+            >
+              → {isEditMode ? 'חזרה לתיק המטופל' : t('intake:back_to_dashboard')}
             </button>
-            <h1 className="text-2xl font-bold text-slate-800">{t('intake:title')}</h1>
+            <h1 className="text-2xl font-bold text-slate-800">
+              {isEditMode ? 'עריכת אינטייק' : t('intake:title')}
+            </h1>
             <div className="flex items-center gap-3">
               {draftSaved && (
                 <span className="text-xs text-green-600 flex items-center gap-1">
                   <span>✓</span> טיוטה נשמרה
                 </span>
               )}
-              {!draftSaved && (
+              {!draftSaved && !isEditMode && (
                 <button
                   onClick={clearDraft}
                   className="text-xs text-slate-500 hover:text-red-500 transition-colors"
@@ -1495,7 +1578,7 @@ export default function IntakeWizard() {
                 disabled={saving}
                 className="px-6 py-2.5 rounded-xl bg-green-600 text-white hover:bg-green-700 text-sm font-medium disabled:opacity-60 min-h-[44px]"
               >
-                {saving ? 'שומר...' : 'סיום ושמירה'}
+                {saving ? 'שומר...' : isEditMode ? 'שמור שינויים' : 'סיום ושמירה'}
               </button>
             )}
           </div>

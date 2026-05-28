@@ -210,6 +210,12 @@ class PatientUpdate(BaseModel):
     adl_score: Optional[int] = None
     iadl_score: Optional[int] = None
     mmse_score: Optional[int] = None
+    consent_agreed: Optional[bool] = None
+    poa_agreed: Optional[bool] = None
+    financial_consent_agreed: Optional[bool] = None
+    referral_source: Optional[str] = None
+    intake_step: Optional[int] = None
+    intake_completed: Optional[bool] = None
 
 
 class SignaturesIn(BaseModel):
@@ -299,13 +305,20 @@ def patient_to_dict(p):
         "referral_source": p.referral_source,
         "referral_name": p.referral_name,
         "referral_sub": p.referral_sub,
-        # Functional assessments (medications moved to patient_medications table)
+        # Functional assessments
         "adl_score": p.adl_score,
         "iadl_score": p.iadl_score,
         "mmse_score": p.mmse_score,
+        "adl_answers": p.adl_answers,
+        "iadl_answers": p.iadl_answers,
+        "mmse_answers": p.mmse_answers,
         # Intake status
         "consent_agreed": p.consent_agreed,
         "poa_agreed": p.poa_agreed,
+        "financial_consent_agreed": p.financial_consent_agreed,
+        "consent_signature_path": bool(p.consent_signature_path),
+        "poa_signature_path": bool(p.poa_signature_path),
+        "financial_consent_signature_path": bool(p.financial_consent_signature_path),
         "intake_completed": p.intake_completed,
         "intake_step": p.intake_step,
         # NSCLC / Oncology clinical fields

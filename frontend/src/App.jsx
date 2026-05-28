@@ -41,6 +41,7 @@ const LandingEditorPage  = lazy(() => import('./pages/manager/LandingEditorPage'
 const FeedbackSubmitPage = lazy(() => import('./pages/manager/FeedbackSubmitPage'))
 const AdminDashboardPage = lazy(() => import('./pages/manager/AdminDashboardPage'))
 const MyDay              = lazy(() => import('./pages/manager/MyDay'))
+const PatientIntakeTab   = lazy(() => import('./pages/manager/PatientIntakeTab'))
 const DemoPatientPortal  = lazy(() => import('./pages/demo/DemoPatientPortal'))
 const DemoBrokerPortal   = lazy(() => import('./pages/demo/DemoBrokerPortal'))
 const PatientLayout      = lazy(() => import('./pages/patient/PatientLayout'))
@@ -108,6 +109,7 @@ function AppRoutes() {
             <Route path="financial-map" element={<PatientFinancialMap />} />
             <Route path="meetings"      element={<PatientMeetings />} />
             <Route path="nsclc"         element={<NSCLCPathwayTab />} />
+            <Route path="intake"        element={<PatientIntakeTab />} />
           </Route>
           <Route path="doctors" element={<DoctorsDatabase />} />
           <Route path="responsiveness" element={<ResponsivenessPage />} />

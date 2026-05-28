@@ -32,12 +32,13 @@ export default function PatientLayout() {
     { to: 'documents',     label: t('documents') },
     { to: 'meetings',      label: t('meetings') },
     ...(hasNsclc ? [{ to: 'nsclc', label: 'מסע NSCLC' }] : []),
+    { to: 'intake', label: 'אינטייק' },
   ]
 
   return (
     <div dir="rtl">
       {/* Patient header */}
-      <div className="px-4 md:px-6 pt-4 pb-2 bg-slate-50 border-b border-slate-100">
+      <div className="sticky top-0 z-20 px-4 md:px-6 pt-4 pb-2 bg-slate-50 border-b border-slate-100">
         <h1 className="text-2xl font-bold text-slate-800">
           {patient?.full_name ?? '...'}
         </h1>
@@ -47,7 +48,7 @@ export default function PatientLayout() {
       </div>
 
       {/* Tab bar */}
-      <div className="bg-slate-50 border-b border-slate-200 px-4 md:px-6">
+      <div className="sticky top-[60px] z-10 bg-slate-50 border-b border-slate-200 px-4 md:px-6">
         <div role="tablist" className="flex gap-1 overflow-x-auto">
           {tabs.map(tab => {
             const href = `/manager/patients/${id}${tab.to ? '/' + tab.to : ''}`
