@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { useToast } from '../../hooks/useToast'
 import AppToast from '../../components/AppToast'
@@ -29,7 +29,7 @@ function FeedbackCard({ item, onToggle, toggling }) {
           }`}>
             {item.is_handled
               ? <span className="text-green-600 font-bold text-base">✓</span>
-              : <span className="text-slate-600 font-semibold text-sm">{item.name?.[0]?.toUpperCase() || '?'}</span>
+              : <span className="text-slate-600 font-semibold text-sm">{(item.name || '').trim().charAt(0).toUpperCase() || '👤'}</span>
             }
           </div>
           <div className="min-w-0">
@@ -74,6 +74,7 @@ export default function FeedbackInbox() {
   const [togglingId, setTogglingId] = useState(null)
   const [showHandled, setShowHandled] = useState(false)
   const { toast, showToast, dismissToast } = useToast()
+  const archiveRef = useRef(null)
 
   useEffect(() => {
     const ctrl = new AbortController()
@@ -91,10 +92,13 @@ export default function FeedbackInbox() {
     setTogglingId(id)
     try {
       const r = await axios.put(`/api/public/feedback/${id}/handle`)
-      setFeedback(prev => prev.map(f => f.id === id ? r.data : f))
+      // Merge with existing item — preserves all fields even if backend returns partial data
+      setFeedback(prev => prev.map(f => f.id === id ? { ...f, ...r.data } : f))
       if (r.data.is_handled) {
         showToast('הרשומה סומנה כטופלה ועברה לארכיון', 'success')
         setShowHandled(true)
+        // Scroll archive into view after state update
+        setTimeout(() => archiveRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
       }
     } catch {
       showToast('שגיאה בעדכון הסטטוס — נסה שוב', 'error')
@@ -190,7 +194,7 @@ export default function FeedbackInbox() {
           </div>
 
           {/* Handled archive — collapsible */}
-          <div>
+          <div ref={archiveRef}>
             <button
               onClick={() => setShowHandled(v => !v)}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition-colors mb-3"
