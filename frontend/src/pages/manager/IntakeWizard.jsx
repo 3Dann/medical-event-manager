@@ -32,20 +32,18 @@ const HMO_OPTIONS = [
   { value: 'leumit',   label: 'לאומית' },
 ]
 const HMO_LEVELS = {
-  clalit:   [
-    { value: 'mogen',        label: 'מוגן' },
+  clalit: [
+    { value: 'magen',        label: 'מגן' },
     { value: 'mushlam',      label: 'מושלם' },
     { value: 'mushlam_plus', label: 'מושלם פלוס' },
-    { value: 'mushlam_gold', label: 'מושלם גולד' },
   ],
-  maccabi:  [
+  maccabi: [
     { value: 'blue',     label: 'כחול' },
     { value: 'silver',   label: 'כסף' },
     { value: 'gold',     label: 'זהב' },
     { value: 'platinum', label: 'פלטינום' },
   ],
   meuhedet: [
-    { value: 'basic', label: 'בסיסי' },
     { value: 'shlam', label: 'שלם' },
     { value: 'adif',  label: 'עדיף' },
   ],
@@ -1671,10 +1669,21 @@ export default function IntakeWizard() {
 
       // ── Step 5: תרופות ──────────────────────────────────────────────────────
       case 4: return (
-        <MedicationsStep
-          medications={form.medications}
-          onChange={meds => set('medications', meds)}
-        />
+        <>
+          {isEditMode && (
+            <div className="mb-4 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+              <span className="text-amber-500 text-lg flex-shrink-0">ℹ️</span>
+              <p className="text-sm text-amber-800">
+                בעריכת אינטייק קיים התרופות אינן נטענות מהתיק.
+                לעריכת תרופות — עבור לטאב <strong>תרופות</strong> בתיק המטופל לאחר השמירה.
+              </p>
+            </div>
+          )}
+          <MedicationsStep
+            medications={form.medications}
+            onChange={meds => set('medications', meds)}
+          />
+        </>
       )
 
       // ── Step 6: הערכות תפקודיות ─────────────────────────────────────────────
