@@ -263,6 +263,11 @@ class Patient(Base):
     intake_completed_at = Column(DateTime(timezone=True), nullable=True)
     intake_step = Column(Integer, default=0)               # 0–6, last saved step
 
+    # ── Treating doctor ────────────────────────────────────────────────────────
+    treating_doctor_name    = Column(String, nullable=True)
+    treating_clinic_name    = Column(String, nullable=True)
+    doctor_contact_methods  = Column(Text, nullable=True)  # JSON: [{type, value?}]
+
     # ── Medical specialty (auto-suggested from diagnosis) ─────────────────────
     specialty = Column(String, nullable=True)          # e.g. "אונקולוגיה"
     sub_specialty = Column(String, nullable=True)      # e.g. "אונקולוגיה גינקולוגית"

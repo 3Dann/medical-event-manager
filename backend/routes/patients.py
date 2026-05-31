@@ -84,6 +84,10 @@ class PatientCreate(BaseModel):
     # Medical specialty
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
+    # Treating doctor
+    treating_doctor_name:   Optional[str] = None
+    treating_clinic_name:   Optional[str] = None
+    doctor_contact_methods: Optional[str] = None  # JSON
     # Medications
     medications: Optional[str] = None   # JSON string
     # Assessments
@@ -144,6 +148,9 @@ class IntakeDraftIn(BaseModel):
     referral_goal_sub: Optional[str] = None
     referral_goal_notes: Optional[str] = None
     referral_source: Optional[str] = None
+    treating_doctor_name:   Optional[str] = None
+    treating_clinic_name:   Optional[str] = None
+    doctor_contact_methods: Optional[str] = None
     medications: Optional[str] = None
     adl_answers: Optional[str] = None
     iadl_answers: Optional[str] = None
@@ -199,6 +206,9 @@ class PatientUpdate(BaseModel):
     referral_goal_notes: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
+    treating_doctor_name:   Optional[str] = None
+    treating_clinic_name:   Optional[str] = None
+    doctor_contact_methods: Optional[str] = None
     medications: Optional[str] = None
     # NSCLC clinical fields
     smoking_status:        Optional[str]   = None
@@ -302,6 +312,10 @@ def patient_to_dict(p):
         # Phone 2
         "phone2_prefix": p.phone2_prefix,
         "phone2": p.phone2,
+        # Treating doctor
+        "treating_doctor_name":   getattr(p, "treating_doctor_name", None),
+        "treating_clinic_name":   getattr(p, "treating_clinic_name", None),
+        "doctor_contact_methods": getattr(p, "doctor_contact_methods", None),
         # Medical specialty
         "specialty": p.specialty,
         "sub_specialty": p.sub_specialty,

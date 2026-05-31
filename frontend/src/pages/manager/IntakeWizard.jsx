@@ -488,6 +488,8 @@ const EMPTY_FORM = {
   hmo_name: '', hmo_level: '', medical_stage: '',
   diagnosis_status: 'no', diagnosis_details: '', notes: '',
   specialty: '', sub_specialty: '',
+  treating_doctor_name: '', treating_clinic_name: '',
+  doctor_contact_methods: [],  // [{type, value?}]
   medications: [],
   adl_answers: {}, iadl_answers: {},
   mmse_answers: {},  // empty = untouched; default 0 applied at render time only
@@ -682,6 +684,9 @@ export default function IntakeWizard() {
         diagnosis_status: p.diagnosis_status || 'no',
         diagnosis_details: p.diagnosis_details || '',
         specialty: p.specialty || '', sub_specialty: p.sub_specialty || '',
+        treating_doctor_name: p.treating_doctor_name || '',
+        treating_clinic_name: p.treating_clinic_name || '',
+        doctor_contact_methods: (() => { try { return p.doctor_contact_methods ? JSON.parse(p.doctor_contact_methods) : [] } catch { return [] } })(),
         notes: p.notes || '',
         adl_answers:  p.adl_answers  ? (() => { try { return JSON.parse(p.adl_answers)  } catch { return {} } })()  : {},
         iadl_answers: p.iadl_answers ? (() => { try { return JSON.parse(p.iadl_answers) } catch { return {} } })() : {},
@@ -739,6 +744,10 @@ export default function IntakeWizard() {
     diagnosis_details:    formData.diagnosis_details || null,
     specialty:            formData.specialty || null,
     sub_specialty:        formData.sub_specialty || null,
+    treating_doctor_name:   formData.treating_doctor_name || null,
+    treating_clinic_name:   formData.treating_clinic_name || null,
+    doctor_contact_methods: formData.doctor_contact_methods?.length
+      ? JSON.stringify(formData.doctor_contact_methods) : null,
     referral_goal:        formData.referral_goal || null,
     referral_goal_sub:    formData.referral_goal_sub || null,
     referral_goal_notes:  formData.referral_goal_notes || null,
@@ -1074,6 +1083,9 @@ export default function IntakeWizard() {
           diagnosis_status: form.diagnosis_status,
           diagnosis_details: form.diagnosis_details || null,
           specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
+          treating_doctor_name: form.treating_doctor_name || null,
+          treating_clinic_name: form.treating_clinic_name || null,
+          doctor_contact_methods: form.doctor_contact_methods?.length ? JSON.stringify(form.doctor_contact_methods) : null,
           referral_goal: form.referral_goal || null,
           referral_goal_sub: form.referral_goal_sub || null,
           referral_goal_notes: form.referral_goal_notes || null,
@@ -1146,6 +1158,9 @@ export default function IntakeWizard() {
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null,
         sub_specialty: form.sub_specialty || null,
+        treating_doctor_name: form.treating_doctor_name || null,
+        treating_clinic_name: form.treating_clinic_name || null,
+        doctor_contact_methods: form.doctor_contact_methods?.length ? JSON.stringify(form.doctor_contact_methods) : null,
         notes: form.notes || null,
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
@@ -1350,9 +1365,12 @@ export default function IntakeWizard() {
               <p className="text-sm font-semibold text-blue-800 mb-3">נושאי המיפוי הפיננסי <span className="font-normal text-blue-600">(אפשר לבחור יותר מאחד)</span></p>
               <div className="space-y-2">
                 {[
-                  { value: 'foreign_worker', label: 'היתרים עובד זר' },
-                  { value: 'national_insurance', label: 'זכאויות ביטוח לאומי' },
-                  { value: 'work_capacity', label: 'זכאויות כושר עבודה' },
+                  { value: 'public_health_insurance',   label: 'ביטוח רפואי ציבורי' },
+                  { value: 'private_health_insurance',  label: 'ביטוח רפואי פרטי' },
+                  { value: 'long_term_care_insurance',  label: 'ביטוח סיעודי' },
+                  { value: 'foreign_worker',            label: 'היתרים עובד זר' },
+                  { value: 'national_insurance',        label: 'זכאויות ביטוח לאומי' },
+                  { value: 'work_capacity',             label: 'זכאויות כושר עבודה' },
                 ].map(opt => {
                   const selected = (form.referral_goal_sub || '').split(',').filter(Boolean)
                   const checked = selected.includes(opt.value)
@@ -1699,6 +1717,23 @@ export default function IntakeWizard() {
           <F label="הערות" name="notes">
             <textarea {...inp('notes')} rows={2} />
           </F>
+
+          {/* ── רופא מטפל ─────────────────────────────────────────────────── */}
+          <div className="border-t border-slate-100 pt-4 space-y-4">
+            <p className="text-sm font-semibold text-slate-700">רופא מטפל</p>
+            <div className="grid grid-cols-2 gap-4">
+              <F label="שם הרופא" name="treating_doctor_name">
+                <input {...inp('treating_doctor_name', { placeholder: 'ד"ר שם משפחה' })} />
+              </F>
+              <F label="שם מרפאה / מוסד" name="treating_clinic_name">
+                <input {...inp('treating_clinic_name', { placeholder: 'מרפאה, בית חולים...' })} />
+              </F>
+            </div>
+            <DoctorContactMethods
+              value={form.doctor_contact_methods}
+              onChange={methods => set('doctor_contact_methods', methods)}
+            />
+          </div>
         </div>
       )
 
@@ -1887,6 +1922,86 @@ export default function IntakeWizard() {
     </StepCtx.Provider>
     </FormCtx.Provider>
     </ErrorCtx.Provider>
+  )
+}
+
+// ── DoctorContactMethods ──────────────────────────────────────────────────────
+
+const CONTACT_OPTIONS = [
+  { type: 'app',       label: 'אפליקציה של הקופה', icon: '📱', hasValue: false },
+  { type: 'email',     label: 'מייל',               icon: '📧', hasValue: true,  placeholder: 'doctor@clinic.co.il', inputMode: 'email' },
+  { type: 'phone',     label: 'טלפון',              icon: '📞', hasValue: true,  placeholder: '03-1234567', inputMode: 'tel' },
+  { type: 'whatsapp',  label: 'WhatsApp',            icon: '💬', hasValue: false },
+]
+
+function DoctorContactMethods({ value = [], onChange }) {
+  const getMethod = (type) => value.find(m => m.type === type) || null
+  const isChecked = (type) => !!getMethod(type)
+
+  const toggle = (type) => {
+    if (isChecked(type)) {
+      onChange(value.filter(m => m.type !== type))
+    } else {
+      onChange([...value, { type, value: '' }])
+    }
+  }
+
+  const setVal = (type, val) => {
+    onChange(value.map(m => m.type === type ? { ...m, value: val } : m))
+  }
+
+  return (
+    <div>
+      <label className="label">דרכי התקשרות עם הרופא</label>
+      <div className="space-y-2 mt-1">
+        {CONTACT_OPTIONS.map(opt => {
+          const checked = isChecked(opt.type)
+          const method  = getMethod(opt.type)
+          return (
+            <div key={opt.type} className={`rounded-xl border-2 transition-colors ${checked ? 'border-blue-300 bg-blue-50' : 'border-slate-200'}`}>
+              <label className="flex items-center gap-3 px-3 py-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(opt.type)}
+                  className="w-4 h-4 rounded accent-blue-600 flex-shrink-0"
+                />
+                <span className="text-base flex-shrink-0">{opt.icon}</span>
+                <span className={`text-sm font-medium ${checked ? 'text-blue-800' : 'text-slate-700'}`}>{opt.label}</span>
+              </label>
+              {checked && opt.hasValue && (
+                <div className="px-3 pb-3">
+                  <input
+                    className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={method?.value || ''}
+                    onChange={e => setVal(opt.type, e.target.value)}
+                    placeholder={opt.placeholder}
+                    inputMode={opt.inputMode}
+                    dir="ltr"
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Selected methods display */}
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {value.map(m => {
+            const opt = CONTACT_OPTIONS.find(o => o.type === m.type)
+            if (!opt) return null
+            const label = m.value ? `${opt.icon} ${m.value}` : `${opt.icon} ${opt.label}`
+            return (
+              <span key={m.type} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
+                {label}
+              </span>
+            )
+          })}
+        </div>
+      )}
+    </div>
   )
 }
 

@@ -335,38 +335,43 @@ export default function ManagerLayout() {
             </div>
 
             <div className="space-y-3">
-              {[
-                {
-                  icon: '⚙️',
-                  title: 'פורטל מנהל',
-                  desc: 'ניהול מטופלים, תביעות, מסמכים וזרימות עבודה',
-                  badge: 'אתה כאן',
-                  badgeColor: 'bg-blue-100 text-blue-700',
-                  color: 'from-blue-50 to-blue-100',
-                  border: 'border-blue-200',
-                  onClick: () => setDemoLauncher(false),
-                },
-                {
-                  icon: '👤',
-                  title: 'פורטל מטופל',
-                  desc: 'ממשק פשוט למטופל — טיפול, מסמכים, מצב כספי, שאלות',
-                  badge: 'דמו',
-                  badgeColor: 'bg-purple-100 text-purple-700',
-                  color: 'from-emerald-50 to-emerald-100',
-                  border: 'border-emerald-200',
-                  onClick: () => { setDemoLauncher(false); navigate('/manager/demo/patient') },
-                },
-                {
-                  icon: '🤝',
-                  title: 'פורטל ברוקר / סוכן ביטוח',
-                  desc: 'מבט הסוכן — מטופלים, תביעות, עמלות, פעילות אחרונה',
-                  badge: 'דמו',
-                  badgeColor: 'bg-purple-100 text-purple-700',
-                  color: 'from-amber-50 to-amber-100',
-                  border: 'border-amber-200',
-                  onClick: () => { setDemoLauncher(false); navigate('/manager/demo/broker') },
-                },
-              ].map((p, i) => (
+              {(() => {
+                const isInPatient = location.pathname.startsWith('/manager/demo/patient')
+                const isInBroker  = location.pathname.startsWith('/manager/demo/broker')
+                const isInManager = !isInPatient && !isInBroker
+                return [
+                  {
+                    icon: '⚙️',
+                    title: 'פורטל מנהל',
+                    desc: 'ניהול מטופלים, תביעות, מסמכים וזרימות עבודה',
+                    badge: isInManager ? 'אתה כאן' : 'עבור',
+                    badgeColor: isInManager ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600',
+                    color: 'from-blue-50 to-blue-100',
+                    border: isInManager ? 'border-blue-400' : 'border-blue-200',
+                    onClick: () => { setDemoLauncher(false); if (!isInManager) navigate('/manager') },
+                  },
+                  {
+                    icon: '👤',
+                    title: 'פורטל מטופל',
+                    desc: 'ממשק פשוט למטופל — טיפול, מסמכים, מצב כספי, שאלות',
+                    badge: isInPatient ? 'אתה כאן' : 'דמו',
+                    badgeColor: isInPatient ? 'bg-emerald-200 text-emerald-800' : 'bg-purple-100 text-purple-700',
+                    color: 'from-emerald-50 to-emerald-100',
+                    border: isInPatient ? 'border-emerald-400' : 'border-emerald-200',
+                    onClick: () => { setDemoLauncher(false); navigate('/manager/demo/patient') },
+                  },
+                  {
+                    icon: '🤝',
+                    title: 'פורטל ברוקר / סוכן ביטוח',
+                    desc: 'מבט הסוכן — מטופלים, תביעות, עמלות, פעילות אחרונה',
+                    badge: isInBroker ? 'אתה כאן' : 'דמו',
+                    badgeColor: isInBroker ? 'bg-amber-200 text-amber-800' : 'bg-purple-100 text-purple-700',
+                    color: 'from-amber-50 to-amber-100',
+                    border: isInBroker ? 'border-amber-400' : 'border-amber-200',
+                    onClick: () => { setDemoLauncher(false); navigate('/manager/demo/broker') },
+                  },
+                ]
+              })().map((p, i) => (
                 <button
                   key={i}
                   onClick={p.onClick}

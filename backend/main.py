@@ -645,6 +645,10 @@ def run_migrations():
         # Question templates on meetings
         ("patient_meetings", "question_template_id", "INTEGER REFERENCES question_templates(id) ON DELETE SET NULL"),
         ("patient_meetings", "question_responses",   "TEXT"),
+        # Treating doctor
+        ("patients", "treating_doctor_name",   "VARCHAR"),
+        ("patients", "treating_clinic_name",   "VARCHAR"),
+        ("patients", "doctor_contact_methods", "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
