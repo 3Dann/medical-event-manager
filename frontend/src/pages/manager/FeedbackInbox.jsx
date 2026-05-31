@@ -96,9 +96,6 @@ export default function FeedbackInbox() {
       setFeedback(prev => prev.map(f => f.id === id ? { ...f, ...r.data } : f))
       if (r.data.is_handled) {
         showToast('הרשומה סומנה כטופלה ועברה לארכיון', 'success')
-        setShowHandled(true)
-        // Scroll archive into view after state update
-        setTimeout(() => archiveRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
       }
     } catch {
       showToast('שגיאה בעדכון הסטטוס — נסה שוב', 'error')
