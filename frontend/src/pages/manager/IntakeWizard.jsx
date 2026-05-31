@@ -103,10 +103,8 @@ const REFERRAL_GOALS = [
 
 // ── Relation options (used in emergency contact + signer fields) ──────────────
 const RELATION_OPTIONS = [
-  'בן/בת זוג', 'בן', 'בת', 'אב', 'אם', 'הורה',
-  'אח', 'אחות', 'סב', 'סבתא', 'נכד', 'נכדה',
-  'דוד', 'דודה', 'בן דוד/בת דודה', 'גיס/גיסה',
-  'אפוטרופוס', 'ידיד/ה קרוב/ה', 'שכן/שכנה', 'אחר',
+  'בן/בת זוג', 'בן', 'בת', 'אב', 'אם',
+  'אח', 'אחות', 'אפוטרופוס', 'אחר',
 ]
 
 // ── Functional sub-steps (declared here so all references are unambiguous) ────
