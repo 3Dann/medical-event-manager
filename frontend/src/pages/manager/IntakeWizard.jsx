@@ -572,6 +572,8 @@ export default function IntakeWizard() {
   useEffect(() => {
     const resumeId = searchParams.get('resume')
     if (!resumeId) return
+    // Clear any stale sessionStorage draft so we load from API only
+    sessionStorage.removeItem(DRAFT_KEY)
     axios.get(`/api/patients/${resumeId}`).then(res => {
       const p = res.data
       setForm(f => ({
@@ -730,12 +732,14 @@ export default function IntakeWizard() {
       } catch {}
     }, 800)
 
-    // Auto-save to backend (silent) — only when patient already exists in DB
-    if (draftPatientId && form.full_name?.trim()) {
+    // Auto-save to backend (silent) — only for new intakes, not edit-mode
+    // In edit-mode the user has an explicit submit; auto-save could overwrite with stale sessionStorage data
+    const pid = draftPatientIdRef.current
+    if (pid && !isEditMode && form.full_name?.trim()) {
       autoSavePending.current = true
       clearTimeout(autoSaveRef.current)
       autoSaveRef.current = setTimeout(() => {
-        silentSave(form, step, draftPatientId)
+        silentSave(formRef.current, stepRef.current, pid)
       }, 2000)
     }
 
@@ -747,7 +751,15 @@ export default function IntakeWizard() {
   }, [form]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const clearDraft = () => {
+    clearTimeout(draftTimer.current)
+    clearTimeout(draftFadeTimer.current)
+    clearTimeout(autoSaveRef.current)
     sessionStorage.removeItem(DRAFT_KEY)
+    localStorage.removeItem(DRAFT_PATIENT_KEY)
+    setDraftPatientId(null)
+    draftPatientIdRef.current = null
+    autoSavePending.current = false
+    setDraftSaved(false)
     setForm(EMPTY_FORM)
     setStep(0)
   }
@@ -981,8 +993,12 @@ export default function IntakeWizard() {
         gender: form.gender,
         marital_status: form.marital_status || null,
         num_children: form.num_children !== '' ? Number(form.num_children) : null,
-        referral_goal: form.referral_goal || null,
-        referral_source: form.referral_source || null,
+        referral_goal:        form.referral_goal || null,
+        referral_goal_sub:    form.referral_goal_sub || null,
+        referral_goal_notes:  form.referral_goal_notes || null,
+        referral_source:      form.referral_source || null,
+        referral_name:        form.referral_name || null,
+        referral_sub:         form.referral_sub || null,
         city: form.city, city_code: form.city_code,
         street: form.street, house_number: form.house_number,
         entrance: form.entrance || null, floor: form.floor || null,
@@ -999,11 +1015,6 @@ export default function IntakeWizard() {
         diagnosis_details: form.diagnosis_details || null,
         specialty: form.specialty || null,
         sub_specialty: form.sub_specialty || null,
-        referral_goal: form.referral_goal || null,
-        referral_goal_sub: form.referral_goal_sub || null,
-        referral_goal_notes: form.referral_goal_notes || null,
-        referral_name: form.referral_name || null,
-        referral_sub: form.referral_sub || null,
         notes: form.notes || null,
         adl_answers: JSON.stringify(form.adl_answers),
         iadl_answers: JSON.stringify(form.iadl_answers),
@@ -1012,8 +1023,14 @@ export default function IntakeWizard() {
         iadl_score: iadlTouched ? iadlScore : null,
         mmse_score: mmseTouched ? mmseScore : null,
       }
-      const res = await axios.post('/api/patients', payload)
-      const patientId = res.data.id
+      // If a draft patient was already created (auto-save), update it; otherwise create new
+      let patientId = draftPatientId
+      if (patientId) {
+        await axios.patch(`/api/patients/${patientId}`, { ...payload, intake_step: 6, intake_completed: true })
+      } else {
+        const res = await axios.post('/api/patients', payload)
+        patientId = res.data.id
+      }
       // Save medications to patient_medications table (same as PatientMedications tab)
       for (const med of form.medications) {
         if (!med.name?.trim()) continue
@@ -1025,18 +1042,24 @@ export default function IntakeWizard() {
           indication: med.indication || null,
         }).catch(() => showToast(`שגיאה בשמירת תרופה: ${med.name}`))
       }
-      await axios.post(`/api/patients/${patientId}/signatures`, {
-        consent_agreed: form.consent_agreed,
-        consent_signature_b64: form.consent_signature,
-        financial_consent_agreed: form.financial_consent_agreed,
-        financial_consent_signature_b64: form.financial_consent_signature,
-        poa_agreed: form.poa_agreed,
-        poa_signature_b64: form.poa_signature,
-        signer_name: form.signer_is_self ? form.full_name : form.signer_name,
-        signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
-      })
+      if (form.consent_agreed && form.consent_signature) {
+        await axios.post(`/api/patients/${patientId}/signatures`, {
+          consent_agreed: form.consent_agreed,
+          consent_signature_b64: form.consent_signature,
+          financial_consent_agreed: form.financial_consent_agreed,
+          financial_consent_signature_b64: form.financial_consent_signature,
+          poa_agreed: form.poa_agreed,
+          poa_signature_b64: form.poa_signature,
+          signer_name: form.signer_is_self ? form.full_name : form.signer_name,
+          signer_relation: form.signer_is_self ? 'המטופל/ת עצמו/ה' : form.signer_relation,
+        })
+      }
       sessionStorage.removeItem(DRAFT_KEY)
       localStorage.removeItem(DRAFT_PATIENT_KEY)
+      // Cancel any pending auto-save so it doesn't overwrite intake_completed after navigate
+      clearTimeout(autoSaveRef.current)
+      autoSavePending.current = false
+      draftPatientIdRef.current = null
       navigate(`/manager/patients/${patientId}`)
     } catch (err) {
       setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
@@ -1549,10 +1572,10 @@ export default function IntakeWizard() {
           {/* Header */}
           <div className="mb-6">
             <button
-              onClick={() => navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')}
+              onClick={handleExit}
               className="text-sm text-slate-500 hover:text-slate-700 mb-3 flex items-center gap-1"
             >
-              → {isEditMode ? 'חזרה לתיק המטופל' : t('intake:back_to_dashboard')}
+              ← {isEditMode ? 'חזרה לתיק המטופל' : t('intake:back_to_dashboard')}
             </button>
             <h1 className="text-2xl font-bold text-slate-800">
               {isEditMode ? 'עריכת אינטייק' : t('intake:title')}
