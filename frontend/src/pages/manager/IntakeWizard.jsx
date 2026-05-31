@@ -620,7 +620,7 @@ export default function IntakeWizard() {
   // draftPatientId — patient already created in DB (draft mode)
   const [draftPatientId, setDraftPatientId] = useState(() => {
     if (resumeId) return Number(resumeId)
-    return sessionStorage.getItem(DRAFT_PATIENT_KEY) ? Number(sessionStorage.getItem(DRAFT_PATIENT_KEY)) : null
+    return localStorage.getItem(DRAFT_PATIENT_KEY) ? Number(localStorage.getItem(DRAFT_PATIENT_KEY)) : null
   })
   const [form, setForm] = useState(() => {
     try {
@@ -635,6 +635,7 @@ export default function IntakeWizard() {
   const draftFadeTimer    = useRef(null)
   const autoSaveRef       = useRef(null)
   const autoSavePending   = useRef(false)
+  const autoCreateRef     = useRef(null)  // debounce for step-0 auto-create
   const formRef           = useRef(form)
   const stepRef           = useRef(step)
   const draftPatientIdRef = useRef(draftPatientId)
@@ -809,6 +810,28 @@ export default function IntakeWizard() {
       } catch {}
     }, 800)
 
+    // Auto-create patient on step 0 as soon as full_name + id_number are valid
+    // This ensures data is persisted to DB even before clicking "המשך"
+    if (step === 0 && !draftPatientIdRef.current && !isEditMode && !isDemoMode) {
+      const nameOk = form.full_name.trim().length >= 2
+      const idOk   = form.id_number.length === 9 && validateIsraeliId(form.id_number)
+      if (nameOk && idOk) {
+        clearTimeout(autoCreateRef.current)
+        autoCreateRef.current = setTimeout(async () => {
+          if (draftPatientIdRef.current) return  // already created (race guard)
+          try {
+            const res = await axios.post('/api/patients', buildDraftPayload(formRef.current, 0))
+            const pid = res.data.id
+            setDraftPatientId(pid)
+            localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
+            draftPatientIdRef.current = pid
+          } catch {}
+        }, 1500)
+      } else {
+        clearTimeout(autoCreateRef.current)
+      }
+    }
+
     // Auto-save to backend (silent) — only for new intakes, not edit-mode
     // In edit-mode the user has an explicit submit; auto-save could overwrite with stale sessionStorage data
     const pid = draftPatientIdRef.current
@@ -831,8 +854,9 @@ export default function IntakeWizard() {
     clearTimeout(draftTimer.current)
     clearTimeout(draftFadeTimer.current)
     clearTimeout(autoSaveRef.current)
+    clearTimeout(autoCreateRef.current)
     sessionStorage.removeItem(DRAFT_KEY)
-    sessionStorage.removeItem(DRAFT_PATIENT_KEY)
+    localStorage.removeItem(DRAFT_PATIENT_KEY)
     setDraftPatientId(null)
     draftPatientIdRef.current = null
     autoSavePending.current = false
@@ -940,7 +964,7 @@ export default function IntakeWizard() {
         const res = await axios.post('/api/patients', buildDraftPayload(form, targetStep))
         pid = res.data.id
         setDraftPatientId(pid)
-        sessionStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
+        localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
         draftPatientIdRef.current = pid
       } catch (err) {
         setErrors({ submit: err.response?.data?.detail || 'שגיאה ביצירת הטיוטה — נסה שוב' })
@@ -1079,7 +1103,7 @@ export default function IntakeWizard() {
           })
         }
         sessionStorage.removeItem(DRAFT_KEY)
-        sessionStorage.removeItem(DRAFT_PATIENT_KEY)
+        localStorage.removeItem(DRAFT_PATIENT_KEY)
         navigate(`/manager/patients/${resumeId}/intake`)
       } catch (err) {
         setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
@@ -1162,7 +1186,7 @@ export default function IntakeWizard() {
         })
       }
       sessionStorage.removeItem(DRAFT_KEY)
-      sessionStorage.removeItem(DRAFT_PATIENT_KEY)
+      localStorage.removeItem(DRAFT_PATIENT_KEY)
       // Cancel any pending auto-save so it doesn't overwrite intake_completed after navigate
       clearTimeout(autoSaveRef.current)
       autoSavePending.current = false
