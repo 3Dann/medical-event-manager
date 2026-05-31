@@ -114,6 +114,22 @@ const FUNC_SUB_STEPS = [
   { key: 'mmse', label: 'MMSE', desc: 'תפקוד קוגניטיבי',  color: 'purple', range: '0–30' },
 ]
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+/** Parse a JSON-encoded array field returned from the API (string or already array).
+ *  Returns [] on null / invalid JSON / non-array values. */
+const parseJsonArray = (s) => {
+  if (!s) return []
+  if (Array.isArray(s)) return s
+  try { const v = JSON.parse(s); return Array.isArray(v) ? v : [] } catch { return [] }
+}
+
+/** Parse a JSON-encoded object field. Returns {} on null / invalid JSON. */
+const parseJsonObject = (s) => {
+  if (!s) return {}
+  if (typeof s === 'object' && !Array.isArray(s)) return s
+  try { return JSON.parse(s) || {} } catch { return {} }
+}
+
 // ── Contexts ──────────────────────────────────────────────────────────────────
 const ErrorCtx  = createContext({})
 const FormCtx   = createContext({ form: {}, set: () => {}, inp: () => ({}), setErrors: () => {} })
@@ -600,6 +616,100 @@ function MedicationsStep({ medications, onChange }) {
   )
 }
 
+// ── DoctorContactMethods ──────────────────────────────────────────────────────
+// Defined before IntakeWizard so it can safely be converted to arrow function in the future.
+
+const CONTACT_OPTIONS = [
+  { type: 'app',       label: 'אפליקציה של הקופה', icon: '📱', hasValue: false },
+  { type: 'email',     label: 'מייל',               icon: '📧', hasValue: true,  placeholder: 'doctor@clinic.co.il', inputMode: 'email' },
+  { type: 'phone',     label: 'טלפון',              icon: '📞', hasValue: true,  placeholder: '03-1234567', inputMode: 'tel' },
+  { type: 'whatsapp',  label: 'WhatsApp',            icon: '💬', hasValue: false },
+]
+
+function DoctorContactMethods({ value = [], onChange }) {
+  const getMethod = (type) => value.find(m => m.type === type) || null
+  const isChecked = (type) => !!getMethod(type)
+
+  const toggle = (type) => {
+    if (isChecked(type)) {
+      onChange(value.filter(m => m.type !== type))
+    } else {
+      const opt = CONTACT_OPTIONS.find(o => o.type === type)
+      onChange([...value, opt?.hasValue ? { type, value: '' } : { type }])
+    }
+  }
+
+  const setVal = (type, val) => {
+    onChange(value.map(m => m.type === type ? { ...m, value: val } : m))
+  }
+
+  return (
+    <div>
+      <label className="text-sm font-medium text-slate-700 mb-1 block">דרכי התקשרות עם הרופא</label>
+      <div className="space-y-2 mt-1">
+        {CONTACT_OPTIONS.map(opt => {
+          const checked = isChecked(opt.type)
+          const method  = getMethod(opt.type)
+          return (
+            <div key={opt.type} className={`rounded-xl border-2 transition-colors ${checked ? 'border-blue-300 bg-blue-50' : 'border-slate-200'}`}>
+              <label className="flex items-center gap-3 px-3 py-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => toggle(opt.type)}
+                  className="w-4 h-4 rounded accent-blue-600 flex-shrink-0"
+                />
+                <span className="text-base flex-shrink-0">{opt.icon}</span>
+                <span className={`text-sm font-medium ${checked ? 'text-blue-800' : 'text-slate-700'}`}>{opt.label}</span>
+              </label>
+              {checked && opt.hasValue && (
+                <div className="px-3 pb-3">
+                  <input
+                    className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={method?.value || ''}
+                    onChange={e => setVal(opt.type, e.target.value)}
+                    placeholder={opt.placeholder}
+                    inputMode={opt.inputMode}
+                    dir="ltr"
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Selected methods display */}
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {value.map(m => {
+            const opt = CONTACT_OPTIONS.find(o => o.type === m.type)
+            // Fallback: show raw type if not found in CONTACT_OPTIONS (e.g. legacy value)
+            if (!opt) return (
+              <span key={m.type} className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-full">
+                {m.value || m.type}
+              </span>
+            )
+            // For methods with a value field: show the value, or "(לא הוזן)" if empty
+            const label = m.value
+              ? `${opt.icon} ${m.value}`
+              : opt.hasValue
+                ? `${opt.icon} ${opt.label} (לא הוזן)`
+                : `${opt.icon} ${opt.label}`
+            return (
+              <span key={m.type} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
+                {label}
+              </span>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const DRAFT_KEY = 'intake_wizard_draft'
 const DRAFT_PATIENT_KEY = 'intake_draft_patient_id'
 
@@ -686,11 +796,11 @@ export default function IntakeWizard() {
         specialty: p.specialty || '', sub_specialty: p.sub_specialty || '',
         treating_doctor_name: p.treating_doctor_name || '',
         treating_clinic_name: p.treating_clinic_name || '',
-        doctor_contact_methods: (() => { try { return p.doctor_contact_methods ? JSON.parse(p.doctor_contact_methods) : [] } catch { return [] } })(),
+        doctor_contact_methods: parseJsonArray(p.doctor_contact_methods),
         notes: p.notes || '',
-        adl_answers:  p.adl_answers  ? (() => { try { return JSON.parse(p.adl_answers)  } catch { return {} } })()  : {},
-        iadl_answers: p.iadl_answers ? (() => { try { return JSON.parse(p.iadl_answers) } catch { return {} } })() : {},
-        mmse_answers: p.mmse_answers ? (() => { try { return JSON.parse(p.mmse_answers) } catch { return {} } })() : {},
+        adl_answers:  parseJsonObject(p.adl_answers),
+        iadl_answers: parseJsonObject(p.iadl_answers),
+        mmse_answers: parseJsonObject(p.mmse_answers),
       }))
       const stepParam = searchParams.get('step')
       if (stepParam !== null) setStep(Number(stepParam))
@@ -746,6 +856,8 @@ export default function IntakeWizard() {
     sub_specialty:        formData.sub_specialty || null,
     treating_doctor_name:   formData.treating_doctor_name || null,
     treating_clinic_name:   formData.treating_clinic_name || null,
+    // Empty array is stored as null in DB (null === "no methods set").
+    // On load, null → parseJsonArray() → []. Consistent across draft/edit/new.
     doctor_contact_methods: formData.doctor_contact_methods?.length
       ? JSON.stringify(formData.doctor_contact_methods) : null,
     referral_goal:        formData.referral_goal || null,
@@ -1922,86 +2034,6 @@ export default function IntakeWizard() {
     </StepCtx.Provider>
     </FormCtx.Provider>
     </ErrorCtx.Provider>
-  )
-}
-
-// ── DoctorContactMethods ──────────────────────────────────────────────────────
-
-const CONTACT_OPTIONS = [
-  { type: 'app',       label: 'אפליקציה של הקופה', icon: '📱', hasValue: false },
-  { type: 'email',     label: 'מייל',               icon: '📧', hasValue: true,  placeholder: 'doctor@clinic.co.il', inputMode: 'email' },
-  { type: 'phone',     label: 'טלפון',              icon: '📞', hasValue: true,  placeholder: '03-1234567', inputMode: 'tel' },
-  { type: 'whatsapp',  label: 'WhatsApp',            icon: '💬', hasValue: false },
-]
-
-function DoctorContactMethods({ value = [], onChange }) {
-  const getMethod = (type) => value.find(m => m.type === type) || null
-  const isChecked = (type) => !!getMethod(type)
-
-  const toggle = (type) => {
-    if (isChecked(type)) {
-      onChange(value.filter(m => m.type !== type))
-    } else {
-      onChange([...value, { type, value: '' }])
-    }
-  }
-
-  const setVal = (type, val) => {
-    onChange(value.map(m => m.type === type ? { ...m, value: val } : m))
-  }
-
-  return (
-    <div>
-      <label className="label">דרכי התקשרות עם הרופא</label>
-      <div className="space-y-2 mt-1">
-        {CONTACT_OPTIONS.map(opt => {
-          const checked = isChecked(opt.type)
-          const method  = getMethod(opt.type)
-          return (
-            <div key={opt.type} className={`rounded-xl border-2 transition-colors ${checked ? 'border-blue-300 bg-blue-50' : 'border-slate-200'}`}>
-              <label className="flex items-center gap-3 px-3 py-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggle(opt.type)}
-                  className="w-4 h-4 rounded accent-blue-600 flex-shrink-0"
-                />
-                <span className="text-base flex-shrink-0">{opt.icon}</span>
-                <span className={`text-sm font-medium ${checked ? 'text-blue-800' : 'text-slate-700'}`}>{opt.label}</span>
-              </label>
-              {checked && opt.hasValue && (
-                <div className="px-3 pb-3">
-                  <input
-                    className="w-full border border-blue-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    value={method?.value || ''}
-                    onChange={e => setVal(opt.type, e.target.value)}
-                    placeholder={opt.placeholder}
-                    inputMode={opt.inputMode}
-                    dir="ltr"
-                  />
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Selected methods display */}
-      {value.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          {value.map(m => {
-            const opt = CONTACT_OPTIONS.find(o => o.type === m.type)
-            if (!opt) return null
-            const label = m.value ? `${opt.icon} ${m.value}` : `${opt.icon} ${opt.label}`
-            return (
-              <span key={m.type} className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full">
-                {label}
-              </span>
-            )
-          })}
-        </div>
-      )}
-    </div>
   )
 }
 

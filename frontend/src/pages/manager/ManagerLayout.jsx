@@ -338,7 +338,11 @@ export default function ManagerLayout() {
               {(() => {
                 const isInPatient = location.pathname.startsWith('/manager/demo/patient')
                 const isInBroker  = location.pathname.startsWith('/manager/demo/broker')
-                const isInManager = !isInPatient && !isInBroker
+                // Normalize trailing slash so /manager/ matches /manager correctly
+                const normalizedPath = location.pathname.replace(/\/$/, '')
+                // Exclude all /manager/demo/* paths so future demo portals don't appear as "manager"
+                const isInDemo    = normalizedPath.startsWith('/manager/demo/')
+                const isInManager = !isInPatient && !isInBroker && !isInDemo && (normalizedPath === '/manager' || normalizedPath.startsWith('/manager/'))
                 return [
                   {
                     icon: '⚙️',

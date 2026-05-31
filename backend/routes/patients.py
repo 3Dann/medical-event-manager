@@ -21,6 +21,18 @@ from data.hmo_plans_data import HMO_PLANS, get_plan_coverages, get_plan_label
 import os, base64, json
 from datetime import datetime, timezone
 
+def _parse_json_array(s) -> list:
+    """Parse a JSON-encoded array from DB. Returns [] on null / invalid JSON / non-array."""
+    if not s:
+        return []
+    if isinstance(s, list):
+        return s
+    try:
+        v = json.loads(s)
+        return v if isinstance(v, list) else []
+    except (json.JSONDecodeError, TypeError):
+        return []
+
 router = APIRouter(prefix="/api/patients", tags=["patients"])
 
 SIGNATURES_DIR = os.environ.get("SIGNATURES_DIR", "/data/signatures")
@@ -315,7 +327,7 @@ def patient_to_dict(p):
         # Treating doctor
         "treating_doctor_name":   getattr(p, "treating_doctor_name", None),
         "treating_clinic_name":   getattr(p, "treating_clinic_name", None),
-        "doctor_contact_methods": getattr(p, "doctor_contact_methods", None),
+        "doctor_contact_methods": _parse_json_array(getattr(p, "doctor_contact_methods", None)),
         # Medical specialty
         "specialty": p.specialty,
         "sub_specialty": p.sub_specialty,
