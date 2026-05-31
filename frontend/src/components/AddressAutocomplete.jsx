@@ -139,16 +139,23 @@ export function StreetAutocomplete({ value, cityCode, cityName, onChange, onPost
   const ref = useRef()
   const abortRef = useRef()
   const selectedStreetRef = useRef(null)
+  const prevCityCode = useRef(cityCode)  // track previous cityCode to detect user-driven changes
 
   useEffect(() => { setInput(value || '') }, [value])
 
   useEffect(() => {
-    abortRef.current?.abort()
-    setInput('')
-    setStreets([])
-    setErr(false)
-    onChange('')
-    onPostalCode?.('')
+    const isUserChange = prevCityCode.current !== cityCode
+    prevCityCode.current = cityCode
+
+    // Only reset street when cityCode CHANGES (not on initial mount with a value already set)
+    if (isUserChange) {
+      abortRef.current?.abort()
+      setInput('')
+      setStreets([])
+      setErr(false)
+      onChange('')
+      onPostalCode?.('')
+    }
     if (!cityCode) return
 
     abortRef.current = new AbortController()

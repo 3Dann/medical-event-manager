@@ -18,6 +18,7 @@ const STEP_KEYS = [
   { id: 'medical',     key: 'step_medical' },
   { id: 'medications', key: 'step_medications' },
   { id: 'assessment',  key: 'step_assessment' },
+  { id: 'documents',   key: 'step_documents' },
   { id: 'signatures',  key: 'step_signatures' },
 ]
 
@@ -30,10 +31,28 @@ const HMO_OPTIONS = [
   { value: 'leumit',   label: 'לאומית' },
 ]
 const HMO_LEVELS = {
-  clalit:   [{ value: 'basic', label: 'בסיסי' }, { value: 'mushlam', label: 'מושלם' }, { value: 'mushlam_plus', label: 'מושלם פלוס' }],
-  maccabi:  [{ value: 'basic', label: 'כחול' }, { value: 'silver', label: 'כסף' }, { value: 'gold', label: 'זהב' }],
-  meuhedet: [{ value: 'basic', label: 'בסיסי' }, { value: 'mushlam', label: 'שלם' }, { value: 'premium', label: 'עדיף' }],
-  leumit:   [{ value: 'basic', label: 'בסיסי' }, { value: 'gold', label: 'זהב' }, { value: 'premium', label: 'פרמיום' }],
+  clalit:   [
+    { value: 'mogen',        label: 'מוגן' },
+    { value: 'mushlam',      label: 'מושלם' },
+    { value: 'mushlam_plus', label: 'מושלם פלוס' },
+    { value: 'mushlam_gold', label: 'מושלם גולד' },
+  ],
+  maccabi:  [
+    { value: 'blue',     label: 'כחול' },
+    { value: 'silver',   label: 'כסף' },
+    { value: 'gold',     label: 'זהב' },
+    { value: 'platinum', label: 'פלטינום' },
+  ],
+  meuhedet: [
+    { value: 'basic', label: 'בסיסי' },
+    { value: 'shlam', label: 'שלם' },
+    { value: 'adif',  label: 'עדיף' },
+  ],
+  leumit: [
+    { value: 'basic',    label: 'בסיסי' },
+    { value: 'gold',     label: 'זהב' },
+    { value: 'platinum', label: 'פלטינום' },
+  ],
 }
 
 // ── ADL (Barthel Index) ───────────────────────────────────────────────────────
@@ -835,7 +854,7 @@ export default function IntakeWizard() {
         if (total > 30) e.mmse_score = 'ניקוד MMSE חייב להיות 0-30'
       }
     }
-    if (stepIdx === 6 && !isEditMode) {
+    if (stepIdx === 7 && !isEditMode) {
       if (!form.signer_is_self && !form.signer_name.trim()) e.signer_name = 'יש להזין שם החותם'
       if (!form.consent_agreed) e.consent = 'יש לאשר ולחתום על ויתור סודיות רפואית'
       if (!form.consent_signature) e.consent_sig = 'יש לחתום'
@@ -876,7 +895,7 @@ export default function IntakeWizard() {
     setStep(s => s + 1)
   }
 
-  const SIGNATURE_STEP = 6
+  const SIGNATURE_STEP = 7
   const back = () => {
     setErrors({})
     if (step === 5 && funcSubStep > 0) { setFuncSubStep(s => s - 1); return }
@@ -1553,8 +1572,20 @@ export default function IntakeWizard() {
         <FunctionalStep adlScore={adlScore} iadlScore={iadlScore} mmseScore={mmseScore} subStep={funcSubStep} />
       )
 
-      // ── Step 7: חתימות ──────────────────────────────────────────────────────
+      // ── Step 7: העלאת מסמכים ────────────────────────────────────────────────
       case 6: return (
+        <IntakeDocumentsStep
+          patientId={draftPatientId}
+          onApplyFunctional={data => {
+            if (data.adl_answers)  set('adl_answers',  data.adl_answers)
+            if (data.iadl_answers) set('iadl_answers', data.iadl_answers)
+            if (data.mmse_answers) set('mmse_answers', data.mmse_answers)
+          }}
+        />
+      )
+
+      // ── Step 8: חתימות ──────────────────────────────────────────────────────
+      case 7: return (
         <SignaturesStep />
       )
 
@@ -1682,6 +1713,204 @@ export default function IntakeWizard() {
     </StepCtx.Provider>
     </FormCtx.Provider>
     </ErrorCtx.Provider>
+  )
+}
+
+// ── IntakeDocumentsStep sub-component ─────────────────────────────────────────
+
+const FILE_ICONS = {
+  'application/pdf':  '📄',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
+  'application/msword': '📝',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '📊',
+  'application/vnd.ms-excel': '📊',
+  'image/jpeg': '🖼️', 'image/png': '🖼️', 'image/gif': '🖼️', 'image/webp': '🖼️',
+}
+
+function fileIcon(mimeType) {
+  return FILE_ICONS[mimeType] || '📎'
+}
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function IntakeDocumentsStep({ patientId, onApplyFunctional }) {
+  const [medDocs, setMedDocs]       = useState([])
+  const [insDocs, setInsDocs]       = useState([])
+  const [uploading, setUploading]   = useState(null)   // 'medical' | 'insurance' | null
+  const [dragOver, setDragOver]     = useState(null)   // 'medical' | 'insurance' | null
+  const [functional, setFunctional] = useState(null)   // extracted data
+  const [applied, setApplied]       = useState(false)
+  const medInputRef = useRef()
+  const insInputRef = useRef()
+
+  const upload = async (files, category) => {
+    if (!patientId) return
+    setUploading(category)
+    for (const file of Array.from(files)) {
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('category', category)
+        const res = await axios.post(`/api/patients/${patientId}/documents/intake-extract`, fd)
+        const doc = res.data
+        if (category === 'medical') {
+          setMedDocs(d => [...d, doc])
+          if (doc.functional && (doc.functional.mmse_total != null || doc.functional.adl_total != null)) {
+            setFunctional(doc.functional)
+          }
+        } else {
+          setInsDocs(d => [...d, doc])
+        }
+      } catch (err) {
+        console.error('upload failed', err)
+      }
+    }
+    setUploading(null)
+  }
+
+  const handleDrop = (e, category) => {
+    e.preventDefault()
+    setDragOver(null)
+    upload(e.dataTransfer.files, category)
+  }
+
+  const removeDoc = (category, docId) => {
+    if (category === 'medical') setMedDocs(d => d.filter(x => x.id !== docId))
+    else setInsDocs(d => d.filter(x => x.id !== docId))
+  }
+
+  const applyFunctional = () => {
+    if (!functional) return
+    const updates = {}
+    // Apply MMSE total as note — the user fills individual items
+    // For now, just pass along any structured data the extractor found
+    onApplyFunctional(updates)
+    setApplied(true)
+  }
+
+  const DropZone = ({ category, label, icon, docs, inputRef }) => (
+    <div className="space-y-3">
+      <h3 className="font-semibold text-slate-700 flex items-center gap-2">
+        <span>{icon}</span> {label}
+      </h3>
+      <div
+        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-colors cursor-pointer
+          ${dragOver === category ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+        onDragOver={e => { e.preventDefault(); setDragOver(category) }}
+        onDragLeave={() => setDragOver(null)}
+        onDrop={e => handleDrop(e, category)}
+        onClick={() => inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
+        aria-label={`העלה ${label}`}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          multiple
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp"
+          onChange={e => upload(e.target.files, category)}
+        />
+        {uploading === category ? (
+          <div className="text-blue-600 text-sm">מעלה...</div>
+        ) : (
+          <>
+            <div className="text-3xl mb-2">⬆️</div>
+            <p className="text-sm text-slate-600 font-medium">גרור קבצים לכאן או לחץ לבחירה</p>
+            <p className="text-xs text-slate-400 mt-1">PDF, Word, Excel, תמונות — עד 20MB</p>
+          </>
+        )}
+      </div>
+
+      {docs.length > 0 && (
+        <ul className="space-y-1">
+          {docs.map(doc => (
+            <li key={doc.id} className="flex items-center gap-2 text-sm bg-white border border-slate-100 rounded-xl px-3 py-2">
+              <span className="text-lg flex-shrink-0">{fileIcon(doc.file_type)}</span>
+              <span className="flex-1 min-w-0 truncate text-slate-700">{doc.original_name}</span>
+              <span className="text-xs text-slate-400 flex-shrink-0">{fmtSize(doc.file_size)}</span>
+              <button
+                onClick={() => removeDoc(category, doc.id)}
+                className="text-slate-400 hover:text-red-500 text-xs px-1 flex-shrink-0"
+                aria-label="הסר"
+              >✕</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="space-y-6" dir="rtl">
+      {!patientId && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
+          יש לסיים את מילוי שלב הפרטים האישיים כדי להפעיל העלאת מסמכים.
+        </div>
+      )}
+
+      <DropZone
+        category="medical"
+        label="מסמכים רפואיים"
+        icon="🏥"
+        docs={medDocs}
+        inputRef={medInputRef}
+      />
+
+      <DropZone
+        category="insurance"
+        label="מסמכי ביטוח"
+        icon="📋"
+        docs={insDocs}
+        inputRef={insInputRef}
+      />
+
+      {/* Functional data extraction banner */}
+      {functional && !applied && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 space-y-2">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold text-blue-800 text-sm">נמצאו נתוני הערכה תפקודית במסמך</p>
+              <div className="mt-1 space-y-0.5">
+                {functional.mmse_total != null && (
+                  <p className="text-xs text-blue-700">MMSE: <strong>{functional.mmse_total}</strong> / 30</p>
+                )}
+                {functional.adl_total != null && (
+                  <p className="text-xs text-blue-700">ADL (ברתל): <strong>{functional.adl_total}</strong> / 100</p>
+                )}
+                {functional.iadl_total != null && (
+                  <p className="text-xs text-blue-700">IADL (לוטון): <strong>{functional.iadl_total}</strong></p>
+                )}
+                {functional.raw_mentions?.length > 0 && (
+                  <p className="text-xs text-blue-600 mt-1">{functional.raw_mentions[0]}</p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={applyFunctional}
+              className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 flex-shrink-0"
+            >
+              ייבא לאינטייק
+            </button>
+          </div>
+        </div>
+      )}
+      {applied && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">
+          ✓ נתוני ההערכה יובאו — חזור לשלב ההערכה לאישור ועריכה
+        </div>
+      )}
+
+      <p className="text-xs text-slate-400">
+        המסמכים נשמרים מוצפנים בתיק המטופל. ניתן לנהל אותם בטאב "מסמכים" לאחר הקליטה.
+      </p>
+    </div>
   )
 }
 

@@ -12,6 +12,7 @@ from slowapi.util import get_ipaddr
 import models
 import auth as auth_utils
 from field_encrypt import _fernet as _file_fernet
+import intake_extractor
 
 limiter = Limiter(key_func=get_ipaddr)
 
@@ -291,3 +292,71 @@ def delete_document(
     db.delete(doc)
     db.commit()
     return {"ok": True}
+
+
+@router.post("/{patient_id}/documents/intake-extract")
+@limiter.limit("20/minute")
+async def intake_extract_document(
+    request: Request,
+    patient_id: int,
+    file: UploadFile = File(...),
+    category: str = Form("medical"),   # "medical" | "insurance"
+    db: Session = Depends(get_db),
+    current_user=Depends(auth_utils.require_manager),
+):
+    """Upload a document during intake and extract functional assessment data."""
+    _get_patient_or_403(patient_id, current_user, db)
+
+    content = await file.read()
+    if len(content) > MAX_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 20MB)")
+    if not file.content_type:
+        raise HTTPException(status_code=400, detail="סוג הקובץ חסר")
+    if file.content_type not in ALLOWED_TYPES:
+        raise HTTPException(status_code=415, detail="File type not allowed")
+    if not _validate_magic(content):
+        raise HTTPException(status_code=415, detail="סוג הקובץ אינו נתמך")
+
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in _ALLOWED_EXTS:
+        ext = ""
+    stored_name = f"{uuid.uuid4().hex}{ext}"
+    patient_dir = os.path.join(UPLOAD_DIR, str(patient_id))
+    os.makedirs(patient_dir, exist_ok=True)
+    file_path = os.path.join(patient_dir, stored_name)
+
+    with open(file_path, "wb") as f:
+        f.write(_encrypt_content(content))
+
+    doc = models.PatientDocument(
+        patient_id=patient_id,
+        uploaded_by=current_user.id,
+        filename=stored_name,
+        original_name=file.filename or stored_name,
+        file_type=file.content_type,
+        file_size=len(content),
+        category=category,
+    )
+    db.add(doc)
+    db.commit()
+    db.refresh(doc)
+
+    # Extract text and parse functional data (only for medical docs)
+    functional = None
+    if category == "medical":
+        try:
+            text = intake_extractor.extract_text(content, file.content_type or "", file.filename or "")
+            if text:
+                functional = intake_extractor.parse_functional_data(text)
+        except Exception:
+            pass  # extraction is best-effort
+
+    return {
+        "id":            doc.id,
+        "original_name": doc.original_name,
+        "file_type":     doc.file_type,
+        "file_size":     doc.file_size,
+        "category":      category,
+        "created_at":    doc.created_at.isoformat(),
+        "functional":    functional,
+    }
