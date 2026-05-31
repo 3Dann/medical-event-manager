@@ -97,6 +97,15 @@ const MMSE_SECTIONS = [
   { key: 'copy',         label: 'מרחבי-חזותי — העתקה',       max: 1,  hint: 'העתק תמונה של שני מחומשים חופפים' },
 ]
 
+// ── Referral goals (multi-select) ────────────────────────────────────────────
+const REFERRAL_GOALS = [
+  { value: 'initial_clarity',    label: 'בהירות ראשונית',       description: 'הסדרת סביבת המטופל מרגע האבחון' },
+  { value: 'financial_mapping',  label: 'מיפוי פיננסי',         description: 'זכאויות ביטוחים, קרנות סיוע וכלכלה רפואית' },
+  { value: 'formal_diagnosis',   label: 'אבחון סופי רשמי',      description: 'סיוע בתהליך קבלת אבחנה רשמית' },
+  { value: 'treatment_protocol', label: 'ליווי פרוטוקול טיפולי', description: 'ניהול מהלך הטיפול ומעקב אחר תוצאות' },
+  { value: 'other',              label: 'אחר',                  description: null },
+]
+
 // ── Functional sub-steps (declared here so all references are unambiguous) ────
 const FUNC_SUB_STEPS = [
   { key: 'adl',  label: 'ADL',  desc: 'תפקוד יומיומי',    color: 'blue',  range: '0–100' },
@@ -1254,23 +1263,48 @@ export default function IntakeWizard() {
             <F label="מספר ילדים" name="num_children">
               <input {...inp('num_children', { type: 'number', min: 0 })} />
             </F>
-            <F label="מטרת הפניה" name="referral_goal">
-              <select
-                {...inp('referral_goal')}
-                onChange={e => {
-                  set('referral_goal', e.target.value)
-                  if (e.target.value !== 'financial_mapping') set('referral_goal_sub', '')
-                  if (e.target.value !== 'other') set('referral_goal_notes', '')
-                }}
-              >
-                <option value="">בחר מטרה...</option>
-                <option value="initial_clarity">בהירות ראשונית — הסדרת סביבת מטופל</option>
-                <option value="financial_mapping">מיפוי פיננסי</option>
-                <option value="formal_diagnosis">אבחון סופי רשמי</option>
-                <option value="treatment_protocol">ליווי פרוטוקול טיפולי</option>
-                <option value="other">אחר...</option>
-              </select>
-            </F>
+            <div>
+              <label className="label">מטרת הפניה <span className="font-normal text-slate-400 text-xs">(ניתן לבחור יותר מאחת)</span></label>
+              <div className="grid grid-cols-2 gap-2 mt-1">
+                {REFERRAL_GOALS.map(goal => {
+                  const selected = (form.referral_goal || '').split(',').filter(Boolean)
+                  const checked = selected.includes(goal.value)
+                  return (
+                    <label
+                      key={goal.value}
+                      className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-colors select-none
+                        ${checked
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-slate-200 hover:border-blue-200 hover:bg-slate-50'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={e => {
+                          const next = e.target.checked
+                            ? [...selected, goal.value]
+                            : selected.filter(v => v !== goal.value)
+                          set('referral_goal', next.join(','))
+                          if (!e.target.checked && goal.value === 'financial_mapping') set('referral_goal_sub', '')
+                          if (!e.target.checked && goal.value === 'other') set('referral_goal_notes', '')
+                        }}
+                        className="mt-0.5 w-4 h-4 rounded accent-blue-600 flex-shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className={`text-sm font-medium ${checked ? 'text-blue-800' : 'text-slate-700'}`}>
+                          {goal.label}
+                        </p>
+                        {goal.description && (
+                          <p className={`text-xs mt-0.5 leading-snug ${checked ? 'text-blue-600' : 'text-slate-400'}`}>
+                            {goal.description}
+                          </p>
+                        )}
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
             <F label="כיצד הגיע/ה?" name="referral_source">
               <select {...inp('referral_source')}>
                 <option value="">בחר...</option>
@@ -1284,7 +1318,7 @@ export default function IntakeWizard() {
           </div>
 
           {/* Referral goal sub-fields */}
-          {form.referral_goal === 'financial_mapping' && (
+          {(form.referral_goal || '').split(',').includes('financial_mapping') && (
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
               <p className="text-sm font-semibold text-blue-800 mb-3">נושאי המיפוי הפיננסי <span className="font-normal text-blue-600">(אפשר לבחור יותר מאחד)</span></p>
               <div className="space-y-2">
@@ -1315,7 +1349,7 @@ export default function IntakeWizard() {
               </div>
             </div>
           )}
-          {form.referral_goal === 'other' && (
+          {(form.referral_goal || '').split(',').includes('other') && (
             <F label="פרט את מטרת הפניה" name="referral_goal_notes">
               <input {...inp('referral_goal_notes', { placeholder: 'תאר את מטרת הפניה' })} />
             </F>
