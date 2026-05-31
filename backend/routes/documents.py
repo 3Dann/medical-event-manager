@@ -345,11 +345,18 @@ async def intake_extract_document(
     functional = None
     if category == "medical":
         try:
-            text = intake_extractor.extract_text(content, file.content_type or "", file.filename or "")
-            if text:
+            ct       = file.content_type or ""
+            fname    = file.filename or ""
+            text     = intake_extractor.extract_text(content, ct, fname)
+
+            if intake_extractor.needs_ocr(text, ct):
+                # Scanned PDF or image → Claude Vision
+                functional = await intake_extractor.extract_with_claude_vision(content, ct)
+            elif text:
+                # Text-based document → fast regex parser
                 functional = intake_extractor.parse_functional_data(text)
         except Exception:
-            pass  # extraction is best-effort
+            pass  # extraction is best-effort; never block the upload
 
     return {
         "id":            doc.id,
