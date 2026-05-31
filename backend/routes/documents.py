@@ -341,20 +341,20 @@ async def intake_extract_document(
     db.commit()
     db.refresh(doc)
 
-    # Extract text and parse functional data (only for medical docs)
+    # Extract functional data (only for medical docs)
     functional = None
     if category == "medical":
         try:
-            ct       = file.content_type or ""
-            fname    = file.filename or ""
-            text     = intake_extractor.extract_text(content, ct, fname)
+            ct    = file.content_type or ""
+            fname = file.filename or ""
+            text  = intake_extractor.extract_text(content, ct, fname)
 
             if intake_extractor.needs_ocr(text, ct):
-                # Scanned PDF or image → Claude Vision
+                # Scanned PDF or image → Claude Vision (OCR + item extraction)
                 functional = await intake_extractor.extract_with_claude_vision(content, ct)
-            elif text:
-                # Text-based document → fast regex parser
-                functional = intake_extractor.parse_functional_data(text)
+            else:
+                # Text-based → send extracted text to Claude for item-level parsing
+                functional = await intake_extractor.extract_items_from_text(text)
         except Exception:
             pass  # extraction is best-effort; never block the upload
 

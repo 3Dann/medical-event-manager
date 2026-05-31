@@ -7,6 +7,7 @@ import { CityAutocomplete, StreetAutocomplete } from '../../components/AddressAu
 import { MedicationCard, MedRow } from '../../components/DrugFormComponents'
 import { useDemoMode } from '../../context/DemoModeContext'
 import { useToast } from '../../hooks/useToast'
+import { useConfirm } from '../../components/ConfirmDialog'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -558,6 +559,8 @@ export default function IntakeWizard() {
   const { isDemoMode } = useDemoMode()
   const { showToast } = useToast()
   const { t } = useTranslation(['intake', 'common'])
+  const [confirm, ConfirmUI] = useConfirm()
+  const [missingFunctionalItems, setMissingFunctionalItems] = useState([])
   const STEPS = STEP_KEYS.map(s => ({ ...s, label: t(`intake:${s.key}`) }))
   const [step, setStep] = useState(() => {
     const stepParam = searchParams.get('step')
@@ -737,6 +740,12 @@ export default function IntakeWizard() {
       clearTimeout(autoSaveRef.current)
       silentSave(formRef.current, stepRef.current, draftPatientIdRef.current)
     }
+    if (missingFunctionalItems.length > 0) {
+      showToast(
+        `שים לב: לא חולצו מהמסמכים — ${missingFunctionalItems.slice(0, 4).join(', ')}${missingFunctionalItems.length > 4 ? ' ועוד...' : ''}. ניתן להשלים ידנית בשלב ההערכה.`,
+        'warning',
+      )
+    }
     navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')
   }
 
@@ -892,6 +901,19 @@ export default function IntakeWizard() {
 
     if (isFuncSubAdvance) { setFuncSubStep(s => s + 1); return }
     if (step === 5) setFuncSubStep(0)
+
+    // Advancing from documents step → signatures: warn about missing functional items
+    if (step === 6 && missingFunctionalItems.length > 0) {
+      const ok = await confirm({
+        title:        'פריטי תפקוד לא הושלמו',
+        message:      `המסמכים לא כללו נתונים עבור: ${missingFunctionalItems.join(', ')}.\n\nניתן לחזור לשלב ההערכה ולמלא ידנית, או להמשיך לחתימות ולהשלים מאוחר יותר.`,
+        confirmLabel: 'המשך לחתימות',
+        cancelLabel:  'חזור להשלמה',
+        danger:       false,
+      })
+      if (!ok) { setStep(5); return }   // go back to assessment
+    }
+
     setStep(s => s + 1)
   }
 
@@ -1576,11 +1598,25 @@ export default function IntakeWizard() {
       case 6: return (
         <IntakeDocumentsStep
           patientId={draftPatientId}
+          currentAdl={form.adl_answers}
+          currentIadl={form.iadl_answers}
+          currentMmse={form.mmse_answers}
           onApplyFunctional={data => {
-            if (data.adl_answers)  set('adl_answers',  data.adl_answers)
-            if (data.iadl_answers) set('iadl_answers', data.iadl_answers)
-            if (data.mmse_answers) set('mmse_answers', data.mmse_answers)
+            // Merge: only fill items not already set by user
+            if (data.adl_answers) set('adl_answers', {
+              ...Object.fromEntries(Object.entries(data.adl_answers).filter(([,v]) => v != null)),
+              ...form.adl_answers,
+            })
+            if (data.iadl_answers) set('iadl_answers', {
+              ...Object.fromEntries(Object.entries(data.iadl_answers).filter(([,v]) => v != null)),
+              ...form.iadl_answers,
+            })
+            if (data.mmse_answers) set('mmse_answers', {
+              ...Object.fromEntries(Object.entries(data.mmse_answers).filter(([,v]) => v != null)),
+              ...form.mmse_answers,
+            })
           }}
+          onMissingItems={setMissingFunctionalItems}
         />
       )
 
@@ -1710,6 +1746,7 @@ export default function IntakeWizard() {
           </div>
         </div>
       </div>
+      {ConfirmUI}
     </StepCtx.Provider>
     </FormCtx.Provider>
     </ErrorCtx.Provider>
@@ -1737,12 +1774,58 @@ function fmtSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function IntakeDocumentsStep({ patientId, onApplyFunctional }) {
+// Labels for missing item warnings
+const ADL_LABELS  = { feeding:'אכילה', bathing:'רחצה', grooming:'טיפוח', dressing:'הלבשה',
+                      bowel:'מעיים', bladder:'שלפוחית', toilet:'שירותים',
+                      transfer:'מיטה-כיסא', mobility:'ניידות', stairs:'מדרגות' }
+const IADL_LABELS = { phone:'טלפון', shopping:'קניות', cooking:'בישול', housework:'משק בית',
+                      laundry:'כביסה', transport:'תחבורה', meds:'תרופות', finance:'כספים' }
+const MMSE_LABELS = { time_orient:'זמן', place_orient:'מקום', registration:'רישום',
+                      attention:'קשב', recall:'היזכרות', naming:'מינוי', repetition:'חזרה',
+                      command:'פקודה', reading:'קריאה', writing:'כתיבה', copy:'העתקה' }
+
+function _computeMissing(functional, currentAdl, currentIadl, currentMmse) {
+  if (!functional) return []
+  const missing = []
+
+  // ADL: if extraction found at least one item, report missing ones
+  const adlExtracted = Object.values(functional.adl_answers || {}).some(v => v != null)
+  if (adlExtracted) {
+    Object.keys(ADL_LABELS).forEach(k => {
+      if ((functional.adl_answers?.[k] == null) && (currentAdl?.[k] == null)) {
+        missing.push(ADL_LABELS[k])
+      }
+    })
+  }
+
+  const iadlExtracted = Object.values(functional.iadl_answers || {}).some(v => v != null)
+  if (iadlExtracted) {
+    Object.keys(IADL_LABELS).forEach(k => {
+      if ((functional.iadl_answers?.[k] == null) && (currentIadl?.[k] == null)) {
+        missing.push(IADL_LABELS[k])
+      }
+    })
+  }
+
+  const mmseExtracted = Object.values(functional.mmse_answers || {}).some(v => v != null)
+  if (mmseExtracted) {
+    Object.keys(MMSE_LABELS).forEach(k => {
+      if ((functional.mmse_answers?.[k] == null) && (currentMmse?.[k] == null)) {
+        missing.push(MMSE_LABELS[k])
+      }
+    })
+  }
+
+  return missing
+}
+
+function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, onApplyFunctional, onMissingItems }) {
   const [medDocs, setMedDocs]       = useState([])
   const [insDocs, setInsDocs]       = useState([])
-  const [uploading, setUploading]   = useState(null)   // 'medical' | 'insurance' | null
-  const [dragOver, setDragOver]     = useState(null)   // 'medical' | 'insurance' | null
-  const [functional, setFunctional] = useState(null)   // extracted data
+  const [uploading, setUploading]   = useState(null)
+  const [dragOver, setDragOver]     = useState(null)
+  const [functional, setFunctional] = useState(null)
+  const [missing, setMissing]       = useState([])
   const [applied, setApplied]       = useState(false)
   const medInputRef = useRef()
   const insInputRef = useRef()
@@ -1759,22 +1842,25 @@ function IntakeDocumentsStep({ patientId, onApplyFunctional }) {
         const doc = res.data
         if (category === 'medical') {
           setMedDocs(d => [...d, doc])
-          if (doc.functional && (doc.functional.mmse_total != null || doc.functional.adl_total != null)) {
+          if (doc.functional) {
             setFunctional(doc.functional)
+            setApplied(false)
+            const m = _computeMissing(doc.functional, currentAdl, currentIadl, currentMmse)
+            setMissing(m)
+            onMissingItems?.(m)
           }
         } else {
           setInsDocs(d => [...d, doc])
         }
-      } catch (err) {
-        console.error('upload failed', err)
+      } catch {
+        // upload failure is non-fatal
       }
     }
     setUploading(null)
   }
 
   const handleDrop = (e, category) => {
-    e.preventDefault()
-    setDragOver(null)
+    e.preventDefault(); setDragOver(null)
     upload(e.dataTransfer.files, category)
   }
 
@@ -1785,10 +1871,11 @@ function IntakeDocumentsStep({ patientId, onApplyFunctional }) {
 
   const applyFunctional = () => {
     if (!functional) return
-    const updates = {}
-    // Apply MMSE total as note — the user fills individual items
-    // For now, just pass along any structured data the extractor found
-    onApplyFunctional(updates)
+    onApplyFunctional(functional)
+    // Recompute missing after apply (user data now merged)
+    const m = _computeMissing(functional, currentAdl, currentIadl, currentMmse)
+    setMissing(m)
+    onMissingItems?.(m)
     setApplied(true)
   }
 
@@ -1904,6 +1991,21 @@ function IntakeDocumentsStep({ patientId, onApplyFunctional }) {
       {applied && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-700">
           ✓ נתוני ההערכה יובאו — חזור לשלב ההערכה לאישור ועריכה
+        </div>
+      )}
+
+      {/* Missing items warning — shown after apply or when functional found but items missing */}
+      {missing.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <p className="text-sm font-semibold text-amber-800 mb-1">
+            {missing.length} פריטים לא נמצאו במסמכים
+          </p>
+          <p className="text-xs text-amber-700 leading-relaxed">
+            {missing.join(' · ')}
+          </p>
+          <p className="text-xs text-amber-600 mt-2">
+            ניתן לחזור לשלב ההערכה ולמלא ידנית, או להמשיך ולהשלים מאוחר יותר.
+          </p>
         </div>
       )}
 
