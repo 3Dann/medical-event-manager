@@ -97,6 +97,13 @@ const MMSE_SECTIONS = [
   { key: 'copy',         label: 'מרחבי-חזותי — העתקה',       max: 1,  hint: 'העתק תמונה של שני מחומשים חופפים' },
 ]
 
+// ── Functional sub-steps (declared here so all references are unambiguous) ────
+const FUNC_SUB_STEPS = [
+  { key: 'adl',  label: 'ADL',  desc: 'תפקוד יומיומי',    color: 'blue',  range: '0–100' },
+  { key: 'iadl', label: 'IADL', desc: 'תפקוד עצמאי',      color: 'green', range: '0–8'   },
+  { key: 'mmse', label: 'MMSE', desc: 'תפקוד קוגניטיבי',  color: 'purple', range: '0–30' },
+]
+
 // ── Contexts ──────────────────────────────────────────────────────────────────
 const ErrorCtx  = createContext({})
 const FormCtx   = createContext({ form: {}, set: () => {}, inp: () => ({}), setErrors: () => {} })
@@ -143,12 +150,22 @@ function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, 
     onFilled?.(v)
   }
 
+  const borderColor = hasError ? 'border-red-400' : 'border-slate-300'
+
   return (
     <div ref={wrapRef} className="relative flex-shrink-0" style={{ width }}>
+      {/* ▾ button on the LEFT, input on the RIGHT */}
       <div className="flex">
+        <button
+          type="button"
+          onMouseDown={e => { e.preventDefault(); setOpen(o => !o) }}
+          className={`px-1.5 border-t border-b border-l border-r rounded-l-lg text-slate-500 hover:bg-slate-50 text-xs flex-shrink-0 ${borderColor}`}
+          tabIndex={-1}
+          aria-label={`בחר ${itemLabel || placeholder}`}
+        >▾</button>
         <input
           ref={inputRef}
-          className={`border rounded-r-lg px-2 py-2 text-sm text-center w-full focus:outline-none focus:ring-2 focus:ring-blue-400 ${hasError ? 'border-red-400' : 'border-slate-300'}`}
+          className={`border-t border-b border-r rounded-r-lg px-2 py-2 text-sm text-center w-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:z-10 ${borderColor}`}
           value={value}
           onChange={e => {
             const maxLen = items.maxLen
@@ -161,20 +178,13 @@ function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, 
           dir="ltr"
           onFocus={() => setOpen(true)}
         />
-        <button
-          type="button"
-          onMouseDown={e => { e.preventDefault(); setOpen(o => !o) }}
-          className={`px-1.5 border-t border-b border-l rounded-l-lg text-slate-600 hover:bg-slate-50 text-xs ${hasError ? 'border-red-400' : 'border-slate-300'}`}
-        >▾</button>
       </div>
       {open && (
         <ul
           role="listbox"
           aria-label={itemLabel || placeholder}
           className="absolute z-50 bg-white border border-slate-200 rounded-lg shadow-lg mt-0.5 max-h-44 overflow-y-auto w-full min-w-max"
-          onKeyDown={e => {
-            if (e.key === 'Escape') setOpen(false)
-          }}
+          onKeyDown={e => { if (e.key === 'Escape') setOpen(false) }}
         >
           {items.options.map(item => {
             const v = String(item.v).padStart(items.maxLen, '0')
@@ -200,6 +210,10 @@ function DateSegment({ inputRef, value, onChange, onFilled, items, placeholder, 
 }
 
 function DateInput({ value, onChange, hasError }) {
+  // editing=false → show completed date as single field; editing=true → show 3 segments
+  const [editing, setEditing] = useState(() =>
+    !(value && /^\d{4}-\d{2}-\d{2}$/.test(value))
+  )
   const [day,   setDay]   = useState('')
   const [month, setMonth] = useState('')
   const [year,  setYear]  = useState('')
@@ -211,26 +225,49 @@ function DateInput({ value, onChange, hasError }) {
     if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
       const [y, m, d] = value.split('-')
       setDay(d); setMonth(m); setYear(y)
+      setEditing(false)
     } else if (!value) {
       setDay(''); setMonth(''); setYear('')
+      setEditing(true)
     }
   }, [value])
 
   const emit = (d, m, y) => {
     if (d.length === 2 && m.length === 2 && y.length === 4) {
       const iso = `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`
-      if (!isNaN(new Date(iso).getTime())) onChange(iso)
-      else onChange('')
+      if (!isNaN(new Date(iso).getTime())) {
+        onChange(iso)
+        setEditing(false)   // switch to display mode on valid complete date
+      } else onChange('')
     } else {
       onChange('')
     }
   }
 
-  const days    = { maxLen: 2, options: Array.from({length:31},(_,i)=>({ v: i+1, label: String(i+1).padStart(2,'0') })) }
-  const months  = { maxLen: 2, options: MONTHS_HE.map((l,i)=>({ v: i+1, label: `${String(i+1).padStart(2,'0')} — ${l}` })) }
-  const years   = { maxLen: 4, options: Array.from({length: CURRENT_YEAR-1919},(_,i)=>({ v: CURRENT_YEAR-i })) }
+  // Display mode — completed date as a single clickable field
+  if (!editing && day && month && year) {
+    return (
+      <button
+        type="button"
+        dir="ltr"
+        onClick={() => { setEditing(true); setTimeout(() => dayRef.current?.focus(), 0) }}
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors
+          ${hasError
+            ? 'border-red-400 text-red-700 bg-red-50'
+            : 'border-slate-300 text-slate-800 hover:border-blue-400 hover:bg-blue-50'}`}
+        aria-label={`תאריך ${day}/${month}/${year} — לחץ לעריכה`}
+      >
+        <span className="font-medium tracking-wide">{day}/{month}/{year}</span>
+        <span className="text-slate-400 text-xs">✎</span>
+      </button>
+    )
+  }
 
-  // dir="ltr" + DOM order [day][month][year] → day on LEFT, year on RIGHT
+  // Editing mode — 3 segments
+  const days   = { maxLen: 2, options: Array.from({length:31},(_,i)=>({ v: i+1, label: String(i+1).padStart(2,'0') })) }
+  const months = { maxLen: 2, options: MONTHS_HE.map((l,i)=>({ v: i+1, label: `${String(i+1).padStart(2,'0')} — ${l}` })) }
+  const years  = { maxLen: 4, options: Array.from({length: CURRENT_YEAR-1919},(_,i)=>({ v: CURRENT_YEAR-i })) }
+
   return (
     <div className="flex items-center gap-1" dir="ltr">
       <DateSegment
@@ -240,10 +277,11 @@ function DateInput({ value, onChange, hasError }) {
         onFilled={() => monthRef.current?.focus()}
         items={days}
         placeholder="יום"
-        width={68}
+        width={72}
         hasError={hasError}
+        itemLabel="יום"
       />
-      <span className="text-slate-600 font-medium">/</span>
+      <span className="text-slate-400 font-medium select-none">/</span>
       <DateSegment
         inputRef={monthRef}
         value={month}
@@ -251,18 +289,20 @@ function DateInput({ value, onChange, hasError }) {
         onFilled={() => yearRef.current?.focus()}
         items={months}
         placeholder="חודש"
-        width={74}
+        width={80}
         hasError={hasError}
+        itemLabel="חודש"
       />
-      <span className="text-slate-600 font-medium">/</span>
+      <span className="text-slate-400 font-medium select-none">/</span>
       <DateSegment
         inputRef={yearRef}
         value={year}
         onChange={v => { setYear(v); emit(day, month, v) }}
         items={years}
         placeholder="שנה"
-        width={88}
+        width={92}
         hasError={hasError}
+        itemLabel="שנה"
       />
     </div>
   )
@@ -891,8 +931,14 @@ export default function IntakeWizard() {
         setDraftPatientId(pid)
         localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
         draftPatientIdRef.current = pid
-      } catch {}
-    } else if (pid && !isDemoMode) {
+      } catch (err) {
+        setErrors({ submit: err.response?.data?.detail || 'שגיאה ביצירת הטיוטה — נסה שוב' })
+        return
+      }
+    }
+    // For step 6 with missing items we defer silentSave until after confirm
+    const deferSilentSave = pid && !isDemoMode && step === 6 && missingFunctionalItems.length > 0
+    if (pid && !isDemoMode && !deferSilentSave) {
       // Save new step immediately — don't wait for debounce
       clearTimeout(autoSaveRef.current)
       autoSavePending.current = false
@@ -912,6 +958,12 @@ export default function IntakeWizard() {
         danger:       false,
       })
       if (!ok) { setStep(5); return }   // go back to assessment
+      // User confirmed — now safe to persist step 7
+      if (pid && !isDemoMode) {
+        clearTimeout(autoSaveRef.current)
+        autoSavePending.current = false
+        silentSave(form, targetStep, pid)
+      }
     }
 
     setStep(s => s + 1)
@@ -939,7 +991,7 @@ export default function IntakeWizard() {
 
   const adlTouched  = useMemo(() => Object.keys(form.adl_answers).length > 0,  [form.adl_answers])
   const iadlTouched = useMemo(() => Object.keys(form.iadl_answers).length > 0, [form.iadl_answers])
-  const mmseTouched = useMemo(() => Object.keys(form.mmse_answers).length > 0, [form.mmse_answers])
+  const mmseTouched = useMemo(() => Object.values(form.mmse_answers).some(v => v > 0), [form.mmse_answers])
 
   // ── Scores ──────────────────────────────────────────────────────────────────
   const adlScore  = useMemo(() => Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0), [form.adl_answers])
@@ -952,7 +1004,7 @@ export default function IntakeWizard() {
   // ── Submit ──────────────────────────────────────────────────────────────────
   const submit = async () => {
     if (isDemoMode) { sessionStorage.removeItem(DRAFT_KEY); navigate('/manager'); return }
-    const e = validate(6)
+    const e = validate(7)
     if (Object.keys(e).length) { setErrors(e); return }
     setSaving(true)
 
@@ -996,7 +1048,7 @@ export default function IntakeWizard() {
           adl_score:  adlTouched  ? adlScore  : undefined,
           iadl_score: iadlTouched ? iadlScore : undefined,
           mmse_score: mmseTouched ? mmseScore : undefined,
-          intake_step: 6,
+          intake_step: 7,
           intake_completed: true,
         })
         // Save signatures only if newly signed
@@ -1067,7 +1119,7 @@ export default function IntakeWizard() {
       // If a draft patient was already created (auto-save), update it; otherwise create new
       let patientId = draftPatientId
       if (patientId) {
-        await axios.patch(`/api/patients/${patientId}`, { ...payload, intake_step: 6, intake_completed: true })
+        await axios.patch(`/api/patients/${patientId}`, { ...payload, intake_step: 7, intake_completed: true })
       } else {
         const res = await axios.post('/api/patients', payload)
         patientId = res.data.id
@@ -1477,7 +1529,7 @@ export default function IntakeWizard() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <F label="קופת חולים" name="hmo_name" required>
-              <select {...inp('hmo_name')}>
+              <select {...inp('hmo_name')} onChange={e => { set('hmo_name', e.target.value); set('hmo_level', '') }}>
                 <option value="">בחר קופה...</option>
                 {HMO_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -1613,7 +1665,7 @@ export default function IntakeWizard() {
             })
             if (data.mmse_answers) set('mmse_answers', {
               ...Object.fromEntries(Object.entries(data.mmse_answers).filter(([,v]) => v != null)),
-              ...form.mmse_answers,
+              ...Object.fromEntries(Object.entries(form.mmse_answers).filter(([,v]) => v !== 0)),
             })
           }}
           onMissingItems={setMissingFunctionalItems}
@@ -1755,6 +1807,65 @@ export default function IntakeWizard() {
 
 // ── IntakeDocumentsStep sub-component ─────────────────────────────────────────
 
+// DropZone is defined at module level (outside IntakeDocumentsStep) to prevent
+// full remount on every render of the parent component.
+function DropZone({ category, label, icon, docs, inputRef, dragOver, setDragOver, handleDrop, upload, uploading, removeDoc }) {
+  return (
+    <div className="space-y-3">
+      <h3 className="font-semibold text-slate-700 flex items-center gap-2">
+        <span>{icon}</span> {label}
+      </h3>
+      <div
+        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-colors cursor-pointer
+          ${dragOver === category ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+        onDragOver={e => { e.preventDefault(); setDragOver(category) }}
+        onDragLeave={() => setDragOver(null)}
+        onDrop={e => handleDrop(e, category)}
+        onClick={() => inputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
+        aria-label={`העלה ${label}`}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          className="hidden"
+          multiple
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp"
+          onChange={e => upload(e.target.files, category)}
+        />
+        {uploading === category ? (
+          <div className="text-blue-600 text-sm">מעלה...</div>
+        ) : (
+          <>
+            <div className="text-3xl mb-2">⬆️</div>
+            <p className="text-sm text-slate-600 font-medium">גרור קבצים לכאן או לחץ לבחירה</p>
+            <p className="text-xs text-slate-400 mt-1">PDF, Word, Excel, תמונות — עד 20MB</p>
+          </>
+        )}
+      </div>
+
+      {docs.length > 0 && (
+        <ul className="space-y-1">
+          {docs.map(doc => (
+            <li key={doc.id} className="flex items-center gap-2 text-sm bg-white border border-slate-100 rounded-xl px-3 py-2">
+              <span className="text-lg flex-shrink-0">{fileIcon(doc.file_type)}</span>
+              <span className="flex-1 min-w-0 truncate text-slate-700">{doc.original_name}</span>
+              <span className="text-xs text-slate-400 flex-shrink-0">{fmtSize(doc.file_size)}</span>
+              <button
+                onClick={() => removeDoc(category, doc.id)}
+                className="text-slate-400 hover:text-red-500 text-xs px-1 flex-shrink-0"
+                aria-label="הסר"
+              >✕</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 const FILE_ICONS = {
   'application/pdf':  '📄',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '📝',
@@ -1820,6 +1931,7 @@ function _computeMissing(functional, currentAdl, currentIadl, currentMmse) {
 }
 
 function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, onApplyFunctional, onMissingItems }) {
+  const { showToast } = useToast()
   const [medDocs, setMedDocs]       = useState([])
   const [insDocs, setInsDocs]       = useState([])
   const [uploading, setUploading]   = useState(null)
@@ -1833,6 +1945,7 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
   const upload = async (files, category) => {
     if (!patientId) return
     setUploading(category)
+    const failed = []
     for (const file of Array.from(files)) {
       try {
         const fd = new FormData()
@@ -1853,10 +1966,13 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
           setInsDocs(d => [...d, doc])
         }
       } catch {
-        // upload failure is non-fatal
+        failed.push(file.name)
       }
     }
     setUploading(null)
+    if (failed.length) {
+      showToast(`העלאת ${failed.join(', ')} נכשלה`, 'error')
+    }
   }
 
   const handleDrop = (e, category) => {
@@ -1864,7 +1980,14 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
     upload(e.dataTransfer.files, category)
   }
 
-  const removeDoc = (category, docId) => {
+  const removeDoc = async (category, docId) => {
+    if (patientId) {
+      try {
+        await axios.delete(`/api/patients/${patientId}/documents/${docId}`)
+      } catch {
+        // non-fatal: still remove from local state so the UI stays consistent
+      }
+    }
     if (category === 'medical') setMedDocs(d => d.filter(x => x.id !== docId))
     else setInsDocs(d => d.filter(x => x.id !== docId))
   }
@@ -1872,67 +1995,22 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
   const applyFunctional = () => {
     if (!functional) return
     onApplyFunctional(functional)
-    // Recompute missing after apply (user data now merged)
-    const m = _computeMissing(functional, currentAdl, currentIadl, currentMmse)
+    // Compute the merged values locally (same logic as onApplyFunctional) so that
+    // _computeMissing sees the post-merge state rather than the stale prop values.
+    const mergedAdl = functional.adl_answers
+      ? { ...Object.fromEntries(Object.entries(functional.adl_answers).filter(([,v]) => v != null)), ...currentAdl }
+      : currentAdl
+    const mergedIadl = functional.iadl_answers
+      ? { ...Object.fromEntries(Object.entries(functional.iadl_answers).filter(([,v]) => v != null)), ...currentIadl }
+      : currentIadl
+    const mergedMmse = functional.mmse_answers
+      ? { ...Object.fromEntries(Object.entries(functional.mmse_answers).filter(([,v]) => v != null)), ...currentMmse }
+      : currentMmse
+    const m = _computeMissing(functional, mergedAdl, mergedIadl, mergedMmse)
     setMissing(m)
     onMissingItems?.(m)
     setApplied(true)
   }
-
-  const DropZone = ({ category, label, icon, docs, inputRef }) => (
-    <div className="space-y-3">
-      <h3 className="font-semibold text-slate-700 flex items-center gap-2">
-        <span>{icon}</span> {label}
-      </h3>
-      <div
-        className={`border-2 border-dashed rounded-2xl p-6 text-center transition-colors cursor-pointer
-          ${dragOver === category ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
-        onDragOver={e => { e.preventDefault(); setDragOver(category) }}
-        onDragLeave={() => setDragOver(null)}
-        onDrop={e => handleDrop(e, category)}
-        onClick={() => inputRef.current?.click()}
-        role="button"
-        tabIndex={0}
-        onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
-        aria-label={`העלה ${label}`}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          className="hidden"
-          multiple
-          accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.webp"
-          onChange={e => upload(e.target.files, category)}
-        />
-        {uploading === category ? (
-          <div className="text-blue-600 text-sm">מעלה...</div>
-        ) : (
-          <>
-            <div className="text-3xl mb-2">⬆️</div>
-            <p className="text-sm text-slate-600 font-medium">גרור קבצים לכאן או לחץ לבחירה</p>
-            <p className="text-xs text-slate-400 mt-1">PDF, Word, Excel, תמונות — עד 20MB</p>
-          </>
-        )}
-      </div>
-
-      {docs.length > 0 && (
-        <ul className="space-y-1">
-          {docs.map(doc => (
-            <li key={doc.id} className="flex items-center gap-2 text-sm bg-white border border-slate-100 rounded-xl px-3 py-2">
-              <span className="text-lg flex-shrink-0">{fileIcon(doc.file_type)}</span>
-              <span className="flex-1 min-w-0 truncate text-slate-700">{doc.original_name}</span>
-              <span className="text-xs text-slate-400 flex-shrink-0">{fmtSize(doc.file_size)}</span>
-              <button
-                onClick={() => removeDoc(category, doc.id)}
-                className="text-slate-400 hover:text-red-500 text-xs px-1 flex-shrink-0"
-                aria-label="הסר"
-              >✕</button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -1948,6 +2026,12 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
         icon="🏥"
         docs={medDocs}
         inputRef={medInputRef}
+        dragOver={dragOver}
+        setDragOver={setDragOver}
+        handleDrop={handleDrop}
+        upload={upload}
+        uploading={uploading}
+        removeDoc={removeDoc}
       />
 
       <DropZone
@@ -1956,6 +2040,12 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
         icon="📋"
         docs={insDocs}
         inputRef={insInputRef}
+        dragOver={dragOver}
+        setDragOver={setDragOver}
+        handleDrop={handleDrop}
+        upload={upload}
+        uploading={uploading}
+        removeDoc={removeDoc}
       />
 
       {/* Functional data extraction banner */}
@@ -2017,11 +2107,6 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
 }
 
 // ── FunctionalStep sub-component ──────────────────────────────────────────────
-const FUNC_SUB_STEPS = [
-  { key: 'adl',  label: 'ADL',  desc: 'תפקוד יומיומי',    color: 'blue',  range: '0–100' },
-  { key: 'iadl', label: 'IADL', desc: 'תפקוד עצמאי',      color: 'green', range: '0–8'   },
-  { key: 'mmse', label: 'MMSE', desc: 'תפקוד קוגניטיבי',  color: 'purple', range: '0–30' },
-]
 
 function FunctionalStep({ adlScore, iadlScore, mmseScore, subStep }) {
   const { form, set } = useContext(FormCtx)
