@@ -480,7 +480,7 @@ const EMPTY_FORM = {
   specialty: '', sub_specialty: '',
   medications: [],
   adl_answers: {}, iadl_answers: {},
-  mmse_answers: Object.fromEntries(MMSE_SECTIONS.map(s => [s.key, 0])),
+  mmse_answers: {},  // empty = untouched; default 0 applied at render time only
   consent_agreed: false, consent_signature: null,
   financial_consent_agreed: false, financial_consent_signature: null,
   poa_agreed: false, poa_signature: null,
@@ -609,9 +609,8 @@ export default function IntakeWizard() {
   const [funcSubStep, setFuncSubStep] = useState(0) // 0=ADL 1=IADL 2=MMSE within step 5
   // draftPatientId — patient already created in DB (draft mode)
   const [draftPatientId, setDraftPatientId] = useState(() => {
-    const resumeId = searchParams.get('resume')
     if (resumeId) return Number(resumeId)
-    return localStorage.getItem(DRAFT_PATIENT_KEY) ? Number(localStorage.getItem(DRAFT_PATIENT_KEY)) : null
+    return sessionStorage.getItem(DRAFT_PATIENT_KEY) ? Number(sessionStorage.getItem(DRAFT_PATIENT_KEY)) : null
   })
   const [form, setForm] = useState(() => {
     try {
@@ -675,7 +674,7 @@ export default function IntakeWizard() {
         notes: p.notes || '',
         adl_answers:  p.adl_answers  ? (() => { try { return JSON.parse(p.adl_answers)  } catch { return {} } })()  : {},
         iadl_answers: p.iadl_answers ? (() => { try { return JSON.parse(p.iadl_answers) } catch { return {} } })() : {},
-        mmse_answers: p.mmse_answers ? (() => { try { return JSON.parse(p.mmse_answers) } catch { return Object.fromEntries(MMSE_SECTIONS.map(s => [s.key, 0])) } })() : Object.fromEntries(MMSE_SECTIONS.map(s => [s.key, 0])),
+        mmse_answers: p.mmse_answers ? (() => { try { return JSON.parse(p.mmse_answers) } catch { return {} } })() : {},
       }))
       const stepParam = searchParams.get('step')
       if (stepParam !== null) setStep(Number(stepParam))
@@ -823,7 +822,7 @@ export default function IntakeWizard() {
     clearTimeout(draftFadeTimer.current)
     clearTimeout(autoSaveRef.current)
     sessionStorage.removeItem(DRAFT_KEY)
-    localStorage.removeItem(DRAFT_PATIENT_KEY)
+    sessionStorage.removeItem(DRAFT_PATIENT_KEY)
     setDraftPatientId(null)
     draftPatientIdRef.current = null
     autoSavePending.current = false
@@ -929,7 +928,7 @@ export default function IntakeWizard() {
         const res = await axios.post('/api/patients', buildDraftPayload(form, targetStep))
         pid = res.data.id
         setDraftPatientId(pid)
-        localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
+        sessionStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
         draftPatientIdRef.current = pid
       } catch (err) {
         setErrors({ submit: err.response?.data?.detail || 'שגיאה ביצירת הטיוטה — נסה שוב' })
@@ -937,7 +936,7 @@ export default function IntakeWizard() {
       }
     }
     // For step 6 with missing items we defer silentSave until after confirm
-    const deferSilentSave = pid && !isDemoMode && step === 6 && missingFunctionalItems.length > 0
+    const deferSilentSave = pid && !isDemoMode && !isEditMode && step === 6 && missingFunctionalItems.length > 0
     if (pid && !isDemoMode && !deferSilentSave) {
       // Save new step immediately — don't wait for debounce
       clearTimeout(autoSaveRef.current)
@@ -949,7 +948,8 @@ export default function IntakeWizard() {
     if (step === 5) setFuncSubStep(0)
 
     // Advancing from documents step → signatures: warn about missing functional items
-    if (step === 6 && missingFunctionalItems.length > 0) {
+    // Skip this dialog in edit mode — the patient already exists; the wizard is purely for data editing
+    if (!isEditMode && step === 6 && missingFunctionalItems.length > 0) {
       const ok = await confirm({
         title:        'פריטי תפקוד לא הושלמו',
         message:      `המסמכים לא כללו נתונים עבור: ${missingFunctionalItems.join(', ')}.\n\nניתן לחזור לשלב ההערכה ולמלא ידנית, או להמשיך לחתימות ולהשלים מאוחר יותר.`,
@@ -995,6 +995,8 @@ export default function IntakeWizard() {
 
   // ── Scores ──────────────────────────────────────────────────────────────────
   const adlScore  = useMemo(() => Object.values(form.adl_answers).reduce((s, v) => s + Number(v || 0), 0), [form.adl_answers])
+  // IADL Lawton scale: value 1 = full independence (best), higher = more dependent.
+  // Score = count of fully-independent items (value===1). Range 0–8; higher = more capable.
   const iadlScore = useMemo(() => Object.values(form.iadl_answers).reduce((s, v) => s + (Number(v) === 1 ? 1 : 0), 0), [form.iadl_answers])
   const mmseScore = useMemo(() => Object.entries(form.mmse_answers).reduce((s, [k, v]) => {
     const sec = MMSE_SECTIONS.find(x => x.key === k)
@@ -1065,7 +1067,7 @@ export default function IntakeWizard() {
           })
         }
         sessionStorage.removeItem(DRAFT_KEY)
-        localStorage.removeItem(DRAFT_PATIENT_KEY)
+        sessionStorage.removeItem(DRAFT_PATIENT_KEY)
         navigate(`/manager/patients/${resumeId}/intake`)
       } catch (err) {
         setErrors({ submit: err.response?.data?.detail || 'שגיאה בשמירה' })
@@ -1148,7 +1150,7 @@ export default function IntakeWizard() {
         })
       }
       sessionStorage.removeItem(DRAFT_KEY)
-      localStorage.removeItem(DRAFT_PATIENT_KEY)
+      sessionStorage.removeItem(DRAFT_PATIENT_KEY)
       // Cancel any pending auto-save so it doesn't overwrite intake_completed after navigate
       clearTimeout(autoSaveRef.current)
       autoSavePending.current = false
@@ -1665,7 +1667,8 @@ export default function IntakeWizard() {
             })
             if (data.mmse_answers) set('mmse_answers', {
               ...Object.fromEntries(Object.entries(data.mmse_answers).filter(([,v]) => v != null)),
-              ...Object.fromEntries(Object.entries(form.mmse_answers).filter(([,v]) => v !== 0)),
+              // Existing user values (including genuine 0) take precedence — use != null same as ADL/IADL
+              ...Object.fromEntries(Object.entries(form.mmse_answers).filter(([,v]) => v != null)),
             })
           }}
           onMissingItems={setMissingFunctionalItems}
@@ -1956,7 +1959,14 @@ function IntakeDocumentsStep({ patientId, currentAdl, currentIadl, currentMmse, 
         if (category === 'medical') {
           setMedDocs(d => [...d, doc])
           if (doc.functional) {
-            setFunctional(doc.functional)
+            setFunctional(prev => {
+              if (prev) {
+                // A previous extraction already exists — inform user but keep the first result
+                showToast('נמצאו נתוני תפקוד במסמך נוסף. נשמרים נתוני המסמך הראשון.', 'info')
+                return prev
+              }
+              return doc.functional
+            })
             setApplied(false)
             const m = _computeMissing(doc.functional, currentAdl, currentIadl, currentMmse)
             setMissing(m)

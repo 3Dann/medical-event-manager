@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { fmtDate } from '../../utils/formatters'
@@ -24,7 +24,8 @@ function PatientRequestsPanel({ patientId }) {
   const [open, setOpen]         = useState(true)
   const [replyId, setReplyId]   = useState(null)
   const [note, setNote]         = useState('')
-  const [saving, setSaving]     = useState(false)
+  const [savingId, setSavingId] = useState(null)
+  const reloadCtrlRef = useRef(null)
 
   const load = useCallback((signal) => {
     return axios.get(`/api/patients/${patientId}/requests`, { signal })
@@ -36,21 +37,26 @@ function PatientRequestsPanel({ patientId }) {
   useEffect(() => {
     const ctrl = new AbortController()
     load(ctrl.signal)
-    return () => ctrl.abort()
+    return () => {
+      ctrl.abort()
+      reloadCtrlRef.current?.abort()
+    }
   }, [load])
 
   const resolve = async (req, newStatus) => {
-    setSaving(true)
+    setSavingId(req.id)
     try {
       await axios.put(`/api/patients/${patientId}/requests/${req.id}`, {
         status: newStatus,
         manager_note: replyId === req.id ? note : undefined,
       })
+      reloadCtrlRef.current?.abort()
+      reloadCtrlRef.current = new AbortController()
+      load(reloadCtrlRef.current.signal).catch(() => {})
     } catch {
       showReqToast('שגיאה בעדכון הפנייה. נסה שוב.')
     } finally {
-      setReplyId(null); setNote(''); setSaving(false)
-      load().catch(() => {})
+      setReplyId(null); setNote(''); setSavingId(null)
     }
   }
 
@@ -114,9 +120,9 @@ function PatientRequestsPanel({ patientId }) {
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => { setReplyId(null); setNote('') }}
                           className="text-xs text-slate-500 px-3 py-1.5 hover:text-slate-700">{t('common:cancel', { ns: 'common' })}</button>
-                        <button onClick={() => resolve(r, 'resolved')} disabled={saving}
+                        <button onClick={() => resolve(r, 'resolved')} disabled={savingId === r.id}
                           className="text-xs font-medium bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg disabled:opacity-40">
-                          {saving ? t('common:saving', { ns: 'common' }) : t('resolve')}
+                          {savingId === r.id ? t('common:saving', { ns: 'common' }) : t('resolve')}
                         </button>
                       </div>
                     </div>
@@ -126,7 +132,7 @@ function PatientRequestsPanel({ patientId }) {
                         className="text-xs text-blue-600 hover:text-blue-700 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                         {t('reply_and_close')}
                       </button>
-                      <button onClick={() => resolve(r, 'resolved')} disabled={saving}
+                      <button onClick={() => resolve(r, 'resolved')} disabled={savingId === r.id}
                         className="text-xs font-medium text-green-700 hover:text-green-800 px-3 py-1.5 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                         {t('resolve')} ✓
                       </button>
@@ -174,6 +180,7 @@ const EMPTY_MEETING = {
 
 function MeetingForm({ patientId, meeting, onClose, onSaved }) {
   const { t } = useTranslation('meetings')
+  const { showToast } = useToast()
   const TYPES = [
     { value: 'oncologist',      label: t('type_oncologist') },
     { value: 'insurance_agent', label: t('type_insurance_agent') },
@@ -218,15 +225,27 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
     return () => ctrl.abort()
   }, [])
 
+  // Sync selectedTemplate from question_template_id when templates load (edit mode race condition).
+  // Only depends on [templates] — form.question_template_id is read via closure to avoid
+  // re-running on every form change which could cause infinite loops.
+  useEffect(() => {
+    if (templates.length > 0 && selectedTemplate === null && form.question_template_id) {
+      const tpl = templates.find(t => t.id === form.question_template_id) || null
+      if (tpl) setSelectedTemplate(tpl)
+    }
+  }, [templates]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const selectTemplate = (templateId) => {
+    if (!templates.length) return
     const tpl = templates.find(t => t.id === +templateId) || null
     setSelectedTemplate(tpl)
-    set('question_template_id', tpl ? tpl.id : null)
-    // Reset responses when template changes
-    set('question_responses', '[]')
+    // Merge both updates in one render to avoid state race between template_id and responses
+    setForm(f => ({ ...f, question_template_id: tpl ? tpl.id : null, question_responses: '[]' }))
   }
 
   const getResponses = () => {
+    // question_responses may already be an Array (edit-mode reload edge case)
+    if (Array.isArray(form.question_responses)) return form.question_responses
     try { return JSON.parse(form.question_responses || '[]') } catch { return [] }
   }
 
@@ -267,6 +286,8 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
         clearMeetingDraft(true)
       }
       onSaved(); onClose()
+    } catch {
+      showToast('שגיאה בשמירת הפגישה. נסה שוב.')
     } finally { setSaving(false) }
   }
 
@@ -301,7 +322,7 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
             <div>
               <label className="label">{t('meeting_type_label')}</label>
               <select className="input" value={form.meeting_type} onChange={e => set('meeting_type', e.target.value)}>
-                {TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                {TYPES.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
               </select>
             </div>
             <div>
@@ -511,7 +532,7 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
               {meeting.question_template && (
                 <span className="text-xs text-purple-600">
                   📋 {meeting.question_template.name}
-                  {meeting.question_responses?.length > 0 ? ` (${meeting.question_responses.length} תשובות)` : ''}
+                  {Array.isArray(meeting.question_responses) && meeting.question_responses.length > 0 ? ` (${meeting.question_responses.length} תשובות)` : ''}
                 </span>
               )}
             </div>
@@ -580,11 +601,13 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
 export default function PatientMeetings() {
   const { t } = useTranslation('meetings')
   const { id } = useParams()
+  const { showToast } = useToast()
   const [meetings, setMeetings] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
   const [loading, setLoading] = useState(true)
   const [confirm, ConfirmUI] = useConfirm()
+  const deleteReloadCtrlRef = useRef(null)
 
   const load = useCallback((signal) => {
     setLoading(true)
@@ -597,14 +620,23 @@ export default function PatientMeetings() {
   useEffect(() => {
     const ctrl = new AbortController()
     load(ctrl.signal)
-    return () => ctrl.abort()
+    return () => {
+      ctrl.abort()
+      deleteReloadCtrlRef.current?.abort()
+    }
   }, [load])
 
   const deleteMeeting = async (mid) => {
     const ok = await confirm({ title: t('delete_meeting_title'), message: t('delete_meeting_confirm'), confirmLabel: t('common:delete', { ns: 'common' }), danger: true })
     if (!ok) return
-    await axios.delete(`/api/patients/${id}/meetings/${mid}`)
-    load().catch(() => {})
+    try {
+      await axios.delete(`/api/patients/${id}/meetings/${mid}`)
+      deleteReloadCtrlRef.current?.abort()
+      deleteReloadCtrlRef.current = new AbortController()
+      load(deleteReloadCtrlRef.current.signal).catch(() => {})
+    } catch {
+      showToast('שגיאה במחיקת הפגישה. נסה שוב.')
+    }
   }
 
   return (
@@ -630,7 +662,7 @@ export default function PatientMeetings() {
         <div className="space-y-3">
           {meetings.map(m => (
             <MeetingCard key={m.id} meeting={m}
-              onEdit={m => { setEditing(m); setShowForm(true) }}
+              onEdit={meeting => { setEditing(meeting); setShowForm(true) }}
               onDelete={deleteMeeting} />
           ))}
         </div>
@@ -639,7 +671,12 @@ export default function PatientMeetings() {
       {showForm && (
         <MeetingForm patientId={id} meeting={editing}
           onClose={() => { setShowForm(false); setEditing(null) }}
-          onSaved={load} />
+          onSaved={() => {
+            // Create a fresh AbortController so the reload can be cancelled on unmount
+            deleteReloadCtrlRef.current?.abort()
+            deleteReloadCtrlRef.current = new AbortController()
+            load(deleteReloadCtrlRef.current.signal).catch(() => {})
+          }} />
       )}
 
       <PatientRequestsPanel patientId={id} />

@@ -203,6 +203,8 @@ def _daily_insurance_gap_check():
             selectinload(models.Patient.insurance_sources).selectinload(
                 models.InsuranceSource.coverages
             )
+        ).filter(
+            models.Patient.insurance_sources.any()
         ).all()
 
         if not patients:
@@ -1253,7 +1255,6 @@ def seed_journey_workflows():
             if creator_id is None:
                 fallback = db.query(models.User).filter(
                     models.User.is_admin == True,
-                    models.User.is_active == True,
                 ).first()
                 if not fallback:
                     logger.warning(f"seed_journey_workflows: patient {patient.id} ({getattr(patient, 'full_name', 'unknown')}) has no manager_id and no active admin found — skipping")

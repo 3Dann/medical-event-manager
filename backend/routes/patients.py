@@ -132,6 +132,12 @@ class IntakeDraftIn(BaseModel):
     ec_phone_prefix: Optional[str] = None
     ec_phone: Optional[str] = None
     ec_relation: Optional[str] = None
+    ec2_name: Optional[str] = None
+    ec2_phone_prefix: Optional[str] = None
+    ec2_phone: Optional[str] = None
+    ec2_relation: Optional[str] = None
+    referral_name: Optional[str] = None
+    referral_sub: Optional[str] = None
     specialty: Optional[str] = None
     sub_specialty: Optional[str] = None
     referral_goal: Optional[str] = None

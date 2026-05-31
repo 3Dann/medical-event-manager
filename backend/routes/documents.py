@@ -13,7 +13,9 @@ import models
 import auth as auth_utils
 from field_encrypt import _fernet as _file_fernet
 import intake_extractor
+import logging
 
+logger = logging.getLogger(__name__)
 limiter = Limiter(key_func=get_ipaddr)
 
 _ENC_PREFIX = b"ENCV1:"
@@ -190,10 +192,11 @@ def download_document(
     with open(file_path, "rb") as f:
         raw = f.read()
     content = _decrypt_content(raw)
+    safe_name = doc.original_name.replace('"', '_').replace('\r', '').replace('\n', '')
     return Response(
         content=content,
         media_type=doc.file_type or "application/octet-stream",
-        headers={"Content-Disposition": f'attachment; filename="{doc.original_name}"'},
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
     )
 
 
@@ -307,6 +310,9 @@ async def intake_extract_document(
     """Upload a document during intake and extract functional assessment data."""
     _get_patient_or_403(patient_id, current_user, db)
 
+    if category not in {'medical', 'insurance', 'legal', 'other'}:
+        raise HTTPException(status_code=400, detail="קטגוריה לא חוקית")
+
     content = await file.read()
     if len(content) > MAX_SIZE:
         raise HTTPException(status_code=413, detail="File too large (max 20MB)")
@@ -351,12 +357,12 @@ async def intake_extract_document(
 
             if intake_extractor.needs_ocr(text, ct):
                 # Scanned PDF or image → Claude Vision (OCR + item extraction)
-                functional = await intake_extractor.extract_with_claude_vision(content, ct)
+                functional = await intake_extractor.extract_with_claude_vision(content, ct, fname)
             else:
                 # Text-based → send extracted text to Claude for item-level parsing
                 functional = await intake_extractor.extract_items_from_text(text)
-        except Exception:
-            pass  # extraction is best-effort; never block the upload
+        except Exception as e:
+            logger.warning("intake_extract failed for doc %s: %s", doc.id, e)
 
     return {
         "id":            doc.id,

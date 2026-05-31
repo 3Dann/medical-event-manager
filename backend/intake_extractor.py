@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 _MIN_TEXT_LEN = 100          # chars below → likely scanned
 _OCR_MODEL    = os.getenv("OCR_MODEL",   "claude-sonnet-4-6")
-_TEXT_MODEL   = os.getenv("TEXT_MODEL",  "claude-haiku-4-5-20251001")  # cheaper for text-only
+_TEXT_MODEL   = os.getenv("TEXT_MODEL",  "claude-haiku-4-5")  # cheaper for text-only
 
 _IMAGE_TYPES  = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 
@@ -110,7 +110,7 @@ _ANALYSIS_PROMPT_TEMPLATE = """{schema}
   "iadl_answers": {{"phone": 1, "shopping": null, ...כל 8 המפתחות...}},
   "mmse_answers": {{"time_orient": 5, "attention": null, ...כל 11 המפתחות...}},
   "adl_total":  75,
-  "iadl_total": 5,
+  "iadl_total": 12,
   "mmse_total": 24,
   "raw_mentions": ["קטע קצר רלוונטי 1", "קטע 2"]
 }}
@@ -145,7 +145,7 @@ def needs_ocr(text: str, content_type: str) -> bool:
     return False
 
 
-async def extract_with_claude_vision(content: bytes, content_type: str) -> dict:
+async def extract_with_claude_vision(content: bytes, content_type: str, filename: str = "") -> dict:
     """
     Send document/image to Claude Vision.
     Returns full functional dict: adl_answers, iadl_answers, mmse_answers + totals.
@@ -160,7 +160,7 @@ async def extract_with_claude_vision(content: bytes, content_type: str) -> dict:
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=api_key)
 
-        if _is_pdf(content_type):
+        if _is_pdf(content_type, filename):
             media_block = {
                 "type": "document",
                 "source": {"type": "base64", "media_type": "application/pdf",
@@ -225,8 +225,11 @@ async def extract_items_from_text(text: str) -> dict:
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": prompt + f"\n\n=== טקסט המסמך ===\n{text[:8000]}",
+                    # Static system prompt — eligible for prompt caching on repeated calls
+                    {"type": "text", "text": prompt,
                      "cache_control": {"type": "ephemeral"}},
+                    # Dynamic document text — changes every call; no cache_control
+                    {"type": "text", "text": f"\n\n=== טקסט המסמך ===\n{text[:8000]}"},
                 ],
             }],
         )
@@ -289,7 +292,7 @@ def _parse_claude_response(raw_text: str, ocr_used: bool) -> dict:
         result["mmse_answers"][k] = _validated_score(v, 0, schema["max"])
 
     result["adl_total"]    = _validated_score(data.get("adl_total"),   0, 100)
-    result["iadl_total"]   = _validated_score(data.get("iadl_total"),  0, 31)
+    result["iadl_total"]   = _validated_score(data.get("iadl_total"),  8, 28)
     result["mmse_total"]   = _validated_score(data.get("mmse_total"),  0, 30)
     result["raw_mentions"] = (data.get("raw_mentions") or [])[:5]
     result["ocr_used"]     = ocr_used
@@ -299,7 +302,7 @@ def _parse_claude_response(raw_text: str, ocr_used: bool) -> dict:
 def _regex_fallback(text: str) -> dict:
     result = _empty_result(ocr_used=False)
     result["adl_total"]    = _find_score(text, _ADL_PATTERNS,   0, 100)
-    result["iadl_total"]   = _find_score(text, _IADL_PATTERNS,  0, 31)
+    result["iadl_total"]   = _find_score(text, _IADL_PATTERNS,  8, 28)
     result["mmse_total"]   = _find_score(text, _MMSE_PATTERNS,  0, 30)
     result["raw_mentions"] = _collect_mentions(text)
     return result

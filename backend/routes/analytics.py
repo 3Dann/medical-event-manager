@@ -37,32 +37,41 @@ def workflow_funnel(db: Session = Depends(get_db),
         .all()
     )
 
-    templates = []
-    for row in template_rows:
-        # step distribution for this template
-        step_rows = (
+    template_ids = [row.id for row in template_rows]
+
+    # Single query for all step distributions across all templates
+    all_step_rows = []
+    if template_ids:
+        all_step_rows = (
             db.query(
+                models.WorkflowInstance.template_id,
                 models.WorkflowStep.step_order,
                 models.WorkflowStep.status,
                 func.count().label("cnt"),
             )
             .join(models.WorkflowInstance,
                   models.WorkflowInstance.id == models.WorkflowStep.instance_id)
-            .filter(models.WorkflowInstance.template_id == row.id)
-            .group_by(models.WorkflowStep.step_order, models.WorkflowStep.status)
+            .filter(models.WorkflowInstance.template_id.in_(template_ids))
+            .group_by(models.WorkflowInstance.template_id,
+                      models.WorkflowStep.step_order,
+                      models.WorkflowStep.status)
             .all()
         )
 
-        # Aggregate by step_order
-        step_map: dict = {}
-        for sr in step_rows:
-            entry = step_map.setdefault(sr.step_order, {
-                "step_order": sr.step_order,
-                "pending": 0, "active": 0, "completed": 0, "skipped": 0,
-            })
-            if sr.status in entry:
-                entry[sr.status] = sr.cnt
+    # Group step rows by template_id in memory
+    steps_by_template: dict = {}
+    for sr in all_step_rows:
+        step_map = steps_by_template.setdefault(sr.template_id, {})
+        entry = step_map.setdefault(sr.step_order, {
+            "step_order": sr.step_order,
+            "pending": 0, "active": 0, "completed": 0, "skipped": 0,
+        })
+        if sr.status in entry:
+            entry[sr.status] = sr.cnt
 
+    templates = []
+    for row in template_rows:
+        step_map = steps_by_template.get(row.id, {})
         templates.append({
             "template_id":   row.id,
             "template_name": row.name,

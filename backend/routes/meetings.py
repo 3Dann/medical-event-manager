@@ -4,11 +4,12 @@ from datetime import datetime, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 import models
 from database import get_db
 import auth as auth_utils
+from routes.question_templates import _template_dict
 
 router = APIRouter()
 
@@ -39,7 +40,6 @@ def _meeting_dict(m: models.PatientMeeting) -> dict:
 
     template_data = None
     if m.question_template:
-        from routes.question_templates import _template_dict
         template_data = _template_dict(m.question_template)
 
     return {
@@ -96,7 +96,9 @@ class MeetingBody(BaseModel):
 def list_meetings(patient_id: int, db: Session = Depends(get_db),
                   current_user=Depends(auth_utils.get_current_user)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
-    meetings = db.query(models.PatientMeeting).filter(
+    meetings = db.query(models.PatientMeeting).options(
+        selectinload(models.PatientMeeting.question_template).selectinload(models.QuestionTemplate.items)
+    ).filter(
         models.PatientMeeting.patient_id == patient_id
     ).order_by(models.PatientMeeting.meeting_date.desc().nullslast(),
                models.PatientMeeting.created_at.desc()).all()
@@ -107,6 +109,9 @@ def create_meeting(patient_id: int, body: MeetingBody,
                    db: Session = Depends(get_db),
                    current_user=Depends(auth_utils.require_manager)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if body.question_template_id is not None:
+        if not db.query(models.QuestionTemplate).filter_by(id=body.question_template_id).first():
+            raise HTTPException(404, "תבנית שאלות לא נמצאה")
     data = body.model_dump()
     action_items = data.pop("action_items") or []
     m = models.PatientMeeting(
@@ -122,6 +127,9 @@ def update_meeting(patient_id: int, meeting_id: int, body: MeetingBody,
                    db: Session = Depends(get_db),
                    current_user=Depends(auth_utils.require_manager)):
     auth_utils.get_patient_with_access(patient_id, current_user, db)
+    if body.question_template_id is not None:
+        if not db.query(models.QuestionTemplate).filter_by(id=body.question_template_id).first():
+            raise HTTPException(404, "תבנית שאלות לא נמצאה")
     m = db.query(models.PatientMeeting).filter(
         models.PatientMeeting.id == meeting_id,
         models.PatientMeeting.patient_id == patient_id,
@@ -130,6 +138,9 @@ def update_meeting(patient_id: int, meeting_id: int, body: MeetingBody,
     data = body.model_dump()
     action_items = data.pop("action_items") or []
     m.action_items = json.dumps([a if isinstance(a, dict) else a.model_dump() for a in action_items])
+    # Never overwrite stored question_responses when the client omits the field (None default)
+    if data.get("question_responses") is None:
+        data.pop("question_responses", None)
     for k, v in data.items():
         setattr(m, k, v)
     db.commit(); db.refresh(m)

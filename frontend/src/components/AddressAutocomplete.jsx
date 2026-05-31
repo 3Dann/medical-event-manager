@@ -13,6 +13,7 @@ function loadCities() {
     .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
     .then(data => {
       _citiesCache = (data.records || []).sort((a, b) => a.name.localeCompare(b.name, 'he'))
+      _citiesLoading = false
       _citiesListeners.forEach(r => r(_citiesCache))
       _citiesListeners.length = 0
       return _citiesCache

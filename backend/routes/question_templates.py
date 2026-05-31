@@ -1,4 +1,5 @@
 """תבניות שאלות לפגישות — ניהול ע"י אדמין."""
+import logging
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -7,6 +8,8 @@ from sqlalchemy.orm import Session
 import models
 from database import get_db
 import auth as auth_utils
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -95,7 +98,7 @@ def create_template(body: TemplateBody, db: Session = Depends(get_db),
             template_id=t.id,
             text=item.text,
             question_type=item.question_type,
-            order_index=item.order_index if item.order_index else i,
+            order_index=item.order_index if item.order_index is not None else i,
             is_required=item.is_required,
             hint=item.hint,
         ))
@@ -113,10 +116,23 @@ def update_template(template_id: int, body: TemplateBody,
     ).first()
     if not t:
         raise HTTPException(404, "תבנית לא נמצאה")
+    if t.is_builtin:
+        raise HTTPException(400, "לא ניתן לשנות תבנית מובנית")
 
     t.name        = body.name
     t.category    = body.category
     t.description = body.description
+
+    # Warn if template is already in use — replacing items will orphan existing responses
+    usage_count = db.query(models.PatientMeeting).filter(
+        models.PatientMeeting.question_template_id == template_id
+    ).count()
+    if usage_count > 0:
+        logger.warning(
+            "update_template: template %d (%s) is used by %d meetings — "
+            "replacing items will orphan existing question_responses",
+            template_id, t.name, usage_count,
+        )
 
     # Replace items entirely
     for old in list(t.items):
@@ -127,7 +143,7 @@ def update_template(template_id: int, body: TemplateBody,
             template_id=t.id,
             text=item.text,
             question_type=item.question_type,
-            order_index=item.order_index if item.order_index else i,
+            order_index=item.order_index if item.order_index is not None else i,
             is_required=item.is_required,
             hint=item.hint,
         ))
