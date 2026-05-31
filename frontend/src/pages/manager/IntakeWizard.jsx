@@ -33,24 +33,21 @@ const HMO_OPTIONS = [
 ]
 const HMO_LEVELS = {
   clalit: [
-    { value: 'magen',        label: 'מגן' },
-    { value: 'mushlam',      label: 'מושלם' },
-    { value: 'mushlam_plus', label: 'מושלם פלוס' },
+    { value: 'mushlam_gold',     label: 'כללית מושלם זהב' },
+    { value: 'mushlam_platinum', label: 'כללית מושלם פלטינום' },
   ],
   maccabi: [
-    { value: 'blue',     label: 'כחול' },
-    { value: 'silver',   label: 'כסף' },
-    { value: 'gold',     label: 'זהב' },
-    { value: 'platinum', label: 'פלטינום' },
+    { value: 'silver', label: 'מכבי כסף' },
+    { value: 'gold',   label: 'מכבי זהב' },
+    { value: 'sheli',  label: 'מכבי שלי' },
   ],
   meuhedet: [
-    { value: 'shlam', label: 'שלם' },
-    { value: 'adif',  label: 'עדיף' },
+    { value: 'adif', label: 'מאוחדת עדיף' },
+    { value: 'shia', label: 'מאוחדת שיא' },
   ],
   leumit: [
-    { value: 'basic',    label: 'בסיסי' },
-    { value: 'gold',     label: 'זהב' },
-    { value: 'platinum', label: 'פלטינום' },
+    { value: 'silver', label: 'לאומית כסף' },
+    { value: 'gold',   label: 'לאומית זהב' },
   ],
 }
 
