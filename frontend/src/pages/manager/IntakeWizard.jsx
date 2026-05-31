@@ -839,6 +839,7 @@ export default function IntakeWizard() {
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [specialtyAutoFilled, setSpecialtyAutoFilled] = useState(false)
   const [subSpecialtyAutoFilled, setSubSpecialtyAutoFilled] = useState(false)
+  const [matchedKeyword, setMatchedKeyword] = useState(null)
   const suggestTimer = useRef(null)
 
   const triggerSuggest = useCallback((diagnosis) => {
@@ -856,6 +857,7 @@ export default function IntakeWizard() {
           }))
           if (res.data.specialty) setSpecialtyAutoFilled(true)
           if (res.data.sub_specialty) setSubSpecialtyAutoFilled(true)
+          if (res.data.matched_keyword) setMatchedKeyword(res.data.matched_keyword)
         }
       } catch (_) {}
       finally { setSuggestLoading(false) }
@@ -1619,6 +1621,7 @@ export default function IntakeWizard() {
                 set('diagnosis_details', e.target.value)
                 setSpecialtyAutoFilled(false)
                 setSubSpecialtyAutoFilled(false)
+                setMatchedKeyword(null)
                 triggerSuggest(e.target.value)
               }}
             />
@@ -1631,13 +1634,10 @@ export default function IntakeWizard() {
                 <input
                   {...inp('specialty')}
                   placeholder={suggestLoading ? 'מזהה תחום...' : 'למשל: אונקולוגיה'}
-                  onChange={e => { set('specialty', e.target.value); setSpecialtyAutoFilled(false) }}
+                  onChange={e => { set('specialty', e.target.value); setSpecialtyAutoFilled(false); setMatchedKeyword(null) }}
                 />
                 {suggestLoading && (
                   <span className="absolute left-3 top-2.5 text-xs text-slate-600 animate-pulse">⏳</span>
-                )}
-                {specialtyAutoFilled && form.specialty && !suggestLoading && (
-                  <span className="absolute left-2 top-2 text-xs bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">הוצע</span>
                 )}
               </div>
             </F>
@@ -1646,17 +1646,25 @@ export default function IntakeWizard() {
                 <input
                   {...inp('sub_specialty')}
                   placeholder={suggestLoading ? 'מזהה...' : 'למשל: אונקולוגיה גינקולוגית'}
-                  onChange={e => { set('sub_specialty', e.target.value); setSubSpecialtyAutoFilled(false) }}
+                  onChange={e => { set('sub_specialty', e.target.value); setSubSpecialtyAutoFilled(false); setMatchedKeyword(null) }}
                 />
                 {suggestLoading && (
                   <span className="absolute left-3 top-2.5 text-xs text-slate-600 animate-pulse">⏳</span>
                 )}
-                {subSpecialtyAutoFilled && form.sub_specialty && !suggestLoading && (
-                  <span className="absolute left-2 top-2 text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">הוצע</span>
-                )}
               </div>
             </F>
           </div>
+
+          {/* Suggest explanation — shown when fields were auto-filled */}
+          {(specialtyAutoFilled || subSpecialtyAutoFilled) && matchedKeyword && !suggestLoading && (
+            <div className="flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+              <span className="flex-shrink-0">💡</span>
+              <span>
+                ההצעה מבוססת על: <strong>"{matchedKeyword}"</strong> שהוזן בשדה האבחון.
+                ניתן לערוך ידנית אם לא מדויק.
+              </span>
+            </div>
+          )}
 
           <F label="הערות" name="notes">
             <textarea {...inp('notes')} rows={2} />

@@ -405,8 +405,9 @@ def suggest_specialty(
         sub = sub_matches[0]
         parent = db.get(models.MedicalSpecialty, sub.parent_id)
         return {
-            "specialty": parent.name_he or parent.name_en if parent else None,
-            "sub_specialty": sub.name_he or sub.name_en,
+            "specialty":       parent.name_he or parent.name_en if parent else None,
+            "sub_specialty":   sub.name_he or sub.name_en,
+            "matched_keyword": body.diagnosis.strip(),
         }
 
     # 2. Search DB top-level specialties
@@ -425,28 +426,46 @@ def suggest_specialty(
         .first()
     )
     if top_matches:
-        return {"specialty": top_matches.name_he or top_matches.name_en, "sub_specialty": None}
+        return {
+            "specialty":       top_matches.name_he or top_matches.name_en,
+            "sub_specialty":   None,
+            "matched_keyword": body.diagnosis.strip(),
+        }
 
     # 3. Specific condition map — returns both specialty + sub_specialty
     for keywords, specialty_he, sub_specialty_he in _CONDITION_MAP:
-        if any(kw in q for kw in keywords):
-            return {"specialty": specialty_he, "sub_specialty": sub_specialty_he}
+        matched = next((kw for kw in keywords if kw in q), None)
+        if matched:
+            return {
+                "specialty":       specialty_he,
+                "sub_specialty":   sub_specialty_he,
+                "matched_keyword": matched,
+            }
 
     # 4. Generic keyword fallback — specialty only
     for keywords, specialty_en in _KEYWORD_MAP:
-        if any(kw in q for kw in keywords):
+        matched = next((kw for kw in keywords if kw in q), None)
+        if matched:
             sp = db.query(models.MedicalSpecialty).filter(
                 models.MedicalSpecialty.is_active == True,
                 models.MedicalSpecialty.parent_id == None,
                 func.lower(models.MedicalSpecialty.name_en).contains(specialty_en),
             ).first()
             if sp:
-                return {"specialty": sp.name_he or sp.name_en, "sub_specialty": None}
+                return {
+                    "specialty":       sp.name_he or sp.name_en,
+                    "sub_specialty":   None,
+                    "matched_keyword": matched,
+                }
             tag = db.query(models.MedicalConditionTag).filter(
                 models.MedicalConditionTag.category == specialty_en,
                 models.MedicalConditionTag.is_active == True,
             ).first()
             if tag:
-                return {"specialty": tag.category_he or tag.category, "sub_specialty": None}
+                return {
+                    "specialty":       tag.category_he or tag.category,
+                    "sub_specialty":   None,
+                    "matched_keyword": matched,
+                }
 
-    return {"specialty": None, "sub_specialty": None}
+    return {"specialty": None, "sub_specialty": None, "matched_keyword": None}
