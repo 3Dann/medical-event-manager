@@ -101,6 +101,14 @@ const REFERRAL_GOALS = [
   { value: 'other',              label: 'אחר',                  description: null },
 ]
 
+// ── Relation options (used in emergency contact + signer fields) ──────────────
+const RELATION_OPTIONS = [
+  'בן/בת זוג', 'בן', 'בת', 'אב', 'אם', 'הורה',
+  'אח', 'אחות', 'סב', 'סבתא', 'נכד', 'נכדה',
+  'דוד', 'דודה', 'בן דוד/בת דודה', 'גיס/גיסה',
+  'אפוטרופוס', 'ידיד/ה קרוב/ה', 'שכן/שכנה', 'אחר',
+]
+
 // ── Functional sub-steps (declared here so all references are unambiguous) ────
 const FUNC_SUB_STEPS = [
   { key: 'adl',  label: 'ADL',  desc: 'תפקוד יומיומי',    color: 'blue',  range: '0–100' },
@@ -1499,7 +1507,7 @@ export default function IntakeWizard() {
                 <input {...inp('ec_name')} />
               </F>
               <F label="קשר למטופל" name="ec_relation" required>
-                <input {...inp('ec_relation', { placeholder: 'בן/בת זוג, ילד/ה, אח...' })} />
+                <input {...inp('ec_relation')} list="relation-options" placeholder="בחר או הקלד..." autoComplete="off" />
               </F>
               <F label="טלפון" name="ec_phone" required valid={form.ec_phone.replace(/\D/g,'').length === 7}>
                 <div className="flex gap-2">
@@ -1531,7 +1539,7 @@ export default function IntakeWizard() {
                 <input {...inp('ec2_name')} />
               </F>
               <F label="קשר למטופל" name="ec2_relation">
-                <input {...inp('ec2_relation', { placeholder: 'בן/בת זוג, ילד/ה, אח...' })} />
+                <input {...inp('ec2_relation')} list="relation-options" placeholder="בחר או הקלד..." autoComplete="off" />
               </F>
               <F label="טלפון" name="ec2_phone">
                 <div className="flex gap-2">
@@ -1850,6 +1858,10 @@ export default function IntakeWizard() {
         </div>
       </div>
       {ConfirmUI}
+      {/* Shared datalist for all "קשר למטופל" fields */}
+      <datalist id="relation-options">
+        {RELATION_OPTIONS.map(r => <option key={r} value={r} />)}
+      </datalist>
     </StepCtx.Provider>
     </FormCtx.Provider>
     </ErrorCtx.Provider>
@@ -2348,7 +2360,9 @@ function SignaturesStep() {
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
                 value={form.signer_relation}
                 onChange={e => set('signer_relation', e.target.value)}
-                placeholder="בן/בת זוג, ילד/ה, אפוטרופוס..."
+                list="relation-options"
+                placeholder="בחר או הקלד..."
+                autoComplete="off"
               />
             </div>
           </div>
