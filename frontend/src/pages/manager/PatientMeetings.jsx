@@ -169,6 +169,7 @@ const EMPTY_MEETING = {
   has_lab_results: false, has_insurance_approval: false,
   meeting_cost: '', reimbursement_entity: '', receipt_received: false,
   reimbursement_submitted: false, caregiver_notes: '',
+  question_template_id: null, question_responses: '[]',
 }
 
 function MeetingForm({ patientId, meeting, onClose, onSaved }) {
@@ -190,13 +191,57 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
   // draft only for new meetings; null key = no draft (edit mode)
   const draftKey = meeting ? null : `draft_meeting_${patientId}`
   const initState = meeting
-    ? { ...meeting, action_items: meeting.action_items || [], meeting_cost: meeting.meeting_cost ?? '' }
+    ? {
+        ...meeting,
+        action_items: meeting.action_items || [],
+        meeting_cost: meeting.meeting_cost ?? '',
+        question_template_id: meeting.question_template_id ?? null,
+        question_responses: JSON.stringify(meeting.question_responses || []),
+      }
     : EMPTY_MEETING
   const [form, setForm, { clearDraft: clearMeetingDraft, hasDraft: hasMeetingDraft }] = useDraft(draftKey, initState)
   const [saving, setSaving] = useState(false)
   const [newTask, setNewTask] = useState('')
+  const [templates, setTemplates]           = useState([])
+  const [selectedTemplate, setSelectedTemplate] = useState(
+    meeting?.question_template || null
+  )
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  // Load templates once
+  useEffect(() => {
+    const ctrl = new AbortController()
+    axios.get('/api/question-templates', { signal: ctrl.signal })
+      .then(r => setTemplates(r.data))
+      .catch(e => { if (!axios.isCancel(e)) {} })
+    return () => ctrl.abort()
+  }, [])
+
+  const selectTemplate = (templateId) => {
+    const tpl = templates.find(t => t.id === +templateId) || null
+    setSelectedTemplate(tpl)
+    set('question_template_id', tpl ? tpl.id : null)
+    // Reset responses when template changes
+    set('question_responses', '[]')
+  }
+
+  const getResponses = () => {
+    try { return JSON.parse(form.question_responses || '[]') } catch { return [] }
+  }
+
+  const setResponse = (itemId, field, value) => {
+    const responses = getResponses()
+    const idx = responses.findIndex(r => r.item_id === itemId)
+    if (idx >= 0) {
+      responses[idx] = { ...responses[idx], [field]: value }
+    } else {
+      responses.push({ item_id: itemId, answer_text: '', is_checked: false, [field]: value })
+    }
+    set('question_responses', JSON.stringify(responses))
+  }
+
+  const getResponse = (itemId) => getResponses().find(r => r.item_id === itemId) || { answer_text: '', is_checked: null }
 
   const addTask = () => {
     if (!newTask.trim()) return
@@ -345,6 +390,70 @@ function MeetingForm({ patientId, meeting, onClose, onSaved }) {
               onChange={e => set('caregiver_notes', e.target.value)}
               placeholder={t('caregiver_notes_placeholder')} />
           </div>
+
+          {/* שאלות מובנות */}
+          <div className="border-t border-slate-100 pt-4">
+            <label className="label">שאלות מובנות לפגישה</label>
+            <select
+              className="input"
+              value={form.question_template_id || ''}
+              onChange={e => selectTemplate(e.target.value)}
+            >
+              <option value="">— ללא תבנית שאלות —</option>
+              {templates.map(tpl => (
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name}{tpl.is_builtin ? ' ★' : ''}
+                </option>
+              ))}
+            </select>
+
+            {selectedTemplate && selectedTemplate.items?.length > 0 && (
+              <div className="mt-3 space-y-3 bg-slate-50 rounded-xl p-4">
+                <p className="text-xs font-semibold text-slate-600 mb-2">{selectedTemplate.name}</p>
+                {selectedTemplate.items.map(item => {
+                  const resp = getResponse(item.id)
+                  return (
+                    <div key={item.id} className="space-y-1">
+                      <p className="text-sm text-slate-700">
+                        {item.text}
+                        {item.is_required && <span className="text-red-500 mr-1">*</span>}
+                      </p>
+                      {item.hint && <p className="text-xs text-slate-500">{item.hint}</p>}
+                      {item.question_type === 'bool' ? (
+                        <div className="flex gap-4">
+                          <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`q_${item.id}`}
+                              checked={resp.is_checked === true}
+                              onChange={() => setResponse(item.id, 'is_checked', true)}
+                            />
+                            <span className="text-sm text-slate-700">כן</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                              type="radio"
+                              name={`q_${item.id}`}
+                              checked={resp.is_checked === false}
+                              onChange={() => setResponse(item.id, 'is_checked', false)}
+                            />
+                            <span className="text-sm text-slate-700">לא</span>
+                          </label>
+                        </div>
+                      ) : (
+                        <input
+                          className="input text-sm"
+                          value={resp.answer_text || ''}
+                          onChange={e => setResponse(item.id, 'answer_text', e.target.value)}
+                          placeholder="תשובה..."
+                        />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-3 justify-end px-6 py-4 border-t border-slate-100">
@@ -399,6 +508,12 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
                   {meeting.reimbursement_submitted ? ` · ${t('reimbursement_submitted_short')} ✓` : ''}
                 </span>
               )}
+              {meeting.question_template && (
+                <span className="text-xs text-purple-600">
+                  📋 {meeting.question_template.name}
+                  {meeting.question_responses?.length > 0 ? ` (${meeting.question_responses.length} תשובות)` : ''}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -429,6 +544,31 @@ function MeetingCard({ meeting, onEdit, onDelete }) {
             <div>
               <p className="text-xs font-medium text-slate-500 mb-1">{t('caregiver_notes_label')}</p>
               <p className="text-sm text-slate-600 italic">{meeting.caregiver_notes}</p>
+            </div>
+          )}
+          {meeting.question_template && meeting.question_responses?.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-slate-500 mb-2">
+                שאלות — {meeting.question_template.name}
+              </p>
+              <div className="space-y-2 bg-slate-50 rounded-xl p-3">
+                {meeting.question_template.items?.map(item => {
+                  const resp = meeting.question_responses.find(r => r.item_id === item.id)
+                  if (!resp) return null
+                  const answer = item.question_type === 'bool'
+                    ? (resp.is_checked === true ? 'כן' : resp.is_checked === false ? 'לא' : '—')
+                    : (resp.answer_text || '—')
+                  const colorClass = item.question_type === 'bool'
+                    ? (resp.is_checked === true ? 'text-emerald-700' : resp.is_checked === false ? 'text-red-600' : 'text-slate-400')
+                    : 'text-slate-800'
+                  return (
+                    <div key={item.id} className="flex items-start justify-between gap-2">
+                      <span className="text-xs text-slate-600 flex-1">{item.text}</span>
+                      <span className={`text-xs font-medium shrink-0 ${colorClass}`}>{answer}</span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>

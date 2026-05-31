@@ -6,6 +6,7 @@ import ManagerLoadPanel from './dashboard/ManagerLoadPanel'
 import AlertsPanel from './dashboard/AlertsPanel'
 import OverdueTasksPanel from './dashboard/OverdueTasksPanel'
 import SystemStatsPanel from './dashboard/SystemStatsPanel'
+import AnalyticsFunnelPanel from './dashboard/AnalyticsFunnelPanel'
 
 /**
  * AdminDashboardPage — הדשבורד הניהולי.
@@ -82,7 +83,11 @@ export default function AdminDashboardPage() {
           </DashboardWidget>
         </div>
 
-        <div className="lg:col-span-3" />
+        <div className="lg:col-span-3">
+          <DashboardWidget title="ניתוח זרימות">
+            <AnalyticsFunnelPanel />
+          </DashboardWidget>
+        </div>
 
       </div>
     </div>

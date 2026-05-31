@@ -32,6 +32,16 @@ def _meeting_dict(m: models.PatientMeeting) -> dict:
         action_items = json.loads(m.action_items) if m.action_items else []
     except Exception:
         action_items = []
+    try:
+        question_responses = json.loads(m.question_responses) if m.question_responses else []
+    except Exception:
+        question_responses = []
+
+    template_data = None
+    if m.question_template:
+        from routes.question_templates import _template_dict
+        template_data = _template_dict(m.question_template)
+
     return {
         "id":                     m.id,
         "patient_id":             m.patient_id,
@@ -52,6 +62,9 @@ def _meeting_dict(m: models.PatientMeeting) -> dict:
         "receipt_received":       m.receipt_received,
         "reimbursement_submitted":m.reimbursement_submitted,
         "caregiver_notes":        m.caregiver_notes,
+        "question_template_id":   m.question_template_id,
+        "question_template":      template_data,
+        "question_responses":     question_responses,
         "created_at":             m.created_at.isoformat() if m.created_at else None,
     }
 
@@ -76,6 +89,8 @@ class MeetingBody(BaseModel):
     receipt_received: bool = False
     reimbursement_submitted: bool = False
     caregiver_notes: Optional[str] = None
+    question_template_id: Optional[int] = None
+    question_responses: Optional[str] = None   # JSON string
 
 @router.get("/api/patients/{patient_id}/meetings")
 def list_meetings(patient_id: int, db: Session = Depends(get_db),

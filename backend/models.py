@@ -949,10 +949,46 @@ class PatientMeeting(Base):
     reimbursement_submitted   = Column(Boolean, default=False)
     # הערות מטפל
     caregiver_notes           = Column(Text, nullable=True)
+    # שאלות מובנות לפגישה
+    question_template_id      = Column(Integer, ForeignKey("question_templates.id", ondelete="SET NULL"), nullable=True)
+    question_responses        = Column(Text, nullable=True)  # JSON: [{item_id, answer_text, is_checked}]
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    patient = relationship("Patient", back_populates="meetings")
+    patient           = relationship("Patient", back_populates="meetings")
+    question_template = relationship("QuestionTemplate", foreign_keys=[question_template_id])
+
+
+class QuestionTemplate(Base):
+    """תבנית שאלות לפגישה — ניהול ע"י אדמין בלבד."""
+    __tablename__ = "question_templates"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    name        = Column(String, nullable=False)
+    category    = Column(String, nullable=True)   # oncologist|insurance|followup|discharge|general
+    description = Column(Text, nullable=True)
+    is_builtin  = Column(Boolean, default=False)
+    created_by  = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at  = Column(DateTime(timezone=True), server_default=func.now())
+
+    items = relationship("QuestionItem", back_populates="template",
+                         order_by="QuestionItem.order_index",
+                         cascade="all, delete-orphan")
+
+
+class QuestionItem(Base):
+    """שאלה בודדת בתבנית."""
+    __tablename__ = "question_items"
+
+    id            = Column(Integer, primary_key=True, index=True)
+    template_id   = Column(Integer, ForeignKey("question_templates.id", ondelete="CASCADE"), nullable=False)
+    text          = Column(String, nullable=False)
+    question_type = Column(String, default="text")  # "text" | "bool"
+    order_index   = Column(Integer, default=0)
+    is_required   = Column(Boolean, default=False)
+    hint          = Column(String, nullable=True)
+
+    template = relationship("QuestionTemplate", back_populates="items")
 
 
 class PatientForm17(Base):

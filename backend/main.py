@@ -9,7 +9,7 @@ from slowapi.errors import RateLimitExceeded
 from database import engine, SessionLocal
 import models
 import auth as auth_module
-from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes, medications as medications_routes, policy_ai as policy_ai_routes, audit as audit_routes, financial_map as financial_map_routes, care_team as care_team_routes, meetings as meetings_routes, form17 as form17_routes, red_flags as red_flags_routes, reports as reports_routes, patient_portal as patient_portal_routes, family_share as family_share_routes, tasks as tasks_routes, calendar_feed as calendar_feed_routes, broker as broker_routes, address as address_routes
+from routes import auth, patients, insurance, claims, strategy, responsiveness, import_data, private_import, learning, public, doctors, admin, documents, workflows, webauthn as webauthn_routes, specialties, settings as settings_routes, medications as medications_routes, policy_ai as policy_ai_routes, audit as audit_routes, financial_map as financial_map_routes, care_team as care_team_routes, meetings as meetings_routes, form17 as form17_routes, red_flags as red_flags_routes, reports as reports_routes, patient_portal as patient_portal_routes, family_share as family_share_routes, tasks as tasks_routes, calendar_feed as calendar_feed_routes, broker as broker_routes, address as address_routes, question_templates as question_templates_routes, analytics as analytics_routes
 from routes.patient_auth import router as patient_auth_router
 from audit_middleware import AuditMiddleware
 from data.seed_data import RESPONSIVENESS_DEFAULTS
@@ -640,6 +640,9 @@ def run_migrations():
         ("patients", "ec2_phone_prefix", "VARCHAR"),
         ("patients", "ec2_phone",        "VARCHAR"),
         ("patients", "ec2_relation",     "VARCHAR"),
+        # Question templates on meetings
+        ("patient_meetings", "question_template_id", "INTEGER REFERENCES question_templates(id) ON DELETE SET NULL"),
+        ("patient_meetings", "question_responses",   "TEXT"),
     ]
     with engine.connect() as conn:
         # ── Schema version tracking ──────────────────────────────────────────
@@ -653,6 +656,30 @@ def run_migrations():
         conn.commit()
 
         # Create new tables (idempotent)
+        conn.execute(sqlalchemy.text(
+            "CREATE TABLE IF NOT EXISTS question_templates ("
+            "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "  name VARCHAR NOT NULL,"
+            "  category VARCHAR,"
+            "  description TEXT,"
+            "  is_builtin BOOLEAN DEFAULT 0,"
+            "  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,"
+            "  created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+            ")"
+        ))
+        conn.execute(sqlalchemy.text(
+            "CREATE TABLE IF NOT EXISTS question_items ("
+            "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "  template_id INTEGER NOT NULL REFERENCES question_templates(id) ON DELETE CASCADE,"
+            "  text VARCHAR NOT NULL,"
+            "  question_type VARCHAR DEFAULT 'text',"
+            "  order_index INTEGER DEFAULT 0,"
+            "  is_required BOOLEAN DEFAULT 0,"
+            "  hint VARCHAR"
+            ")"
+        ))
+        conn.commit()
+
         conn.execute(sqlalchemy.text(
             "CREATE TABLE IF NOT EXISTS active_sessions ("
             "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -706,6 +733,93 @@ def run_migrations():
 
 run_migrations()
 
+# ── Seed built-in question templates ─────────────────────────────────────────
+_BUILTIN_TEMPLATES = [
+    {
+        "name": "פגישת היכרות",
+        "category": "general",
+        "description": "שאלות בסיסיות לפגישה ראשונה עם כל בעל תפקיד",
+        "items": [
+            {"text": "מה הייתה המטרה הראשית של הפגישה?",        "question_type": "text", "order_index": 0, "is_required": True},
+            {"text": "האם הוסברו כל האפשרויות הטיפוליות?",       "question_type": "bool", "order_index": 1},
+            {"text": "האם קיבלת הפניות?",                       "question_type": "bool", "order_index": 2},
+            {"text": "מה המעקב המומלץ?",                        "question_type": "text", "order_index": 3},
+        ],
+    },
+    {
+        "name": "ייעוץ ביטוחי",
+        "category": "insurance",
+        "description": "שאלות לפגישה עם סוכן ביטוח",
+        "items": [
+            {"text": "אילו כיסויים נסקרו בפגישה?",               "question_type": "text", "order_index": 0, "is_required": True},
+            {"text": "האם הכיסוי מספיק לטיפול הנוכחי?",          "question_type": "bool", "order_index": 1},
+            {"text": "האם יש חריגות רלוונטיות?",                 "question_type": "bool", "order_index": 2},
+            {"text": "מה הצעד הבא מול חברת הביטוח?",             "question_type": "text", "order_index": 3},
+        ],
+    },
+    {
+        "name": "מעקב טיפול",
+        "category": "followup",
+        "description": "שאלות לפגישת מעקב עם אונקולוג",
+        "items": [
+            {"text": "מה סטטוס הטיפול הנוכחי?",                  "question_type": "text", "order_index": 0, "is_required": True},
+            {"text": "האם יש תופעות לוואי?",                     "question_type": "bool", "order_index": 1},
+            {"text": "האם הטיפול מתבצע לפי התוכנית?",            "question_type": "bool", "order_index": 2},
+            {"text": "מה תוכנית הפגישה הבאה?",                   "question_type": "text", "order_index": 3},
+        ],
+    },
+    {
+        "name": "תכנון שחרור",
+        "category": "discharge",
+        "description": "שאלות לתכנון שחרור מאשפוז",
+        "items": [
+            {"text": "האם יש תוכנית מעקב לאחר השחרור?",          "question_type": "bool", "order_index": 0, "is_required": True},
+            {"text": "מה הטיפול הנדרש בבית?",                    "question_type": "text", "order_index": 1},
+            {"text": "האם יש ביקור בית מתוכנן?",                 "question_type": "bool", "order_index": 2},
+            {"text": "מי אחראי על המעקב הרפואי?",                "question_type": "text", "order_index": 3},
+        ],
+    },
+]
+
+def seed_question_templates():
+    db = SessionLocal()
+    try:
+        existing = db.query(models.QuestionTemplate).filter(
+            models.QuestionTemplate.is_builtin == True
+        ).count()
+        if existing >= len(_BUILTIN_TEMPLATES):
+            return
+        for tpl in _BUILTIN_TEMPLATES:
+            exists = db.query(models.QuestionTemplate).filter(
+                models.QuestionTemplate.name == tpl["name"],
+                models.QuestionTemplate.is_builtin == True,
+            ).first()
+            if exists:
+                continue
+            t = models.QuestionTemplate(
+                name=tpl["name"],
+                category=tpl["category"],
+                description=tpl["description"],
+                is_builtin=True,
+            )
+            db.add(t)
+            db.flush()
+            for item in tpl["items"]:
+                db.add(models.QuestionItem(
+                    template_id=t.id,
+                    text=item["text"],
+                    question_type=item.get("question_type", "text"),
+                    order_index=item.get("order_index", 0),
+                    is_required=item.get("is_required", False),
+                ))
+        db.commit()
+        logger.info("Question templates seeded")
+    except Exception:
+        db.rollback()
+        logger.exception("Error seeding question templates")
+    finally:
+        db.close()
+
 # Seed default responsiveness scores
 def seed_responsiveness():
     db = SessionLocal()
@@ -720,6 +834,7 @@ def seed_responsiveness():
         db.close()
 
 seed_responsiveness()
+seed_question_templates()
 
 
 def seed_e2e_test_user():
@@ -905,6 +1020,8 @@ app.include_router(tasks_routes.router)
 app.include_router(calendar_feed_routes.router)
 app.include_router(broker_routes.router)
 app.include_router(address_routes.router)
+app.include_router(question_templates_routes.router)
+app.include_router(analytics_routes.router)
 app.include_router(patient_auth_router)
 
 # E2E test backdoor — registered ONLY when E2E_SEED is present in the environment.
