@@ -559,10 +559,14 @@ export default function IntakeWizard() {
   })
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
-  const [saveAndExiting, setSaveAndExiting] = useState(false)
   const [draftSaved, setDraftSaved] = useState(false)
-  const draftTimer = useRef(null)
-  const draftFadeTimer = useRef(null)
+  const draftTimer        = useRef(null)
+  const draftFadeTimer    = useRef(null)
+  const autoSaveRef       = useRef(null)
+  const autoSavePending   = useRef(false)
+  const formRef           = useRef(form)
+  const stepRef           = useRef(step)
+  const draftPatientIdRef = useRef(draftPatientId)
 
   // Load existing patient data when resuming
   useEffect(() => {
@@ -617,65 +621,102 @@ export default function IntakeWizard() {
 
   const set = (field, value) => setForm(f => ({ ...f, [field]: value }))
 
-  // Save and exit — persist to DB and return to dashboard
-  const handleSaveAndExit = async () => {
-    if (!form.full_name.trim()) {
-      showToast('יש להזין שם מלא לפני השמירה', 'error')
-      return
-    }
-    setSaveAndExiting(true)
+  // Keep refs in sync so cleanup/beforeunload can access latest values
+  useEffect(() => { formRef.current = form },                  [form])
+  useEffect(() => { stepRef.current = step },                  [step])
+  useEffect(() => { draftPatientIdRef.current = draftPatientId }, [draftPatientId])
+
+  // Build the draft payload — same fields as the old "שמור וצא"
+  const buildDraftPayload = useCallback((formData, stepIdx) => ({
+    full_name:            formData.full_name.trim(),
+    intake_step:          stepIdx,
+    id_number:            formData.id_number || null,
+    father_name:          formData.father_name || null,
+    id_issue_date:        formData.id_issue_date || null,
+    id_expiry_date:       formData.id_expiry_date || null,
+    birth_date:           formData.birth_date || null,
+    gender:               formData.gender || null,
+    marital_status:       formData.marital_status || null,
+    num_children:         formData.num_children !== '' ? Number(formData.num_children) : null,
+    city:                 formData.city || null,
+    city_code:            formData.city_code || null,
+    street:               formData.street || null,
+    house_number:         formData.house_number || null,
+    entrance:             formData.entrance || null,
+    floor:                formData.floor || null,
+    apartment:            formData.apartment || null,
+    postal_code:          formData.postal_code || null,
+    phone_prefix:         formData.phone_prefix || null,
+    phone:                formData.phone || null,
+    phone2_prefix:        formData.phone2 ? (formData.phone2_prefix || '050') : null,
+    phone2:               formData.phone2 || null,
+    ec_name:              formData.ec_name || null,
+    ec_phone_prefix:      formData.ec_phone_prefix || null,
+    ec_phone:             formData.ec_phone || null,
+    ec_relation:          formData.ec_relation || null,
+    ec2_name:             formData.ec2_name || null,
+    ec2_phone_prefix:     formData.ec2_phone ? (formData.ec2_phone_prefix || '050') : null,
+    ec2_phone:            formData.ec2_phone || null,
+    ec2_relation:         formData.ec2_relation || null,
+    hmo_name:             formData.hmo_name || null,
+    hmo_level:            formData.hmo_level || null,
+    medical_stage:        formData.medical_stage || null,
+    diagnosis_status:     formData.diagnosis_status || 'no',
+    diagnosis_details:    formData.diagnosis_details || null,
+    specialty:            formData.specialty || null,
+    sub_specialty:        formData.sub_specialty || null,
+    referral_goal:        formData.referral_goal || null,
+    referral_goal_sub:    formData.referral_goal_sub || null,
+    referral_goal_notes:  formData.referral_goal_notes || null,
+    referral_source:      formData.referral_source || null,
+    referral_name:        formData.referral_name || null,
+    referral_sub:         formData.referral_sub || null,
+    notes:                formData.notes || null,
+  }), [])
+
+  // Fire-and-forget silent save to backend
+  const silentSave = useCallback(async (formData, stepIdx, pid) => {
+    if (!pid || !formData.full_name?.trim()) return
+    autoSavePending.current = false
     try {
-      const draftPayload = {
-        full_name: form.full_name.trim(),
-        intake_step: step,
-        id_number: form.id_number || null,
-        father_name: form.father_name || null,
-        id_issue_date: form.id_issue_date || null,
-        id_expiry_date: form.id_expiry_date || null,
-        birth_date: form.birth_date || null,
-        gender: form.gender || null,
-        marital_status: form.marital_status || null,
-        num_children: form.num_children !== '' ? Number(form.num_children) : null,
-        city: form.city || null, city_code: form.city_code || null,
-        street: form.street || null, house_number: form.house_number || null,
-        entrance: form.entrance || null, floor: form.floor || null,
-        apartment: form.apartment || null, postal_code: form.postal_code || null,
-        phone_prefix: form.phone_prefix || null, phone: form.phone || null,
-        phone2_prefix: form.phone2 ? (form.phone2_prefix || '050') : null, phone2: form.phone2 || null,
-        ec_name: form.ec_name || null, ec_phone_prefix: form.ec_phone_prefix || null,
-        ec_phone: form.ec_phone || null, ec_relation: form.ec_relation || null,
-        ec2_name: form.ec2_name || null, ec2_phone_prefix: form.ec2_phone ? (form.ec2_phone_prefix || '050') : null,
-        ec2_phone: form.ec2_phone || null, ec2_relation: form.ec2_relation || null,
-        hmo_name: form.hmo_name || null, hmo_level: form.hmo_level || null,
-        medical_stage: form.medical_stage || null,
-        diagnosis_status: form.diagnosis_status || 'no',
-        diagnosis_details: form.diagnosis_details || null,
-        specialty: form.specialty || null, sub_specialty: form.sub_specialty || null,
-        referral_goal: form.referral_goal || null,
-        referral_goal_sub: form.referral_goal_sub || null,
-        referral_goal_notes: form.referral_goal_notes || null,
-        referral_source: form.referral_source || null,
-        referral_name: form.referral_name || null, referral_sub: form.referral_sub || null,
-        notes: form.notes || null,
+      await axios.patch(`/api/patients/${pid}/intake-draft`, buildDraftPayload(formData, stepIdx))
+    } catch {}
+  }, [buildDraftPayload])
+
+  // On unmount (SPA navigation away): flush pending save immediately
+  useEffect(() => {
+    return () => {
+      clearTimeout(autoSaveRef.current)
+      if (draftPatientIdRef.current && autoSavePending.current) {
+        silentSave(formRef.current, stepRef.current, draftPatientIdRef.current)
       }
-      let pid = draftPatientId
-      if (!pid) {
-        // First save — create patient
-        const res = await axios.post('/api/patients', draftPayload)
-        pid = res.data.id
-        setDraftPatientId(pid)
-        localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
-      } else {
-        await axios.patch(`/api/patients/${pid}/intake-draft`, draftPayload)
-      }
-      sessionStorage.removeItem(DRAFT_KEY)
-      showToast('האינטייק נשמר — תוכל להמשיך בכל עת', 'success')
-      navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')
-    } catch (err) {
-      showToast('שגיאה בשמירה', 'error')
-    } finally {
-      setSaveAndExiting(false)
     }
+  }, [silentSave]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // On tab close / hard navigation: use keepalive fetch
+  useEffect(() => {
+    const onUnload = () => {
+      const pid = draftPatientIdRef.current
+      if (!pid || !formRef.current.full_name?.trim()) return
+      const token = localStorage.getItem('token')
+      fetch(`/api/patients/${pid}/intake-draft`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(buildDraftPayload(formRef.current, stepRef.current)),
+        keepalive: true,
+      }).catch(() => {})
+    }
+    window.addEventListener('beforeunload', onUnload)
+    return () => window.removeEventListener('beforeunload', onUnload)
+  }, [buildDraftPayload])
+
+  // Exit without explicit save — data already persisted by auto-save
+  const handleExit = () => {
+    if (draftPatientIdRef.current) {
+      clearTimeout(autoSaveRef.current)
+      silentSave(formRef.current, stepRef.current, draftPatientIdRef.current)
+    }
+    navigate(isEditMode ? `/manager/patients/${resumeId}/intake` : '/manager')
   }
 
   useEffect(() => {
@@ -688,11 +729,22 @@ export default function IntakeWizard() {
         draftFadeTimer.current = setTimeout(() => setDraftSaved(false), 1500)
       } catch {}
     }, 800)
+
+    // Auto-save to backend (silent) — only when patient already exists in DB
+    if (draftPatientId && form.full_name?.trim()) {
+      autoSavePending.current = true
+      clearTimeout(autoSaveRef.current)
+      autoSaveRef.current = setTimeout(() => {
+        silentSave(form, step, draftPatientId)
+      }, 2000)
+    }
+
     return () => {
       clearTimeout(draftTimer.current)
       clearTimeout(draftFadeTimer.current)
+      // Note: autoSaveRef is NOT cleared here — it lives across re-renders
     }
-  }, [form])
+  }, [form]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const clearDraft = () => {
     sessionStorage.removeItem(DRAFT_KEY)
@@ -781,11 +833,33 @@ export default function IntakeWizard() {
     return e
   }
 
-  const next = () => {
+  const next = async () => {
     const e = validate(step)
     if (Object.keys(e).length) { setErrors(e); return }
     setErrors({})
-    if (step === 5 && funcSubStep < 2) { setFuncSubStep(s => s + 1); return }
+
+    // Compute target step before state update (state updates are async)
+    const isFuncSubAdvance = step === 5 && funcSubStep < 2
+    const targetStep = isFuncSubAdvance ? step : step + 1
+
+    // Auto-create patient when leaving step 0 for the first time
+    let pid = draftPatientId
+    if (step === 0 && !pid && !isDemoMode) {
+      try {
+        const res = await axios.post('/api/patients', buildDraftPayload(form, targetStep))
+        pid = res.data.id
+        setDraftPatientId(pid)
+        localStorage.setItem(DRAFT_PATIENT_KEY, String(pid))
+        draftPatientIdRef.current = pid
+      } catch {}
+    } else if (pid && !isDemoMode) {
+      // Save new step immediately — don't wait for debounce
+      clearTimeout(autoSaveRef.current)
+      autoSavePending.current = false
+      silentSave(form, targetStep, pid)
+    }
+
+    if (isFuncSubAdvance) { setFuncSubStep(s => s + 1); return }
     if (step === 5) setFuncSubStep(0)
     setStep(s => s + 1)
   }
@@ -1556,12 +1630,10 @@ export default function IntakeWizard() {
               ← חזרה
             </button>
             <button
-              onClick={handleSaveAndExit}
-              disabled={saveAndExiting}
-              className="px-4 py-2.5 rounded-xl border border-amber-300 text-amber-700 hover:bg-amber-50 text-sm font-medium min-h-[44px] disabled:opacity-50"
-              title="שמור את ההתקדמות וחזור לדשבורד — ניתן להמשיך מאוחר יותר"
+              onClick={handleExit}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-sm font-medium min-h-[44px]"
             >
-              {saveAndExiting ? 'שומר...' : '💾 שמור וצא'}
+              יציאה
             </button>
             {(step < STEPS.length - 1 || (step === 5 && funcSubStep < 2)) ? (
               <button
